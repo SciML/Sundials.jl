@@ -81,5 +81,70 @@ CVodeSensReInit(mem, ism, yS0::Vector{realtype}) =
     CVodeSensReInit(mem, ism, nvector(yS0))
 CVodeSensSVtolerances(mem, reltolS, abstolS::Vector{realtype}) =
     CVodeSensSVtolerances(mem, reltolS, nvector(abstolS))
-    
+CVodeQuadSensInit(mem, fQS::Function, yQS0) = 
+    CVodeQuadSensInit(mem, cfunction(fQS, Int32, (int32, realtype, N_Vector, N_Vector, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), nvector(yQS0))
+CVodeQuadSensReInit(mem, yQS0::Vector{realtype}) = 
+    CVodeQuadSensReInit(mem, nvector(yQS0))
+CVodeQuadSensSVtolerances(mem, reltolQS, abstolQS::Vector{realtype}) =
+    CVodeQuadSensSVtolerances(mem, reltolQS, nvector(abstolQS))
+CVodeGetQuad(mem, tret, yQout::Vector{realtype}) =
+    CVodeGetQuad(mem, tret, nvector(yQout))
+CVodeGetQuadDky(mem, t, k, dky::Vector{realtype}) =
+    CVodeGetQuadDky(mem, t, k, nvector(dky))
+CVodeGetSens(mem, tret, ySout::Vector{realtype}) =
+    CVodeGetSens(mem, tret, nvector(ySout))
+CVodeGetSens1(mem, tret, is, ySout::Vector{realtype}) =
+    CVodeGetSens1(mem, tret, is, nvector(ySout))
+CVodeGetSensDky(mem, t, k, dkyA::Vector{realtype}) =
+    CVodeGetSensDky(mem, t, k, nvector(dkyA))
+CVodeGetSensDky1(mem, t, k, is, dky::Vector{realtype}) =
+    CVodeGetSensDky1(mem, t, k, is, nvector(dky))
+CVodeGetQuadSens(mem, tret, yQSout::Vector{realtype}) =
+    CVodeGetQuadSens(mem, tret, nvector(yQSout))
+CVodeGetQuadSens1(mem, tret, is, yQSout::Vector{realtype}) =
+    CVodeGetQuadSens1(mem, tret, is, nvector(yQSout))
+CVodeGetQuadSensDky(mem, t, k, kdyQS_all::Vector{realtype}) =
+    CVodeGetQuadSensDky(mem, t, k, nvector(kdyQS_all))
+CVodeGetQuadSensDky1(mem, t, k, is, kdyQS::Vector{realtype}) =
+    CVodeGetQuadSensDky1(mem, t, k, is, nvector(kdyQS))
+CVodeGetQuadErrWeights(mem, eQweight::Vector{realtype}) =
+    CVodeGetQuadErrWeights(mem, nvector(eQweight))
+CVodeGetSensErrWeights(mem, eSweight::Vector{realtype}) =
+    CVodeGetSensErrWeights(mem, nvector(eSweight))
+CVodeGetQuadSensErrWeights(mem, eQSweight::Vector{realtype}) =
+    CVodeGetQuadSensErrWeights(mem, nvector(eQSweight))
+CVodeInitB(mem, which, fB::Function, tB0, yB0) =
+    CVodeInitB(mem, which, cfunction(fB, Int32, (realtype, N_Vector, N_Vector, N_Vector, Ptr{Void})), tB0, nvector(yB0))
+CVodeInitBS(mem, which, fBs::Function, tB0, yB0) =
+    CVodeInitBS(mem, which, cfunction(fBs, Int32, (realtype, N_Vector, N_Vector, N_Vector, Ptr{Void})), tB0, nvector(yB0))
+CVodeReInitB(mem, which, tB0, yB0::Vector{realtype}) =
+    CVodeReInitB(mem, which, tB0, nvector(yB0))
+CVodeSVtolerancesB(mem, which, reltolB, abstolB::Vector{realtype}) =
+    CVodeSVtolerancesB(mem, which, reltolB, nvector(abstolB))
+CVodeQuadInitB(mem, which, fQB::Function, yQB0) =
+    CVodeQuadInitB(mem, which, cfunction(fQB, Int32, (realtype, N_Vector, N_Vector, N_Vector, Ptr{Void})), nvector(yQB0))
+CVodeQuadInitBS(mem, which, fQBs::Function, yQB0) =
+    CVodeQuadInitBS(mem, which, cfunction(fQBs, Int32, (realtype, N_Vector, N_Vector, N_Vector, N_Vector, Ptr{Void})), nvector(yQB0))
+CVodeQuadReInitB(mem, which, yQB0::Vector{realtype}) =
+    CVodeQuadReInitB(mem, which, nvector(yQB0))
+CVodeQuadSVtolerancesB(mem, which, reltolQB, abstolQB::Vector{realtype}) =
+    CVodeQuadSVtolerancesB(mem, which, reltolQB, nvector(abstolQB))
+CVodeF(mem, tout, yout::Vector{realtype}, tret, itask, ncheckPtr) =
+    CVodeF(mem, tout, nvector(yout), tret, itask, ncheckPtr)
+CVodeGetB(mem, which, tBret, yB::Vector{realtype}) =
+    CVodeGetB(mem, which, tBret, nvector(yB))
+CVodeGetQuadB(mem, which, tBret, qB::Vector{realtype}) =
+    CVodeGetQuadB(mem, which, tBret, nvector(qB))
+CVodeGetAdjY(mem, which, t, y::Vector{realtype}) =
+    CVodeGetAdjY(mem, which, t, nvector(y))
+CVodeGetAdjDataPointHermite(mem, which, t, y::Vector{realtype}, yd::Vector{realtype}) =
+    CVodeGetAdjDataPointHermite(mem, which, t, nvector(y), nvector(yd))
+CVodeGetAdjDataPointPolynomial(mem, which, t, y::Vector{realtype}) =
+    CVodeGetAdjDataPointPolynomial(mem, which, t, nvector(y))
+CVodeWFtolerances(mem, efun::Function) =
+    CVodeWFtolerances(mem, cfunction(efun, Int32, (N_Vector, N_Vector, Ptr{Void})))
+CVodeSetErrHandlerFn(mem, ehfun::Function, eh_data) =
+    CVodeSetErrHandlerFn(mem, cfunction(ehfun, Void, (Int32, Ptr{Uint8}, Ptr{Uint8}, Ptr{Uint8}, Ptr{Void})), eh_data)
+
+
 end # module 
