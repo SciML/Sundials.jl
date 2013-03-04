@@ -101,8 +101,6 @@ CV_SUCCESS = int32(0)
 CV_ROOT_RETURN = int32(2)
 t = [t0]
 
-flag = Sundials.CVode(cvode_mem, tout, y, t, CV_NORMAL)
-    
 while true
     flag = Sundials.CVode(cvode_mem, tout, y, t, CV_NORMAL)
     println("T = ", tout, ", Y = ", y)
