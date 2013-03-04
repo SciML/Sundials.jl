@@ -18,7 +18,7 @@ macro ctypedef(fake_t,real_t)
   end
 end
 
-# header: /usr/include/sundials/sundials_band.h
+# header: /usr/local/include/sundials/sundials_band.h
 @ctypedef DlsMat Ptr{:Void}
 @c DlsMat NewDenseMat (:Int64,:Int64) shlib
 @c DlsMat NewBandMat (:Int64,:Int64,:Int64,:Int64) shlib
@@ -37,48 +37,42 @@ end
 @c Ptr{:Int64} newLintArray (:Int64,) shlib
 @c Ptr{:realtype} newRealArray (:Int64,) shlib
 @c None destroyArray (Ptr{:None},) shlib
-@c Int32 BandGBTRF (:DlsMat,Ptr{:Int32}) shlib
-@c Int32 bandGBTRF (Ptr{Ptr{:realtype}},:Int32,:Int32,:Int32,:Int32,Ptr{:Int32}) shlib
-@c None BandGBTRS (:DlsMat,Ptr{:Int32},Ptr{:realtype}) shlib
-@c None bandGBTRS (Ptr{Ptr{:realtype}},:Int32,:Int32,:Int32,Ptr{:Int32},Ptr{:realtype}) shlib
-@c None BandCopy (:DlsMat,:DlsMat,:Int32,:Int32) shlib
-@c None bandCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Int32,:Int32,:Int32,:Int32,:Int32) shlib
+@c Int64 BandGBTRF (:DlsMat,Ptr{:Int64}) shlib
+@c Int64 bandGBTRF (Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,:Int64,Ptr{:Int64}) shlib
+@c None BandGBTRS (:DlsMat,Ptr{:Int64},Ptr{:realtype}) shlib
+@c None bandGBTRS (Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,Ptr{:Int64},Ptr{:realtype}) shlib
+@c None BandCopy (:DlsMat,:DlsMat,:Int64,:Int64) shlib
+@c None bandCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,:Int64,:Int64) shlib
 @c None BandScale (:realtype,:DlsMat) shlib
-@c None bandScale (:realtype,Ptr{Ptr{:realtype}},:Int32,:Int32,:Int32,:Int32) shlib
-@c None bandAddIdentity (Ptr{Ptr{:realtype}},:Int32,:Int32) shlib
+@c None bandScale (:realtype,Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,:Int64) shlib
+@c None bandAddIdentity (Ptr{Ptr{:realtype}},:Int64,:Int64) shlib
 
-# header: /usr/include/sundials/sundials_config.h
+# header: /usr/local/include/sundials/sundials_config.h
 
-# header: /usr/include/sundials/sundials_dense.h
-@c Int32 DenseGETRF (:DlsMat,Ptr{:Int32}) shlib
-@c None DenseGETRS (:DlsMat,Ptr{:Int32},Ptr{:realtype}) shlib
-@c Int32 denseGETRF (Ptr{Ptr{:realtype}},:Int32,:Int32,Ptr{:Int32}) shlib
-@c None denseGETRS (Ptr{Ptr{:realtype}},:Int32,Ptr{:Int32},Ptr{:realtype}) shlib
-@c Int32 DensePOTRF (:DlsMat,) shlib
+# header: /usr/local/include/sundials/sundials_dense.h
+@c Int64 DenseGETRF (:DlsMat,Ptr{:Int64}) shlib
+@c None DenseGETRS (:DlsMat,Ptr{:Int64},Ptr{:realtype}) shlib
+@c Int64 denseGETRF (Ptr{Ptr{:realtype}},:Int64,:Int64,Ptr{:Int64}) shlib
+@c None denseGETRS (Ptr{Ptr{:realtype}},:Int64,Ptr{:Int64},Ptr{:realtype}) shlib
+@c Int64 DensePOTRF (:DlsMat,) shlib
 @c None DensePOTRS (:DlsMat,Ptr{:realtype}) shlib
-@c Int32 densePOTRF (Ptr{Ptr{:realtype}},:Int32) shlib
-@c None densePOTRS (Ptr{Ptr{:realtype}},:Int32,Ptr{:realtype}) shlib
+@c Int64 densePOTRF (Ptr{Ptr{:realtype}},:Int64) shlib
+@c None densePOTRS (Ptr{Ptr{:realtype}},:Int64,Ptr{:realtype}) shlib
 @c Int32 DenseGEQRF (:DlsMat,Ptr{:realtype},Ptr{:realtype}) shlib
 @c Int32 DenseORMQR (:DlsMat,Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
-@c Int32 denseGEQRF (Ptr{Ptr{:realtype}},:Int32,:Int32,Ptr{:realtype},Ptr{:realtype}) shlib
-@c Int32 denseORMQR (Ptr{Ptr{:realtype}},:Int32,:Int32,Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
+@c Int32 denseGEQRF (Ptr{Ptr{:realtype}},:Int64,:Int64,Ptr{:realtype},Ptr{:realtype}) shlib
+@c Int32 denseORMQR (Ptr{Ptr{:realtype}},:Int64,:Int64,Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
 @c None DenseCopy (:DlsMat,:DlsMat) shlib
-@c None denseCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Int32,:Int32) shlib
+@c None denseCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Int64,:Int64) shlib
 @c None DenseScale (:realtype,:DlsMat) shlib
-@c None denseScale (:realtype,Ptr{Ptr{:realtype}},:Int32,:Int32) shlib
-@c None denseAddIdentity (Ptr{Ptr{:realtype}},:Int32) shlib
+@c None denseScale (:realtype,Ptr{Ptr{:realtype}},:Int64,:Int64) shlib
+@c None denseAddIdentity (Ptr{Ptr{:realtype}},:Int64) shlib
 
-# header: /usr/include/sundials/sundials_direct.h
-@c DlsMat NewDenseMat (:Int32,:Int32) shlib
-@c DlsMat NewBandMat (:Int32,:Int32,:Int32,:Int32) shlib
-@c Ptr{:realtype} NewRealArray (:Int32,) shlib
-@c Ptr{Ptr{:realtype}} newDenseMat (:Int32,:Int32) shlib
-@c Ptr{Ptr{:realtype}} newBandMat (:Int32,:Int32,:Int32) shlib
-@c Ptr{:realtype} newRealArray (:Int32,) shlib
+# header: /usr/local/include/sundials/sundials_direct.h
 
-# header: /usr/include/sundials/sundials_fnvector.h
+# header: /usr/local/include/sundials/sundials_fnvector.h
 
-# header: /usr/include/sundials/sundials_iterative.h
+# header: /usr/local/include/sundials/sundials_iterative.h
 # enum ANONYMOUS
 @ctypedef ANONYMOUS Uint32
 const PREC_NONE = 0
@@ -97,51 +91,35 @@ const CLASSICAL_GS = 2
 @c Int32 QRfact (:Int32,Ptr{Ptr{:realtype}},Ptr{:realtype},:Int32) shlib
 @c Int32 QRsol (:Int32,Ptr{Ptr{:realtype}},Ptr{:realtype},Ptr{:realtype}) shlib
 
-# header: /usr/include/sundials/sundials_lapack.h
-@c None dcopy_ (Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32}) shlib
-@c None dscal_ (Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32}) shlib
-@c None dgemv_ (Ptr{:Uint8},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32},:Int32) shlib
-@c None dtrsv_ (Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},:Int32,:Int32,:Int32) shlib
-@c None dsyrk_ (Ptr{:Uint8},Ptr{:Uint8},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32},:Int32,:Int32) shlib
-@c None dgbtrf_ (Ptr{:Int32},Ptr{:Int32},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},Ptr{:Int32}) shlib
-@c None dgbtrs_ (Ptr{:Uint8},Ptr{:Int32},Ptr{:Int32},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},:Int32) shlib
-@c None dgeqp3_ (Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32}) shlib
-@c None dgeqrf_ (Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32}) shlib
-@c None dgetrf_ (Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},Ptr{:Int32}) shlib
-@c None dgetrs_ (Ptr{:Uint8},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},:Int32) shlib
-@c None dormqr_ (Ptr{:Uint8},Ptr{:Uint8},Ptr{:Int32},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},:Int32,:Int32) shlib
-@c None dpotrf_ (Ptr{:Uint8},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},:Int32) shlib
-@c None dpotrs_ (Ptr{:Uint8},Ptr{:Int32},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Float64},Ptr{:Int32},Ptr{:Int32},:Int32) shlib
-
-# header: /usr/include/sundials/sundials_math.h
+# header: /usr/local/include/sundials/sundials_math.h
 @c realtype RPowerI (:realtype,:Int32) shlib
 @c realtype RPowerR (:realtype,:realtype) shlib
 @c realtype RSqrt (:realtype,) shlib
 @c realtype RAbs (:realtype,) shlib
 @c realtype RExp (:realtype,) shlib
 
-# header: /usr/include/sundials/sundials_nvector.h
+# header: /usr/local/include/sundials/sundials_nvector.h
 
-# header: /usr/include/sundials/sundials_spbcgs.h
+# header: /usr/local/include/sundials/sundials_spbcgs.h
 @ctypedef SpbcgMemRec Void
 @ctypedef SpbcgMem Ptr{:Void}
 @c SpbcgMem SpbcgMalloc (:Int32,:N_Vector) shlib
 @c Int32 SpbcgSolve (:SpbcgMem,Ptr{:None},:N_Vector,:N_Vector,:Int32,:realtype,Ptr{:None},:N_Vector,:N_Vector,:ATimesFn,:PSolveFn,Ptr{:realtype},Ptr{:Int32},Ptr{:Int32}) shlib
 @c None SpbcgFree (:SpbcgMem,) shlib
 
-# header: /usr/include/sundials/sundials_spgmr.h
+# header: /usr/local/include/sundials/sundials_spgmr.h
 @ctypedef SpgmrMemRec Void
 @ctypedef SpgmrMem Ptr{:Void}
 @c SpgmrMem SpgmrMalloc (:Int32,:N_Vector) shlib
 @c Int32 SpgmrSolve (:SpgmrMem,Ptr{:None},:N_Vector,:N_Vector,:Int32,:Int32,:realtype,:Int32,Ptr{:None},:N_Vector,:N_Vector,:ATimesFn,:PSolveFn,Ptr{:realtype},Ptr{:Int32},Ptr{:Int32}) shlib
 @c None SpgmrFree (:SpgmrMem,) shlib
 
-# header: /usr/include/sundials/sundials_sptfqmr.h
+# header: /usr/local/include/sundials/sundials_sptfqmr.h
 @ctypedef SptfqmrMemRec Void
 @ctypedef SptfqmrMem Ptr{:Void}
 @c SptfqmrMem SptfqmrMalloc (:Int32,:N_Vector) shlib
 @c Int32 SptfqmrSolve (:SptfqmrMem,Ptr{:None},:N_Vector,:N_Vector,:Int32,:realtype,Ptr{:None},:N_Vector,:N_Vector,:ATimesFn,:PSolveFn,Ptr{:realtype},Ptr{:Int32},Ptr{:Int32}) shlib
 @c None SptfqmrFree (:SptfqmrMem,) shlib
 
-# header: /usr/include/sundials/sundials_types.h
+# header: /usr/local/include/sundials/sundials_types.h
 
