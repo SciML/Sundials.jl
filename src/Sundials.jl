@@ -49,8 +49,16 @@ IDASolve(mem, tout, tret, yret::Vector{realtype}, ypret::Vector{realtype}, itask
 
 CVodeInit(mem, f::Function, t0, y0) =
     CVodeInit(mem, cfunction(f, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
+CVodeReInit(mem, f::Function, t0, y0::Vector{realtype}) =
+    CVodeReInit(mem, cfunction(f, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
 CVodeSVtolerances(mem, reltol, abstol::Vector{realtype}) =
     CVodeSVtolerances(mem, reltol, nvector(abstol))
+CVodeGetDky(mem, t, k, dky::Vector{realtype}) =
+    CVodeGetDky(mem, t, k, nvector(dky))
+CVodeGetErrWeights(mem, eweight::Vector{realtype}) =
+    CVodeGetErrWeights(mem, nvector(eweight))
+CVodeGetEstLocalErrors(mem, ele::Vector{realtype}) =
+    CVodeGetEstLocalErrors(mem, nvector(ele))
 CVodeRootInit(mem, nrtfn, g::Function) =
     CVodeRootInit(mem, nrtfn, cfunction(g, Int32, (realtype, N_Vector, Ptr{realtype}, Ptr{Void})))
 CVDlsSetDenseJacFn(mem, jac::Function) =
@@ -58,4 +66,20 @@ CVDlsSetDenseJacFn(mem, jac::Function) =
 CVode(mem, tout, yout::Vector{realtype}, tret, itask) =
     CVode(mem, tout, nvector(yout), tret, itask)
 
+# CVODES
+CVodeQuadInit(mem, fQ::Function, yQ0) =
+    CVodeQuadInit(mem, cfunction(fQ, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), nvector(yQ0))
+CVodeQuadReInit(mem, yQ0::Vector{realtype}) =
+    CVodeQuadReInit(mem, nvector(yQ0))
+CVodeQuadSVtolerances(mem, reltolQ, abstolQ::Vector{realtype}) =
+    CVodeQuadSVtolerances(mem, reltolQ, nvector(abstolQ))
+CVodeSensInit(mem, Ns, ism, fS::Function, yS0) = 
+    CVodeSensInit(mem, Ns, ism, cfunction(fS, Int32, (int32, realtype, N_Vector, N_Vector, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), nvector(yS0))
+CVodeSensInit1(mem, Ns, ism, fS1::Function, yS0) = 
+    CVodeSensInit1(mem, Ns, ism, cfunction(fS1, Int32, (int32, realtype, N_Vector, N_Vector, int32, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), nvector(yS0))
+CVodeSensReInit(mem, ism, yS0::Vector{realtype}) = 
+    CVodeSensReInit(mem, ism, nvector(yS0))
+CVodeSensSVtolerances(mem, reltolS, abstolS::Vector{realtype}) =
+    CVodeSensSVtolerances(mem, reltolS, nvector(abstolS))
+    
 end # module 
