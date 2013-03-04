@@ -195,14 +195,15 @@ IDAQuadReInit(mem, yQ0::Vector{realtype}) =
 ## ## failed attempts to further simplify the user function
 ## global __kinsol_userfun
 
-## function kinsolfun(t, y, fy, user_data)
-##     y = Sundials.asarray(y)
-##     fy = Sundials.asarray(fy)
-##     ## userfun = unsafe_pointer_to_objref(user_data)
-##     ## userfun(y, fy)
-##     __kinsol_userfun(y, fy)
-##     return int32(0)
-## end
+
+@c Int32 KINSetUserData (Ptr{:None},Any) :libsundials_kinsol  ## needed to allow passing a Function through the user data
+
+function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
+    y = Sundials.asarray(y)
+    fy = Sundials.asarray(fy)
+    userfun(y, fy)
+    return int32(0)
+end
 
 function kinsol(f::Function, y0::Vector{Float64})
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
@@ -211,10 +212,11 @@ function kinsol(f::Function, y0::Vector{Float64})
     # return: the solution vector 
     neq = length(y0)
     kmem = KINCreate()
-    global __kinsol_userfun = f
-    flag = KINInit(kmem, f, y0)
+    # use the user_data field to pass a function
+    #   see: https://github.com/JuliaLang/julia/issues/2554
+    flag = KINInit(kmem, cfunction(kinsolfun, Int32, (N_Vector, N_Vector, Function)), nvector(y0))
     flag = KINDense(kmem, neq)
-    # flag = KINSetUserData(kmem, f)
+    flag = KINSetUserData(kmem, f)
     ## Solve problem
     scale = ones(neq)
     strategy = 0   # KIN_NONE
@@ -230,6 +232,15 @@ function kinsol(f::Function, y0::Vector{Float64})
     return y
 end
 
+@c Int32 CVodeSetUserData (Ptr{:None},Any) :libsundials_cvode  ## needed to allow passing a Function through the user data
+
+function odefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
+    y = Sundials.asarray(y)
+    yp = Sundials.asarray(yp)
+    userfun(t, y, yp)
+    return int32(0)
+end
+
 function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64})
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64}, t::Float64)
     #    where `y` is the input vector, and `fy` is the 
@@ -241,7 +252,8 @@ function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64})
     CV_BDF = int32(2)
     CV_NEWTON = int32(2)
     mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    flag = CVodeInit(mem, f, t[1], y0)
+    flag = CVodeInit(mem, cfunction(odefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nvector(y0))
+    flag = CVodeSetUserData(mem, f)
     reltol = 1e-4
     abstol = 1e-6
     flag = CVodeSStolerances(mem, reltol, abstol)
@@ -258,6 +270,16 @@ function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64})
     return yres
 end
 
+@c Int32 IDASetUserData (Ptr{:None},Any) :libsundials_ida  ## needed to allow passing a Function through the user data
+
+function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
+    y = Sundials.asarray(y) 
+    yp = Sundials.asarray(yp) 
+    r = Sundials.asarray(r)
+    userfun(t, y, yp, r)
+    return int32(0)   # indicates normal return
+end
+
 function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64})
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the 
@@ -267,7 +289,8 @@ function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{F
     #         with time steps in `t` along rows and state variable `y` or `yp` along columns
     neq = length(y0)
     mem = IDACreate()
-    flag = IDAInit(mem, f, t[1], y0, yp0)
+    flag = IDAInit(mem, cfunction(daefun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), t[1], nvector(y0), nvector(yp0))
+    flag = IDASetUserData(mem, f)
     reltol = 1e-4
     abstol = 1e-6
     flag = IDASStolerances(mem, reltol, abstol)

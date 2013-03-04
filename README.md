@@ -58,6 +58,29 @@ code, see
 Because of Clang.jl, Sundials.jl provides good coverage of the Sundials
 library (the serial version). 
 
+Simplified Functions
+--------------------
+
+Three functions `kinsol`, `ode`, and `dae` are provided as high-level,
+very simple functions. Here is an example for `ode`:
+
+```julia
+using Sundials
+
+function f(t, y, ydot)
+    ydot[1] = -0.04*y[1] + 1.0e4*y[2]*y[3]
+    ydot[3] = 3.0e7*y[2]*y[2]
+    ydot[2] = -ydot[1] - ydot[3]
+end
+
+t = [0.0, 4 * logspace(-1., 7., 9)]
+res = Sundials.ode(f, [1.0, 0.0, 0.0], t)
+```
+
+Feedback on these simple functions is encouraged. Once Julia has
+keyword arguments for functions, it will be easier to add features to
+these basic functions.
+
 Examples
 --------
 
@@ -71,6 +94,8 @@ Please note that this is a developer preview. There could be bugs, and
 everything is subject to change. Of note are:
 
 * You must have the Sundials installed.
+* The API that matches the Sundials C API should be stable.
+* The simplified API is not stable.
 * There is no documentation for this package. Please see the general
   [C documentation](https://computation.llnl.gov/casc/sundials/documentation/documentation.html)
   for Sundials. The API should be identical.
@@ -78,11 +103,12 @@ everything is subject to change. Of note are:
 * Macros like `DENSE_ELEM` are not available.
 * Nothing is (yet) exported from the module. You need to put `Sundials.`
   in front of everything.
-* Parts of the Sundials API that access C structures are a bit fiddly
+* Parts of the Sundials API that access C structures are difficult
   to access. One can probably use the
   [StrPack package](https://github.com/pao/StrPack.jl) to read or
   write access to these structures, but nothing is built into this
   package.
-* The parallel versions of Sundials have not been wrapped.  
+* The parallel versions of Sundials have been wrapped, but I doubt
+  that they are useable from Julia. Julia doesn't have an MPI
+  interface that I am aware of.  
 * More work could be done to provide a better interface to N_Vectors.
-* IDAS and CVODES don't have higher-level functions defined.
