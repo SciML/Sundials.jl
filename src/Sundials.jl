@@ -1,4 +1,3 @@
-require("strpack")
 
 module Sundials
 
