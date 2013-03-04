@@ -77,15 +77,10 @@ t1 = 0.4
 tmult = 10.0
 nout = 12
 y = [1.0,0.0,0.0]
-## yp = [-0.04,0.04,0.0]
 reltol = 1e-4
 abstol = [1e-8, 1e-14, 1e-6]
 
-
-CV_BDF = int32(2)
-CV_NEWTON = int32(2)
-
-cvode_mem = Sundials.CVodeCreate(CV_BDF, CV_NEWTON)
+cvode_mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
 flag = Sundials.CVodeInit(cvode_mem, f, t0, y)
 flag = Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 flag = Sundials.CVodeRootInit(cvode_mem, int32(2), g)
@@ -96,19 +91,16 @@ iout = 0
 tout = t1
 
 rootsfound = int32([0, 0])
-CV_NORMAL = int32(1)
-CV_SUCCESS = int32(0)
-CV_ROOT_RETURN = int32(2)
 t = [t0]
 
 while true
-    flag = Sundials.CVode(cvode_mem, tout, y, t, CV_NORMAL)
+    flag = Sundials.CVode(cvode_mem, tout, y, t, Sundials.CV_NORMAL)
     println("T = ", tout, ", Y = ", y)
-    if flag == CV_ROOT_RETURN
+    if flag == Sundials.CV_ROOT_RETURN
         flagr = Sundials.CVodeGetRootInfo(cvode_mem, rootsfound)
         println("roots = ", rootsfound)
     end
-    if flag == CV_SUCCESS
+    if flag == Sundials.CV_SUCCESS
       iout += 1
       tout *= tmult
     end

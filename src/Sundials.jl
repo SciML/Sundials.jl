@@ -24,6 +24,7 @@ include("idas.jl")
 shlib = :libsundials_kinsol
 include("kinsol.jl")
 
+include("constants.jl")
 
 ##################################################################
 #
@@ -249,8 +250,6 @@ function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64})
     # return: a solution matrix with time steps in `t` along rows and
     #         state variable `y` along columns
     neq = length(y0)
-    CV_BDF = int32(2)
-    CV_NEWTON = int32(2)
     mem = CVodeCreate(CV_BDF, CV_NEWTON)
     flag = CVodeInit(mem, cfunction(odefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nvector(y0))
     flag = CVodeSetUserData(mem, f)
@@ -258,7 +257,6 @@ function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64})
     abstol = 1e-6
     flag = CVodeSStolerances(mem, reltol, abstol)
     flag = CVDense(mem, neq)
-    CV_NORMAL = int32(1)
     yres = zeros(length(t), length(y0))
     yres[1,:] = y0
     y = copy(y0)
@@ -302,7 +300,6 @@ function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{F
     y = copy(y0)
     yp = copy(yp0)
     tout = [0.0]
-    IDA_NORMAL = int32(1)
     for k in 2:length(t)
         retval = Sundials.IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL)
         yres[k,:] = y 

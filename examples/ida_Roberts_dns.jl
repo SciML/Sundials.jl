@@ -96,18 +96,15 @@ iout = 0
 tout = tout1
 tret = [1.0]
 rootsfound = int32([0, 0])
-IDA_NORMAL = int32(1)
-IDA_SUCCESS = int32(0)
-IDA_ROOT_RETURN = int32(2)
 
 while true 
-    retval = Sundials.IDASolve(mem, tout, tret, yy, yp, IDA_NORMAL)
+    retval = Sundials.IDASolve(mem, tout, tret, yy, yp, Sundials.IDA_NORMAL)
     println("T = ", tout, ", Y = ", yy)
-    if retval == IDA_ROOT_RETURN 
+    if retval == Sundials.IDA_ROOT_RETURN 
         retvalr = Sundials.IDAGetRootInfo(mem, rootsfound)
         println("roots = ", rootsfound)
     end
-    if retval == IDA_SUCCESS 
+    if retval == Sundials.IDA_SUCCESS 
         iout += 1
         tout *= 10.0
     end

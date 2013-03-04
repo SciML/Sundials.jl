@@ -99,7 +99,6 @@ everything is subject to change. Of note are:
 * There is no documentation for this package. Please see the general
   [C documentation](https://computation.llnl.gov/casc/sundials/documentation/documentation.html)
   for Sundials. The API should be identical.
-* Constants like `CV_ROOT_RETURN` are not defined.
 * Macros like `DENSE_ELEM` are not available.
 * Nothing is (yet) exported from the module. You need to put `Sundials.`
   in front of everything.
