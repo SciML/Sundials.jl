@@ -293,6 +293,11 @@ function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{F
     abstol = 1e-6
     flag = IDASStolerances(mem, reltol, abstol)
     flag = IDADense(mem, neq)
+    rtest = zeros(neq)
+    f(t[1], y0, yp0, rtest)
+    if any(abs(rtest) .>= reltol)
+        flag = IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[1] + tstep)
+    end
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
     yres[1,:] = y0

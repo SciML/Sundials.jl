@@ -34,9 +34,10 @@ run at nearly the speed of C functions. Julia functions are compiled
 on the fly (JIT), so it is also possible to quickly recompile a system
 to model structural changes to the system.
 
-I plan to use Sundials in [Sims](https://github.com/tshort/Sims.jl), a
-Julia package to support equation-based modeling for simulations. Sims
-is like a lite version of Modelica. Sims currently uses DASSL.
+I use Sundials in [Sims](https://github.com/tshort/Sims.jl), a Julia
+package to support equation-based modeling for simulations. Sims is
+like a lite version of Modelica. Sims can currently use Sundials or
+DASSL.
 
 API
 ---
