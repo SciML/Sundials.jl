@@ -103,11 +103,12 @@ everything is subject to change. Of note are:
 * Macros like `DENSE_ELEM` are not available.
 * Nothing is (yet) exported from the module. You need to put `Sundials.`
   in front of everything.
-* Parts of the Sundials API that access C structures are difficult
-  to access. One can probably use the
+* Parts of the Sundials API that access C structures are difficult to
+  access. One can use the
   [StrPack package](https://github.com/pao/StrPack.jl) to read or
   write access to these structures, but nothing is built into this
-  package.
+  package. See this CVODE
+  [example](https://github.com/tshort/Sundials.jl/blob/master/examples/cvode_Roberts_dns.jl#L26).
 * The parallel versions of Sundials have been wrapped, but I doubt
   that they are useable from Julia. Julia doesn't have an MPI
   interface that I am aware of.  
