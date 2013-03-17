@@ -193,15 +193,12 @@ IDAQuadReInit(mem, yQ0::Vector{realtype}) =
 #
 ##################################################################
 
-## ## failed attempts to further simplify the user function
-## global __kinsol_userfun
-
 
 @c Int32 KINSetUserData (Ptr{:None},Any) :libsundials_kinsol  ## needed to allow passing a Function through the user data
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
-    y = Sundials.asarray(y)
-    fy = Sundials.asarray(fy)
+    y = asarray(y)
+    fy = asarray(fy)
     userfun(y, fy)
     return int32(0)
 end
