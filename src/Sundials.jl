@@ -13,7 +13,7 @@ typealias __builtin_va_list Ptr{:Void}
 shlib = :libsundials_nvecserial
 include("nvector.jl")
 shlib = :libsundials_cvode
-include("sundials.jl")
+include("libsundials.jl")
 include("cvode.jl")
 shlib = :libsundials_cvodes
 include("cvodes.jl")

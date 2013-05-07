@@ -26,3 +26,4 @@ for name in sundials_names
     @show headers
     wrap_c.wrap_c_headers(headers, [clang_includes, path], ASCIIString[], check_use_header, "$name.jl")
 end
+mv("sundials.jl", "libsundials.jl")  # avoid a name conflict for case-insensitive file systems
