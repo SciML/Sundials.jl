@@ -239,19 +239,19 @@ function odefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
     return int32(0)
 end
 
-function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64})
+function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64}, t::Float64)
     #    where `y` is the input vector, and `fy` is the 
     # y0, Vector of initial values
     # t, Vector of time values at which to record integration results
+    # reltol, Relative Tolerance to be used (default=1e-4)
+    # abstol, Absolute Tolerance to be used (default=1e-6)
     # return: a solution matrix with time steps in `t` along rows and
     #         state variable `y` along columns
     neq = length(y0)
     mem = CVodeCreate(CV_BDF, CV_NEWTON)
     flag = CVodeInit(mem, cfunction(odefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nvector(y0))
     flag = CVodeSetUserData(mem, f)
-    reltol = 1e-4
-    abstol = 1e-6
     flag = CVodeSStolerances(mem, reltol, abstol)
     flag = CVDense(mem, neq)
     yres = zeros(length(t), length(y0))
