@@ -87,6 +87,8 @@ Examples
 
 See the [examples directory](https://github.com/tshort/Sundials.jl/blob/master/examples).
 
+[Three-Body Problem](http://nbviewer.ipython.org/github/pjpmarques/Julia-Modeling-the-World/blob/master/Three-Body%20Problem.ipynb) is a notebook with a more thoroughly explained example.
+
 
 Status
 ------
