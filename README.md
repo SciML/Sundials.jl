@@ -1,5 +1,4 @@
 
-
 Sundials for Julia
 ==================
 
@@ -46,7 +45,7 @@ This package closely follows the Sundials C API. At a slightly higher
 level, many (but not all) Sundials.jl functions support passing Julia
 objects (like Arrays) instead of Sundials objects (like N_Vectors).
 See
-[src/Sundials.jl](https://github.com/tshort/Sundials.jl/blob/master/src/Sundials.jl)
+[src/Sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/Sundials.jl)
 for examples of how the higher-level interfacing works.
 
 The Julia package [Clang.jl](https://github.com/ihnorton/Clang.jl) was
@@ -54,7 +53,7 @@ used to wrap Sundials. This directly uses Sundials' headers sort-of
 like SWIG. This is great work by Isaiah--it didn't take me much work
 to package a pretty complete interface to Sundials. For the wrapping
 code, see
-[src/wrap_sundials.jl](https://github.com/tshort/Sundials.jl/blob/master/src/wrap_sundials.jl).
+[src/wrap_sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/wrap_sundials.jl).
 
 Because of Clang.jl, Sundials.jl provides good coverage of the Sundials
 library (the serial version). 
@@ -85,7 +84,7 @@ these basic functions.
 Examples
 --------
 
-See the [examples directory](https://github.com/tshort/Sundials.jl/blob/master/examples).
+See the [examples directory](https://github.com/JuliaLang/Sundials.jl/blob/master/examples).
 
 [Three-Body Problem](http://nbviewer.ipython.org/github/pjpmarques/Julia-Modeling-the-World/blob/master/Three-Body%20Problem.ipynb) is a notebook with a more thoroughly explained example.
 
@@ -109,7 +108,7 @@ everything is subject to change. Of note are:
   One can use the [StrPack package](https://github.com/pao/StrPack.jl)
   to read or write to these structures, but nothing is built into this
   package. See this CVODE
-  [example](https://github.com/tshort/Sundials.jl/blob/master/examples/cvode_Roberts_dns.jl#L26).
+  [example](https://github.com/JuliaLang/Sundials.jl/blob/master/examples/cvode_Roberts_dns.jl#L26).
 * The parallel versions of Sundials have been wrapped, but I doubt
   that they are useable from Julia. Julia doesn't have an MPI
   interface that I am aware of.  
