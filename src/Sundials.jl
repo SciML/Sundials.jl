@@ -1,4 +1,3 @@
-
 module Sundials
 
 
@@ -275,19 +274,19 @@ function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Fun
     return int32(0)   # indicates normal return
 end
 
-function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64})
+function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the 
     # y0, Vector of initial values
     # yp0, Vector of initial values of the derivatives
+    # reltol, Relative Tolerance to be used (default=1e-4)
+    # abstol, Absolute Tolerance to be used (default=1e-6)
     # return: (y,yp) two solution matrices representing the states and state derivatives
     #         with time steps in `t` along rows and state variable `y` or `yp` along columns
     neq = length(y0)
     mem = IDACreate()
     flag = IDAInit(mem, cfunction(daefun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), t[1], nvector(y0), nvector(yp0))
     flag = IDASetUserData(mem, f)
-    reltol = 1e-4
-    abstol = 1e-6
     flag = IDASStolerances(mem, reltol, abstol)
     flag = IDADense(mem, neq)
     rtest = zeros(neq)
