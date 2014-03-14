@@ -1,4 +1,3 @@
-
 Sundials for Julia
 ==================
 
@@ -77,9 +76,9 @@ t = [0.0, 4 * logspace(-1., 7., 9)]
 res = Sundials.ode(f, [1.0, 0.0, 0.0], t)
 ```
 
-Feedback on these simple functions is encouraged. Once Julia has
-keyword arguments for functions, it will be easier to add features to
-these basic functions.
+There are two supported keyword arguments, `reltol`, and `abstol`, for `ode` and `dae`. 
+Theese functions will probably be deprecated, in order to create a unified API for
+ODE solvers under [ODE.jl](https://github.com/JuliaLang/ODE.jl)
 
 Examples
 --------
