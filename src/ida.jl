@@ -23,23 +23,23 @@ end
 @ctypedef IDADlsBandJacFn Ptr{:Void}
 @c Int32 IDADlsSetDenseJacFn (Ptr{:None},:IDADlsDenseJacFn) shlib
 @c Int32 IDADlsSetBandJacFn (Ptr{:None},:IDADlsBandJacFn) shlib
-@c Int32 IDADlsGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 IDADlsGetNumJacEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDADlsGetNumResEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDADlsGetLastFlag (Ptr{:None},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} IDADlsGetReturnFlagName (:Int64,) shlib
-@c Int32 IDABand (Ptr{:None},:Int64,:Int64,:Int64) shlib
+@c Int32 IDADlsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 IDADlsGetNumJacEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDADlsGetNumResEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDADlsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} IDADlsGetReturnFlagName (:Clong,) shlib
+@c Int32 IDABand (Ptr{:None},:Clong,:Clong,:Clong) shlib
 
 # header: /usr/local/include/ida/ida_bbdpre.h
 @ctypedef IDABBDLocalFn Ptr{:Void}
 @ctypedef IDABBDCommFn Ptr{:Void}
-@c Int32 IDABBDPrecInit (Ptr{:None},:Int64,:Int64,:Int64,:Int64,:Int64,:realtype,:IDABBDLocalFn,:IDABBDCommFn) shlib
-@c Int32 IDABBDPrecReInit (Ptr{:None},:Int64,:Int64,:realtype) shlib
-@c Int32 IDABBDPrecGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 IDABBDPrecGetNumGfnEvals (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 IDABBDPrecInit (Ptr{:None},:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:IDABBDLocalFn,:IDABBDCommFn) shlib
+@c Int32 IDABBDPrecReInit (Ptr{:None},:Clong,:Clong,:realtype) shlib
+@c Int32 IDABBDPrecGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 IDABBDPrecGetNumGfnEvals (Ptr{:None},Ptr{:Clong}) shlib
 
 # header: /usr/local/include/ida/ida_dense.h
-@c Int32 IDADense (Ptr{:None},:Int64) shlib
+@c Int32 IDADense (Ptr{:None},:Clong) shlib
 
 # header: /usr/local/include/ida/ida_direct.h
 
@@ -53,7 +53,7 @@ end
 @c Int32 IDASetErrFile (Ptr{:None},Ptr{:FILE}) shlib
 @c Int32 IDASetUserData (Ptr{:None},Ptr{:None}) shlib
 @c Int32 IDASetMaxOrd (Ptr{:None},:Int32) shlib
-@c Int32 IDASetMaxNumSteps (Ptr{:None},:Int64) shlib
+@c Int32 IDASetMaxNumSteps (Ptr{:None},:Clong) shlib
 @c Int32 IDASetInitStep (Ptr{:None},:realtype) shlib
 @c Int32 IDASetMaxStep (Ptr{:None},:realtype) shlib
 @c Int32 IDASetStopTime (Ptr{:None},:realtype) shlib
@@ -81,12 +81,12 @@ end
 @c Int32 IDACalcIC (Ptr{:None},:Int32,:realtype) shlib
 @c Int32 IDASolve (Ptr{:None},:realtype,Ptr{:realtype},:N_Vector,:N_Vector,:Int32) shlib
 @c Int32 IDAGetDky (Ptr{:None},:realtype,:Int32,:N_Vector) shlib
-@c Int32 IDAGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 IDAGetNumSteps (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetNumResEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetNumLinSolvSetups (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetNumBacktrackOps (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 IDAGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 IDAGetNumSteps (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetNumResEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetNumLinSolvSetups (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetNumBacktrackOps (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 IDAGetConsistentIC (Ptr{:None},:N_Vector,:N_Vector) shlib
 @c Int32 IDAGetLastOrder (Ptr{:None},Ptr{:Int32}) shlib
 @c Int32 IDAGetCurrentOrder (Ptr{:None},Ptr{:Int32}) shlib
@@ -97,13 +97,13 @@ end
 @c Int32 IDAGetTolScaleFactor (Ptr{:None},Ptr{:realtype}) shlib
 @c Int32 IDAGetErrWeights (Ptr{:None},:N_Vector) shlib
 @c Int32 IDAGetEstLocalErrors (Ptr{:None},:N_Vector) shlib
-@c Int32 IDAGetNumGEvals (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 IDAGetNumGEvals (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 IDAGetRootInfo (Ptr{:None},Ptr{:Int32}) shlib
-@c Int32 IDAGetIntegratorStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64},Ptr{:Int32},Ptr{:Int32},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
-@c Int32 IDAGetNumNonlinSolvIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetNumNonlinSolvConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetNonlinSolvStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} IDAGetReturnFlagName (:Int64,) shlib
+@c Int32 IDAGetIntegratorStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Int32},Ptr{:Int32},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
+@c Int32 IDAGetNumNonlinSolvIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetNumNonlinSolvConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetNonlinSolvStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} IDAGetReturnFlagName (:Clong,) shlib
 @c None IDAFree (Ptr{Ptr{:None}},) shlib
 
 # header: /usr/local/include/ida/ida_impl.h
@@ -123,15 +123,15 @@ end
 @c Int32 IDASpilsSetMaxl (Ptr{:None},:Int32) shlib
 @c Int32 IDASpilsSetEpsLin (Ptr{:None},:realtype) shlib
 @c Int32 IDASpilsSetIncrementFactor (Ptr{:None},:realtype) shlib
-@c Int32 IDASpilsGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 IDASpilsGetNumPrecEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDASpilsGetNumPrecSolves (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDASpilsGetNumLinIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDASpilsGetNumConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDASpilsGetNumJtimesEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDASpilsGetNumResEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDASpilsGetLastFlag (Ptr{:None},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} IDASpilsGetReturnFlagName (:Int64,) shlib
+@c Int32 IDASpilsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 IDASpilsGetNumPrecEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDASpilsGetNumPrecSolves (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDASpilsGetNumLinIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDASpilsGetNumConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDASpilsGetNumJtimesEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDASpilsGetNumResEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDASpilsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} IDASpilsGetReturnFlagName (:Clong,) shlib
 @c Int32 IDASpbcg (Ptr{:None},:Int32) shlib
 
 # header: /usr/local/include/ida/ida_spgmr.h

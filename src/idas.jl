@@ -23,16 +23,16 @@ end
 @ctypedef IDADlsBandJacFnB Ptr{:Void}
 @c Int32 IDADlsSetDenseJacFnB (Ptr{:None},:Int32,:IDADlsDenseJacFnB) shlib
 @c Int32 IDADlsSetBandJacFnB (Ptr{:None},:Int32,:IDADlsBandJacFnB) shlib
-@c Int32 IDABandB (Ptr{:None},:Int32,:Int64,:Int64,:Int64) shlib
+@c Int32 IDABandB (Ptr{:None},:Int32,:Clong,:Clong,:Clong) shlib
 
 # header: /usr/local/include/idas/idas_bbdpre.h
 @ctypedef IDABBDLocalFnB Ptr{:Void}
 @ctypedef IDABBDCommFnB Ptr{:Void}
-@c Int32 IDABBDPrecInitB (Ptr{:None},:Int32,:Int64,:Int64,:Int64,:Int64,:Int64,:realtype,:IDABBDLocalFnB,:IDABBDCommFnB) shlib
-@c Int32 IDABBDPrecReInitB (Ptr{:None},:Int32,:Int64,:Int64,:realtype) shlib
+@c Int32 IDABBDPrecInitB (Ptr{:None},:Int32,:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:IDABBDLocalFnB,:IDABBDCommFnB) shlib
+@c Int32 IDABBDPrecReInitB (Ptr{:None},:Int32,:Clong,:Clong,:realtype) shlib
 
 # header: /usr/local/include/idas/idas_dense.h
-@c Int32 IDADenseB (Ptr{:None},:Int32,:Int64) shlib
+@c Int32 IDADenseB (Ptr{:None},:Int32,:Clong) shlib
 
 # header: /usr/local/include/idas/idas_direct.h
 
@@ -67,28 +67,28 @@ end
 @c Int32 IDASetQuadSensErrCon (Ptr{:None},:Int32) shlib
 @c Int32 IDAGetQuad (Ptr{:None},Ptr{:realtype},:N_Vector) shlib
 @c Int32 IDAGetQuadDky (Ptr{:None},:realtype,:Int32,:N_Vector) shlib
-@c Int32 IDAGetQuadNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetQuadNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 IDAGetQuadNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetQuadNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 IDAGetQuadErrWeights (Ptr{:None},:N_Vector) shlib
-@c Int32 IDAGetQuadStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
+@c Int32 IDAGetQuadStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
 @c Int32 IDAGetSens (Ptr{:None},Ptr{:realtype},Ptr{:N_Vector}) shlib
 @c Int32 IDAGetSens1 (Ptr{:None},Ptr{:realtype},:Int32,:N_Vector) shlib
 @c Int32 IDAGetSensDky (Ptr{:None},:realtype,:Int32,Ptr{:N_Vector}) shlib
 @c Int32 IDAGetSensDky1 (Ptr{:None},:realtype,:Int32,:Int32,:N_Vector) shlib
 @c Int32 IDAGetSensConsistentIC (Ptr{:None},Ptr{:N_Vector},Ptr{:N_Vector}) shlib
-@c Int32 IDAGetSensNumResEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetNumResEvalsSens (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetSensNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetSensNumLinSolvSetups (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 IDAGetSensNumResEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetNumResEvalsSens (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetSensNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetSensNumLinSolvSetups (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 IDAGetSensErrWeights (Ptr{:None},:N_Vector_S) shlib
-@c Int32 IDAGetSensStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 IDAGetSensNumNonlinSolvIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetSensNumNonlinSolvConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetSensNonlinSolvStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 IDAGetQuadSensNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 IDAGetQuadSensNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 IDAGetSensStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 IDAGetSensNumNonlinSolvIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetSensNumNonlinSolvConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetSensNonlinSolvStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 IDAGetQuadSensNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 IDAGetQuadSensNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 IDAGetQuadSensErrWeights (Ptr{:None},Ptr{:N_Vector}) shlib
-@c Int32 IDAGetQuadSensStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
+@c Int32 IDAGetQuadSensStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
 @c Int32 IDAGetQuadSens (Ptr{:None},Ptr{:realtype},Ptr{:N_Vector}) shlib
 @c Int32 IDAGetQuadSens1 (Ptr{:None},Ptr{:realtype},:Int32,:N_Vector) shlib
 @c Int32 IDAGetQuadSensDky (Ptr{:None},:realtype,:Int32,Ptr{:N_Vector}) shlib
@@ -96,7 +96,7 @@ end
 @c None IDAQuadFree (Ptr{:None},) shlib
 @c None IDASensFree (Ptr{:None},) shlib
 @c None IDAQuadSensFree (Ptr{:None},) shlib
-@c Int32 IDAAdjInit (Ptr{:None},:Int64,:Int32) shlib
+@c Int32 IDAAdjInit (Ptr{:None},:Clong,:Int32) shlib
 @c Int32 IDAAdjReInit (Ptr{:None},) shlib
 @c None IDAAdjFree (Ptr{:None},) shlib
 @c Int32 IDACreateB (Ptr{:None},Ptr{:Int32}) shlib
@@ -117,7 +117,7 @@ end
 @c Int32 IDASetAdjNoSensi (Ptr{:None},) shlib
 @c Int32 IDASetUserDataB (Ptr{:None},:Int32,Ptr{:None}) shlib
 @c Int32 IDASetMaxOrdB (Ptr{:None},:Int32,:Int32) shlib
-@c Int32 IDASetMaxNumStepsB (Ptr{:None},:Int32,:Int64) shlib
+@c Int32 IDASetMaxNumStepsB (Ptr{:None},:Int32,:Clong) shlib
 @c Int32 IDASetInitStepB (Ptr{:None},:Int32,:realtype) shlib
 @c Int32 IDASetMaxStepB (Ptr{:None},:Int32,:realtype) shlib
 @c Int32 IDASetSuppressAlgB (Ptr{:None},:Int32,:Int32) shlib
