@@ -23,22 +23,22 @@ end
 @ctypedef KINDlsBandJacFn Ptr{:Void}
 @c Int32 KINDlsSetDenseJacFn (Ptr{:None},:KINDlsDenseJacFn) shlib
 @c Int32 KINDlsSetBandJacFn (Ptr{:None},:KINDlsBandJacFn) shlib
-@c Int32 KINDlsGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 KINDlsGetNumJacEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINDlsGetNumFuncEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINDlsGetLastFlag (Ptr{:None},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} KINDlsGetReturnFlagName (:Int64,) shlib
-@c Int32 KINBand (Ptr{:None},:Int64,:Int64,:Int64) shlib
+@c Int32 KINDlsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 KINDlsGetNumJacEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINDlsGetNumFuncEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINDlsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} KINDlsGetReturnFlagName (:Clong,) shlib
+@c Int32 KINBand (Ptr{:None},:Clong,:Clong,:Clong) shlib
 
 # header: /usr/local/include/kinsol/kinsol_bbdpre.h
 @ctypedef KINCommFn Ptr{:Void}
 @ctypedef KINLocalFn Ptr{:Void}
-@c Int32 KINBBDPrecInit (Ptr{:None},:Int64,:Int64,:Int64,:Int64,:Int64,:realtype,:KINLocalFn,:KINCommFn) shlib
-@c Int32 KINBBDPrecGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 KINBBDPrecGetNumGfnEvals (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 KINBBDPrecInit (Ptr{:None},:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:KINLocalFn,:KINCommFn) shlib
+@c Int32 KINBBDPrecGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 KINBBDPrecGetNumGfnEvals (Ptr{:None},Ptr{:Clong}) shlib
 
 # header: /usr/local/include/kinsol/kinsol_dense.h
-@c Int32 KINDense (Ptr{:None},:Int64) shlib
+@c Int32 KINDense (Ptr{:None},:Clong) shlib
 
 # header: /usr/local/include/kinsol/kinsol_direct.h
 
@@ -53,11 +53,11 @@ end
 @c Int32 KINSetInfoFile (Ptr{:None},Ptr{:FILE}) shlib
 @c Int32 KINSetUserData (Ptr{:None},Ptr{:None}) shlib
 @c Int32 KINSetPrintLevel (Ptr{:None},:Int32) shlib
-@c Int32 KINSetNumMaxIters (Ptr{:None},:Int64) shlib
+@c Int32 KINSetNumMaxIters (Ptr{:None},:Clong) shlib
 @c Int32 KINSetNoInitSetup (Ptr{:None},:Int32) shlib
 @c Int32 KINSetNoResMon (Ptr{:None},:Int32) shlib
-@c Int32 KINSetMaxSetupCalls (Ptr{:None},:Int64) shlib
-@c Int32 KINSetMaxSubSetupCalls (Ptr{:None},:Int64) shlib
+@c Int32 KINSetMaxSetupCalls (Ptr{:None},:Clong) shlib
+@c Int32 KINSetMaxSubSetupCalls (Ptr{:None},:Clong) shlib
 @c Int32 KINSetEtaForm (Ptr{:None},:Int32) shlib
 @c Int32 KINSetEtaConstValue (Ptr{:None},:realtype) shlib
 @c Int32 KINSetEtaParams (Ptr{:None},:realtype,:realtype) shlib
@@ -65,7 +65,7 @@ end
 @c Int32 KINSetResMonConstValue (Ptr{:None},:realtype) shlib
 @c Int32 KINSetNoMinEps (Ptr{:None},:Int32) shlib
 @c Int32 KINSetMaxNewtonStep (Ptr{:None},:realtype) shlib
-@c Int32 KINSetMaxBetaFails (Ptr{:None},:Int64) shlib
+@c Int32 KINSetMaxBetaFails (Ptr{:None},:Clong) shlib
 @c Int32 KINSetRelErrFunc (Ptr{:None},:realtype) shlib
 @c Int32 KINSetFuncNormTol (Ptr{:None},:realtype) shlib
 @c Int32 KINSetScaledStepTol (Ptr{:None},:realtype) shlib
@@ -73,14 +73,14 @@ end
 @c Int32 KINSetSysFunc (Ptr{:None},:KINSysFn) shlib
 @c Int32 KINInit (Ptr{:None},:KINSysFn,:N_Vector) shlib
 @c Int32 KINSol (Ptr{:None},:N_Vector,:Int32,:N_Vector,:N_Vector) shlib
-@c Int32 KINGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 KINGetNumNonlinSolvIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINGetNumFuncEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINGetNumBetaCondFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINGetNumBacktrackOps (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 KINGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 KINGetNumNonlinSolvIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINGetNumFuncEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINGetNumBetaCondFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINGetNumBacktrackOps (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 KINGetFuncNorm (Ptr{:None},Ptr{:realtype}) shlib
 @c Int32 KINGetStepLength (Ptr{:None},Ptr{:realtype}) shlib
-@c Ptr{:Uint8} KINGetReturnFlagName (:Int64,) shlib
+@c Ptr{:Uint8} KINGetReturnFlagName (:Clong,) shlib
 @c None KINFree (Ptr{Ptr{:None}},) shlib
 
 # header: /usr/local/include/kinsol/kinsol_impl.h
@@ -97,15 +97,15 @@ end
 @c Int32 KINSpilsSetMaxRestarts (Ptr{:None},:Int32) shlib
 @c Int32 KINSpilsSetPreconditioner (Ptr{:None},:KINSpilsPrecSetupFn,:KINSpilsPrecSolveFn) shlib
 @c Int32 KINSpilsSetJacTimesVecFn (Ptr{:None},:KINSpilsJacTimesVecFn) shlib
-@c Int32 KINSpilsGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 KINSpilsGetNumPrecEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINSpilsGetNumPrecSolves (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINSpilsGetNumLinIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINSpilsGetNumConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINSpilsGetNumJtimesEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINSpilsGetNumFuncEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 KINSpilsGetLastFlag (Ptr{:None},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} KINSpilsGetReturnFlagName (:Int64,) shlib
+@c Int32 KINSpilsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 KINSpilsGetNumPrecEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINSpilsGetNumPrecSolves (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINSpilsGetNumLinIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINSpilsGetNumConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINSpilsGetNumJtimesEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINSpilsGetNumFuncEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 KINSpilsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} KINSpilsGetReturnFlagName (:Clong,) shlib
 @c Int32 KINSpbcg (Ptr{:None},:Int32) shlib
 
 # header: /usr/local/include/kinsol/kinsol_spgmr.h

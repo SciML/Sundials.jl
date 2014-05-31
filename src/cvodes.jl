@@ -23,19 +23,19 @@ end
 @ctypedef CVDlsBandJacFnB Ptr{:Void}
 @c Int32 CVDlsSetDenseJacFnB (Ptr{:None},:Int32,:CVDlsDenseJacFnB) shlib
 @c Int32 CVDlsSetBandJacFnB (Ptr{:None},:Int32,:CVDlsBandJacFnB) shlib
-@c Int32 CVBandB (Ptr{:None},:Int32,:Int64,:Int64,:Int64) shlib
+@c Int32 CVBandB (Ptr{:None},:Int32,:Clong,:Clong,:Clong) shlib
 
 # header: /usr/local/include/cvodes/cvodes_bandpre.h
-@c Int32 CVBandPrecInitB (Ptr{:None},:Int32,:Int64,:Int64,:Int64) shlib
+@c Int32 CVBandPrecInitB (Ptr{:None},:Int32,:Clong,:Clong,:Clong) shlib
 
 # header: /usr/local/include/cvodes/cvodes_bbdpre.h
 @ctypedef CVLocalFnB Ptr{:Void}
 @ctypedef CVCommFnB Ptr{:Void}
-@c Int32 CVBBDPrecInitB (Ptr{:None},:Int32,:Int64,:Int64,:Int64,:Int64,:Int64,:realtype,:CVLocalFnB,:CVCommFnB) shlib
-@c Int32 CVBBDPrecReInitB (Ptr{:None},:Int32,:Int64,:Int64,:realtype) shlib
+@c Int32 CVBBDPrecInitB (Ptr{:None},:Int32,:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:CVLocalFnB,:CVCommFnB) shlib
+@c Int32 CVBBDPrecReInitB (Ptr{:None},:Int32,:Clong,:Clong,:realtype) shlib
 
 # header: /usr/local/include/cvodes/cvodes_dense.h
-@c Int32 CVDenseB (Ptr{:None},:Int32,:Int64) shlib
+@c Int32 CVDenseB (Ptr{:None},:Int32,:Clong) shlib
 
 # header: /usr/local/include/cvodes/cvodes_diag.h
 @c Int32 CVDiagB (Ptr{:None},:Int32) shlib
@@ -86,26 +86,26 @@ end
 @c Int32 CVodeGetQuadSens1 (Ptr{:None},Ptr{:realtype},:Int32,:N_Vector) shlib
 @c Int32 CVodeGetQuadSensDky (Ptr{:None},:realtype,:Int32,Ptr{:N_Vector}) shlib
 @c Int32 CVodeGetQuadSensDky1 (Ptr{:None},:realtype,:Int32,:Int32,:N_Vector) shlib
-@c Int32 CVodeGetQuadNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetQuadNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVodeGetQuadNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetQuadNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetQuadErrWeights (Ptr{:None},:N_Vector) shlib
-@c Int32 CVodeGetQuadStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVodeGetSensNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetNumRhsEvalsSens (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetSensNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetSensNumLinSolvSetups (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVodeGetQuadStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVodeGetSensNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetNumRhsEvalsSens (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetSensNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetSensNumLinSolvSetups (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetSensErrWeights (Ptr{:None},Ptr{:N_Vector}) shlib
-@c Int32 CVodeGetSensStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVodeGetSensNumNonlinSolvIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetSensNumNonlinSolvConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetStgrSensNumNonlinSolvIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetStgrSensNumNonlinSolvConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetSensNonlinSolvStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVodeGetQuadSensNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetQuadSensNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVodeGetSensStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVodeGetSensNumNonlinSolvIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetSensNumNonlinSolvConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetStgrSensNumNonlinSolvIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetStgrSensNumNonlinSolvConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetSensNonlinSolvStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVodeGetQuadSensNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetQuadSensNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetQuadSensErrWeights (Ptr{:None},Ptr{:N_Vector}) shlib
-@c Int32 CVodeGetQuadSensStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVodeAdjInit (Ptr{:None},:Int64,:Int32) shlib
+@c Int32 CVodeGetQuadSensStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVodeAdjInit (Ptr{:None},:Clong,:Int32) shlib
 @c Int32 CVodeAdjReInit (Ptr{:None},) shlib
 @c None CVodeAdjFree (Ptr{:None},) shlib
 @c Int32 CVodeCreateB (Ptr{:None},:Int32,:Int32,Ptr{:Int32}) shlib
@@ -125,7 +125,7 @@ end
 @c Int32 CVodeSetIterTypeB (Ptr{:None},:Int32,:Int32) shlib
 @c Int32 CVodeSetUserDataB (Ptr{:None},:Int32,Ptr{:None}) shlib
 @c Int32 CVodeSetMaxOrdB (Ptr{:None},:Int32,:Int32) shlib
-@c Int32 CVodeSetMaxNumStepsB (Ptr{:None},:Int32,:Int64) shlib
+@c Int32 CVodeSetMaxNumStepsB (Ptr{:None},:Int32,:Clong) shlib
 @c Int32 CVodeSetStabLimDetB (Ptr{:None},:Int32,:Int32) shlib
 @c Int32 CVodeSetInitStepB (Ptr{:None},:Int32,:realtype) shlib
 @c Int32 CVodeSetMinStepB (Ptr{:None},:Int32,:realtype) shlib
