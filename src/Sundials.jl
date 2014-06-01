@@ -1,5 +1,10 @@
 module Sundials
 
+if isfile(joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl"))
+    include("../deps/deps.jl")
+else
+    error("Sundials not properly installed. Please run Pkg.build(\"Sundials\")")
+end
 
 ##################################################################
 #
@@ -9,18 +14,18 @@ module Sundials
 
 typealias __builtin_va_list Ptr{:Void}
 
-shlib = :libsundials_nvecserial
+shlib = libsundials_nvecserial
 include("nvector.jl")
-shlib = :libsundials_cvode
+shlib = libsundials_cvode
 include("libsundials.jl")
 include("cvode.jl")
-shlib = :libsundials_cvodes
+shlib = libsundials_cvodes
 include("cvodes.jl")
-shlib = :libsundials_ida
+shlib = libsundials_ida
 include("ida.jl")
-shlib = :libsundials_idas
+shlib = libsundials_idas
 include("idas.jl")
-shlib = :libsundials_kinsol
+shlib = libsundials_kinsol
 include("kinsol.jl")
 
 include("constants.jl")
@@ -193,7 +198,7 @@ IDAQuadReInit(mem, yQ0::Vector{realtype}) =
 ##################################################################
 
 
-@c Int32 KINSetUserData (Ptr{:None},Any) :libsundials_kinsol  ## needed to allow passing a Function through the user data
+@c Int32 KINSetUserData (Ptr{:None},Any) libsundials_kinsol  ## needed to allow passing a Function through the user data
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
     y = asarray(y)
@@ -229,7 +234,7 @@ function kinsol(f::Function, y0::Vector{Float64})
     return y
 end
 
-@c Int32 CVodeSetUserData (Ptr{:None},Any) :libsundials_cvode  ## needed to allow passing a Function through the user data
+@c Int32 CVodeSetUserData (Ptr{:None},Any) libsundials_cvode  ## needed to allow passing a Function through the user data
 
 function odefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
     y = Sundials.asarray(y)
@@ -264,7 +269,7 @@ function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float
     return yres
 end
 
-@c Int32 IDASetUserData (Ptr{:None},Any) :libsundials_ida  ## needed to allow passing a Function through the user data
+@c Int32 IDASetUserData (Ptr{:None},Any) libsundials_ida  ## needed to allow passing a Function through the user data
 
 function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
     y = Sundials.asarray(y) 
