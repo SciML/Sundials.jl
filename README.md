@@ -55,13 +55,14 @@ code, see
 [src/wrap_sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/wrap_sundials.jl).
 
 Because of Clang.jl, Sundials.jl provides good coverage of the Sundials
-library (the serial version). 
+library (the serial version).
 
 Simplified Functions
 --------------------
 
-Three functions `kinsol`, `ode`, and `dae` are provided as high-level,
-very simple functions. Here is an example for `ode`:
+Three functions `kinsol`, `cvode`, and `idasol` are provided as high-level,
+very simple functions. *Note that the latter two functions were previously
+called `ode` and `ida`.* Here is an example for `cvode`:
 
 ```julia
 using Sundials
@@ -73,11 +74,11 @@ function f(t, y, ydot)
 end
 
 t = [0.0, 4 * logspace(-1., 7., 9)]
-res = Sundials.ode(f, [1.0, 0.0, 0.0], t)
+res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
 ```
 
-There are two supported keyword arguments, `reltol`, and `abstol`, for `ode` and `dae`. 
-Theese functions will probably be deprecated, in order to create a unified API for
+There are two supported keyword arguments, `reltol`, and `abstol`, for `cvode` and `idasol`.
+These functions will probably be deprecated, in order to create a unified API for
 ODE solvers under [ODE.jl](https://github.com/JuliaLang/ODE.jl)
 
 Examples
