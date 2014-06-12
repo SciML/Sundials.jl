@@ -37,6 +37,25 @@ package to support equation-based modeling for simulations. Sims is
 like a lite version of Modelica. Sims can currently use Sundials or
 DASSL.
 
+Installation
+---
+
+Within Julia, use the package manager:
+
+```julia
+Pkg.add("Sundials")
+```
+
+This should download and install the Sundials libraries and register the package. On Windows [precompiled binaries](http://sourceforge.net/projects/juliadeps-win/files) 
+are used, while on Unix and OSX Sundials is built from its sources (provided the necessary tools are
+available). If you have Sundials already installed, make sure that Julia can find it, e.g., via
+
+```
+push!(Sys.DL_LOAD_PATH, "/opt/local/lib")
+```
+
+before you install the package.
+
 API
 ---
 
@@ -95,7 +114,6 @@ Status
 Please note that this is a developer preview. There could be bugs, and
 everything is subject to change. Of note are:
 
-* You must have the Sundials installed.
 * The API that matches the Sundials C API should be stable.
 * The simplified API is not stable.
 * There is no documentation for this package. Please see the general
