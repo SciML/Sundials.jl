@@ -41,20 +41,23 @@ Installation
 ---
 
 Within Julia, use the package manager:
-
 ```julia
 Pkg.add("Sundials")
 ```
-
 This should download and install the Sundials libraries and register the package. On Windows [precompiled binaries](http://sourceforge.net/projects/juliadeps-win/files) 
 are used, while on Unix and OSX Sundials is built from its sources (provided the necessary tools are
 available). If you have Sundials already installed, make sure that Julia can find it, e.g., via
-
-```
+```julia
 push!(Sys.DL_LOAD_PATH, "/opt/local/lib")
 ```
+before you install the package. Downloading and/or re-building of the library can be triggered by `Pkg.build("Sundials")`
+if anything goes wrong.
 
-before you install the package.
+To test the installation use
+```julia
+Pkg.test("Sundials")
+```
+which currently runs some of the examples in the `examples` directory.
 
 API
 ---
