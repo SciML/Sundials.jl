@@ -15,4 +15,4 @@ before_install:
 script:
   - julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("Sundials")'
   - julia -e 'using Sundials; @assert isdefined(:Sundials); @assert typeof(Sundials) === Module'
-  - julia -e 'Pkg.test("Sundials")'
+  - julia test/runtests.jl
