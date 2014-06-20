@@ -13,8 +13,8 @@ sundialslibs = [cvode, cvodes, ida, idas, kinsol, nvecserial]
 sundialsver = "sundials-2.5.0"
 provides(Sources, URI("http://computation.llnl.gov/casc/sundials/download/code/$sundialsver.tar.gz"), sundialslibs)
 
-provides(Binaries, URI("http://sourceforge.net/projects/juliadeps-win/files/$sundialsver-$(Sys.MACHINE).7z"),
-    sundialslibs, os = :Windows)
+provides(Binaries, URI("http://sourceforge.net/projects/juliadeps-win/files/$sundialsver.7z"),
+    sundialslibs, unpacked_dir="usr$WORD_SIZE/bin", os = :Windows)
 
 prefix = joinpath(BinDeps.depsdir(cvode),"usr")
 srcdir = joinpath(BinDeps.depsdir(cvode),"src",sundialsver) 
