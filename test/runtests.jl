@@ -14,7 +14,7 @@ println("== start ida example")
 include("../examples/ida_Roberts_simplified.jl")
 
 println("result at t=$(t[end]):")
-println(res[end,:], "\n")
+println(yout[end,:], "\n")
 
 
 # run kinsol example
