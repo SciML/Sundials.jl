@@ -5,6 +5,7 @@ notifications:
   email: false
 env:
   matrix:
+    - JULIAVERSION="juliareleases"
     - JULIAVERSION="julianightlies"
 before_install:
   - sudo add-apt-repository ppa:staticfloat/julia-deps -y
@@ -12,6 +13,6 @@ before_install:
   - sudo apt-get update -qq -y
   - sudo apt-get install libpcre3-dev julia -y
 script:
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("Sundials"))`); Pkg.pin("Sundials"); Pkg.resolve()'
+  - julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.build("Sundials")'
   - julia -e 'using Sundials; @assert isdefined(:Sundials); @assert typeof(Sundials) === Module'
-  - julia -e 'Pkg.test("Sundials")'
+  - julia test/runtests.jl
