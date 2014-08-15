@@ -1,5 +1,5 @@
 
-recurs_sym_type(ex::Any) = 
+recurs_sym_type(ex::Any) =
   (ex==None || typeof(ex)==Symbol || length(ex.args)==1) ? eval(ex) : Expr(ex.head, ex.args[1], recurs_sym_type(ex.args[2]))
 macro c(ret_type, func, arg_types, lib)
   local _arg_types = Expr(:tuple, [recurs_sym_type(a) for a in arg_types.args]...)
@@ -18,10 +18,14 @@ macro ctypedef(fake_t,real_t)
   end
 end
 
+type NVECTOR_struct; end # dummy type to give us a typed pointer
+typealias N_Vector Ptr{NVECTOR_struct}
+
+
 # header: /usr/local/include/nvector/nvector_parallel.h
 @ctypedef realtype Float64
 @ctypedef N_Vector_Ops Ptr{:Void}
-@ctypedef N_Vector Ptr{:Void}
+# @ctypedef N_Vector Ptr{:Void}
 @ctypedef N_Vector_S Ptr{:N_Vector}
 @c N_Vector N_VClone (:N_Vector,) shlib
 @c N_Vector N_VCloneEmpty (:N_Vector,) shlib
@@ -119,4 +123,3 @@ end
 @c Int32 N_VInvTest_Serial (:N_Vector,:N_Vector) shlib
 @c Int32 N_VConstrMask_Serial (:N_Vector,:N_Vector,:N_Vector) shlib
 @c realtype N_VMinQuotient_Serial (:N_Vector,:N_Vector) shlib
-

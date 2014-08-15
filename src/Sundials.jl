@@ -49,6 +49,58 @@ include("constants.jl")
 
 ##################################################################
 #
+# Types to facilitate release of memory allocated by the library
+#
+##################################################################
+type KinsolHandle   # memory handle for KINSOL
+    kinsol::Vector{KINSOL_ptr} # vector for passing to functions expecting Ptr{KINSOL_ptr}
+    function KinsolHandle()
+        k = new([KINCreate()])
+        finalizer(k, KINFree)
+        return k
+    end
+end
+Base.convert(::Type{KINSOL_ptr}, k::KinsolHandle) = k.kinsol[1]
+Base.convert(T::Type{Ptr{KINSOL_ptr}}, k::KinsolHandle) = convert(T, k.kinsol)
+
+type CVodeHandle    # memory handle for CVode
+    cvode::Vector{CVODE_ptr} # vector for passing to functions expecting Ptr{CVODE_ptr}
+    function CVodeHandle(lmm::Int, iter::Int)
+        k = new([CVodeCreate(int32(lmm), int32(iter))])
+        finalizer(k, CVodeFree)
+        return k
+    end
+end
+Base.convert(::Type{CVODE_ptr}, k::CVodeHandle) = k.cvode[1]
+Base.convert(T::Type{Ptr{CVODE_ptr}}, k::CVodeHandle) = convert(T, k.cvode)
+
+type IdaHandle # memory handle for IDA
+    ida::Vector{IDA_ptr} # vector for passing to functions expecting Ptr{IDA_ptr}
+    function IdaHandle()
+        k = new([IDACreate()])
+        finalizer(k, IDAFree)
+        return k
+    end
+end
+Base.convert(::Type{IDA_ptr}, k::IdaHandle) = k.ida[1]
+Base.convert(T::Type{Ptr{IDA_ptr}}, k::IdaHandle) = convert(T, k.ida)
+
+type NVector # memory handle for NVectors
+    ptr::Vector{N_Vector} # vector for passing to functions expecting Ptr{N_Vector}
+
+    function NVector(x::Vector{realtype})
+        k = new([N_VMake_Serial(length(x), x)])
+        finalizer(k, N_VDestroy_Serial)
+        return k
+    end
+end
+Base.convert(::Type{N_Vector}, nv::NVector) = nv.ptr[1]
+
+Base.length(nv::NVector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int}}, nv.ptr[1])))
+Base.convert(::Type{Vector{realtype}}, nv::NVector)= pointer_to_array(N_VGetArrayPointer_Serial(nv.ptr[1]), (length(nv),))
+
+##################################################################
+#
 # Methods to convert between Julia Vectors and Sundials N_Vectors.
 #
 ##################################################################
@@ -58,7 +110,8 @@ asarray(x::N_Vector) = pointer_to_array(N_VGetArrayPointer_Serial(x), (nvlength(
 asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = pointer_to_array(x, dims)
 asarray(x::N_Vector, dims::Tuple) = reinterpret(realtype, asarray(x), dims)
-nvector(x::Vector{realtype}) = N_VMake_Serial(length(x), x)
+
+nvector(x::Vector{realtype}) = NVector(x)
 nvector(x::N_Vector) = x
 
 
@@ -216,7 +269,7 @@ end
 ##################################################################
 
 
-@c Int32 KINSetUserData (Ptr{:None},Any) libsundials_kinsol  ## needed to allow passing a Function through the user data
+@c Int32 KINSetUserData (:KINSOL_ptr,Any) libsundials_kinsol  ## needed to allow passing a Function through the user data
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
     y = asarray(y)
@@ -231,7 +284,8 @@ function kinsol(f::Function, y0::Vector{Float64})
     # y0, Vector of initial values
     # return: the solution vector
     neq = length(y0)
-    kmem = KINCreate()
+    kmem = KinsolHandle()
+
     # use the user_data field to pass a function
     #   see: https://github.com/JuliaLang/julia/issues/2554
     flag = KINInit(kmem, cfunction(kinsolfun, Int32, (N_Vector, N_Vector, Function)), nvector(y0))
@@ -252,7 +306,7 @@ function kinsol(f::Function, y0::Vector{Float64})
     return y
 end
 
-@c Int32 CVodeSetUserData (Ptr{:None},Any) libsundials_cvode  ## needed to allow passing a Function through the user data
+@c Int32 CVodeSetUserData (:CVODE_ptr,Any) libsundials_cvode  ## needed to allow passing a Function through the user data
 
 function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
     y = Sundials.asarray(y)
@@ -271,7 +325,8 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
     # return: a solution matrix with time steps in `t` along rows and
     #         state variable `y` along columns
     neq = length(y0)
-    mem = CVodeCreate(CV_BDF, CV_NEWTON)
+    mem = CVodeHandle(CV_BDF, CV_NEWTON)
+
     flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nvector(y0))
     flag = CVodeSetUserData(mem, f)
     flag = CVodeSStolerances(mem, reltol, abstol)
@@ -287,7 +342,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
     return yres
 end
 
-@c Int32 IDASetUserData (Ptr{:None},Any) libsundials_ida  ## needed to allow passing a Function through the user data
+@c Int32 IDASetUserData (:IDA_ptr,Any) libsundials_ida  ## needed to allow passing a Function through the user data
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
     y = Sundials.asarray(y)
@@ -307,7 +362,8 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
     # return: (y,yp) two solution matrices representing the states and state derivatives
     #         with time steps in `t` along rows and state variable `y` or `yp` along columns
     neq = length(y0)
-    mem = IDACreate()
+    mem = IdaHandle()
+
     flag = IDAInit(mem, cfunction(idasolfun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), t[1], nvector(y0), nvector(yp0))
     flag = IDASetUserData(mem, f)
     flag = IDASStolerances(mem, reltol, abstol)
