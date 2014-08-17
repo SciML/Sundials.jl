@@ -38,7 +38,7 @@ typealias KINSOL_ptr Ptr{KINSOL_struct}
 # header: /usr/local/include/kinsol/kinsol_bbdpre.h
 @ctypedef KINCommFn Ptr{:Void}
 @ctypedef KINLocalFn Ptr{:Void}
-@c Int32 KINBBDPrecInit (:KINSOL_ptr,:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:KINLocalFn,:KINCommFn) shlib
+@c Int32 KINBBDPrecInit (:KINSOL_ptr,:Clong,:Clong,:Clong,:Clong,:Clong,:RealType,:KINLocalFn,:KINCommFn) shlib
 @c Int32 KINBBDPrecGetWorkSpace (:KINSOL_ptr,Ptr{:Clong},Ptr{:Clong}) shlib
 @c Int32 KINBBDPrecGetNumGfnEvals (:KINSOL_ptr,Ptr{:Clong}) shlib
 
@@ -64,16 +64,16 @@ typealias KINSOL_ptr Ptr{KINSOL_struct}
 @c Int32 KINSetMaxSetupCalls (:KINSOL_ptr,:Clong) shlib
 @c Int32 KINSetMaxSubSetupCalls (:KINSOL_ptr,:Clong) shlib
 @c Int32 KINSetEtaForm (:KINSOL_ptr,:Int32) shlib
-@c Int32 KINSetEtaConstValue (:KINSOL_ptr,:realtype) shlib
-@c Int32 KINSetEtaParams (:KINSOL_ptr,:realtype,:realtype) shlib
-@c Int32 KINSetResMonParams (:KINSOL_ptr,:realtype,:realtype) shlib
-@c Int32 KINSetResMonConstValue (:KINSOL_ptr,:realtype) shlib
+@c Int32 KINSetEtaConstValue (:KINSOL_ptr,:RealType) shlib
+@c Int32 KINSetEtaParams (:KINSOL_ptr,:RealType,:RealType) shlib
+@c Int32 KINSetResMonParams (:KINSOL_ptr,:RealType,:RealType) shlib
+@c Int32 KINSetResMonConstValue (:KINSOL_ptr,:RealType) shlib
 @c Int32 KINSetNoMinEps (:KINSOL_ptr,:Int32) shlib
-@c Int32 KINSetMaxNewtonStep (:KINSOL_ptr,:realtype) shlib
+@c Int32 KINSetMaxNewtonStep (:KINSOL_ptr,:RealType) shlib
 @c Int32 KINSetMaxBetaFails (:KINSOL_ptr,:Clong) shlib
-@c Int32 KINSetRelErrFunc (:KINSOL_ptr,:realtype) shlib
-@c Int32 KINSetFuncNormTol (:KINSOL_ptr,:realtype) shlib
-@c Int32 KINSetScaledStepTol (:KINSOL_ptr,:realtype) shlib
+@c Int32 KINSetRelErrFunc (:KINSOL_ptr,:RealType) shlib
+@c Int32 KINSetFuncNormTol (:KINSOL_ptr,:RealType) shlib
+@c Int32 KINSetScaledStepTol (:KINSOL_ptr,:RealType) shlib
 @c Int32 KINSetConstraints (:KINSOL_ptr,:N_Vector) shlib
 @c Int32 KINSetSysFunc (:KINSOL_ptr,:KINSysFn) shlib
 @c Int32 KINInit (:KINSOL_ptr,:KINSysFn,:N_Vector) shlib
@@ -83,8 +83,8 @@ typealias KINSOL_ptr Ptr{KINSOL_struct}
 @c Int32 KINGetNumFuncEvals (:KINSOL_ptr,Ptr{:Clong}) shlib
 @c Int32 KINGetNumBetaCondFails (:KINSOL_ptr,Ptr{:Clong}) shlib
 @c Int32 KINGetNumBacktrackOps (:KINSOL_ptr,Ptr{:Clong}) shlib
-@c Int32 KINGetFuncNorm (:KINSOL_ptr,Ptr{:realtype}) shlib
-@c Int32 KINGetStepLength (:KINSOL_ptr,Ptr{:realtype}) shlib
+@c Int32 KINGetFuncNorm (:KINSOL_ptr,Ptr{:RealType}) shlib
+@c Int32 KINGetStepLength (:KINSOL_ptr,Ptr{:RealType}) shlib
 @c Ptr{:Uint8} KINGetReturnFlagName (:Clong,) shlib
 @c None KINFree (Ptr{:KINSOL_ptr},) shlib
 

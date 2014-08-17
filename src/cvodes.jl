@@ -1,5 +1,5 @@
 
-recurs_sym_type(ex::Any) = 
+recurs_sym_type(ex::Any) =
   (ex==None || typeof(ex)==Symbol || length(ex.args)==1) ? eval(ex) : Expr(ex.head, ex.args[1], recurs_sym_type(ex.args[2]))
 macro c(ret_type, func, arg_types, lib)
   local _arg_types = Expr(:tuple, [recurs_sym_type(a) for a in arg_types.args]...)
@@ -31,8 +31,8 @@ end
 # header: /usr/local/include/cvodes/cvodes_bbdpre.h
 @ctypedef CVLocalFnB Ptr{:Void}
 @ctypedef CVCommFnB Ptr{:Void}
-@c Int32 CVBBDPrecInitB (Ptr{:None},:Int32,:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:CVLocalFnB,:CVCommFnB) shlib
-@c Int32 CVBBDPrecReInitB (Ptr{:None},:Int32,:Clong,:Clong,:realtype) shlib
+@c Int32 CVBBDPrecInitB (Ptr{:None},:Int32,:Clong,:Clong,:Clong,:Clong,:Clong,:RealType,:CVLocalFnB,:CVCommFnB) shlib
+@c Int32 CVBBDPrecReInitB (Ptr{:None},:Int32,:Clong,:Clong,:RealType) shlib
 
 # header: /usr/local/include/cvodes/cvodes_dense.h
 @c Int32 CVDenseB (Ptr{:None},:Int32,:Clong) shlib
@@ -53,39 +53,39 @@ end
 @ctypedef CVQuadRhsFnBS Ptr{:Void}
 @c Int32 CVodeQuadInit (Ptr{:None},:CVQuadRhsFn,:N_Vector) shlib
 @c Int32 CVodeQuadReInit (Ptr{:None},:N_Vector) shlib
-@c Int32 CVodeQuadSStolerances (Ptr{:None},:realtype,:realtype) shlib
-@c Int32 CVodeQuadSVtolerances (Ptr{:None},:realtype,:N_Vector) shlib
+@c Int32 CVodeQuadSStolerances (Ptr{:None},:RealType,:RealType) shlib
+@c Int32 CVodeQuadSVtolerances (Ptr{:None},:RealType,:N_Vector) shlib
 @c Int32 CVodeSensInit (Ptr{:None},:Int32,:Int32,:CVSensRhsFn,Ptr{:N_Vector}) shlib
 @c Int32 CVodeSensInit1 (Ptr{:None},:Int32,:Int32,:CVSensRhs1Fn,Ptr{:N_Vector}) shlib
 @c Int32 CVodeSensReInit (Ptr{:None},:Int32,Ptr{:N_Vector}) shlib
-@c Int32 CVodeSensSStolerances (Ptr{:None},:realtype,Ptr{:realtype}) shlib
-@c Int32 CVodeSensSVtolerances (Ptr{:None},:realtype,Ptr{:N_Vector}) shlib
+@c Int32 CVodeSensSStolerances (Ptr{:None},:RealType,Ptr{:RealType}) shlib
+@c Int32 CVodeSensSVtolerances (Ptr{:None},:RealType,Ptr{:N_Vector}) shlib
 @c Int32 CVodeSensEEtolerances (Ptr{:None},) shlib
 @c Int32 CVodeQuadSensInit (Ptr{:None},:CVQuadSensRhsFn,Ptr{:N_Vector}) shlib
 @c Int32 CVodeQuadSensReInit (Ptr{:None},Ptr{:N_Vector}) shlib
-@c Int32 CVodeQuadSensSStolerances (Ptr{:None},:realtype,Ptr{:realtype}) shlib
-@c Int32 CVodeQuadSensSVtolerances (Ptr{:None},:realtype,Ptr{:N_Vector}) shlib
+@c Int32 CVodeQuadSensSStolerances (Ptr{:None},:RealType,Ptr{:RealType}) shlib
+@c Int32 CVodeQuadSensSVtolerances (Ptr{:None},:RealType,Ptr{:N_Vector}) shlib
 @c Int32 CVodeQuadSensEEtolerances (Ptr{:None},) shlib
 @c None CVodeQuadFree (Ptr{:None},) shlib
 @c None CVodeSensFree (Ptr{:None},) shlib
 @c None CVodeQuadSensFree (Ptr{:None},) shlib
 @c Int32 CVodeSetQuadErrCon (Ptr{:None},:Int32) shlib
-@c Int32 CVodeSetSensDQMethod (Ptr{:None},:Int32,:realtype) shlib
+@c Int32 CVodeSetSensDQMethod (Ptr{:None},:Int32,:RealType) shlib
 @c Int32 CVodeSetSensErrCon (Ptr{:None},:Int32) shlib
 @c Int32 CVodeSetSensMaxNonlinIters (Ptr{:None},:Int32) shlib
-@c Int32 CVodeSetSensParams (Ptr{:None},Ptr{:realtype},Ptr{:realtype},Ptr{:Int32}) shlib
+@c Int32 CVodeSetSensParams (Ptr{:None},Ptr{:RealType},Ptr{:RealType},Ptr{:Int32}) shlib
 @c Int32 CVodeSetQuadSensErrCon (Ptr{:None},:Int32) shlib
 @c Int32 CVodeSensToggleOff (Ptr{:None},) shlib
-@c Int32 CVodeGetQuad (Ptr{:None},Ptr{:realtype},:N_Vector) shlib
-@c Int32 CVodeGetQuadDky (Ptr{:None},:realtype,:Int32,:N_Vector) shlib
-@c Int32 CVodeGetSens (Ptr{:None},Ptr{:realtype},Ptr{:N_Vector}) shlib
-@c Int32 CVodeGetSens1 (Ptr{:None},Ptr{:realtype},:Int32,:N_Vector) shlib
-@c Int32 CVodeGetSensDky (Ptr{:None},:realtype,:Int32,Ptr{:N_Vector}) shlib
-@c Int32 CVodeGetSensDky1 (Ptr{:None},:realtype,:Int32,:Int32,:N_Vector) shlib
-@c Int32 CVodeGetQuadSens (Ptr{:None},Ptr{:realtype},Ptr{:N_Vector}) shlib
-@c Int32 CVodeGetQuadSens1 (Ptr{:None},Ptr{:realtype},:Int32,:N_Vector) shlib
-@c Int32 CVodeGetQuadSensDky (Ptr{:None},:realtype,:Int32,Ptr{:N_Vector}) shlib
-@c Int32 CVodeGetQuadSensDky1 (Ptr{:None},:realtype,:Int32,:Int32,:N_Vector) shlib
+@c Int32 CVodeGetQuad (Ptr{:None},Ptr{:RealType},:N_Vector) shlib
+@c Int32 CVodeGetQuadDky (Ptr{:None},:RealType,:Int32,:N_Vector) shlib
+@c Int32 CVodeGetSens (Ptr{:None},Ptr{:RealType},Ptr{:N_Vector}) shlib
+@c Int32 CVodeGetSens1 (Ptr{:None},Ptr{:RealType},:Int32,:N_Vector) shlib
+@c Int32 CVodeGetSensDky (Ptr{:None},:RealType,:Int32,Ptr{:N_Vector}) shlib
+@c Int32 CVodeGetSensDky1 (Ptr{:None},:RealType,:Int32,:Int32,:N_Vector) shlib
+@c Int32 CVodeGetQuadSens (Ptr{:None},Ptr{:RealType},Ptr{:N_Vector}) shlib
+@c Int32 CVodeGetQuadSens1 (Ptr{:None},Ptr{:RealType},:Int32,:N_Vector) shlib
+@c Int32 CVodeGetQuadSensDky (Ptr{:None},:RealType,:Int32,Ptr{:N_Vector}) shlib
+@c Int32 CVodeGetQuadSensDky1 (Ptr{:None},:RealType,:Int32,:Int32,:N_Vector) shlib
 @c Int32 CVodeGetQuadNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetQuadNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetQuadErrWeights (Ptr{:None},:N_Vector) shlib
@@ -109,36 +109,36 @@ end
 @c Int32 CVodeAdjReInit (Ptr{:None},) shlib
 @c None CVodeAdjFree (Ptr{:None},) shlib
 @c Int32 CVodeCreateB (Ptr{:None},:Int32,:Int32,Ptr{:Int32}) shlib
-@c Int32 CVodeInitB (Ptr{:None},:Int32,:CVRhsFnB,:realtype,:N_Vector) shlib
-@c Int32 CVodeInitBS (Ptr{:None},:Int32,:CVRhsFnBS,:realtype,:N_Vector) shlib
-@c Int32 CVodeReInitB (Ptr{:None},:Int32,:realtype,:N_Vector) shlib
-@c Int32 CVodeSStolerancesB (Ptr{:None},:Int32,:realtype,:realtype) shlib
-@c Int32 CVodeSVtolerancesB (Ptr{:None},:Int32,:realtype,:N_Vector) shlib
+@c Int32 CVodeInitB (Ptr{:None},:Int32,:CVRhsFnB,:RealType,:N_Vector) shlib
+@c Int32 CVodeInitBS (Ptr{:None},:Int32,:CVRhsFnBS,:RealType,:N_Vector) shlib
+@c Int32 CVodeReInitB (Ptr{:None},:Int32,:RealType,:N_Vector) shlib
+@c Int32 CVodeSStolerancesB (Ptr{:None},:Int32,:RealType,:RealType) shlib
+@c Int32 CVodeSVtolerancesB (Ptr{:None},:Int32,:RealType,:N_Vector) shlib
 @c Int32 CVodeQuadInitB (Ptr{:None},:Int32,:CVQuadRhsFnB,:N_Vector) shlib
 @c Int32 CVodeQuadInitBS (Ptr{:None},:Int32,:CVQuadRhsFnBS,:N_Vector) shlib
 @c Int32 CVodeQuadReInitB (Ptr{:None},:Int32,:N_Vector) shlib
-@c Int32 CVodeQuadSStolerancesB (Ptr{:None},:Int32,:realtype,:realtype) shlib
-@c Int32 CVodeQuadSVtolerancesB (Ptr{:None},:Int32,:realtype,:N_Vector) shlib
-@c Int32 CVodeF (Ptr{:None},:realtype,:N_Vector,Ptr{:realtype},:Int32,Ptr{:Int32}) shlib
-@c Int32 CVodeB (Ptr{:None},:realtype,:Int32) shlib
+@c Int32 CVodeQuadSStolerancesB (Ptr{:None},:Int32,:RealType,:RealType) shlib
+@c Int32 CVodeQuadSVtolerancesB (Ptr{:None},:Int32,:RealType,:N_Vector) shlib
+@c Int32 CVodeF (Ptr{:None},:RealType,:N_Vector,Ptr{:RealType},:Int32,Ptr{:Int32}) shlib
+@c Int32 CVodeB (Ptr{:None},:RealType,:Int32) shlib
 @c Int32 CVodeSetAdjNoSensi (Ptr{:None},) shlib
 @c Int32 CVodeSetIterTypeB (Ptr{:None},:Int32,:Int32) shlib
 @c Int32 CVodeSetUserDataB (Ptr{:None},:Int32,Ptr{:None}) shlib
 @c Int32 CVodeSetMaxOrdB (Ptr{:None},:Int32,:Int32) shlib
 @c Int32 CVodeSetMaxNumStepsB (Ptr{:None},:Int32,:Clong) shlib
 @c Int32 CVodeSetStabLimDetB (Ptr{:None},:Int32,:Int32) shlib
-@c Int32 CVodeSetInitStepB (Ptr{:None},:Int32,:realtype) shlib
-@c Int32 CVodeSetMinStepB (Ptr{:None},:Int32,:realtype) shlib
-@c Int32 CVodeSetMaxStepB (Ptr{:None},:Int32,:realtype) shlib
+@c Int32 CVodeSetInitStepB (Ptr{:None},:Int32,:RealType) shlib
+@c Int32 CVodeSetMinStepB (Ptr{:None},:Int32,:RealType) shlib
+@c Int32 CVodeSetMaxStepB (Ptr{:None},:Int32,:RealType) shlib
 @c Int32 CVodeSetQuadErrConB (Ptr{:None},:Int32,:Int32) shlib
-@c Int32 CVodeGetB (Ptr{:None},:Int32,Ptr{:realtype},:N_Vector) shlib
-@c Int32 CVodeGetQuadB (Ptr{:None},:Int32,Ptr{:realtype},:N_Vector) shlib
+@c Int32 CVodeGetB (Ptr{:None},:Int32,Ptr{:RealType},:N_Vector) shlib
+@c Int32 CVodeGetQuadB (Ptr{:None},:Int32,Ptr{:RealType},:N_Vector) shlib
 @c Ptr{:None} CVodeGetAdjCVodeBmem (Ptr{:None},:Int32) shlib
-@c Int32 CVodeGetAdjY (Ptr{:None},:realtype,:N_Vector) shlib
+@c Int32 CVodeGetAdjY (Ptr{:None},:RealType,:N_Vector) shlib
 @ctypedef CVadjCheckPointRec Void
 @c Int32 CVodeGetAdjCheckPointsInfo (Ptr{:None},Ptr{:CVadjCheckPointRec}) shlib
-@c Int32 CVodeGetAdjDataPointHermite (Ptr{:None},:Int32,Ptr{:realtype},:N_Vector,:N_Vector) shlib
-@c Int32 CVodeGetAdjDataPointPolynomial (Ptr{:None},:Int32,Ptr{:realtype},Ptr{:Int32},:N_Vector) shlib
+@c Int32 CVodeGetAdjDataPointHermite (Ptr{:None},:Int32,Ptr{:RealType},:N_Vector,:N_Vector) shlib
+@c Int32 CVodeGetAdjDataPointPolynomial (Ptr{:None},:Int32,Ptr{:RealType},Ptr{:Int32},:N_Vector) shlib
 @c Int32 CVodeGetAdjCurrentCheckPoint (Ptr{:None},Ptr{Ptr{:None}}) shlib
 
 # header: /usr/local/include/cvodes/cvodes_impl.h
@@ -155,10 +155,10 @@ end
 @c Int32 cvEwtSet (:N_Vector,:N_Vector,Ptr{:None}) shlib
 @c None cvProcessError (:CVodeMem,:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8}) shlib
 @c None cvErrHandler (:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:None}) shlib
-@c Int32 cvSensRhsWrapper (:CVodeMem,:realtype,:N_Vector,:N_Vector,Ptr{:N_Vector},Ptr{:N_Vector},:N_Vector,:N_Vector) shlib
-@c Int32 cvSensRhs1Wrapper (:CVodeMem,:realtype,:N_Vector,:N_Vector,:Int32,:N_Vector,:N_Vector,:N_Vector,:N_Vector) shlib
-@c Int32 cvSensRhsInternalDQ (:Int32,:realtype,:N_Vector,:N_Vector,Ptr{:N_Vector},Ptr{:N_Vector},Ptr{:None},:N_Vector,:N_Vector) shlib
-@c Int32 cvSensRhs1InternalDQ (:Int32,:realtype,:N_Vector,:N_Vector,:Int32,:N_Vector,:N_Vector,Ptr{:None},:N_Vector,:N_Vector) shlib
+@c Int32 cvSensRhsWrapper (:CVodeMem,:RealType,:N_Vector,:N_Vector,Ptr{:N_Vector},Ptr{:N_Vector},:N_Vector,:N_Vector) shlib
+@c Int32 cvSensRhs1Wrapper (:CVodeMem,:RealType,:N_Vector,:N_Vector,:Int32,:N_Vector,:N_Vector,:N_Vector,:N_Vector) shlib
+@c Int32 cvSensRhsInternalDQ (:Int32,:RealType,:N_Vector,:N_Vector,Ptr{:N_Vector},Ptr{:N_Vector},Ptr{:None},:N_Vector,:N_Vector) shlib
+@c Int32 cvSensRhs1InternalDQ (:Int32,:RealType,:N_Vector,:N_Vector,:Int32,:N_Vector,:N_Vector,Ptr{:None},:N_Vector,:N_Vector) shlib
 
 # header: /usr/local/include/cvodes/cvodes_spbcgs.h
 @ctypedef CVSpilsPrecSetupFnB Ptr{:Void}
@@ -166,7 +166,7 @@ end
 @ctypedef CVSpilsJacTimesVecFnB Ptr{:Void}
 @c Int32 CVSpilsSetPrecTypeB (Ptr{:None},:Int32,:Int32) shlib
 @c Int32 CVSpilsSetGSTypeB (Ptr{:None},:Int32,:Int32) shlib
-@c Int32 CVSpilsSetEpslinB (Ptr{:None},:Int32,:realtype) shlib
+@c Int32 CVSpilsSetEpslinB (Ptr{:None},:Int32,:RealType) shlib
 @c Int32 CVSpilsSetMaxlB (Ptr{:None},:Int32,:Int32) shlib
 @c Int32 CVSpilsSetPreconditionerB (Ptr{:None},:Int32,:CVSpilsPrecSetupFnB,:CVSpilsPrecSolveFnB) shlib
 @c Int32 CVSpilsSetJacTimesVecFnB (Ptr{:None},:Int32,:CVSpilsJacTimesVecFnB) shlib
@@ -179,4 +179,3 @@ end
 
 # header: /usr/local/include/cvodes/cvodes_sptfqmr.h
 @c Int32 CVSptfqmrB (Ptr{:None},:Int32,:Int32,:Int32) shlib
-

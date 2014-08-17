@@ -42,8 +42,8 @@ typealias CVODE_ptr Ptr{CVODE_struct}
 # header: /usr/local/include/cvode/cvode_bbdpre.h
 @ctypedef CVLocalFn Ptr{:Void}
 @ctypedef CVCommFn Ptr{:Void}
-@c Int32 CVBBDPrecInit (:CVODE_ptr,:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:CVLocalFn,:CVCommFn) shlib
-@c Int32 CVBBDPrecReInit (:CVODE_ptr,:Clong,:Clong,:realtype) shlib
+@c Int32 CVBBDPrecInit (:CVODE_ptr,:Clong,:Clong,:Clong,:Clong,:Clong,:RealType,:CVLocalFn,:CVCommFn) shlib
+@c Int32 CVBBDPrecReInit (:CVODE_ptr,:Clong,:Clong,:RealType) shlib
 @c Int32 CVBBDPrecGetWorkSpace (:CVODE_ptr,Ptr{:Clong},Ptr{:Clong}) shlib
 @c Int32 CVBBDPrecGetNumGfnEvals (:CVODE_ptr,Ptr{:Clong}) shlib
 
@@ -253,25 +253,25 @@ const __codecvt_noconv = 3
 @c Int32 CVodeSetMaxNumSteps (:CVODE_ptr,:Clong) shlib
 @c Int32 CVodeSetMaxHnilWarns (:CVODE_ptr,:Int32) shlib
 @c Int32 CVodeSetStabLimDet (:CVODE_ptr,:Int32) shlib
-@c Int32 CVodeSetInitStep (:CVODE_ptr,:realtype) shlib
-@c Int32 CVodeSetMinStep (:CVODE_ptr,:realtype) shlib
-@c Int32 CVodeSetMaxStep (:CVODE_ptr,:realtype) shlib
-@c Int32 CVodeSetStopTime (:CVODE_ptr,:realtype) shlib
+@c Int32 CVodeSetInitStep (:CVODE_ptr,:RealType) shlib
+@c Int32 CVodeSetMinStep (:CVODE_ptr,:RealType) shlib
+@c Int32 CVodeSetMaxStep (:CVODE_ptr,:RealType) shlib
+@c Int32 CVodeSetStopTime (:CVODE_ptr,:RealType) shlib
 @c Int32 CVodeSetMaxErrTestFails (:CVODE_ptr,:Int32) shlib
 @c Int32 CVodeSetMaxNonlinIters (:CVODE_ptr,:Int32) shlib
 @c Int32 CVodeSetMaxConvFails (:CVODE_ptr,:Int32) shlib
-@c Int32 CVodeSetNonlinConvCoef (:CVODE_ptr,:realtype) shlib
+@c Int32 CVodeSetNonlinConvCoef (:CVODE_ptr,:RealType) shlib
 @c Int32 CVodeSetIterType (:CVODE_ptr,:Int32) shlib
 @c Int32 CVodeSetRootDirection (:CVODE_ptr,Ptr{:Int32}) shlib
 @c Int32 CVodeSetNoInactiveRootWarn (:CVODE_ptr,) shlib
-@c Int32 CVodeInit (:CVODE_ptr,:CVRhsFn,:realtype,:N_Vector) shlib
-@c Int32 CVodeReInit (:CVODE_ptr,:realtype,:N_Vector) shlib
-@c Int32 CVodeSStolerances (:CVODE_ptr,:realtype,:realtype) shlib
-@c Int32 CVodeSVtolerances (:CVODE_ptr,:realtype,:N_Vector) shlib
+@c Int32 CVodeInit (:CVODE_ptr,:CVRhsFn,:RealType,:N_Vector) shlib
+@c Int32 CVodeReInit (:CVODE_ptr,:RealType,:N_Vector) shlib
+@c Int32 CVodeSStolerances (:CVODE_ptr,:RealType,:RealType) shlib
+@c Int32 CVodeSVtolerances (:CVODE_ptr,:RealType,:N_Vector) shlib
 @c Int32 CVodeWFtolerances (:CVODE_ptr,:CVEwtFn) shlib
 @c Int32 CVodeRootInit (:CVODE_ptr,:Int32,:CVRootFn) shlib
-@c Int32 CVode (:CVODE_ptr,:realtype,:N_Vector,Ptr{:realtype},:Int32) shlib
-@c Int32 CVodeGetDky (:CVODE_ptr,:realtype,:Int32,:N_Vector) shlib
+@c Int32 CVode (:CVODE_ptr,:RealType,:N_Vector,Ptr{:RealType},:Int32) shlib
+@c Int32 CVodeGetDky (:CVODE_ptr,:RealType,:Int32,:N_Vector) shlib
 @c Int32 CVodeGetWorkSpace (:CVODE_ptr,Ptr{:Clong},Ptr{:Clong}) shlib
 @c Int32 CVodeGetNumSteps (:CVODE_ptr,Ptr{:Clong}) shlib
 @c Int32 CVodeGetNumRhsEvals (:CVODE_ptr,Ptr{:Clong}) shlib
@@ -280,16 +280,16 @@ const __codecvt_noconv = 3
 @c Int32 CVodeGetLastOrder (:CVODE_ptr,Ptr{:Int32}) shlib
 @c Int32 CVodeGetCurrentOrder (:CVODE_ptr,Ptr{:Int32}) shlib
 @c Int32 CVodeGetNumStabLimOrderReds (:CVODE_ptr,Ptr{:Clong}) shlib
-@c Int32 CVodeGetActualInitStep (:CVODE_ptr,Ptr{:realtype}) shlib
-@c Int32 CVodeGetLastStep (:CVODE_ptr,Ptr{:realtype}) shlib
-@c Int32 CVodeGetCurrentStep (:CVODE_ptr,Ptr{:realtype}) shlib
-@c Int32 CVodeGetCurrentTime (:CVODE_ptr,Ptr{:realtype}) shlib
-@c Int32 CVodeGetTolScaleFactor (:CVODE_ptr,Ptr{:realtype}) shlib
+@c Int32 CVodeGetActualInitStep (:CVODE_ptr,Ptr{:RealType}) shlib
+@c Int32 CVodeGetLastStep (:CVODE_ptr,Ptr{:RealType}) shlib
+@c Int32 CVodeGetCurrentStep (:CVODE_ptr,Ptr{:RealType}) shlib
+@c Int32 CVodeGetCurrentTime (:CVODE_ptr,Ptr{:RealType}) shlib
+@c Int32 CVodeGetTolScaleFactor (:CVODE_ptr,Ptr{:RealType}) shlib
 @c Int32 CVodeGetErrWeights (:CVODE_ptr,:N_Vector) shlib
 @c Int32 CVodeGetEstLocalErrors (:CVODE_ptr,:N_Vector) shlib
 @c Int32 CVodeGetNumGEvals (:CVODE_ptr,Ptr{:Clong}) shlib
 @c Int32 CVodeGetRootInfo (:CVODE_ptr,Ptr{:Int32}) shlib
-@c Int32 CVodeGetIntegratorStats (:CVODE_ptr,Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Int32},Ptr{:Int32},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
+@c Int32 CVodeGetIntegratorStats (:CVODE_ptr,Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Int32},Ptr{:Int32},Ptr{:RealType},Ptr{:RealType},Ptr{:RealType},Ptr{:RealType}) shlib
 @c Int32 CVodeGetNumNonlinSolvIters (:CVODE_ptr,Ptr{:Clong}) shlib
 @c Int32 CVodeGetNumNonlinSolvConvFails (:CVODE_ptr,Ptr{:Clong}) shlib
 @c Int32 CVodeGetNonlinSolvStats (:CVODE_ptr,Ptr{:Clong},Ptr{:Clong}) shlib
@@ -309,7 +309,7 @@ const __codecvt_noconv = 3
 @c Int32 CVSpilsSetPrecType (:CVODE_ptr,:Int32) shlib
 @c Int32 CVSpilsSetGSType (:CVODE_ptr,:Int32) shlib
 @c Int32 CVSpilsSetMaxl (:CVODE_ptr,:Int32) shlib
-@c Int32 CVSpilsSetEpsLin (:CVODE_ptr,:realtype) shlib
+@c Int32 CVSpilsSetEpsLin (:CVODE_ptr,:RealType) shlib
 @c Int32 CVSpilsSetPreconditioner (:CVODE_ptr,:CVSpilsPrecSetupFn,:CVSpilsPrecSolveFn) shlib
 @c Int32 CVSpilsSetJacTimesVecFn (:CVODE_ptr,:CVSpilsJacTimesVecFn) shlib
 @c Int32 CVSpilsGetWorkSpace (:CVODE_ptr,Ptr{:Clong},Ptr{:Clong}) shlib
