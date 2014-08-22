@@ -2,6 +2,7 @@ Sundials for Julia
 ==================
 
 [![Build Status](https://travis-ci.org/JuliaLang/Sundials.jl.svg?branch=master)](https://travis-ci.org/JuliaLang/Sundials.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/6dxkur3rnfudj62o)](https://ci.appveyor.com/project/scidom/sundials-jl)
 [![Sundials](http://pkg.julialang.org/badges/Sundials_0.3.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=0.3)
 
 Introduction
