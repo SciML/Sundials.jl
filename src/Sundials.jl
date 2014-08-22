@@ -51,7 +51,7 @@ asarray(x::Ptr{realtype}, dims::Tuple) = pointer_to_array(x, dims)
 asarray(x::N_Vector, dims::Tuple) = reinterpret(realtype, asarray(x), dims)
 nvector(x::Vector{realtype}) = N_VMake_Serial(length(x), x)
 nvector(x::N_Vector) = x
-
+nvclone(x::N_Vector) = N_VClone_Serial(x)
 
 ##################################################################
 #
@@ -221,32 +221,48 @@ function kinsol(f::Function, y0::Vector{Float64})
     # y0, Vector of initial values
     # return: the solution vector
     neq = length(y0)
+    nv_y0 = nvector(y0)
+    nv_y = nvector(copy(y0))
+
     kmem = KINCreate()
     # use the user_data field to pass a function
     #   see: https://github.com/JuliaLang/julia/issues/2554
-    flag = KINInit(kmem, cfunction(kinsolfun, Int32, (N_Vector, N_Vector, Function)), nvector(y0))
+    flag = KINInit(kmem, cfunction(kinsolfun, Int32, (N_Vector, N_Vector, Function)), nv_y0)
     flag = KINDense(kmem, neq)
     flag = KINSetUserData(kmem, f)
+
     ## Solve problem
-    scale = ones(neq)
+    u_scale = nvector(ones(neq))
+    f_scale = nvector(ones(neq))
+
     strategy = 0   # KIN_NONE
-    y = copy(y0)
-    flag = Sundials.KINSol(kmem,
-                           y,
-                           strategy,
-                           scale,
-                           scale)
+
+    flag = KINSol(kmem,
+                   nv_y,
+                   strategy,
+                   u_scale,
+                   f_scale)
     if flag != 0
         println("KINSol error found")
     end
+
+    y = asarray(nv_y)
+
+    # KINFree(&kmem)
+    ccall((:KINFree, libsundials_kinsol), Void, (Ptr{Ptr{Void}},), &kmem)
+    N_VDestroy_Serial(nv_y0)
+    N_VDestroy_Serial(nv_y)
+    N_VDestroy_Serial(u_scale)
+    N_VDestroy_Serial(f_scale)
+
     return y
 end
 
 @c Int32 CVodeSetUserData (Ptr{:None},Any) libsundials_cvode  ## needed to allow passing a Function through the user data
 
 function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
-    y = Sundials.asarray(y)
-    yp = Sundials.asarray(yp)
+    y = asarray(y)
+    yp = asarray(yp)
     userfun(t, y, yp)
     return int32(0)
 end
@@ -261,28 +277,36 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
     # return: a solution matrix with time steps in `t` along rows and
     #         state variable `y` along columns
     neq = length(y0)
+    nv_y0 = nvector(y0)
+    nv_y = nvector(copy(y0))
+
     mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nvector(y0))
+    flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nv_y0)
     flag = CVodeSetUserData(mem, f)
     flag = CVodeSStolerances(mem, reltol, abstol)
     flag = CVDense(mem, neq)
     yres = zeros(length(t), length(y0))
     yres[1,:] = y0
-    y = copy(y0)
+
     tout = [0.0]
     for k in 2:length(t)
-        flag = CVode(mem, t[k], y, tout, CV_NORMAL)
-        yres[k,:] = y
+        flag = CVode(mem, t[k], nv_y, tout, CV_NORMAL)
+        yres[k,:] = asarray(nv_y)
     end
+    # CVodeFree(&mem)
+    ccall((:CVodeFree, libsundials_cvode), Void, (Ptr{Ptr{Void}},), &mem)
+    N_VDestroy_Serial(nv_y0)
+    N_VDestroy_Serial(nv_y)
+
     return yres
 end
 
 @c Int32 IDASetUserData (Ptr{:None},Any) libsundials_ida  ## needed to allow passing a Function through the user data
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
-    y = Sundials.asarray(y)
-    yp = Sundials.asarray(yp)
-    r = Sundials.asarray(r)
+    y = asarray(y)
+    yp = asarray(yp)
+    r = asarray(r)
     userfun(t, y, yp, r)
     return int32(0)   # indicates normal return
 end
@@ -297,28 +321,40 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
     # return: (y,yp) two solution matrices representing the states and state derivatives
     #         with time steps in `t` along rows and state variable `y` or `yp` along columns
     neq = length(y0)
+    nv_y0 = nvector(y0)
+    nv_yp0 = nvector(yp0)
+    nv_y = nvector(copy(y0))
+    nv_yp = nvector(copy(yp0))
+
     mem = IDACreate()
-    flag = IDAInit(mem, cfunction(idasolfun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), t[1], nvector(y0), nvector(yp0))
+    flag = IDAInit(mem, cfunction(idasolfun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), t[1], nv_y0, nv_yp0)
     flag = IDASetUserData(mem, f)
     flag = IDASStolerances(mem, reltol, abstol)
     flag = IDADense(mem, neq)
     rtest = zeros(neq)
     f(t[1], y0, yp0, rtest)
     if any(abs(rtest) .>= reltol)
-        flag = IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[1] + tstep)
+        flag = IDACalcIC(mem, IDA_YA_YDP_INIT, t[1] + tstep)
     end
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
     yres[1,:] = y0
     ypres[1,:] = yp0
-    y = copy(y0)
-    yp = copy(yp0)
+
     tout = [0.0]
     for k in 2:length(t)
-        retval = Sundials.IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL)
-        yres[k,:] = y
-        ypres[k,:] = yp
+        retval = IDASolve(mem, t[k], tout, nv_y, nv_yp, IDA_NORMAL)
+        yres[k,:] = asarray(nv_y)
+        ypres[k,:] = asarray(nv_yp)
     end
+    # IDAFree(&mem)
+    ccall((:IDAFree, libsundials_ida), Void, (Ptr{Ptr{Void}},), &mem)
+
+    N_VDestroy_Serial(nv_y0)
+    N_VDestroy_Serial(nv_y)
+    N_VDestroy_Serial(nv_yp0)
+    N_VDestroy_Serial(nv_yp)
+
     return yres, ypres
 end
 
