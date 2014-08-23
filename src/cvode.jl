@@ -23,35 +23,35 @@ end
 @ctypedef CVDlsBandJacFn Ptr{:Void}
 @c Int32 CVDlsSetDenseJacFn (Ptr{:None},:CVDlsDenseJacFn) shlib
 @c Int32 CVDlsSetBandJacFn (Ptr{:None},:CVDlsBandJacFn) shlib
-@c Int32 CVDlsGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVDlsGetNumJacEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVDlsGetNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVDlsGetLastFlag (Ptr{:None},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} CVDlsGetReturnFlagName (:Int64,) shlib
-@c Int32 CVBand (Ptr{:None},:Int64,:Int64,:Int64) shlib
+@c Int32 CVDlsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVDlsGetNumJacEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVDlsGetNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVDlsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} CVDlsGetReturnFlagName (:Clong,) shlib
+@c Int32 CVBand (Ptr{:None},:Clong,:Clong,:Clong) shlib
 
 # header: /usr/local/include/cvode/cvode_bandpre.h
-@c Int32 CVBandPrecInit (Ptr{:None},:Int64,:Int64,:Int64) shlib
-@c Int32 CVBandPrecGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVBandPrecGetNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVBandPrecInit (Ptr{:None},:Clong,:Clong,:Clong) shlib
+@c Int32 CVBandPrecGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVBandPrecGetNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
 
 # header: /usr/local/include/cvode/cvode_bbdpre.h
 @ctypedef CVLocalFn Ptr{:Void}
 @ctypedef CVCommFn Ptr{:Void}
-@c Int32 CVBBDPrecInit (Ptr{:None},:Int64,:Int64,:Int64,:Int64,:Int64,:realtype,:CVLocalFn,:CVCommFn) shlib
-@c Int32 CVBBDPrecReInit (Ptr{:None},:Int64,:Int64,:realtype) shlib
-@c Int32 CVBBDPrecGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVBBDPrecGetNumGfnEvals (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVBBDPrecInit (Ptr{:None},:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:CVLocalFn,:CVCommFn) shlib
+@c Int32 CVBBDPrecReInit (Ptr{:None},:Clong,:Clong,:realtype) shlib
+@c Int32 CVBBDPrecGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVBBDPrecGetNumGfnEvals (Ptr{:None},Ptr{:Clong}) shlib
 
 # header: /usr/local/include/cvode/cvode_dense.h
-@c Int32 CVDense (Ptr{:None},:Int64) shlib
+@c Int32 CVDense (Ptr{:None},:Clong) shlib
 
 # header: /usr/local/include/cvode/cvode_diag.h
 @c Int32 CVDiag (Ptr{:None},) shlib
-@c Int32 CVDiagGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVDiagGetNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVDiagGetLastFlag (Ptr{:None},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} CVDiagGetReturnFlagName (:Int64,) shlib
+@c Int32 CVDiagGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVDiagGetNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVDiagGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} CVDiagGetReturnFlagName (:Clong,) shlib
 
 # header: /usr/local/include/cvode/cvode_direct.h
 
@@ -62,7 +62,7 @@ end
 @ctypedef __u_char Uint8
 @ctypedef __u_short Uint16
 @ctypedef __u_int Uint32
-@ctypedef __u_long Uint64
+@ctypedef __u_long Culong
 @ctypedef __int8_t Uint8
 @ctypedef __uint8_t Uint8
 @ctypedef __int16_t Int16
@@ -215,8 +215,8 @@ const __codecvt_noconv = 3
 @c size_t fwrite (Ptr{:None},:size_t,:size_t,Ptr{:FILE}) shlib
 @c size_t fread_unlocked (Ptr{:None},:size_t,:size_t,Ptr{:FILE}) shlib
 @c size_t fwrite_unlocked (Ptr{:None},:size_t,:size_t,Ptr{:FILE}) shlib
-@c Int32 fseek (Ptr{:FILE},:Int64,:Int32) shlib
-@c Int64 ftell (Ptr{:FILE},) shlib
+@c Int32 fseek (Ptr{:FILE},:Clong,:Int32) shlib
+@c Clong ftell (Ptr{:FILE},) shlib
 @c None rewind (Ptr{:FILE},) shlib
 @c Int32 fseeko (Ptr{:FILE},:__off_t,:Int32) shlib
 @c __off_t ftello (Ptr{:FILE},) shlib
@@ -246,7 +246,7 @@ const __codecvt_noconv = 3
 @c Int32 CVodeSetErrFile (Ptr{:None},Ptr{:FILE}) shlib
 @c Int32 CVodeSetUserData (Ptr{:None},Ptr{:None}) shlib
 @c Int32 CVodeSetMaxOrd (Ptr{:None},:Int32) shlib
-@c Int32 CVodeSetMaxNumSteps (Ptr{:None},:Int64) shlib
+@c Int32 CVodeSetMaxNumSteps (Ptr{:None},:Clong) shlib
 @c Int32 CVodeSetMaxHnilWarns (Ptr{:None},:Int32) shlib
 @c Int32 CVodeSetStabLimDet (Ptr{:None},:Int32) shlib
 @c Int32 CVodeSetInitStep (Ptr{:None},:realtype) shlib
@@ -268,14 +268,14 @@ const __codecvt_noconv = 3
 @c Int32 CVodeRootInit (Ptr{:None},:Int32,:CVRootFn) shlib
 @c Int32 CVode (Ptr{:None},:realtype,:N_Vector,Ptr{:realtype},:Int32) shlib
 @c Int32 CVodeGetDky (Ptr{:None},:realtype,:Int32,:N_Vector) shlib
-@c Int32 CVodeGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVodeGetNumSteps (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetNumLinSolvSetups (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetNumErrTestFails (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVodeGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVodeGetNumSteps (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetNumLinSolvSetups (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetNumErrTestFails (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetLastOrder (Ptr{:None},Ptr{:Int32}) shlib
 @c Int32 CVodeGetCurrentOrder (Ptr{:None},Ptr{:Int32}) shlib
-@c Int32 CVodeGetNumStabLimOrderReds (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVodeGetNumStabLimOrderReds (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetActualInitStep (Ptr{:None},Ptr{:realtype}) shlib
 @c Int32 CVodeGetLastStep (Ptr{:None},Ptr{:realtype}) shlib
 @c Int32 CVodeGetCurrentStep (Ptr{:None},Ptr{:realtype}) shlib
@@ -283,13 +283,13 @@ const __codecvt_noconv = 3
 @c Int32 CVodeGetTolScaleFactor (Ptr{:None},Ptr{:realtype}) shlib
 @c Int32 CVodeGetErrWeights (Ptr{:None},:N_Vector) shlib
 @c Int32 CVodeGetEstLocalErrors (Ptr{:None},:N_Vector) shlib
-@c Int32 CVodeGetNumGEvals (Ptr{:None},Ptr{:Int64}) shlib
+@c Int32 CVodeGetNumGEvals (Ptr{:None},Ptr{:Clong}) shlib
 @c Int32 CVodeGetRootInfo (Ptr{:None},Ptr{:Int32}) shlib
-@c Int32 CVodeGetIntegratorStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64},Ptr{:Int64},Ptr{:Int32},Ptr{:Int32},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
-@c Int32 CVodeGetNumNonlinSolvIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetNumNonlinSolvConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVodeGetNonlinSolvStats (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} CVodeGetReturnFlagName (:Int64,) shlib
+@c Int32 CVodeGetIntegratorStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Clong},Ptr{:Int32},Ptr{:Int32},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
+@c Int32 CVodeGetNumNonlinSolvIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetNumNonlinSolvConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVodeGetNonlinSolvStats (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} CVodeGetReturnFlagName (:Clong,) shlib
 @c None CVodeFree (Ptr{Ptr{:None}},) shlib
 
 # header: /usr/local/include/cvode/cvode_impl.h
@@ -308,15 +308,15 @@ const __codecvt_noconv = 3
 @c Int32 CVSpilsSetEpsLin (Ptr{:None},:realtype) shlib
 @c Int32 CVSpilsSetPreconditioner (Ptr{:None},:CVSpilsPrecSetupFn,:CVSpilsPrecSolveFn) shlib
 @c Int32 CVSpilsSetJacTimesVecFn (Ptr{:None},:CVSpilsJacTimesVecFn) shlib
-@c Int32 CVSpilsGetWorkSpace (Ptr{:None},Ptr{:Int64},Ptr{:Int64}) shlib
-@c Int32 CVSpilsGetNumPrecEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVSpilsGetNumPrecSolves (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVSpilsGetNumLinIters (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVSpilsGetNumConvFails (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVSpilsGetNumJtimesEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVSpilsGetNumRhsEvals (Ptr{:None},Ptr{:Int64}) shlib
-@c Int32 CVSpilsGetLastFlag (Ptr{:None},Ptr{:Int64}) shlib
-@c Ptr{:Uint8} CVSpilsGetReturnFlagName (:Int64,) shlib
+@c Int32 CVSpilsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
+@c Int32 CVSpilsGetNumPrecEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVSpilsGetNumPrecSolves (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVSpilsGetNumLinIters (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVSpilsGetNumConvFails (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVSpilsGetNumJtimesEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVSpilsGetNumRhsEvals (Ptr{:None},Ptr{:Clong}) shlib
+@c Int32 CVSpilsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
+@c Ptr{:Uint8} CVSpilsGetReturnFlagName (:Clong,) shlib
 @c Int32 CVSpbcg (Ptr{:None},:Int32,:Int32) shlib
 
 # header: /usr/local/include/cvode/cvode_spgmr.h

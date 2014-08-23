@@ -20,53 +20,53 @@ end
 
 # header: /usr/local/include/sundials/sundials_band.h
 @ctypedef DlsMat Ptr{:Void}
-@c DlsMat NewDenseMat (:Int64,:Int64) shlib
-@c DlsMat NewBandMat (:Int64,:Int64,:Int64,:Int64) shlib
+@c DlsMat NewDenseMat (:Clong,:Clong) shlib
+@c DlsMat NewBandMat (:Clong,:Clong,:Clong,:Clong) shlib
 @c None DestroyMat (:DlsMat,) shlib
 @c Ptr{:Int32} NewIntArray (:Int32,) shlib
-@c Ptr{:Int64} NewLintArray (:Int64,) shlib
-@c Ptr{:realtype} NewRealArray (:Int64,) shlib
+@c Ptr{:Clong} NewLintArray (:Clong,) shlib
+@c Ptr{:realtype} NewRealArray (:Clong,) shlib
 @c None DestroyArray (Ptr{:None},) shlib
 @c None AddIdentity (:DlsMat,) shlib
 @c None SetToZero (:DlsMat,) shlib
 @c None PrintMat (:DlsMat,) shlib
-@c Ptr{Ptr{:realtype}} newDenseMat (:Int64,:Int64) shlib
-@c Ptr{Ptr{:realtype}} newBandMat (:Int64,:Int64,:Int64) shlib
+@c Ptr{Ptr{:realtype}} newDenseMat (:Clong,:Clong) shlib
+@c Ptr{Ptr{:realtype}} newBandMat (:Clong,:Clong,:Clong) shlib
 @c None destroyMat (Ptr{Ptr{:realtype}},) shlib
 @c Ptr{:Int32} newIntArray (:Int32,) shlib
-@c Ptr{:Int64} newLintArray (:Int64,) shlib
-@c Ptr{:realtype} newRealArray (:Int64,) shlib
+@c Ptr{:Clong} newLintArray (:Clong,) shlib
+@c Ptr{:realtype} newRealArray (:Clong,) shlib
 @c None destroyArray (Ptr{:None},) shlib
-@c Int64 BandGBTRF (:DlsMat,Ptr{:Int64}) shlib
-@c Int64 bandGBTRF (Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,:Int64,Ptr{:Int64}) shlib
-@c None BandGBTRS (:DlsMat,Ptr{:Int64},Ptr{:realtype}) shlib
-@c None bandGBTRS (Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,Ptr{:Int64},Ptr{:realtype}) shlib
-@c None BandCopy (:DlsMat,:DlsMat,:Int64,:Int64) shlib
-@c None bandCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,:Int64,:Int64) shlib
+@c Clong BandGBTRF (:DlsMat,Ptr{:Clong}) shlib
+@c Clong bandGBTRF (Ptr{Ptr{:realtype}},:Clong,:Clong,:Clong,:Clong,Ptr{:Clong}) shlib
+@c None BandGBTRS (:DlsMat,Ptr{:Clong},Ptr{:realtype}) shlib
+@c None bandGBTRS (Ptr{Ptr{:realtype}},:Clong,:Clong,:Clong,Ptr{:Clong},Ptr{:realtype}) shlib
+@c None BandCopy (:DlsMat,:DlsMat,:Clong,:Clong) shlib
+@c None bandCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Clong,:Clong,:Clong,:Clong,:Clong) shlib
 @c None BandScale (:realtype,:DlsMat) shlib
-@c None bandScale (:realtype,Ptr{Ptr{:realtype}},:Int64,:Int64,:Int64,:Int64) shlib
-@c None bandAddIdentity (Ptr{Ptr{:realtype}},:Int64,:Int64) shlib
+@c None bandScale (:realtype,Ptr{Ptr{:realtype}},:Clong,:Clong,:Clong,:Clong) shlib
+@c None bandAddIdentity (Ptr{Ptr{:realtype}},:Clong,:Clong) shlib
 
 # header: /usr/local/include/sundials/sundials_config.h
 
 # header: /usr/local/include/sundials/sundials_dense.h
-@c Int64 DenseGETRF (:DlsMat,Ptr{:Int64}) shlib
-@c None DenseGETRS (:DlsMat,Ptr{:Int64},Ptr{:realtype}) shlib
-@c Int64 denseGETRF (Ptr{Ptr{:realtype}},:Int64,:Int64,Ptr{:Int64}) shlib
-@c None denseGETRS (Ptr{Ptr{:realtype}},:Int64,Ptr{:Int64},Ptr{:realtype}) shlib
-@c Int64 DensePOTRF (:DlsMat,) shlib
+@c Clong DenseGETRF (:DlsMat,Ptr{:Clong}) shlib
+@c None DenseGETRS (:DlsMat,Ptr{:Clong},Ptr{:realtype}) shlib
+@c Clong denseGETRF (Ptr{Ptr{:realtype}},:Clong,:Clong,Ptr{:Clong}) shlib
+@c None denseGETRS (Ptr{Ptr{:realtype}},:Clong,Ptr{:Clong},Ptr{:realtype}) shlib
+@c Clong DensePOTRF (:DlsMat,) shlib
 @c None DensePOTRS (:DlsMat,Ptr{:realtype}) shlib
-@c Int64 densePOTRF (Ptr{Ptr{:realtype}},:Int64) shlib
-@c None densePOTRS (Ptr{Ptr{:realtype}},:Int64,Ptr{:realtype}) shlib
+@c Clong densePOTRF (Ptr{Ptr{:realtype}},:Clong) shlib
+@c None densePOTRS (Ptr{Ptr{:realtype}},:Clong,Ptr{:realtype}) shlib
 @c Int32 DenseGEQRF (:DlsMat,Ptr{:realtype},Ptr{:realtype}) shlib
 @c Int32 DenseORMQR (:DlsMat,Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
-@c Int32 denseGEQRF (Ptr{Ptr{:realtype}},:Int64,:Int64,Ptr{:realtype},Ptr{:realtype}) shlib
-@c Int32 denseORMQR (Ptr{Ptr{:realtype}},:Int64,:Int64,Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
+@c Int32 denseGEQRF (Ptr{Ptr{:realtype}},:Clong,:Clong,Ptr{:realtype},Ptr{:realtype}) shlib
+@c Int32 denseORMQR (Ptr{Ptr{:realtype}},:Clong,:Clong,Ptr{:realtype},Ptr{:realtype},Ptr{:realtype},Ptr{:realtype}) shlib
 @c None DenseCopy (:DlsMat,:DlsMat) shlib
-@c None denseCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Int64,:Int64) shlib
+@c None denseCopy (Ptr{Ptr{:realtype}},Ptr{Ptr{:realtype}},:Clong,:Clong) shlib
 @c None DenseScale (:realtype,:DlsMat) shlib
-@c None denseScale (:realtype,Ptr{Ptr{:realtype}},:Int64,:Int64) shlib
-@c None denseAddIdentity (Ptr{Ptr{:realtype}},:Int64) shlib
+@c None denseScale (:realtype,Ptr{Ptr{:realtype}},:Clong,:Clong) shlib
+@c None denseAddIdentity (Ptr{Ptr{:realtype}},:Clong) shlib
 
 # header: /usr/local/include/sundials/sundials_direct.h
 

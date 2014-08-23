@@ -1,6 +1,10 @@
 Sundials for Julia
 ==================
 
+[![Build Status](https://travis-ci.org/JuliaLang/Sundials.jl.svg?branch=master)](https://travis-ci.org/JuliaLang/Sundials.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/6dxkur3rnfudj62o)](https://ci.appveyor.com/project/scidom/sundials-jl)
+[![Sundials](http://pkg.julialang.org/badges/Sundials_0.3.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=0.3)
+
 Introduction
 ------------
 
@@ -37,6 +41,28 @@ package to support equation-based modeling for simulations. Sims is
 like a lite version of Modelica. Sims can currently use Sundials or
 DASSL.
 
+Installation
+---
+
+Within Julia, use the package manager:
+```julia
+Pkg.add("Sundials")
+```
+This should download and install the Sundials libraries and register the package. On Windows [precompiled binaries](http://sourceforge.net/projects/juliadeps-win/files) 
+are used, while on Unix and OSX Sundials is built from its sources (provided the necessary tools are
+available). If you have Sundials already installed, make sure that Julia can find it, e.g., via
+```julia
+push!(Sys.DL_LOAD_PATH, "/opt/local/lib")
+```
+before you install the package. Downloading and/or re-building of the library can be triggered by `Pkg.build("Sundials")`
+if anything goes wrong.
+
+To test the installation use
+```julia
+Pkg.test("Sundials")
+```
+which currently runs some of the examples in the `examples` directory.
+
 API
 ---
 
@@ -55,13 +81,14 @@ code, see
 [src/wrap_sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/wrap_sundials.jl).
 
 Because of Clang.jl, Sundials.jl provides good coverage of the Sundials
-library (the serial version). 
+library (the serial version).
 
 Simplified Functions
 --------------------
 
-Three functions `kinsol`, `ode`, and `dae` are provided as high-level,
-very simple functions. Here is an example for `ode`:
+Three functions `kinsol`, `cvode`, and `idasol` are provided as high-level,
+very simple functions. *Note that the latter two functions were previously
+called `ode` and `ida`.* Here is an example for `cvode`:
 
 ```julia
 using Sundials
@@ -73,11 +100,11 @@ function f(t, y, ydot)
 end
 
 t = [0.0, 4 * logspace(-1., 7., 9)]
-res = Sundials.ode(f, [1.0, 0.0, 0.0], t)
+res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
 ```
 
-There are two supported keyword arguments, `reltol`, and `abstol`, for `ode` and `dae`. 
-Theese functions will probably be deprecated, in order to create a unified API for
+There are two supported keyword arguments, `reltol`, and `abstol`, for `cvode` and `idasol`.
+These functions will probably be deprecated, in order to create a unified API for
 ODE solvers under [ODE.jl](https://github.com/JuliaLang/ODE.jl)
 
 Examples
@@ -94,7 +121,6 @@ Status
 Please note that this is a developer preview. There could be bugs, and
 everything is subject to change. Of note are:
 
-* You must have the Sundials installed.
 * The API that matches the Sundials C API should be stable.
 * The simplified API is not stable.
 * There is no documentation for this package. Please see the general

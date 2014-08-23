@@ -1,5 +1,18 @@
 module Sundials
 
+if isfile(joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl"))
+    include("../deps/deps.jl")
+else
+    error("Sundials not properly installed. Please run Pkg.build(\"Sundials\")")
+end
+
+##################################################################
+# Deprecations
+##################################################################
+
+@deprecate ode cvode
+@deprecate ida idasol
+
 
 ##################################################################
 #
@@ -9,18 +22,18 @@ module Sundials
 
 typealias __builtin_va_list Ptr{:Void}
 
-shlib = :libsundials_nvecserial
+shlib = libsundials_nvecserial
 include("nvector.jl")
-shlib = :libsundials_cvode
+shlib = libsundials_cvode
 include("libsundials.jl")
 include("cvode.jl")
-shlib = :libsundials_cvodes
+shlib = libsundials_cvodes
 include("cvodes.jl")
-shlib = :libsundials_ida
+shlib = libsundials_ida
 include("ida.jl")
-shlib = :libsundials_idas
+shlib = libsundials_idas
 include("idas.jl")
-shlib = :libsundials_kinsol
+shlib = libsundials_kinsol
 include("kinsol.jl")
 
 include("constants.jl")
@@ -31,7 +44,7 @@ include("constants.jl")
 #
 ##################################################################
 
-nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int64}}, x)))
+nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int}}, x)))
 asarray(x::N_Vector) = pointer_to_array(N_VGetArrayPointer_Serial(x), (nvlength(x),))
 asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = pointer_to_array(x, dims)
@@ -101,17 +114,17 @@ CVodeQuadReInit(mem, yQ0::Vector{realtype}) =
     CVodeQuadReInit(mem, nvector(yQ0))
 CVodeQuadSVtolerances(mem, reltolQ, abstolQ::Vector{realtype}) =
     CVodeQuadSVtolerances(mem, reltolQ, nvector(abstolQ))
-CVodeSensInit(mem, Ns, ism, fS::Function, yS0) = 
+CVodeSensInit(mem, Ns, ism, fS::Function, yS0) =
     CVodeSensInit(mem, Ns, ism, cfunction(fS, Int32, (int32, realtype, N_Vector, N_Vector, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), nvector(yS0))
-CVodeSensInit1(mem, Ns, ism, fS1::Function, yS0) = 
+CVodeSensInit1(mem, Ns, ism, fS1::Function, yS0) =
     CVodeSensInit1(mem, Ns, ism, cfunction(fS1, Int32, (int32, realtype, N_Vector, N_Vector, int32, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), nvector(yS0))
-CVodeSensReInit(mem, ism, yS0::Vector{realtype}) = 
+CVodeSensReInit(mem, ism, yS0::Vector{realtype}) =
     CVodeSensReInit(mem, ism, nvector(yS0))
 CVodeSensSVtolerances(mem, reltolS, abstolS::Vector{realtype}) =
     CVodeSensSVtolerances(mem, reltolS, nvector(abstolS))
-CVodeQuadSensInit(mem, fQS::Function, yQS0) = 
+CVodeQuadSensInit(mem, fQS::Function, yQS0) =
     CVodeQuadSensInit(mem, cfunction(fQS, Int32, (int32, realtype, N_Vector, N_Vector, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), nvector(yQS0))
-CVodeQuadSensReInit(mem, yQS0::Vector{realtype}) = 
+CVodeQuadSensReInit(mem, yQS0::Vector{realtype}) =
     CVodeQuadSensReInit(mem, nvector(yQS0))
 CVodeQuadSensSVtolerances(mem, reltolQS, abstolQS::Vector{realtype}) =
     CVodeQuadSensSVtolerances(mem, reltolQS, nvector(abstolQS))
@@ -193,7 +206,7 @@ IDAQuadReInit(mem, yQ0::Vector{realtype}) =
 ##################################################################
 
 
-@c Int32 KINSetUserData (Ptr{:None},Any) :libsundials_kinsol  ## needed to allow passing a Function through the user data
+@c Int32 KINSetUserData (Ptr{:None},Any) libsundials_kinsol  ## needed to allow passing a Function through the user data
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
     y = asarray(y)
@@ -206,7 +219,7 @@ function kinsol(f::Function, y0::Vector{Float64})
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
-    # return: the solution vector 
+    # return: the solution vector
     neq = length(y0)
     kmem = KINCreate()
     # use the user_data field to pass a function
@@ -229,18 +242,18 @@ function kinsol(f::Function, y0::Vector{Float64})
     return y
 end
 
-@c Int32 CVodeSetUserData (Ptr{:None},Any) :libsundials_cvode  ## needed to allow passing a Function through the user data
+@c Int32 CVodeSetUserData (Ptr{:None},Any) libsundials_cvode  ## needed to allow passing a Function through the user data
 
-function odefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
+function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
     y = Sundials.asarray(y)
     yp = Sundials.asarray(yp)
     userfun(t, y, yp)
     return int32(0)
 end
 
-function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
+function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64}, t::Float64)
-    #    where `y` is the input vector, and `fy` is the 
+    #    where `y` is the input vector, and `fy` is the
     # y0, Vector of initial values
     # t, Vector of time values at which to record integration results
     # reltol, Relative Tolerance to be used (default=1e-4)
@@ -249,7 +262,7 @@ function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float
     #         state variable `y` along columns
     neq = length(y0)
     mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    flag = CVodeInit(mem, cfunction(odefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nvector(y0))
+    flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Function)), t[1], nvector(y0))
     flag = CVodeSetUserData(mem, f)
     flag = CVodeSStolerances(mem, reltol, abstol)
     flag = CVDense(mem, neq)
@@ -259,24 +272,24 @@ function ode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float
     tout = [0.0]
     for k in 2:length(t)
         flag = CVode(mem, t[k], y, tout, CV_NORMAL)
-        yres[k,:] = y 
+        yres[k,:] = y
     end
     return yres
 end
 
-@c Int32 IDASetUserData (Ptr{:None},Any) :libsundials_ida  ## needed to allow passing a Function through the user data
+@c Int32 IDASetUserData (Ptr{:None},Any) libsundials_ida  ## needed to allow passing a Function through the user data
 
-function daefun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
-    y = Sundials.asarray(y) 
-    yp = Sundials.asarray(yp) 
+function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
+    y = Sundials.asarray(y)
+    yp = Sundials.asarray(yp)
     r = Sundials.asarray(r)
     userfun(t, y, yp, r)
     return int32(0)   # indicates normal return
 end
 
-function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
+function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
-    #    where `y` is the input vector, and `fy` is the 
+    #    where `y` is the input vector, and `fy` is the
     # y0, Vector of initial values
     # yp0, Vector of initial values of the derivatives
     # reltol, Relative Tolerance to be used (default=1e-4)
@@ -285,7 +298,7 @@ function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{F
     #         with time steps in `t` along rows and state variable `y` or `yp` along columns
     neq = length(y0)
     mem = IDACreate()
-    flag = IDAInit(mem, cfunction(daefun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), t[1], nvector(y0), nvector(yp0))
+    flag = IDAInit(mem, cfunction(idasolfun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Function)), t[1], nvector(y0), nvector(yp0))
     flag = IDASetUserData(mem, f)
     flag = IDASStolerances(mem, reltol, abstol)
     flag = IDADense(mem, neq)
@@ -303,11 +316,11 @@ function dae(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{F
     tout = [0.0]
     for k in 2:length(t)
         retval = Sundials.IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL)
-        yres[k,:] = y 
-        ypres[k,:] = yp 
+        yres[k,:] = y
+        ypres[k,:] = yp
     end
     return yres, ypres
 end
 
 
-end # module 
+end # module
