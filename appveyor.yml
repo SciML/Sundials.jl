@@ -3,12 +3,6 @@ environment:
   - JULIAVERSION: "win32"
   - JULIAVERSION: "win64"
 
-# Only run on master until AppVeyor and Travis stop overwriting
-# each other on pull request status indicators
-branches:
-  only:
-    - master
-
 install:
 # Download most recent Julia Windows binary
   - ps: (new-object net.webclient).DownloadFile($("http://status.julialang.org/download/"+$env:JULIAVERSION), "C:\projects\julia-binary.exe")
