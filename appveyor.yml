@@ -2,7 +2,7 @@ environment:
   matrix:
   - JULIAVERSION: "win32"
   - JULIAVERSION: "win64"
-# this is a test
+
 install:
 # Download most recent Julia Windows binary
   - ps: (new-object net.webclient).DownloadFile($("http://status.julialang.org/download/"+$env:JULIAVERSION), "C:\projects\julia-binary.exe")
