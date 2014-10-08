@@ -13,21 +13,20 @@ Sundials.jl is a Julia package that interfaces to the
 library. Sundials (the C library and this package) provides the
 following:
 
-* *CVODE*  - for integration of ordinary differential equation systems (ODEs).
-          CVODE treats stiff and nonstiff ODE systems of the form
-          `y' = f(t,y), y(t0) = y0`
 * *CVODES* - for integration and sensitivity analysis of ODEs.
           CVODES treats stiff and nonstiff ODE systems of the form
-          `y' = f(t,y,p), y(t0) = y0(p)`
-* *IDA*    - for integration of differential-algebraic equation systems (DAEs).
-          IDA treats DAE systems of the form
-          `F(t,y,y') = 0, y(t0) = y0, y'(t0) = y0'`
+          `y' = f(t,y,p), y(t0) = y0(p)`,
+          where `p` is a set of parameters.
 * *IDAS*   - for integration and sensitivity analysis of DAEs.
           IDAS treats DAE systems of the form
           `F(t,y,y',p) = 0, y(t0) = y0(p), y'(t0) = y0'(p)`
 * *KINSOL* - for solution of nonlinear algebraic systems.
           KINSOL treats nonlinear systems of the form
           `F(u) = 0`
+
+Note that *CVODES* and *IDAS* contain all functions provided by *CVODE* and *IDA* (for integration
+without sensitivity analysis). If you need to use the latter, you can set `enable_sensitivities=false`
+in `deps/build.jl` and (re)build the package.
 
 [Julia](http://julialang.org) is a fast, Matlab-like language that is
 well suited to modeling and simulations. It's particularly suited for
