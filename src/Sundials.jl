@@ -22,17 +22,26 @@ end
 
 typealias __builtin_va_list Ptr{:Void}
 
+if isdefined(:libsundials_cvodes)
+    libsundials_cvode = libsundials_cvodes
+    libsundials_ida = libsundials_idas
+end
+
 shlib = libsundials_nvecserial
 include("nvector.jl")
 shlib = libsundials_cvode
 include("libsundials.jl")
 include("cvode.jl")
-shlib = libsundials_cvodes
-include("cvodes.jl")
+if isdefined(:libsundials_cvodes)
+    shlib = libsundials_cvodes
+    include("cvodes.jl")
+end
 shlib = libsundials_ida
 include("ida.jl")
-shlib = libsundials_idas
-include("idas.jl")
+if isdefined(:libsundials_cvodes)
+    shlib = libsundials_idas
+    include("idas.jl")
+end
 shlib = libsundials_kinsol
 include("kinsol.jl")
 
@@ -107,6 +116,7 @@ CVDlsSetDenseJacFn(mem, jac::Function) =
 CVode(mem, tout, yout::Vector{realtype}, tret, itask) =
     CVode(mem, tout, nvector(yout), tret, itask)
 
+if isdefined(:libsundials_cvodes)
 # CVODES
 CVodeQuadInit(mem, fQ::Function, yQ0) =
     CVodeQuadInit(mem, cfunction(fQ, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), nvector(yQ0))
@@ -197,7 +207,7 @@ IDAQuadReInit(mem, yQ0::Vector{realtype}) =
 
     ## IDAQuadSVtolerances(mem, reltol, abstol::Vector{realtype}) =
     ## IDAQuadSVtolerances(mem, reltol, nvector(abstol))
-
+end
 
 ##################################################################
 #
