@@ -16,7 +16,7 @@ nvecserial = library_dependency("libsundials_nvecserial")
 sundialslibs = enable_sensitivities ? [cvodes, idas, kinsol, nvecserial] : [cvode, ida, kinsol, nvecserial]
 
 sundialsver = "sundials-2.5.0"
-provides(Sources, URI("http://computation.llnl.gov/casc/sundials/download/code/$sundialsver.tar.gz"), sundialslibs)
+provides(Sources, URI("http://ftp.mcs.anl.gov/pub/petsc/externalpackages/$sundialsver.tar.gz"), sundialslibs)
 
 provides(Binaries, URI("http://sourceforge.net/projects/juliadeps-win/files/$sundialsver.7z"),
     sundialslibs, unpacked_dir="usr$WORD_SIZE/bin", os = :Windows)
