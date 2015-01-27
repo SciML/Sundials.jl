@@ -131,5 +131,5 @@ end
 
 u0, up0, id = initial ()
 
-yout, ypout = idabandsol(cableres, u0, up0, id, map(x -> x, t),
-                         reltol = 1e-3, abstol = 1e-4)
+yout, ypout = @time idabandsol(cableres, u0, up0, id, map(x -> x, t),
+                               reltol = 1e-3, abstol = 1e-4)
