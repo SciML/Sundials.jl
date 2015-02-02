@@ -5,7 +5,7 @@ if isfile(joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl"))
 else
     error("Sundials not properly installed. Please run Pkg.build(\"Sundials\")")
 end
-
+ 
 ##################################################################
 # Deprecations
 ##################################################################
