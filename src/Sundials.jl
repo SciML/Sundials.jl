@@ -53,7 +53,7 @@ include("constants.jl")
 #
 ##################################################################
 
-nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int}}, x)))
+nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int32}}, x)))
 asarray(x::N_Vector) = pointer_to_array(N_VGetArrayPointer_Serial(x), (nvlength(x),))
 asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = pointer_to_array(x, dims)
