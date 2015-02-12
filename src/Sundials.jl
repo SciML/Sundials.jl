@@ -99,8 +99,8 @@ IDASolve(mem, tout, tret, yret::Vector{realtype}, ypret::Vector{realtype}, itask
 # CVODE
 CVodeInit(mem, f::Function, t0, y0) =
     CVodeInit(mem, cfunction(f, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
-CVodeReInit(mem, f::Function, t0, y0::Vector{realtype}) =
-    CVodeReInit(mem, cfunction(f, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
+CVodeReInit(mem, t0, y0::Vector{realtype}) =
+    CVodeReInit(mem, t0, nvector(y0))
 CVodeSVtolerances(mem, reltol, abstol::Vector{realtype}) =
     CVodeSVtolerances(mem, reltol, nvector(abstol))
 CVodeGetDky(mem, t, k, dky::Vector{realtype}) =
