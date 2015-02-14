@@ -5,7 +5,7 @@ if isfile(joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl"))
 else
     error("Sundials not properly installed. Please run Pkg.build(\"Sundials\")")
 end
-
+ 
 ##################################################################
 # Deprecations
 ##################################################################
@@ -53,7 +53,7 @@ include("constants.jl")
 #
 ##################################################################
 
-nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Int}}, x)))
+nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 asarray(x::N_Vector) = pointer_to_array(N_VGetArrayPointer_Serial(x), (nvlength(x),))
 asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = pointer_to_array(x, dims)
@@ -99,8 +99,8 @@ IDASolve(mem, tout, tret, yret::Vector{realtype}, ypret::Vector{realtype}, itask
 # CVODE
 CVodeInit(mem, f::Function, t0, y0) =
     CVodeInit(mem, cfunction(f, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
-CVodeReInit(mem, f::Function, t0, y0::Vector{realtype}) =
-    CVodeReInit(mem, cfunction(f, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
+CVodeReInit(mem, t0, y0::Vector{realtype}) =
+    CVodeReInit(mem, t0, nvector(y0))
 CVodeSVtolerances(mem, reltol, abstol::Vector{realtype}) =
     CVodeSVtolerances(mem, reltol, nvector(abstol))
 CVodeGetDky(mem, t, k, dky::Vector{realtype}) =
