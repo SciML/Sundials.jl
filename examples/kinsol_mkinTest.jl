@@ -44,6 +44,6 @@ residual = ones(2)
 sysfn(y, residual, [1,2])
 println("Residual: ", residual)
 
-## Sundials.KINFree(kmem)   # segfaults, probably because Julia arrays and NVectors share memory
+Sundials.KINFree([kmem])
 
 
