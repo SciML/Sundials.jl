@@ -1,9 +1,11 @@
 Sundials for Julia
 ==================
 
+[![Sundials on julia-release](http://pkg.julialang.org/badges/Sundials_release.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=release)
+[![Sundials on julia-nightly](http://pkg.julialang.org/badges/Sundials_nightly.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=nightly)
 [![Build Status](https://travis-ci.org/JuliaLang/Sundials.jl.svg?branch=master)](https://travis-ci.org/JuliaLang/Sundials.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/6dxkur3rnfudj62o)](https://ci.appveyor.com/project/scidom/sundials-jl)
-[![Sundials](http://pkg.julialang.org/badges/Sundials_0.3.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=0.3)
+[![Coverage Status](https://coveralls.io/repos/JuliaLang/Sundials.jl/badge.svg)](https://coveralls.io/r/JuliaLang/Sundials.jl)
 
 Introduction
 ------------
@@ -47,7 +49,7 @@ Within Julia, use the package manager:
 ```julia
 Pkg.add("Sundials")
 ```
-This should download and install the Sundials libraries and register the package. On Windows [precompiled binaries](http://sourceforge.net/projects/juliadeps-win/files) 
+This should download and install the Sundials libraries and register the package. On Windows [precompiled binaries](http://sourceforge.net/projects/juliadeps-win/files)
 are used, while on Unix and OSX Sundials is built from its sources (provided the necessary tools are
 available). If you have Sundials already installed, make sure that Julia can find it, e.g., via
 ```julia
@@ -67,7 +69,7 @@ API
 
 This package closely follows the Sundials C API. At a slightly higher
 level, many (but not all) Sundials.jl functions support passing Julia
-objects (like Arrays) instead of Sundials objects (like N_Vectors).
+objects (like `Array`s) instead of Sundials objects (like `N_Vector`s).
 See
 [src/Sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/Sundials.jl)
 for examples of how the higher-level interfacing works.
@@ -134,6 +136,6 @@ everything is subject to change. Of note are:
   package. See this CVODE
   [example](https://github.com/JuliaLang/Sundials.jl/blob/master/examples/cvode_Roberts_dns.jl#L26).
 * The parallel versions of Sundials have been wrapped, but I doubt
-  that they are useable from Julia. Julia doesn't have an MPI
-  interface that I am aware of.  
-* More work could be done to provide a better interface to N_Vectors.
+  that they are usable from Julia. They need to be integrated with
+  [MPI.jl](https://github.com/JuliaParallel/MPI.jl)
+* More work could be done to provide a better interface to `N_Vector`s.
