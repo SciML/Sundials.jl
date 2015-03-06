@@ -9,13 +9,18 @@ println("result at t=$(t[end]):")
 println(res[end,:], "\n")
 
 
-# run ida example
-println("== start ida example")
+# run ida examples
+println("== start ida_Roberts example")
 include("../examples/ida_Roberts_simplified.jl")
 
 println("result at t=$(t[end]):")
 println(yout[end,:], "\n")
 
+println("== start ida_Heat2D example")
+include("../examples/ida_Heat2D.jl")
+
+println("result at t=$(t[end]):")
+println(yout[end,:], "\n")
 
 # run kinsol example
 println("== start kinsol example")
