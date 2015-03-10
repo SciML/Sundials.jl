@@ -165,10 +165,10 @@ IDASolve(mem, tout, tret, yret::Vector{RealType}, ypret::Vector{RealType}, itask
 
 # CVODE
 CVodeInit(mem, f::Function, t0, y0) =
-    CVodeInit(mem, cfunction(f, Int32, (realtype, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
-CVodeReInit(mem, t0, y0::Vector{realtype}) =
+    CVodeInit(mem, cfunction(f, Int32, (RealType, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
+CVodeReInit(mem, t0, y0::Vector{RealType}) =
     CVodeReInit(mem, t0, nvector(y0))
-CVodeSVtolerances(mem, reltol, abstol::Vector{realtype}) =
+CVodeSVtolerances(mem, reltol, abstol::Vector{RealType}) =
     CVodeSVtolerances(mem, reltol, nvector(abstol))
 CVodeGetDky(mem, t, k, dky::Vector{RealType}) =
     CVodeGetDky(mem, t, k, NVector(dky))
