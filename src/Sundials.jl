@@ -104,6 +104,7 @@ Base.convert(::Type{N_Vector}, nv::NVector) = nv.ptr[1]
 Base.convert(::Type{Vector{RealType}}, nv::NVector)= nv.v
 
 Base.size(nv::NVector, d...) = size(nv.v, d...)
+
 Base.getindex(nv::NVector, i::Real) = getindex(nv.v, i)
 Base.getindex(nv::NVector, i::AbstractArray) = getindex(nv.v, i)
 Base.getindex(nv::NVector, inds...) = getindex(nv.v, inds...)
@@ -112,6 +113,7 @@ Base.setindex!(nv::NVector, X, i::Real ) = setindex!(nv.v, X, i)
 Base.setindex!(nv::NVector, X, i::AbstractArray ) = setindex!(nv.v, X, i)
 Base.setindex!(nv::NVector, X, inds... ) = setindex!(nv.v, X, inds...)
 
+Base.stride(nv::NVector, k::Integer) = stride(nv.v, k)
 
 ##################################################################
 #
@@ -124,9 +126,6 @@ asarray(x::N_Vector) = pointer_to_array(N_VGetArrayPointer_Serial(x), (nvlength(
 asarray(x::Vector{RealType}) = x
 asarray(x::Ptr{RealType}, dims::Tuple) = pointer_to_array(x, dims)
 asarray(x::N_Vector, dims::Tuple) = reinterpret(RealType, asarray(x), dims)
-
-# nvector(x::Vector{RealType}) = NVector(x)
-# nvector(x::N_Vector) = x
 
 
 ##################################################################
@@ -165,11 +164,11 @@ IDASolve(mem, tout, tret, yret::Vector{RealType}, ypret::Vector{RealType}, itask
 
 # CVODE
 CVodeInit(mem, f::Function, t0, y0) =
-    CVodeInit(mem, cfunction(f, Int32, (RealType, N_Vector, N_Vector, Ptr{Void})), t0, nvector(y0))
+    CVodeInit(mem, cfunction(f, Int32, (RealType, N_Vector, N_Vector, Ptr{Void})), t0, NVector(y0))
 CVodeReInit(mem, t0, y0::Vector{RealType}) =
-    CVodeReInit(mem, t0, nvector(y0))
+    CVodeReInit(mem, t0, NVector(y0))
 CVodeSVtolerances(mem, reltol, abstol::Vector{RealType}) =
-    CVodeSVtolerances(mem, reltol, nvector(abstol))
+    CVodeSVtolerances(mem, reltol, NVector(abstol))
 CVodeGetDky(mem, t, k, dky::Vector{RealType}) =
     CVodeGetDky(mem, t, k, NVector(dky))
 CVodeGetErrWeights(mem, eweight::Vector{RealType}) =

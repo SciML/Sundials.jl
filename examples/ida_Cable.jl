@@ -26,7 +26,7 @@ tf = 10.0
 dt = 0.1
 timesteps = int(tf/dt)
 t = 0.0:dt:(dt*(timesteps-1))
-    
+
 d = 4.0 * 1e-4 ## Cable diameter in cm
 R_m = 2.5e11 ## Membrane resistance in Ohms/cm^2
 G_m = 1.0/R_m ## Membrane conductance
@@ -53,18 +53,18 @@ G_J = map(i -> CoordInterpGrid(t, vec(J[:,i]), 0.0, InterpQuadratic),1:xsteps)
 ##
 
 function cableres(t, u, up, r)
-    
+
     r[:] = u ## Initialize r to u, to take care of boundary equations.
-    
+
     ## Loop over segments; set res = up - (central difference).
     for i = 2:(xsteps-2)
         loc = i
         r[loc] = C_m * up[loc] - (d/(4*R_i)) * (u[loc-1] + u[loc+1] -
                                                 2.0 * u[loc]) +
                  G_m * u[loc] - R_m * (G_J[loc])[t]
-        
+
     end
-    
+
     return (0)
 end
 
@@ -73,8 +73,8 @@ function initial ()
 
     u = zeros(xsteps)
 
-    u[2:xsteps-2] = -60.0 ## initial value -60 mV 
-    
+    u[2:xsteps-2] = -60.0 ## initial value -60 mV
+
     id = ones(xsteps)
 
     up = zeros (xsteps)
@@ -82,14 +82,14 @@ function initial ()
 
     cableres(0.0, u, up, r)
 
-    ## Copy -res into up to get correct interior initial up values. 
+    ## Copy -res into up to get correct interior initial up values.
     up[:] = -1.0 * r
 
     return (u,up,id)
-    
+
 end
 
-nvector = Sundials.nvector
+NVector = Sundials.NVector
 function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
                     id::Vector{Float64}, t::Vector{Float64};
                     reltol::Float64=1e-4, abstol::Float64=1e-6)
@@ -98,9 +98,9 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     mem = Sundials.IDACreate()
     flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
                                            (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Function)),
-                            t[1], nvector(y0), nvector(yp0))
+                            t[1], NVector(y0), NVector(yp0))
     assert (flag == 0)
-    flag = Sundials.IDASetId(mem,nvector(id))
+    flag = Sundials.IDASetId(mem,NVector(id))
     assert (flag == 0)
     flag = Sundials.IDASetUserData(mem, f)
     assert (flag == 0)
