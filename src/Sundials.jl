@@ -103,10 +103,15 @@ NVector{T<:Real}(x::Vector{T}) = NVector(copy!(similar(x, RealType), x))
 Base.convert(::Type{N_Vector}, nv::NVector) = nv.ptr[1]
 Base.convert(::Type{Vector{RealType}}, nv::NVector)= nv.v
 
-Base.size(nv::NVector, d) = size(nv.v, d)
+Base.size(nv::NVector, d...) = size(nv.v, d...)
+Base.getindex(nv::NVector, i::Real) = getindex(nv.v, i)
+Base.getindex(nv::NVector, i::AbstractArray) = getindex(nv.v, i)
 Base.getindex(nv::NVector, inds...) = getindex(nv.v, inds...)
+
+Base.setindex!(nv::NVector, X, i::Real ) = setindex!(nv.v, X, i)
+Base.setindex!(nv::NVector, X, i::AbstractArray ) = setindex!(nv.v, X, i)
 Base.setindex!(nv::NVector, X, inds... ) = setindex!(nv.v, X, inds...)
-Base.stride(nv::NVector, dim) = stride(nv.v, dim)
+
 
 ##################################################################
 #
@@ -269,6 +274,8 @@ IDAQuadReInit(mem, yQ0::Vector{RealType}) =
 
 ## IDAQuadSVtolerances(mem, reltol, abstol::Vector{RealType}) =
 ##  IDAQuadSVtolerances(mem, reltol, NVector(abstol))
+
+end # isdefined(:libsundials_cvodes)
 
 ##################################################################
 #
