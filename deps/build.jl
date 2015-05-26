@@ -35,13 +35,13 @@ provides(SimpleBuild,
     end), sundialslibs)
 
 if enable_sensitivities
-@BinDeps.install [:libsundials_cvodes => :libsundials_cvodes,
+@BinDeps.install Dict(:libsundials_cvodes => :libsundials_cvodes,
                   :libsundials_idas => :libsundials_idas,
                   :libsundials_kinsol => :libsundials_kinsol,
-                  :libsundials_nvecserial => :libsundials_nvecserial]
+                  :libsundials_nvecserial => :libsundials_nvecserial)
 else
-@BinDeps.install [:libsundials_cvode => :libsundials_cvode,
+@BinDeps.install Dict(:libsundials_cvode => :libsundials_cvode,
                   :libsundials_ida => :libsundials_ida,
                   :libsundials_kinsol => :libsundials_kinsol,
-                  :libsundials_nvecserial => :libsundials_nvecserial]
+                  :libsundials_nvecserial => :libsundials_nvecserial)
 end
