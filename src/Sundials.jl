@@ -127,7 +127,7 @@ CVodeQuadSVtolerances(mem, reltolQ, abstolQ::Vector{realtype}) =
 CVodeSensInit(mem, Ns, ism, fS::Function, yS0) =
     CVodeSensInit(mem, Ns, ism, cfunction(fS, Int32, (Int32, realtype, N_Vector, N_Vector, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), yS0)
 CVodeSensInit1(mem, Ns, ism, fS1::Function, yS0) =
-    CVodeSensInit1(mem, Ns, ism, cfunction(fS1, Int32, (Int32, realtype, N_Vector, N_Vector, int32, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), yS0)
+    CVodeSensInit1(mem, Ns, ism, cfunction(fS1, Int32, (Int32, realtype, N_Vector, N_Vector, Int32, N_Vector, N_Vector, Ptr{Void}, N_Vector, N_Vector)), yS0)
 CVodeSensReInit(mem, ism, yS0::Vector{realtype}) =
     CVodeSensReInit(mem, ism, nvector(yS0))
 CVodeSensSVtolerances(mem, reltolS, abstolS::Vector{realtype}) =
