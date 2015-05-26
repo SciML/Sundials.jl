@@ -314,6 +314,7 @@ iout = 1
 tout = t1
 t = [t0]
 
+@printf("\n3-species chemical kinetics problem\n");
 @printf("\n\n")
 @printf("===========================================")
 @printf("============================\n")
