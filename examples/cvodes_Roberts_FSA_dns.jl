@@ -292,10 +292,10 @@ if sensi
   pbar = data.p
 
   # yS should be an array of arrays
-  ySJ    = Array(Array{Float64,1}, neq)
-  ySJ[1] = zeros(Float64,NS)
-  ySJ[2] = zeros(Float64,NS)
-  ySJ[3] = zeros(Float64,NS)
+  ySJ    = Array(Array{Float64,1}, NS)
+  ySJ[1] = zeros(Float64,neq)
+  ySJ[2] = zeros(Float64,neq)
+  ySJ[3] = zeros(Float64,neq)
 
   ySjulia = [Sundials.nvector(ySJ[1]), Sundials.nvector(ySJ[2]), Sundials.nvector(ySJ[3])]
   yS = pointer(ySjulia)
