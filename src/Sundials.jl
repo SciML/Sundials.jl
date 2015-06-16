@@ -284,6 +284,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
         flag = CVode(mem, t[k], y, tout, CV_NORMAL)
         yres[k,:] = y
     end
+    CVodeFree(mem)
     return yres
 end
 
