@@ -36,18 +36,18 @@ const bval = 0.1
 ## central differencing on the interior points, and includes algebraic
 ## equations for the boundary values.
 ##
-## So for each interior point, the residual component has the form       
-##    r_i = u'_i - (central difference)_i                              
-## while for each boundary point, it is r_i = u_i.                     
+## So for each interior point, the residual component has the form
+##    r_i = u'_i - (central difference)_i
+## while for each boundary point, it is r_i = u_i.
 ##
 
 function heatres(t, u, up, r)
-    
+
     r[:] = u ## Initialize r to u, to take care of boundary equations.
-    
+
     ## Loop over interior points; set res = up - (central difference).
     for j = 2:(MGRID-2)
-        
+
         offset = MGRID * j
         for i = 2:(MGRID-2)
             loc = offset + i
@@ -56,7 +56,7 @@ function heatres(t, u, up, r)
                                         4.0 * u[loc])
         end
     end
-    
+
     return (0)
 end
 
@@ -65,7 +65,7 @@ function initial ()
 
     mm = MGRID
     mm1 = mm - 1
-  
+
     u  = zeros (NEQ)
     id = ones(NEQ)
 
@@ -85,7 +85,7 @@ function initial ()
 
     heatres(0.0, u, up, r)
 
-    ## Copy -res into up to get correct interior initial up values. 
+    ## Copy -res into up to get correct interior initial up values.
     up[:] = -1.0 * r
 
     ## Finally, set values of u, up, and id at boundary points.
@@ -103,10 +103,10 @@ function initial ()
 
     constraints = ones(NEQ)
     return (u,up,id,constraints)
-    
+
 end
 
-nvector = Sundials.nvector
+NVector = Sundials.NVector
 function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
                     id::Vector{Float64}, constraints::Vector{Float64},
                     t::Vector{Float64};
@@ -115,12 +115,12 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     neq = length(y0)
     mem = Sundials.IDACreate()
     flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
-                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Function)),
-                            t[1], nvector(y0), nvector(yp0))
+                                           (Sundials.RealType, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Function)),
+                            t[1], NVector(y0), NVector(yp0))
     assert (flag == 0)
-    flag = Sundials.IDASetId(mem,nvector(id))
+    flag = Sundials.IDASetId(mem,NVector(id))
     assert (flag == 0)
-    flag = Sundials.IDASetConstraints(mem,nvector(constraints))
+    flag = Sundials.IDASetConstraints(mem,NVector(constraints))
     assert (flag == 0)
     flag = Sundials.IDASetUserData(mem, f)
     assert (flag == 0)
