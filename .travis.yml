@@ -3,12 +3,14 @@ os:
     - osx
     - linux
 julia:
-    - release
+    - 0.3
+    - 0.4
     - nightly
 notifications:
     email: false
 script:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
     - julia -e 'Pkg.clone(pwd()); Pkg.build("Sundials"); Pkg.test("Sundials"; coverage=true)';
+after_success:
     - julia -e 'cd(Pkg.dir("Sundials")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())';
 
