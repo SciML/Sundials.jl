@@ -1,8 +1,8 @@
 Sundials for Julia
 ==================
 
-[![Sundials on julia-release](http://pkg.julialang.org/badges/Sundials_release.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=release)
-[![Sundials on julia-nightly](http://pkg.julialang.org/badges/Sundials_nightly.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=nightly)
+[![Sundials](http://pkg.julialang.org/badges/Sundials_0.3.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=0.3)
+[![Sundials](http://pkg.julialang.org/badges/Sundials_0.4.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=0.4)
 [![Build Status](https://travis-ci.org/JuliaLang/Sundials.jl.svg?branch=master)](https://travis-ci.org/JuliaLang/Sundials.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/6dxkur3rnfudj62o)](https://ci.appveyor.com/project/scidom/sundials-jl)
 [![Coverage Status](https://coveralls.io/repos/JuliaLang/Sundials.jl/badge.svg)](https://coveralls.io/r/JuliaLang/Sundials.jl)
