@@ -19,7 +19,7 @@ L = 4000
 
 ## Number of space steps to simulate
 dx = 10
-xsteps = int(L/dx)
+xsteps = round(Int,L/dx)
 
 ## Number of timesteps to simulate
 tf = 10.0
@@ -69,7 +69,7 @@ function cableres(t, u, up, r)
 end
 
 
-function initial ()
+function initial()
 
     u = zeros(xsteps)
 
@@ -77,8 +77,8 @@ function initial ()
     
     id = ones(xsteps)
 
-    up = zeros (xsteps)
-    r  = zeros (xsteps)
+    up = zeros(xsteps)
+    r  = zeros(xsteps)
 
     cableres(0.0, u, up, r)
 
@@ -97,23 +97,23 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     neq = length(y0)
     mem = Sundials.IDACreate()
     flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
-                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Function)),
+                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
                             t[1], nvector(y0), nvector(yp0))
-    assert (flag == 0)
+    assert(flag == 0)
     flag = Sundials.IDASetId(mem,nvector(id))
-    assert (flag == 0)
+    assert(flag == 0)
     flag = Sundials.IDASetUserData(mem, f)
-    assert (flag == 0)
+    assert(flag == 0)
     flag = Sundials.IDASStolerances(mem, reltol, abstol)
-    assert (flag == 0)
+    assert(flag == 0)
     mu = xsteps-1
     ml = xsteps-1
     flag = Sundials.IDABand(mem, neq, mu, ml)
     ##flag = Sundials.IDADense(mem, neq)
-    assert (flag == 0)
+    assert(flag == 0)
     rtest = zeros(neq)
     flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
-    assert (flag == 0)
+    assert(flag == 0)
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
     yres[1,:] = y0
@@ -129,7 +129,7 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     return yres, ypres
 end
 
-u0, up0, id = initial ()
+u0, up0, id = initial()
 
 yout, ypout = @time idabandsol(cableres, u0, up0, id, map(x -> x, t),
                                reltol = 1e-3, abstol = 1e-4)

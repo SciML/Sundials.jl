@@ -61,12 +61,12 @@ function heatres(t, u, up, r)
 end
 
 
-function initial ()
+function initial()
 
     mm = MGRID
     mm1 = mm - 1
   
-    u  = zeros (NEQ)
+    u  = zeros(NEQ)
     id = ones(NEQ)
 
     ## initialize u on all grid points
@@ -80,8 +80,8 @@ function initial ()
         end
     end
 
-    up = zeros (NEQ)
-    r  = zeros (NEQ)
+    up = zeros(NEQ)
+    r  = zeros(NEQ)
 
     heatres(0.0, u, up, r)
 
@@ -115,24 +115,24 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     neq = length(y0)
     mem = Sundials.IDACreate()
     flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
-                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Function)),
+                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
                             t[1], nvector(y0), nvector(yp0))
-    assert (flag == 0)
+    assert(flag == 0)
     flag = Sundials.IDASetId(mem,nvector(id))
-    assert (flag == 0)
+    assert(flag == 0)
     flag = Sundials.IDASetConstraints(mem,nvector(constraints))
-    assert (flag == 0)
+    assert(flag == 0)
     flag = Sundials.IDASetUserData(mem, f)
-    assert (flag == 0)
+    assert(flag == 0)
     flag = Sundials.IDASStolerances(mem, reltol, abstol)
-    assert (flag == 0)
+    assert(flag == 0)
     mu = MGRID
     ml = MGRID
     flag = Sundials.IDABand(mem, neq, mu, ml)
-    assert (flag == 0)
+    assert(flag == 0)
     rtest = zeros(neq)
     flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
-    assert (flag == 0)
+    assert(flag == 0)
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
     yres[1,:] = y0
@@ -151,7 +151,7 @@ end
 nsteps = 10
 tstep = 0.005
 t = 0.0:tstep:(tstep*nsteps)
-u0, up0, id, constraints = initial ()
+u0, up0, id, constraints = initial()
 
 yout, ypout = idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t),
                          reltol = 0.0, abstol = 1e-3)

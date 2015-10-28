@@ -1,118 +1,424 @@
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-recurs_sym_type(ex::Any) = 
-  (ex==None || typeof(ex)==Symbol || length(ex.args)==1) ? eval(ex) : Expr(ex.head, ex.args[1], recurs_sym_type(ex.args[2]))
-macro c(ret_type, func, arg_types, lib)
-  local _arg_types = Expr(:tuple, [recurs_sym_type(a) for a in arg_types.args]...)
-  local _ret_type = recurs_sym_type(ret_type)
-  local _args_in = Any[ symbol(string('a',x)) for x in 1:length(_arg_types.args) ]
-  local _lib = eval(lib)
-  quote
-    $(esc(func))($(_args_in...)) = ccall( ($(string(func)), $(Expr(:quote, _lib)) ), $_ret_type, $_arg_types, $(_args_in...) )
-  end
+function KINCreate()
+    ccall((:KINCreate,libsundials_kinsol),Ptr{Void},())
 end
 
-macro ctypedef(fake_t,real_t)
-  real_t = recurs_sym_type(real_t)
-  quote
-    typealias $fake_t $real_t
-  end
+function KINSetErrHandlerFn(kinmem::Ptr{Void},ehfun::KINErrHandlerFn,eh_data::Ptr{Void})
+    ccall((:KINSetErrHandlerFn,libsundials_kinsol),Cint,(Ptr{Void},KINErrHandlerFn,Ptr{Void}),kinmem,ehfun,eh_data)
 end
 
-# header: /usr/local/include/kinsol/kinsol_band.h
-@ctypedef KINDlsDenseJacFn Ptr{:Void}
-@ctypedef KINDlsBandJacFn Ptr{:Void}
-@c Int32 KINDlsSetDenseJacFn (Ptr{:None},:KINDlsDenseJacFn) shlib
-@c Int32 KINDlsSetBandJacFn (Ptr{:None},:KINDlsBandJacFn) shlib
-@c Int32 KINDlsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
-@c Int32 KINDlsGetNumJacEvals (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINDlsGetNumFuncEvals (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINDlsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
-@c Ptr{:Uint8} KINDlsGetReturnFlagName (:Clong,) shlib
-@c Int32 KINBand (Ptr{:None},:Clong,:Clong,:Clong) shlib
+function KINSetErrFile(kinmem::Ptr{Void},errfp::Ptr{Void})
+    ccall((:KINSetErrFile,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Void}),kinmem,errfp)
+end
 
-# header: /usr/local/include/kinsol/kinsol_bbdpre.h
-@ctypedef KINCommFn Ptr{:Void}
-@ctypedef KINLocalFn Ptr{:Void}
-@c Int32 KINBBDPrecInit (Ptr{:None},:Clong,:Clong,:Clong,:Clong,:Clong,:realtype,:KINLocalFn,:KINCommFn) shlib
-@c Int32 KINBBDPrecGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
-@c Int32 KINBBDPrecGetNumGfnEvals (Ptr{:None},Ptr{:Clong}) shlib
+function KINSetInfoHandlerFn(kinmem::Ptr{Void},ihfun::KINInfoHandlerFn,ih_data::Ptr{Void})
+    ccall((:KINSetInfoHandlerFn,libsundials_kinsol),Cint,(Ptr{Void},KINInfoHandlerFn,Ptr{Void}),kinmem,ihfun,ih_data)
+end
 
-# header: /usr/local/include/kinsol/kinsol_dense.h
-@c Int32 KINDense (Ptr{:None},:Clong) shlib
+function KINSetInfoFile(kinmem::Ptr{Void},infofp::Ptr{Void})
+    ccall((:KINSetInfoFile,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Void}),kinmem,infofp)
+end
 
-# header: /usr/local/include/kinsol/kinsol_direct.h
+function KINSetUserData(kinmem::Ptr{Void},user_data::Ptr{Void})
+    ccall((:KINSetUserData,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Void}),kinmem,user_data)
+end
 
-# header: /usr/local/include/kinsol/kinsol.h
-@ctypedef KINSysFn Ptr{:Void}
-@ctypedef KINErrHandlerFn Ptr{:Void}
-@ctypedef KINInfoHandlerFn Ptr{:Void}
-@c Ptr{:None} KINCreate () shlib
-@c Int32 KINSetErrHandlerFn (Ptr{:None},:KINErrHandlerFn,Ptr{:None}) shlib
-@c Int32 KINSetErrFile (Ptr{:None},Ptr{:FILE}) shlib
-@c Int32 KINSetInfoHandlerFn (Ptr{:None},:KINInfoHandlerFn,Ptr{:None}) shlib
-@c Int32 KINSetInfoFile (Ptr{:None},Ptr{:FILE}) shlib
-@c Int32 KINSetUserData (Ptr{:None},Ptr{:None}) shlib
-@c Int32 KINSetPrintLevel (Ptr{:None},:Int32) shlib
-@c Int32 KINSetNumMaxIters (Ptr{:None},:Clong) shlib
-@c Int32 KINSetNoInitSetup (Ptr{:None},:Int32) shlib
-@c Int32 KINSetNoResMon (Ptr{:None},:Int32) shlib
-@c Int32 KINSetMaxSetupCalls (Ptr{:None},:Clong) shlib
-@c Int32 KINSetMaxSubSetupCalls (Ptr{:None},:Clong) shlib
-@c Int32 KINSetEtaForm (Ptr{:None},:Int32) shlib
-@c Int32 KINSetEtaConstValue (Ptr{:None},:realtype) shlib
-@c Int32 KINSetEtaParams (Ptr{:None},:realtype,:realtype) shlib
-@c Int32 KINSetResMonParams (Ptr{:None},:realtype,:realtype) shlib
-@c Int32 KINSetResMonConstValue (Ptr{:None},:realtype) shlib
-@c Int32 KINSetNoMinEps (Ptr{:None},:Int32) shlib
-@c Int32 KINSetMaxNewtonStep (Ptr{:None},:realtype) shlib
-@c Int32 KINSetMaxBetaFails (Ptr{:None},:Clong) shlib
-@c Int32 KINSetRelErrFunc (Ptr{:None},:realtype) shlib
-@c Int32 KINSetFuncNormTol (Ptr{:None},:realtype) shlib
-@c Int32 KINSetScaledStepTol (Ptr{:None},:realtype) shlib
-@c Int32 KINSetConstraints (Ptr{:None},:N_Vector) shlib
-@c Int32 KINSetSysFunc (Ptr{:None},:KINSysFn) shlib
-@c Int32 KINInit (Ptr{:None},:KINSysFn,:N_Vector) shlib
-@c Int32 KINSol (Ptr{:None},:N_Vector,:Int32,:N_Vector,:N_Vector) shlib
-@c Int32 KINGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
-@c Int32 KINGetNumNonlinSolvIters (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINGetNumFuncEvals (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINGetNumBetaCondFails (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINGetNumBacktrackOps (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINGetFuncNorm (Ptr{:None},Ptr{:realtype}) shlib
-@c Int32 KINGetStepLength (Ptr{:None},Ptr{:realtype}) shlib
-@c Ptr{:Uint8} KINGetReturnFlagName (:Clong,) shlib
-@c None KINFree (Ptr{Ptr{:None}},) shlib
+function KINSetPrintLevel(kinmemm::Ptr{Void},printfl::Int)
+    ccall((:KINSetPrintLevel,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmemm,printfl)
+end
 
-# header: /usr/local/include/kinsol/kinsol_impl.h
-@ctypedef KINMem Ptr{:Void}
-@c None KINProcessError (:KINMem,:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8}) shlib
-@c None KINErrHandler (:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:None}) shlib
-@c None KINPrintInfo (:KINMem,:Int32,Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8}) shlib
-@c None KINInfoHandler (Ptr{:Uint8},Ptr{:Uint8},Ptr{:Uint8},Ptr{:None}) shlib
+function KINSetNumMaxIters(kinmem::Ptr{Void},mxiter::Int)
+    ccall((:KINSetNumMaxIters,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,mxiter)
+end
 
-# header: /usr/local/include/kinsol/kinsol_spbcgs.h
-@ctypedef KINSpilsPrecSetupFn Ptr{:Void}
-@ctypedef KINSpilsPrecSolveFn Ptr{:Void}
-@ctypedef KINSpilsJacTimesVecFn Ptr{:Void}
-@c Int32 KINSpilsSetMaxRestarts (Ptr{:None},:Int32) shlib
-@c Int32 KINSpilsSetPreconditioner (Ptr{:None},:KINSpilsPrecSetupFn,:KINSpilsPrecSolveFn) shlib
-@c Int32 KINSpilsSetJacTimesVecFn (Ptr{:None},:KINSpilsJacTimesVecFn) shlib
-@c Int32 KINSpilsGetWorkSpace (Ptr{:None},Ptr{:Clong},Ptr{:Clong}) shlib
-@c Int32 KINSpilsGetNumPrecEvals (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINSpilsGetNumPrecSolves (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINSpilsGetNumLinIters (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINSpilsGetNumConvFails (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINSpilsGetNumJtimesEvals (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINSpilsGetNumFuncEvals (Ptr{:None},Ptr{:Clong}) shlib
-@c Int32 KINSpilsGetLastFlag (Ptr{:None},Ptr{:Clong}) shlib
-@c Ptr{:Uint8} KINSpilsGetReturnFlagName (:Clong,) shlib
-@c Int32 KINSpbcg (Ptr{:None},:Int32) shlib
+function KINSetNoInitSetup(kinmem::Ptr{Void},noInitSetup::Int)
+    ccall((:KINSetNoInitSetup,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,noInitSetup)
+end
 
-# header: /usr/local/include/kinsol/kinsol_spgmr.h
-@c Int32 KINSpgmr (Ptr{:None},:Int32) shlib
+function KINSetNoResMon(kinmem::Ptr{Void},noNNIResMon::Int)
+    ccall((:KINSetNoResMon,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,noNNIResMon)
+end
 
-# header: /usr/local/include/kinsol/kinsol_spils.h
+function KINSetMaxSetupCalls(kinmem::Ptr{Void},msbset::Int)
+    ccall((:KINSetMaxSetupCalls,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,msbset)
+end
 
-# header: /usr/local/include/kinsol/kinsol_sptfqmr.h
-@c Int32 KINSptfqmr (Ptr{:None},:Int32) shlib
+function KINSetMaxSubSetupCalls(kinmem::Ptr{Void},msbsetsub::Int)
+    ccall((:KINSetMaxSubSetupCalls,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,msbsetsub)
+end
 
+function KINSetEtaForm(kinmem::Ptr{Void},etachoice::Int)
+    ccall((:KINSetEtaForm,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,etachoice)
+end
+
+function KINSetEtaConstValue(kinmem::Ptr{Void},eta::realtype)
+    ccall((:KINSetEtaConstValue,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,eta)
+end
+
+function KINSetEtaParams(kinmem::Ptr{Void},egamma::realtype,ealpha::realtype)
+    ccall((:KINSetEtaParams,libsundials_kinsol),Cint,(Ptr{Void},realtype,realtype),kinmem,egamma,ealpha)
+end
+
+function KINSetResMonParams(kinmem::Ptr{Void},omegamin::realtype,omegamax::realtype)
+    ccall((:KINSetResMonParams,libsundials_kinsol),Cint,(Ptr{Void},realtype,realtype),kinmem,omegamin,omegamax)
+end
+
+function KINSetResMonConstValue(kinmem::Ptr{Void},omegaconst::realtype)
+    ccall((:KINSetResMonConstValue,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,omegaconst)
+end
+
+function KINSetNoMinEps(kinmem::Ptr{Void},noMinEps::Int)
+    ccall((:KINSetNoMinEps,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,noMinEps)
+end
+
+function KINSetMaxNewtonStep(kinmem::Ptr{Void},mxnewtstep::realtype)
+    ccall((:KINSetMaxNewtonStep,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,mxnewtstep)
+end
+
+function KINSetMaxBetaFails(kinmem::Ptr{Void},mxnbcf::Int)
+    ccall((:KINSetMaxBetaFails,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,mxnbcf)
+end
+
+function KINSetRelErrFunc(kinmem::Ptr{Void},relfunc::realtype)
+    ccall((:KINSetRelErrFunc,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,relfunc)
+end
+
+function KINSetFuncNormTol(kinmem::Ptr{Void},fnormtol::realtype)
+    ccall((:KINSetFuncNormTol,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,fnormtol)
+end
+
+function KINSetScaledStepTol(kinmem::Ptr{Void},scsteptol::realtype)
+    ccall((:KINSetScaledStepTol,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,scsteptol)
+end
+
+function KINSetConstraints(kinmem::Ptr{Void},constraints::N_Vector)
+    ccall((:KINSetConstraints,libsundials_kinsol),Cint,(Ptr{Void},N_Vector),kinmem,constraints)
+end
+
+function KINSetSysFunc(kinmem::Ptr{Void},func::KINSysFn)
+    ccall((:KINSetSysFunc,libsundials_kinsol),Cint,(Ptr{Void},KINSysFn),kinmem,func)
+end
+
+function KINInit(kinmem::Ptr{Void},func::KINSysFn,tmpl::N_Vector)
+    ccall((:KINInit,libsundials_kinsol),Cint,(Ptr{Void},KINSysFn,N_Vector),kinmem,func,tmpl)
+end
+
+function KINSol(kinmem::Ptr{Void},uu::N_Vector,strategy::Int,u_scale::N_Vector,f_scale::N_Vector)
+    ccall((:KINSol,libsundials_kinsol),Cint,(Ptr{Void},N_Vector,Cint,N_Vector,N_Vector),kinmem,uu,strategy,u_scale,f_scale)
+end
+
+function KINGetWorkSpace(kinmem::Ptr{Void},lenrw::Ptr{Clong},leniw::Ptr{Clong})
+    ccall((:KINGetWorkSpace,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),kinmem,lenrw,leniw)
+end
+
+function KINGetNumNonlinSolvIters(kinmem::Ptr{Void},nniters::Ptr{Clong})
+    ccall((:KINGetNumNonlinSolvIters,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nniters)
+end
+
+function KINGetNumFuncEvals(kinmem::Ptr{Void},nfevals::Ptr{Clong})
+    ccall((:KINGetNumFuncEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nfevals)
+end
+
+function KINGetNumBetaCondFails(kinmem::Ptr{Void},nbcfails::Ptr{Clong})
+    ccall((:KINGetNumBetaCondFails,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nbcfails)
+end
+
+function KINGetNumBacktrackOps(kinmem::Ptr{Void},nbacktr::Ptr{Clong})
+    ccall((:KINGetNumBacktrackOps,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nbacktr)
+end
+
+function KINGetFuncNorm(kinmem::Ptr{Void},fnorm::Ptr{realtype})
+    ccall((:KINGetFuncNorm,libsundials_kinsol),Cint,(Ptr{Void},Ptr{realtype}),kinmem,fnorm)
+end
+
+function KINGetStepLength(kinmem::Ptr{Void},steplength::Ptr{realtype})
+    ccall((:KINGetStepLength,libsundials_kinsol),Cint,(Ptr{Void},Ptr{realtype}),kinmem,steplength)
+end
+
+function KINGetReturnFlagName(flag::Int)
+    ccall((:KINGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
+end
+
+function KINFree(kinmem::Vector{Ptr{Void}})
+    ccall((:KINFree,libsundials_kinsol),Void,(Ptr{Ptr{Void}},),kinmem)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_direct.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINDlsSetDenseJacFn(kinmem::Ptr{Void},jac::KINDlsDenseJacFn)
+    ccall((:KINDlsSetDenseJacFn,libsundials_kinsol),Cint,(Ptr{Void},KINDlsDenseJacFn),kinmem,jac)
+end
+
+function KINDlsSetBandJacFn(kinmem::Ptr{Void},jac::KINDlsBandJacFn)
+    ccall((:KINDlsSetBandJacFn,libsundials_kinsol),Cint,(Ptr{Void},KINDlsBandJacFn),kinmem,jac)
+end
+
+function KINDlsGetWorkSpace(kinmem::Ptr{Void},lenrwB::Ptr{Clong},leniwB::Ptr{Clong})
+    ccall((:KINDlsGetWorkSpace,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),kinmem,lenrwB,leniwB)
+end
+
+function KINDlsGetNumJacEvals(kinmem::Ptr{Void},njevalsB::Ptr{Clong})
+    ccall((:KINDlsGetNumJacEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,njevalsB)
+end
+
+function KINDlsGetNumFuncEvals(kinmem::Ptr{Void},nfevalsB::Ptr{Clong})
+    ccall((:KINDlsGetNumFuncEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nfevalsB)
+end
+
+function KINDlsGetLastFlag(kinmem::Ptr{Void},flag::Ptr{Clong})
+    ccall((:KINDlsGetLastFlag,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,flag)
+end
+
+function KINDlsGetReturnFlagName(flag::Int)
+    ccall((:KINDlsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_spils.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINSpilsSetMaxRestarts(kinmem::Ptr{Void},maxrs::Int)
+    ccall((:KINSpilsSetMaxRestarts,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,maxrs)
+end
+
+function KINSpilsSetPreconditioner(kinmem::Ptr{Void},pset::KINSpilsPrecSetupFn,psolve::KINSpilsPrecSolveFn)
+    ccall((:KINSpilsSetPreconditioner,libsundials_kinsol),Cint,(Ptr{Void},KINSpilsPrecSetupFn,KINSpilsPrecSolveFn),kinmem,pset,psolve)
+end
+
+function KINSpilsSetJacTimesVecFn(kinmem::Ptr{Void},jtv::KINSpilsJacTimesVecFn)
+    ccall((:KINSpilsSetJacTimesVecFn,libsundials_kinsol),Cint,(Ptr{Void},KINSpilsJacTimesVecFn),kinmem,jtv)
+end
+
+function KINSpilsGetWorkSpace(kinmem::Ptr{Void},lenrwSG::Ptr{Clong},leniwSG::Ptr{Clong})
+    ccall((:KINSpilsGetWorkSpace,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),kinmem,lenrwSG,leniwSG)
+end
+
+function KINSpilsGetNumPrecEvals(kinmem::Ptr{Void},npevals::Ptr{Clong})
+    ccall((:KINSpilsGetNumPrecEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,npevals)
+end
+
+function KINSpilsGetNumPrecSolves(kinmem::Ptr{Void},npsolves::Ptr{Clong})
+    ccall((:KINSpilsGetNumPrecSolves,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,npsolves)
+end
+
+function KINSpilsGetNumLinIters(kinmem::Ptr{Void},nliters::Ptr{Clong})
+    ccall((:KINSpilsGetNumLinIters,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nliters)
+end
+
+function KINSpilsGetNumConvFails(kinmem::Ptr{Void},nlcfails::Ptr{Clong})
+    ccall((:KINSpilsGetNumConvFails,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nlcfails)
+end
+
+function KINSpilsGetNumJtimesEvals(kinmem::Ptr{Void},njvevals::Ptr{Clong})
+    ccall((:KINSpilsGetNumJtimesEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,njvevals)
+end
+
+function KINSpilsGetNumFuncEvals(kinmem::Ptr{Void},nfevalsS::Ptr{Clong})
+    ccall((:KINSpilsGetNumFuncEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nfevalsS)
+end
+
+function KINSpilsGetLastFlag(kinmem::Ptr{Void},flag::Ptr{Clong})
+    ccall((:KINSpilsGetLastFlag,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,flag)
+end
+
+function KINSpilsGetReturnFlagName(flag::Int)
+    ccall((:KINSpilsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_band.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINBand(kinmem::Ptr{Void},N::Int,mupper::Int,mlower::Int)
+    ccall((:KINBand,libsundials_kinsol),Cint,(Ptr{Void},Clong,Clong,Clong),kinmem,N,mupper,mlower)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_bbdpre.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINBBDPrecInit(kinmem::Ptr{Void},Nlocal::Int,mudq::Int,mldq::Int,mukeep::Int,mlkeep::Int,dq_rel_uu::realtype,gloc::KINLocalFn,gcomm::KINCommFn)
+    ccall((:KINBBDPrecInit,libsundials_kinsol),Cint,(Ptr{Void},Clong,Clong,Clong,Clong,Clong,realtype,KINLocalFn,KINCommFn),kinmem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_uu,gloc,gcomm)
+end
+
+function KINBBDPrecGetWorkSpace(kinmem::Ptr{Void},lenrwBBDP::Ptr{Clong},leniwBBDP::Ptr{Clong})
+    ccall((:KINBBDPrecGetWorkSpace,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),kinmem,lenrwBBDP,leniwBBDP)
+end
+
+function KINBBDPrecGetNumGfnEvals(kinmem::Ptr{Void},ngevalsBBDP::Ptr{Clong})
+    ccall((:KINBBDPrecGetNumGfnEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,ngevalsBBDP)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_dense.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINDense(kinmem::Ptr{Void},N::Int)
+    ccall((:KINDense,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,N)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_impl.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINCreate()
+    ccall((:KINCreate,libsundials_kinsol),Ptr{Void},())
+end
+
+function KINSetErrHandlerFn(kinmem::Ptr{Void},ehfun::KINErrHandlerFn,eh_data::Ptr{Void})
+    ccall((:KINSetErrHandlerFn,libsundials_kinsol),Cint,(Ptr{Void},KINErrHandlerFn,Ptr{Void}),kinmem,ehfun,eh_data)
+end
+
+function KINSetErrFile(kinmem::Ptr{Void},errfp::Ptr{Void})
+    ccall((:KINSetErrFile,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Void}),kinmem,errfp)
+end
+
+function KINSetInfoHandlerFn(kinmem::Ptr{Void},ihfun::KINInfoHandlerFn,ih_data::Ptr{Void})
+    ccall((:KINSetInfoHandlerFn,libsundials_kinsol),Cint,(Ptr{Void},KINInfoHandlerFn,Ptr{Void}),kinmem,ihfun,ih_data)
+end
+
+function KINSetInfoFile(kinmem::Ptr{Void},infofp::Ptr{Void})
+    ccall((:KINSetInfoFile,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Void}),kinmem,infofp)
+end
+
+function KINSetUserData(kinmem::Ptr{Void},user_data::Ptr{Void})
+    ccall((:KINSetUserData,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Void}),kinmem,user_data)
+end
+
+function KINSetPrintLevel(kinmemm::Ptr{Void},printfl::Int)
+    ccall((:KINSetPrintLevel,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmemm,printfl)
+end
+
+function KINSetNumMaxIters(kinmem::Ptr{Void},mxiter::Int)
+    ccall((:KINSetNumMaxIters,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,mxiter)
+end
+
+function KINSetNoInitSetup(kinmem::Ptr{Void},noInitSetup::Int)
+    ccall((:KINSetNoInitSetup,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,noInitSetup)
+end
+
+function KINSetNoResMon(kinmem::Ptr{Void},noNNIResMon::Int)
+    ccall((:KINSetNoResMon,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,noNNIResMon)
+end
+
+function KINSetMaxSetupCalls(kinmem::Ptr{Void},msbset::Int)
+    ccall((:KINSetMaxSetupCalls,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,msbset)
+end
+
+function KINSetMaxSubSetupCalls(kinmem::Ptr{Void},msbsetsub::Int)
+    ccall((:KINSetMaxSubSetupCalls,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,msbsetsub)
+end
+
+function KINSetEtaForm(kinmem::Ptr{Void},etachoice::Int)
+    ccall((:KINSetEtaForm,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,etachoice)
+end
+
+function KINSetEtaConstValue(kinmem::Ptr{Void},eta::realtype)
+    ccall((:KINSetEtaConstValue,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,eta)
+end
+
+function KINSetEtaParams(kinmem::Ptr{Void},egamma::realtype,ealpha::realtype)
+    ccall((:KINSetEtaParams,libsundials_kinsol),Cint,(Ptr{Void},realtype,realtype),kinmem,egamma,ealpha)
+end
+
+function KINSetResMonParams(kinmem::Ptr{Void},omegamin::realtype,omegamax::realtype)
+    ccall((:KINSetResMonParams,libsundials_kinsol),Cint,(Ptr{Void},realtype,realtype),kinmem,omegamin,omegamax)
+end
+
+function KINSetResMonConstValue(kinmem::Ptr{Void},omegaconst::realtype)
+    ccall((:KINSetResMonConstValue,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,omegaconst)
+end
+
+function KINSetNoMinEps(kinmem::Ptr{Void},noMinEps::Int)
+    ccall((:KINSetNoMinEps,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,noMinEps)
+end
+
+function KINSetMaxNewtonStep(kinmem::Ptr{Void},mxnewtstep::realtype)
+    ccall((:KINSetMaxNewtonStep,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,mxnewtstep)
+end
+
+function KINSetMaxBetaFails(kinmem::Ptr{Void},mxnbcf::Int)
+    ccall((:KINSetMaxBetaFails,libsundials_kinsol),Cint,(Ptr{Void},Clong),kinmem,mxnbcf)
+end
+
+function KINSetRelErrFunc(kinmem::Ptr{Void},relfunc::realtype)
+    ccall((:KINSetRelErrFunc,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,relfunc)
+end
+
+function KINSetFuncNormTol(kinmem::Ptr{Void},fnormtol::realtype)
+    ccall((:KINSetFuncNormTol,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,fnormtol)
+end
+
+function KINSetScaledStepTol(kinmem::Ptr{Void},scsteptol::realtype)
+    ccall((:KINSetScaledStepTol,libsundials_kinsol),Cint,(Ptr{Void},realtype),kinmem,scsteptol)
+end
+
+function KINSetConstraints(kinmem::Ptr{Void},constraints::N_Vector)
+    ccall((:KINSetConstraints,libsundials_kinsol),Cint,(Ptr{Void},N_Vector),kinmem,constraints)
+end
+
+function KINSetSysFunc(kinmem::Ptr{Void},func::KINSysFn)
+    ccall((:KINSetSysFunc,libsundials_kinsol),Cint,(Ptr{Void},KINSysFn),kinmem,func)
+end
+
+function KINInit(kinmem::Ptr{Void},func::KINSysFn,tmpl::N_Vector)
+    ccall((:KINInit,libsundials_kinsol),Cint,(Ptr{Void},KINSysFn,N_Vector),kinmem,func,tmpl)
+end
+
+function KINSol(kinmem::Ptr{Void},uu::N_Vector,strategy::Int,u_scale::N_Vector,f_scale::N_Vector)
+    ccall((:KINSol,libsundials_kinsol),Cint,(Ptr{Void},N_Vector,Cint,N_Vector,N_Vector),kinmem,uu,strategy,u_scale,f_scale)
+end
+
+function KINGetWorkSpace(kinmem::Ptr{Void},lenrw::Ptr{Clong},leniw::Ptr{Clong})
+    ccall((:KINGetWorkSpace,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),kinmem,lenrw,leniw)
+end
+
+function KINGetNumNonlinSolvIters(kinmem::Ptr{Void},nniters::Ptr{Clong})
+    ccall((:KINGetNumNonlinSolvIters,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nniters)
+end
+
+function KINGetNumFuncEvals(kinmem::Ptr{Void},nfevals::Ptr{Clong})
+    ccall((:KINGetNumFuncEvals,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nfevals)
+end
+
+function KINGetNumBetaCondFails(kinmem::Ptr{Void},nbcfails::Ptr{Clong})
+    ccall((:KINGetNumBetaCondFails,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nbcfails)
+end
+
+function KINGetNumBacktrackOps(kinmem::Ptr{Void},nbacktr::Ptr{Clong})
+    ccall((:KINGetNumBacktrackOps,libsundials_kinsol),Cint,(Ptr{Void},Ptr{Clong}),kinmem,nbacktr)
+end
+
+function KINGetFuncNorm(kinmem::Ptr{Void},fnorm::Ptr{realtype})
+    ccall((:KINGetFuncNorm,libsundials_kinsol),Cint,(Ptr{Void},Ptr{realtype}),kinmem,fnorm)
+end
+
+function KINGetStepLength(kinmem::Ptr{Void},steplength::Ptr{realtype})
+    ccall((:KINGetStepLength,libsundials_kinsol),Cint,(Ptr{Void},Ptr{realtype}),kinmem,steplength)
+end
+
+function KINGetReturnFlagName(flag::Int)
+    ccall((:KINGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
+end
+
+function KINFree(kinmem::Vector{Ptr{Void}})
+    ccall((:KINFree,libsundials_kinsol),Void,(Ptr{Ptr{Void}},),kinmem)
+end
+
+function KINErrHandler(error_code::Int,_module::Ptr{UInt8},_function::Ptr{UInt8},msg::Ptr{UInt8},user_data::Ptr{Void})
+    ccall((:KINErrHandler,libsundials_kinsol),Void,(Cint,Ptr{UInt8},Ptr{UInt8},Ptr{UInt8},Ptr{Void}),error_code,_module,_function,msg,user_data)
+end
+
+function KINInfoHandler(_module::Ptr{UInt8},_function::Ptr{UInt8},msg::Ptr{UInt8},user_data::Ptr{Void})
+    ccall((:KINInfoHandler,libsundials_kinsol),Void,(Ptr{UInt8},Ptr{UInt8},Ptr{UInt8},Ptr{Void}),_module,_function,msg,user_data)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_spbcgs.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINSpbcg(kinmem::Ptr{Void},maxl::Int)
+    ccall((:KINSpbcg,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,maxl)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_spgmr.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINSpgmr(kinmem::Ptr{Void},maxl::Int)
+    ccall((:KINSpgmr,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,maxl)
+end
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_sptfqmr.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+function KINSptfqmr(kinmem::Ptr{Void},maxl::Int)
+    ccall((:KINSptfqmr,libsundials_kinsol),Cint,(Ptr{Void},Cint),kinmem,maxl)
+end
