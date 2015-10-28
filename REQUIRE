@@ -1,7 +1,2 @@
-<<<<<<< HEAD
 julia 0.4-
-BinDeps
-=======
-julia 0.2
 BinDeps 0.3
->>>>>>> 2b9eaa4... Move Windows binary to bintray
