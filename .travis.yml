@@ -3,7 +3,6 @@ os:
     - osx
     - linux
 julia:
-    - 0.3
     - 0.4
     - nightly
 notifications:
