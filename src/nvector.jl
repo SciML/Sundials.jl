@@ -1,122 +1,243 @@
+# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/nvector/shlib.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-recurs_sym_type(ex::Any) = 
-  (ex==None || typeof(ex)==Symbol || length(ex.args)==1) ? eval(ex) : Expr(ex.head, ex.args[1], recurs_sym_type(ex.args[2]))
-macro c(ret_type, func, arg_types, lib)
-  local _arg_types = Expr(:tuple, [recurs_sym_type(a) for a in arg_types.args]...)
-  local _ret_type = recurs_sym_type(ret_type)
-  local _args_in = Any[ symbol(string('a',x)) for x in 1:length(_arg_types.args) ]
-  local _lib = eval(lib)
-  quote
-    $(esc(func))($(_args_in...)) = ccall( ($(string(func)), $(Expr(:quote, _lib)) ), $_ret_type, $_arg_types, $(_args_in...) )
-  end
+
+function N_VClone(w::N_Vector)
+    ccall((:N_VClone,libsundials_nvecserial),N_Vector,(N_Vector,),w)
 end
 
-macro ctypedef(fake_t,real_t)
-  real_t = recurs_sym_type(real_t)
-  quote
-    typealias $fake_t $real_t
-  end
+function N_VCloneEmpty(w::N_Vector)
+    ccall((:N_VCloneEmpty,libsundials_nvecserial),N_Vector,(N_Vector,),w)
 end
 
-# header: /usr/local/include/nvector/nvector_parallel.h
-@ctypedef realtype Float64
-@ctypedef N_Vector_Ops Ptr{:Void}
-@ctypedef N_Vector Ptr{:Void}
-@ctypedef N_Vector_S Ptr{:N_Vector}
-@c N_Vector N_VClone (:N_Vector,) shlib
-@c N_Vector N_VCloneEmpty (:N_Vector,) shlib
-@c None N_VDestroy (:N_Vector,) shlib
-@c None N_VSpace (:N_Vector,Ptr{:Clong},Ptr{:Clong}) shlib
-@c Ptr{:realtype} N_VGetArrayPointer (:N_Vector,) shlib
-@c None N_VSetArrayPointer (Ptr{:realtype},:N_Vector) shlib
-@c None N_VLinearSum (:realtype,:N_Vector,:realtype,:N_Vector,:N_Vector) shlib
-@c None N_VConst (:realtype,:N_Vector) shlib
-@c None N_VProd (:N_Vector,:N_Vector,:N_Vector) shlib
-@c None N_VDiv (:N_Vector,:N_Vector,:N_Vector) shlib
-@c None N_VScale (:realtype,:N_Vector,:N_Vector) shlib
-@c None N_VAbs (:N_Vector,:N_Vector) shlib
-@c None N_VInv (:N_Vector,:N_Vector) shlib
-@c None N_VAddConst (:N_Vector,:realtype,:N_Vector) shlib
-@c realtype N_VDotProd (:N_Vector,:N_Vector) shlib
-@c realtype N_VMaxNorm (:N_Vector,) shlib
-@c realtype N_VWrmsNorm (:N_Vector,:N_Vector) shlib
-@c realtype N_VWrmsNormMask (:N_Vector,:N_Vector,:N_Vector) shlib
-@c realtype N_VMin (:N_Vector,) shlib
-@c realtype N_VWL2Norm (:N_Vector,:N_Vector) shlib
-@c realtype N_VL1Norm (:N_Vector,) shlib
-@c None N_VCompare (:realtype,:N_Vector,:N_Vector) shlib
-@c Int32 N_VInvTest (:N_Vector,:N_Vector) shlib
-@c Int32 N_VConstrMask (:N_Vector,:N_Vector,:N_Vector) shlib
-@c realtype N_VMinQuotient (:N_Vector,:N_Vector) shlib
-@c Ptr{:N_Vector} N_VCloneEmptyVectorArray (:Int32,:N_Vector) shlib
-@c Ptr{:N_Vector} N_VCloneVectorArray (:Int32,:N_Vector) shlib
-@c None N_VDestroyVectorArray (Ptr{:N_Vector},:Int32) shlib
-@ctypedef N_VectorContent_Parallel Ptr{:Void}
-@c N_Vector N_VNew_Parallel (:Int32,:Clong,:Clong) shlib
-@c N_Vector N_VNewEmpty_Parallel (:Int32,:Clong,:Clong) shlib
-@c N_Vector N_VMake_Parallel (:Int32,:Clong,:Clong,Ptr{:realtype}) shlib
-@c Ptr{:N_Vector} N_VCloneVectorArray_Parallel (:Int32,:N_Vector) shlib
-@c Ptr{:N_Vector} N_VCloneVectorArrayEmpty_Parallel (:Int32,:N_Vector) shlib
-@c None N_VDestroyVectorArray_Parallel (Ptr{:N_Vector},:Int32) shlib
-@c None N_VPrint_Parallel (:N_Vector,) shlib
-@c N_Vector N_VCloneEmpty_Parallel (:N_Vector,) shlib
-@c N_Vector N_VClone_Parallel (:N_Vector,) shlib
-@c None N_VDestroy_Parallel (:N_Vector,) shlib
-@c None N_VSpace_Parallel (:N_Vector,Ptr{:Clong},Ptr{:Clong}) shlib
-@c Ptr{:realtype} N_VGetArrayPointer_Parallel (:N_Vector,) shlib
-@c None N_VSetArrayPointer_Parallel (Ptr{:realtype},:N_Vector) shlib
-@c None N_VLinearSum_Parallel (:realtype,:N_Vector,:realtype,:N_Vector,:N_Vector) shlib
-@c None N_VConst_Parallel (:realtype,:N_Vector) shlib
-@c None N_VProd_Parallel (:N_Vector,:N_Vector,:N_Vector) shlib
-@c None N_VDiv_Parallel (:N_Vector,:N_Vector,:N_Vector) shlib
-@c None N_VScale_Parallel (:realtype,:N_Vector,:N_Vector) shlib
-@c None N_VAbs_Parallel (:N_Vector,:N_Vector) shlib
-@c None N_VInv_Parallel (:N_Vector,:N_Vector) shlib
-@c None N_VAddConst_Parallel (:N_Vector,:realtype,:N_Vector) shlib
-@c realtype N_VDotProd_Parallel (:N_Vector,:N_Vector) shlib
-@c realtype N_VMaxNorm_Parallel (:N_Vector,) shlib
-@c realtype N_VWrmsNorm_Parallel (:N_Vector,:N_Vector) shlib
-@c realtype N_VWrmsNormMask_Parallel (:N_Vector,:N_Vector,:N_Vector) shlib
-@c realtype N_VMin_Parallel (:N_Vector,) shlib
-@c realtype N_VWL2Norm_Parallel (:N_Vector,:N_Vector) shlib
-@c realtype N_VL1Norm_Parallel (:N_Vector,) shlib
-@c None N_VCompare_Parallel (:realtype,:N_Vector,:N_Vector) shlib
-@c Int32 N_VInvTest_Parallel (:N_Vector,:N_Vector) shlib
-@c Int32 N_VConstrMask_Parallel (:N_Vector,:N_Vector,:N_Vector) shlib
-@c realtype N_VMinQuotient_Parallel (:N_Vector,:N_Vector) shlib
+function N_VDestroy(v::N_Vector)
+    ccall((:N_VDestroy,libsundials_nvecserial),Void,(N_Vector,),v)
+end
 
-# header: /usr/local/include/nvector/nvector_serial.h
-@ctypedef N_VectorContent_Serial Ptr{:Void}
-@c N_Vector N_VNew_Serial (:Clong,) shlib
-@c N_Vector N_VNewEmpty_Serial (:Clong,) shlib
-@c N_Vector N_VMake_Serial (:Clong,Ptr{:realtype}) shlib
-@c Ptr{:N_Vector} N_VCloneVectorArray_Serial (:Int32,:N_Vector) shlib
-@c Ptr{:N_Vector} N_VCloneVectorArrayEmpty_Serial (:Int32,:N_Vector) shlib
-@c None N_VDestroyVectorArray_Serial (Ptr{:N_Vector},:Int32) shlib
-@c None N_VPrint_Serial (:N_Vector,) shlib
-@c N_Vector N_VCloneEmpty_Serial (:N_Vector,) shlib
-@c N_Vector N_VClone_Serial (:N_Vector,) shlib
-@c None N_VDestroy_Serial (:N_Vector,) shlib
-@c None N_VSpace_Serial (:N_Vector,Ptr{:Clong},Ptr{:Clong}) shlib
-@c Ptr{:realtype} N_VGetArrayPointer_Serial (:N_Vector,) shlib
-@c None N_VSetArrayPointer_Serial (Ptr{:realtype},:N_Vector) shlib
-@c None N_VLinearSum_Serial (:realtype,:N_Vector,:realtype,:N_Vector,:N_Vector) shlib
-@c None N_VConst_Serial (:realtype,:N_Vector) shlib
-@c None N_VProd_Serial (:N_Vector,:N_Vector,:N_Vector) shlib
-@c None N_VDiv_Serial (:N_Vector,:N_Vector,:N_Vector) shlib
-@c None N_VScale_Serial (:realtype,:N_Vector,:N_Vector) shlib
-@c None N_VAbs_Serial (:N_Vector,:N_Vector) shlib
-@c None N_VInv_Serial (:N_Vector,:N_Vector) shlib
-@c None N_VAddConst_Serial (:N_Vector,:realtype,:N_Vector) shlib
-@c realtype N_VDotProd_Serial (:N_Vector,:N_Vector) shlib
-@c realtype N_VMaxNorm_Serial (:N_Vector,) shlib
-@c realtype N_VWrmsNorm_Serial (:N_Vector,:N_Vector) shlib
-@c realtype N_VWrmsNormMask_Serial (:N_Vector,:N_Vector,:N_Vector) shlib
-@c realtype N_VMin_Serial (:N_Vector,) shlib
-@c realtype N_VWL2Norm_Serial (:N_Vector,:N_Vector) shlib
-@c realtype N_VL1Norm_Serial (:N_Vector,) shlib
-@c None N_VCompare_Serial (:realtype,:N_Vector,:N_Vector) shlib
-@c Int32 N_VInvTest_Serial (:N_Vector,:N_Vector) shlib
-@c Int32 N_VConstrMask_Serial (:N_Vector,:N_Vector,:N_Vector) shlib
-@c realtype N_VMinQuotient_Serial (:N_Vector,:N_Vector) shlib
+function N_VSpace(v::N_Vector,lrw::Ptr{Clong},liw::Ptr{Clong})
+    ccall((:N_VSpace,libsundials_nvecserial),Void,(N_Vector,Ptr{Clong},Ptr{Clong}),v,lrw,liw)
+end
 
+function N_VGetArrayPointer(v::N_Vector)
+    ccall((:N_VGetArrayPointer,libsundials_nvecserial),Ptr{realtype},(N_Vector,),v)
+end
+
+function N_VSetArrayPointer(v_data::Vector{realtype},v::N_Vector)
+    ccall((:N_VSetArrayPointer,libsundials_nvecserial),Void,(Ptr{realtype},N_Vector),v_data,v)
+end
+
+function N_VLinearSum(a::realtype,x::N_Vector,b::realtype,y::N_Vector,z::N_Vector)
+    ccall((:N_VLinearSum,libsundials_nvecserial),Void,(realtype,N_Vector,realtype,N_Vector,N_Vector),a,x,b,y,z)
+end
+
+function N_VConst(c::realtype,z::N_Vector)
+    ccall((:N_VConst,libsundials_nvecserial),Void,(realtype,N_Vector),c,z)
+end
+
+function N_VProd(x::N_Vector,y::N_Vector,z::N_Vector)
+    ccall((:N_VProd,libsundials_nvecserial),Void,(N_Vector,N_Vector,N_Vector),x,y,z)
+end
+
+function N_VDiv(x::N_Vector,y::N_Vector,z::N_Vector)
+    ccall((:N_VDiv,libsundials_nvecserial),Void,(N_Vector,N_Vector,N_Vector),x,y,z)
+end
+
+function N_VScale(c::realtype,x::N_Vector,z::N_Vector)
+    ccall((:N_VScale,libsundials_nvecserial),Void,(realtype,N_Vector,N_Vector),c,x,z)
+end
+
+function N_VAbs(x::N_Vector,z::N_Vector)
+    ccall((:N_VAbs,libsundials_nvecserial),Void,(N_Vector,N_Vector),x,z)
+end
+
+function N_VInv(x::N_Vector,z::N_Vector)
+    ccall((:N_VInv,libsundials_nvecserial),Void,(N_Vector,N_Vector),x,z)
+end
+
+function N_VAddConst(x::N_Vector,b::realtype,z::N_Vector)
+    ccall((:N_VAddConst,libsundials_nvecserial),Void,(N_Vector,realtype,N_Vector),x,b,z)
+end
+
+function N_VDotProd(x::N_Vector,y::N_Vector)
+    ccall((:N_VDotProd,libsundials_nvecserial),realtype,(N_Vector,N_Vector),x,y)
+end
+
+function N_VMaxNorm(x::N_Vector)
+    ccall((:N_VMaxNorm,libsundials_nvecserial),realtype,(N_Vector,),x)
+end
+
+function N_VWrmsNorm(x::N_Vector,w::N_Vector)
+    ccall((:N_VWrmsNorm,libsundials_nvecserial),realtype,(N_Vector,N_Vector),x,w)
+end
+
+function N_VWrmsNormMask(x::N_Vector,w::N_Vector,id::N_Vector)
+    ccall((:N_VWrmsNormMask,libsundials_nvecserial),realtype,(N_Vector,N_Vector,N_Vector),x,w,id)
+end
+
+function N_VMin(x::N_Vector)
+    ccall((:N_VMin,libsundials_nvecserial),realtype,(N_Vector,),x)
+end
+
+function N_VWL2Norm(x::N_Vector,w::N_Vector)
+    ccall((:N_VWL2Norm,libsundials_nvecserial),realtype,(N_Vector,N_Vector),x,w)
+end
+
+function N_VL1Norm(x::N_Vector)
+    ccall((:N_VL1Norm,libsundials_nvecserial),realtype,(N_Vector,),x)
+end
+
+function N_VCompare(c::realtype,x::N_Vector,z::N_Vector)
+    ccall((:N_VCompare,libsundials_nvecserial),Void,(realtype,N_Vector,N_Vector),c,x,z)
+end
+
+function N_VInvTest(x::N_Vector,z::N_Vector)
+    ccall((:N_VInvTest,libsundials_nvecserial),Cint,(N_Vector,N_Vector),x,z)
+end
+
+function N_VConstrMask(c::N_Vector,x::N_Vector,m::N_Vector)
+    ccall((:N_VConstrMask,libsundials_nvecserial),Cint,(N_Vector,N_Vector,N_Vector),c,x,m)
+end
+
+function N_VMinQuotient(num::N_Vector,denom::N_Vector)
+    ccall((:N_VMinQuotient,libsundials_nvecserial),realtype,(N_Vector,N_Vector),num,denom)
+end
+
+function N_VCloneEmptyVectorArray(count::Int,w::N_Vector)
+    ccall((:N_VCloneEmptyVectorArray,libsundials_nvecserial),Ptr{N_Vector},(Cint,N_Vector),count,w)
+end
+
+function N_VCloneVectorArray(count::Int,w::N_Vector)
+    ccall((:N_VCloneVectorArray,libsundials_nvecserial),Ptr{N_Vector},(Cint,N_Vector),count,w)
+end
+
+function N_VDestroyVectorArray(vs::Ptr{N_Vector},count::Int)
+    ccall((:N_VDestroyVectorArray,libsundials_nvecserial),Void,(Ptr{N_Vector},Cint),vs,count)
+end
+
+function N_VNew_Serial(vec_length::Int)
+    ccall((:N_VNew_Serial,libsundials_nvecserial),N_Vector,(Clong,),vec_length)
+end
+
+function N_VNewEmpty_Serial(vec_length::Int)
+    ccall((:N_VNewEmpty_Serial,libsundials_nvecserial),N_Vector,(Clong,),vec_length)
+end
+
+function N_VMake_Serial(vec_length::Int,v_data::Vector{realtype})
+    ccall((:N_VMake_Serial,libsundials_nvecserial),N_Vector,(Clong,Ptr{realtype}),vec_length,v_data)
+end
+
+function N_VCloneVectorArray_Serial(count::Int,w::N_Vector)
+    ccall((:N_VCloneVectorArray_Serial,libsundials_nvecserial),Ptr{N_Vector},(Cint,N_Vector),count,w)
+end
+
+function N_VCloneVectorArrayEmpty_Serial(count::Int,w::N_Vector)
+    ccall((:N_VCloneVectorArrayEmpty_Serial,libsundials_nvecserial),Ptr{N_Vector},(Cint,N_Vector),count,w)
+end
+
+function N_VDestroyVectorArray_Serial(vs::Ptr{N_Vector},count::Int)
+    ccall((:N_VDestroyVectorArray_Serial,libsundials_nvecserial),Void,(Ptr{N_Vector},Cint),vs,count)
+end
+
+function N_VPrint_Serial(v::N_Vector)
+    ccall((:N_VPrint_Serial,libsundials_nvecserial),Void,(N_Vector,),v)
+end
+
+function N_VCloneEmpty_Serial(w::N_Vector)
+    ccall((:N_VCloneEmpty_Serial,libsundials_nvecserial),N_Vector,(N_Vector,),w)
+end
+
+function N_VClone_Serial(w::N_Vector)
+    ccall((:N_VClone_Serial,libsundials_nvecserial),N_Vector,(N_Vector,),w)
+end
+
+function N_VDestroy_Serial(v::N_Vector)
+    ccall((:N_VDestroy_Serial,libsundials_nvecserial),Void,(N_Vector,),v)
+end
+
+function N_VSpace_Serial(v::N_Vector,lrw::Ptr{Clong},liw::Ptr{Clong})
+    ccall((:N_VSpace_Serial,libsundials_nvecserial),Void,(N_Vector,Ptr{Clong},Ptr{Clong}),v,lrw,liw)
+end
+
+function N_VGetArrayPointer_Serial(v::N_Vector)
+    ccall((:N_VGetArrayPointer_Serial,libsundials_nvecserial),Ptr{realtype},(N_Vector,),v)
+end
+
+function N_VSetArrayPointer_Serial(v_data::Vector{realtype},v::N_Vector)
+    ccall((:N_VSetArrayPointer_Serial,libsundials_nvecserial),Void,(Ptr{realtype},N_Vector),v_data,v)
+end
+
+function N_VLinearSum_Serial(a::realtype,x::N_Vector,b::realtype,y::N_Vector,z::N_Vector)
+    ccall((:N_VLinearSum_Serial,libsundials_nvecserial),Void,(realtype,N_Vector,realtype,N_Vector,N_Vector),a,x,b,y,z)
+end
+
+function N_VConst_Serial(c::realtype,z::N_Vector)
+    ccall((:N_VConst_Serial,libsundials_nvecserial),Void,(realtype,N_Vector),c,z)
+end
+
+function N_VProd_Serial(x::N_Vector,y::N_Vector,z::N_Vector)
+    ccall((:N_VProd_Serial,libsundials_nvecserial),Void,(N_Vector,N_Vector,N_Vector),x,y,z)
+end
+
+function N_VDiv_Serial(x::N_Vector,y::N_Vector,z::N_Vector)
+    ccall((:N_VDiv_Serial,libsundials_nvecserial),Void,(N_Vector,N_Vector,N_Vector),x,y,z)
+end
+
+function N_VScale_Serial(c::realtype,x::N_Vector,z::N_Vector)
+    ccall((:N_VScale_Serial,libsundials_nvecserial),Void,(realtype,N_Vector,N_Vector),c,x,z)
+end
+
+function N_VAbs_Serial(x::N_Vector,z::N_Vector)
+    ccall((:N_VAbs_Serial,libsundials_nvecserial),Void,(N_Vector,N_Vector),x,z)
+end
+
+function N_VInv_Serial(x::N_Vector,z::N_Vector)
+    ccall((:N_VInv_Serial,libsundials_nvecserial),Void,(N_Vector,N_Vector),x,z)
+end
+
+function N_VAddConst_Serial(x::N_Vector,b::realtype,z::N_Vector)
+    ccall((:N_VAddConst_Serial,libsundials_nvecserial),Void,(N_Vector,realtype,N_Vector),x,b,z)
+end
+
+function N_VDotProd_Serial(x::N_Vector,y::N_Vector)
+    ccall((:N_VDotProd_Serial,libsundials_nvecserial),realtype,(N_Vector,N_Vector),x,y)
+end
+
+function N_VMaxNorm_Serial(x::N_Vector)
+    ccall((:N_VMaxNorm_Serial,libsundials_nvecserial),realtype,(N_Vector,),x)
+end
+
+function N_VWrmsNorm_Serial(x::N_Vector,w::N_Vector)
+    ccall((:N_VWrmsNorm_Serial,libsundials_nvecserial),realtype,(N_Vector,N_Vector),x,w)
+end
+
+function N_VWrmsNormMask_Serial(x::N_Vector,w::N_Vector,id::N_Vector)
+    ccall((:N_VWrmsNormMask_Serial,libsundials_nvecserial),realtype,(N_Vector,N_Vector,N_Vector),x,w,id)
+end
+
+function N_VMin_Serial(x::N_Vector)
+    ccall((:N_VMin_Serial,libsundials_nvecserial),realtype,(N_Vector,),x)
+end
+
+function N_VWL2Norm_Serial(x::N_Vector,w::N_Vector)
+    ccall((:N_VWL2Norm_Serial,libsundials_nvecserial),realtype,(N_Vector,N_Vector),x,w)
+end
+
+function N_VL1Norm_Serial(x::N_Vector)
+    ccall((:N_VL1Norm_Serial,libsundials_nvecserial),realtype,(N_Vector,),x)
+end
+
+function N_VCompare_Serial(c::realtype,x::N_Vector,z::N_Vector)
+    ccall((:N_VCompare_Serial,libsundials_nvecserial),Void,(realtype,N_Vector,N_Vector),c,x,z)
+end
+
+function N_VInvTest_Serial(x::N_Vector,z::N_Vector)
+    ccall((:N_VInvTest_Serial,libsundials_nvecserial),Cint,(N_Vector,N_Vector),x,z)
+end
+
+function N_VConstrMask_Serial(c::N_Vector,x::N_Vector,m::N_Vector)
+    ccall((:N_VConstrMask_Serial,libsundials_nvecserial),Cint,(N_Vector,N_Vector,N_Vector),c,x,m)
+end
+
+function N_VMinQuotient_Serial(num::N_Vector,denom::N_Vector)
+    ccall((:N_VMinQuotient_Serial,libsundials_nvecserial),realtype,(N_Vector,N_Vector),num,denom)
+end
