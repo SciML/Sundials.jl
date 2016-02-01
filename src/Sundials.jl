@@ -229,25 +229,25 @@ end
 
 @c Int32 KINSetUserData (Ptr{:Void},Any) libsundials_kinsol  ## needed to allow passing a Function through the user data
 
-function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
-    y = asarray(y)
-    fy = asarray(fy)
-    userfun(y, fy)
-    return Int32(0)
-end
-
 function kinsol(f::Function, y0::Vector{Float64})
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
     # return: the solution vector
+    
+    function kinsolfun(y::N_Vector, fy::N_Vector)
+        y = asarray(y)
+        fy = asarray(fy)
+        f(y, fy)
+        return Int32(0)
+    end
     neq = length(y0)
     kmem = KINCreate()
     # use the user_data field to pass a function
     #   see: https://github.com/JuliaLang/julia/issues/2554
-    flag = KINInit(kmem, cfunction(kinsolfun, Int32, (N_Vector, N_Vector, Ref{Function})), nvector(y0))
+    flag = KINInit(kmem, cfunction(kinsolfun, Int32, (N_Vector, N_Vector)), nvector(y0))
     flag = KINDense(kmem, neq)
-    flag = KINSetUserData(kmem, f)
+    # flag = KINSetUserData(kmem, f)
     ## Solve problem
     scale = ones(neq)
     strategy = 0   # KIN_NONE
@@ -266,13 +266,6 @@ end
 
 @c Int32 CVodeSetUserData (Ptr{:Void},Any) libsundials_cvode  ## needed to allow passing a Function through the user data
 
-function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
-    y = Sundials.asarray(y)
-    yp = Sundials.asarray(yp)
-    userfun(t, y, yp)
-    return Int32(0)
-end
-
 function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64}, t::Float64)
     #    where `y` is the input vector, and `fy` is the
@@ -282,10 +275,17 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
     # abstol, Absolute Tolerance to be used (default=1e-6)
     # return: a solution matrix with time steps in `t` along rows and
     #         state variable `y` along columns
+    
+    function cvodefun(t::Float64, y::N_Vector, yp::N_Vector)
+        y = Sundials.asarray(y)
+        yp = Sundials.asarray(yp)
+        f(t, y, yp)
+        return Int32(0)
+    end
     neq = length(y0)
     mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Ref{Function})), t[1], nvector(y0))
-    flag = CVodeSetUserData(mem, f)
+    flag = CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector)), t[1], nvector(y0))
+    # flag = CVodeSetUserData(mem, f)
     flag = CVodeSStolerances(mem, reltol, abstol)
     flag = CVDense(mem, neq)
     yres = zeros(length(t), length(y0))
@@ -302,14 +302,6 @@ end
 
 @c Int32 IDASetUserData (Ptr{:Void},Any) libsundials_ida  ## needed to allow passing a Function through the user data
 
-function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
-    y = Sundials.asarray(y)
-    yp = Sundials.asarray(yp)
-    r = Sundials.asarray(r)
-    userfun(t, y, yp, r)
-    return Int32(0)   # indicates normal return
-end
-
 function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the
@@ -319,10 +311,19 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
     # abstol, Absolute Tolerance to be used (default=1e-6)
     # return: (y,yp) two solution matrices representing the states and state derivatives
     #         with time steps in `t` along rows and state variable `y` or `yp` along columns
+    
+    function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector)
+        y = Sundials.asarray(y)
+        yp = Sundials.asarray(yp)
+        r = Sundials.asarray(r)
+        f(t, y, yp, r)
+        return Int32(0)   # indicates normal return
+    end
+    
     neq = length(y0)
     mem = IDACreate()
-    flag = IDAInit(mem, cfunction(idasolfun, Int32, (realtype, N_Vector, N_Vector, N_Vector, Ref{Function})), t[1], nvector(y0), nvector(yp0))
-    flag = IDASetUserData(mem, f)
+    flag = IDAInit(mem, cfunction(idasolfun, Int32, (realtype, N_Vector, N_Vector, N_Vector)), t[1], nvector(y0), nvector(yp0))
+    # flag = IDASetUserData(mem, f)
     flag = IDASStolerances(mem, reltol, abstol)
     flag = IDADense(mem, neq)
     rtest = zeros(neq)

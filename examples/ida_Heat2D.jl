@@ -112,10 +112,17 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
                     t::Vector{Float64};
                     reltol::Float64=1e-4, abstol::Float64=1e-6)
 
+    function idasolfun(t::Float64, y::Sundials.N_Vector, yp::Sundials.N_Vector, r::Sundials.N_Vector)
+        y = Sundials.asarray(y)
+        yp = Sundials.asarray(yp)
+        r = Sundials.asarray(r)
+        f(t, y, yp, r)
+        return Int32(0)   # indicates normal return
+    end
     neq = length(y0)
     mem = Sundials.IDACreate()
-    flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
-                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
+    flag = Sundials.IDAInit(mem, cfunction(idasolfun, Int32,
+                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector)),
                             t[1], nvector(y0), nvector(yp0))
     assert(flag == 0)
     flag = Sundials.IDASetId(mem,nvector(id))
