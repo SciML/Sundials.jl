@@ -1,7 +1,6 @@
-
 using Sundials
 
-## f routine. Compute function f(t,y). 
+## f routine. Compute function f(t,y).
 
 function f(t, y, ydot, user_data)
     y = Sundials.asarray(y)
@@ -13,7 +12,7 @@ function f(t, y, ydot, user_data)
 end
 
 
-## g routine. Compute functions g_i(t,y) for i = 0,1. 
+## g routine. Compute functions g_i(t,y) for i = 0,1.
 
 function g(t, y, gout, user_data)
     y = Sundials.asarray(y)
@@ -23,7 +22,7 @@ function g(t, y, gout, user_data)
     return Int32(0)
 end
 
-## Jacobian routine. Compute J(t,y) = df/dy.  
+## Jacobian routine. Compute J(t,y) = df/dy.
 
 # Using StrPack
 # -- it works
@@ -31,7 +30,7 @@ end
 # Note: this is for Sundials v 2.4; the structure changed for v 2.5
 # Because of this, I'm commenting this out.
 ## using StrPack
-## @struct type J_DlsMat    
+## @struct type J_DlsMat
 ##     typ::Int32
 ##     M::Int32
 ##     N::Int32
@@ -45,7 +44,7 @@ end
 ## end
 # Note: Here is the (untested) structure for v 2.5
 ## using StrPack
-## @struct type J_DlsMat    
+## @struct type J_DlsMat
 ##     typ::Int32
 ##     M::Int
 ##     N::Int
@@ -69,14 +68,14 @@ function Jac(N, t, y, fy, Jptr, user_data,
     J[1,1] = -0.04
     J[1,2] = 1.0e4*y[3]
     J[1,3] = 1.0e4*y[2]
-    J[2,1] = 0.04 
+    J[2,1] = 0.04
     J[2,2] = -1.0e4*y[3] - 6.0e7*y[2]
     J[2,3] = -1.0e4*y[2]
     J[3,2] = 6.0e7*y[2]
     return Int32(0)
 end
 
-neq = Int32(3)
+neq = 3
 
 t0 = 0.0
 t1 = 0.4
@@ -89,7 +88,7 @@ abstol = [1e-8, 1e-14, 1e-6]
 cvode_mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
 flag = Sundials.CVodeInit(cvode_mem, f, t0, y)
 flag = Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
-flag = Sundials.CVodeRootInit(cvode_mem, Int32(2), g)
+flag = Sundials.CVodeRootInit(cvode_mem, 2, g)
 flag = Sundials.CVDense(cvode_mem, neq)
 ## flag = Sundials.CVDlsSetDenseJacFn(cvode_mem, Jac)  # works, but clunky, see above
 
@@ -97,13 +96,14 @@ iout = 0
 tout = t1
 
 rootsfound = round(Int32,[0, 0])
+
 t = [t0]
 
 while true
     flag = Sundials.CVode(cvode_mem, tout, y, t, Sundials.CV_NORMAL)
     println("T = ", tout, ", Y = ", y)
     if flag == Sundials.CV_ROOT_RETURN
-        flagr = Sundials.CVodeGetRootInfo(cvode_mem, rootsfound)
+        flagr = Sundials.CVodeGetRootInfo(cvode_mem, pointer(rootsfound))
         println("roots = ", rootsfound)
     end
     if flag == Sundials.CV_SUCCESS
