@@ -18,7 +18,7 @@ sundialslibs = enable_sensitivities ? [cvodes, idas, kinsol, nvecserial] : [cvod
 sundialsver = "sundials-2.5.0"
 provides(Sources, URI("http://ftp.mcs.anl.gov/pub/petsc/externalpackages/$sundialsver.tar.gz"), sundialslibs)
 
-provides(Binaries, URI("https://cache.e.ip.saba.us/https://bintray.com/artifact/download/tkelman/generic/$sundialsver.7z"),
+provides(Binaries, URI("https://cache.julialang.org/https://bintray.com/artifact/download/tkelman/generic/$sundialsver.7z"),
     sundialslibs, unpacked_dir="usr$WORD_SIZE/bin", os = :Windows)
 
 prefix = joinpath(BinDeps.depsdir(sundialslibs[1]),"usr")
