@@ -10,8 +10,8 @@
 ##  * Programmer(s): Allan Taylor, Alan Hindmarsh and
 ##  *                Radu Serban @ LLNL
 ##  * -----------------------------------------------------------------
-##  * This simple example problem for IDA, due to Robertson, 
-##  * is from chemical kinetics, and consists of the following three 
+##  * This simple example problem for IDA, due to Robertson,
+##  * is from chemical kinetics, and consists of the following three
 ##  * equations:
 ##  *
 ##  *      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -34,10 +34,10 @@
 using Sundials
 
 
-## Define the system residual function. 
+## Define the system residual function.
 function resrob(tres, yy, yp, rr, user_data)
-    yval = Sundials.asarray(yy) 
-    ypval = Sundials.asarray(yp) 
+    yval = Sundials.asarray(yy)
+    ypval = Sundials.asarray(yp)
     rval = Sundials.asarray(rr)
     rval[1]  = -0.04*yval[1] + 1.0e4*yval[2]*yval[3]
     rval[2]  = -rval[1] - 3.0e7*yval[2]*yval[2] - ypval[2]
@@ -46,9 +46,9 @@ function resrob(tres, yy, yp, rr, user_data)
     return Int32(0)   # indicates normal return
 end
 
-## Root function routine. Compute functions g_i(t,y) for i = 0,1. 
+## Root function routine. Compute functions g_i(t,y) for i = 0,1.
 function grob(t, yy, yp, gout, user_data)
-    yval = Sundials.asarray(yy) 
+    yval = Sundials.asarray(yy)
     gval = Sundials.asarray(gout, (2,))
     gval[1] = yval[1] - 0.0001
     gval[2] = yval[3] - 0.01
@@ -72,7 +72,7 @@ function jacrob(Neq, tt, cj, yy, yp, resvec,
     return Int32(0)   # indicates normal return
 end
 
-neq = Int32(3)
+neq = 3
 nout = 12
 t0 = 0.0
 yy = [1.0,0.0,0.0]
@@ -86,7 +86,7 @@ retval = Sundials.IDAInit(mem, resrob, t0, yy, yp)
 retval = Sundials.IDASVtolerances(mem, rtol, avtol)
 
 ## Call IDARootInit to specify the root function grob with 2 components
-retval = Sundials.IDARootInit(mem, Int32(2), grob)
+retval = Sundials.IDARootInit(mem, 2, grob)
 
 ## Call IDADense and set up the linear solver.
 retval = Sundials.IDADense(mem, neq)
@@ -97,17 +97,16 @@ tout = tout1
 tret = [1.0]
 rootsfound = round(Int32,[0, 0])
 
-while true 
+while true
     retval = Sundials.IDASolve(mem, tout, tret, yy, yp, Sundials.IDA_NORMAL)
     println("T = ", tout, ", Y = ", yy)
-    if retval == Sundials.IDA_ROOT_RETURN 
-        retvalr = Sundials.IDAGetRootInfo(mem, rootsfound)
+    if retval == Sundials.IDA_ROOT_RETURN
+        retvalr = Sundials.IDAGetRootInfo(mem, pointer(rootsfound))
         println("roots = ", rootsfound)
     end
-    if retval == Sundials.IDA_SUCCESS 
+    if retval == Sundials.IDA_SUCCESS
         iout += 1
         tout *= 10.0
     end
     if iout == nout break end
 end
-
