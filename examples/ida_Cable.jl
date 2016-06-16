@@ -24,9 +24,9 @@ xsteps = round(Int,L/dx)
 ## Number of timesteps to simulate
 tf = 10.0
 dt = 0.1
-timesteps = int(tf/dt)
+timesteps = round(Int, tf/dt)
 t = 0.0:dt:(dt*(timesteps-1))
-    
+
 d = 4.0 * 1e-4 ## Cable diameter in cm
 R_m = 2.5e11 ## Membrane resistance in Ohms/cm^2
 G_m = 1.0/R_m ## Membrane conductance
@@ -41,7 +41,7 @@ I_in = 0.1
 I_delay = 1.0
 ## Duration of injected current
 I_dur = 5.0
-J[max(1,int((I_delay)/dt)):int((I_delay+I_dur)/dt),int(1*xsteps/2)] = I_in
+J[max(1,round(Int,(I_delay)/dt)):round(Int,(I_delay+I_dur)/dt),round(Int,1*xsteps/2)] = I_in
 
 G_J = map(i -> CoordInterpGrid(t, vec(J[:,i]), 0.0, InterpQuadratic),1:xsteps)
 
@@ -53,18 +53,18 @@ G_J = map(i -> CoordInterpGrid(t, vec(J[:,i]), 0.0, InterpQuadratic),1:xsteps)
 ##
 
 function cableres(t, u, up, r)
-    
+
     r[:] = u ## Initialize r to u, to take care of boundary equations.
-    
+
     ## Loop over segments; set res = up - (central difference).
     for i = 2:(xsteps-2)
         loc = i
         r[loc] = C_m * up[loc] - (d/(4*R_i)) * (u[loc-1] + u[loc+1] -
                                                 2.0 * u[loc]) +
                  G_m * u[loc] - R_m * (G_J[loc])[t]
-        
+
     end
-    
+
     return (0)
 end
 
@@ -73,8 +73,8 @@ function initial()
 
     u = zeros(xsteps)
 
-    u[2:xsteps-2] = -60.0 ## initial value -60 mV 
-    
+    u[2:xsteps-2] = -60.0 ## initial value -60 mV
+
     id = ones(xsteps)
 
     up = zeros(xsteps)
@@ -82,11 +82,11 @@ function initial()
 
     cableres(0.0, u, up, r)
 
-    ## Copy -res into up to get correct interior initial up values. 
+    ## Copy -res into up to get correct interior initial up values.
     up[:] = -1.0 * r
 
     return (u,up,id)
-    
+
 end
 
 nvector = Sundials.nvector
