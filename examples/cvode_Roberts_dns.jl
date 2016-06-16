@@ -1,4 +1,3 @@
-
 using Sundials
 
 ## f routine. Compute function f(t,y).
@@ -97,6 +96,7 @@ iout = 0
 tout = t1
 
 rootsfound = round(Int32,[0, 0])
+
 t = [t0]
 
 while true
