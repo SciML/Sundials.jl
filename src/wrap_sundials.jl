@@ -18,7 +18,8 @@ end
 headers = ASCIIString[]
 for name in sundials_names
     path = joinpath(incpath, name)
-    append!(headers, map(x->joinpath(path, x),split(readall(pipeline(`ls $path`, `sort`)))))
+    append!(headers, map(x->joinpath(path, x),
+            sort!(convert(Vector{ASCIIString}, readdir(path)))))
 end
 # @show headers
 
