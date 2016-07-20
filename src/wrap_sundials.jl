@@ -42,14 +42,104 @@ clang_includes = map(x->joinpath(ENV["JULIAHOME"], x), [
   ])
 
 # check_use_header(path) = true
-header_file(str::AbstractString) = string(basename(dirname(str)), ".jl")
-header_library_file(str::AbstractString) = "shlib"
+# Callback to test if a header should actually be wrapped (for exclusion)
+function wrap_header(top_hdr::ASCIIString, cursor_header::ASCIIString)
+    !ismatch(r"(_parallel|_impl)\.h$", top_hdr) &&
+    !ismatch(r"(_parallel|_impl)\.h$", cursor_header) &&  # don't wrap parallel and implementation definitions
+    (basename(dirname(top_hdr)) == basename(dirname(cursor_header))) # don't wrap e.g. nvector in cvode or cvode in cvodes
+end
+function wrap_cursor(name::ASCIIString, cursor)
+    if typeof(cursor) == Clang.cindex.FunctionDecl
+        # only wrap API functions
+        return ismatch(r"^(CV|KIN|IDA|N_V)", name)
+    else
+        # skip problematic definitions
+        return !ismatch(r"^(ABS|SQRT|EXP)$", name)
+    end
+end
+
+function julia_file(header::AbstractString)
+    src_name = basename(dirname(header))
+    if src_name == "sundials"
+        src_name = "libsundials" # avoid having both Sundials.jl and sundials.jl
+    end
+    return string(src_name, ".jl")
+end
+function library_file(header::AbstractString)
+    header_name = basename(header)
+    if startswith(header_name, "nvector")
+        return "libsundials_nvecserial"
+    else
+        return string("libsundials_", basename(dirname(header)))
+    end
+end
+
 clang_extraargs = [
-"-D", "__STDC_LIMIT_MACROS", "-D", "__STDC_CONSTANT_MACROS", 
+"-D", "__STDC_LIMIT_MACROS", "-D", "__STDC_CONSTANT_MACROS",
 "-v"]
 context = wrap_c.init(
-common_file="sundials_h.jl", 
-clang_args = clang_extraargs, clang_diagnostics = true, clang_includes = [clang_includes; incpath], header_outputfile = header_file)
+common_file="types_and_consts.jl",
+clang_args = clang_extraargs, clang_diagnostics = true,
+clang_includes = [clang_includes; incpath],
+header_outputfile = julia_file,
+header_library = library_file,
+header_wrapped=wrap_header,
+cursor_wrapped=wrap_cursor)
 context.headers = headers
+
+# 1st arg name to wrapped arg type map
+const arg1_name2type = Dict(
+    :cvode_mem => :(CVODEMemPtr),
+    :kinmem => :(KINMemPtr),
+    :kinmemm => :(KINMemPtr), # Sundials typo?
+    :ida_mem => :(IDAMemPtr),
+    :idaa_mem => :(IDAMemPtr), # Sundials typo?
+    :idaadj_mem => :(IDAMemPtr), # Sundials typo?
+)
+
+const ctor_return_type = Dict(
+    "CVodeCreate" => :(CVODEMemPtr),
+    "IDACreate" => :(IDAMemPtr),
+    "KINCreate" => :(KINMemPtr)
+)
+
+typeify_sundials_pointers(notexpr) = notexpr
+
+function typeify_sundials_pointers(expr::Expr)
+    if expr.head == :function &&
+        expr.args[1].head == :call
+        func_name = string(expr.args[1].args[1])
+        if ismatch(r"^(CV|KIN|IDA|N_V)", func_name)
+            if ismatch(r"Create$", func_name)
+                # create functions return typed pointers
+                @assert expr.args[2].args[1].args[2] == :(Ptr{Void})
+                expr.args[2].args[1].args[2] = ctor_return_type[func_name]
+            elseif length(expr.args[1].args) > 1
+                arg1_name = expr.args[1].args[2].args[1]
+                arg1_type = expr.args[1].args[2].args[2]
+                if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
+                    # also check in the ccall list of arg types
+                    @assert expr.args[2].args[1].args[3].args[1] == arg1_type
+                    arg1_newtype = arg1_name2type[arg1_name]
+                    if arg1_type == :(Ptr{Ptr{Void}})
+                        # adjust for void** type (for CVodeFree()-like funcs)
+                        arg1_newtype = Expr(:curly, :Ref, arg1_newtype)
+                    end
+                    expr.args[1].args[2].args[2] = arg1_newtype
+                    expr.args[2].args[1].args[3].args[1] = arg1_newtype
+                end
+            end
+        end
+    elseif expr.head == :const && expr.args[1].head == :(=) &&
+           isa(expr.args[1].args[2], Int)
+        # fix integer constants should be Cint
+        expr.args[1].args[2] = Expr(:call, :Cint, expr.args[1].args[2])
+    end
+    expr
+end
+
+context.rewriter = function(exprs)
+    map(typeify_sundials_pointers, exprs)
+end
+
 run(context)
-mv(joinpath(wdir, "sundials.jl"), joinpath(wdir, "libsundials.jl"))  # avoid a name conflict for case-insensitive file systems

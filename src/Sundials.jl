@@ -35,14 +35,30 @@ macro ctypedef(fake_t,real_t)
   end
 end
 
-typealias __builtin_va_list Ptr{:Void}
+# some definitions from the system C headers wrapped into the types_and_consts.jl
+const DBL_MAX = prevfloat(Inf)
+const DBL_MIN = nextfloat(-Inf)
+const DBL_EPSILON = eps(Cdouble)
+
+typealias FILE Void
+typealias __builtin_va_list Ptr{Void}
 
 if isdefined(:libsundials_cvodes)
     const libsundials_cvode = libsundials_cvodes
     const libsundials_ida = libsundials_idas
 end
 
-include("sundials_h.jl")
+# typed pointer definitions
+immutable CVODEMem end
+typealias CVODEMemPtr Ptr{CVODEMem}
+
+immutable IDAMem end
+typealias IDAMemPtr Ptr{IDAMem}
+
+immutable KINMem end
+typealias KINMemPtr Ptr{KINMem}
+
+include("types_and_consts.jl")
 include("nvector.jl")
 include("libsundials.jl")
 if isdefined(:libsundials_cvodes)
@@ -59,8 +75,6 @@ end
 shlib = libsundials_kinsol
 include("kinsol.jl")
 
-include("constants.jl")
-
 ##################################################################
 #
 # Methods to convert between Julia Vectors and Sundials N_Vectors.
@@ -72,7 +86,7 @@ asarray(x::N_Vector) = @compat unsafe_wrap(Array, N_VGetArrayPointer_Serial(x), 
 asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = @compat unsafe_wrap(Array, x, dims)
 asarray(x::N_Vector, dims::Tuple) = reinterpret(realtype, asarray(x), dims)
-nvector(x::Vector{realtype}) = N_VMake_Serial(length(x), x)
+nvector(x::Vector{realtype}) = N_VMake_Serial(length(x), pointer(x))
 nvector(x::N_Vector) = x
 
 
@@ -107,8 +121,8 @@ IDASetId(mem, id::Vector{realtype}) =
     IDASetId(mem, nvector(id))
 IDASetConstraints(mem, constraints::Vector{realtype}) =
     IDASetConstraints(mem, nvector(constraints))
-IDASolve(mem, tout, tret, yret::Vector{realtype}, ypret::Vector{realtype}, itask) =
-    IDASolve(mem, tout, tret, nvector(yret), nvector(ypret), itask)
+IDASolve(mem, tout, tret::Vector{realtype}, yret::Vector{realtype}, ypret::Vector{realtype}, itask) =
+    IDASolve(mem, tout, pointer(tret), nvector(yret), nvector(ypret), itask)
 
 # CVODE
 CVodeInit(mem, f::Function, t0, y0) =
@@ -127,8 +141,8 @@ CVodeRootInit(mem, nrtfn, g::Function) =
     CVodeRootInit(mem, nrtfn, cfunction(g, Int32, (realtype, N_Vector, Ptr{realtype}, Ptr{Void})))
 CVDlsSetDenseJacFn(mem, jac::Function) =
     CVDlsSetDenseJacFn(mem, cfunction(jac, Int32, (Int32, realtype, N_Vector, N_Vector, DlsMat, Ptr{Void}, N_Vector, N_Vector, N_Vector)))
-CVode(mem, tout, yout::Vector{realtype}, tret, itask) =
-    CVode(mem, tout, nvector(yout), tret, itask)
+CVode(mem, tout, yout::Vector{realtype}, tret::Vector{realtype}, itask) =
+    CVode(mem, tout, nvector(yout), pointer(tret), itask)
 
 if isdefined(:libsundials_cvodes)
 # CVODES
@@ -273,14 +287,10 @@ function kinsol(f::Function, y0::Vector{Float64})
         flag = @checkflag KINSetUserData(kmem, f)
         ## Solve problem
         scale = ones(neq)
-        strategy = 0   # KIN_NONE
-        flag = @checkflag KINSol(kmem,
-                                 y,
-                                 strategy,
-                                 scale,
-                                 scale)
+        strategy = KIN_NONE
+        flag = @checkflag KINSol(kmem, y, strategy, scale, scale)
     finally
-        KINFree([kmem])
+        KINFree(Ref{KINMemPtr}(kmem))
     end
 
     return y
@@ -328,7 +338,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64},
 
     yres = zeros(length(t), length(y0))
     try
-        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Ref{Function})), t[1], nvector(y0))
+        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{Function})), t[1], nvector(y0))
         flag = @checkflag CVodeSetUserData(mem, f)
         flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
         flag = @checkflag CVDense(mem, neq)
@@ -340,7 +350,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64},
             yres[k,:] = y
         end
     finally
-        CVodeFree([mem])
+        CVodeFree(Ref{CVODEMemPtr}(mem))
     end
     return yres
 end
@@ -465,7 +475,7 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
             ypres[k,:] = yp
         end
     finally
-        IDAFree([mem])
+        IDAFree(Ref{IDAMemPtr}(mem))
     end
 
     return yres, ypres
