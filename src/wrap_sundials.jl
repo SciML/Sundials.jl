@@ -103,7 +103,7 @@ const ctor_return_type = Dict(
     "KINCreate" => :(KINMemPtr)
 )
 
-typeify_sundials_pointers(notexpr) = notexpr
+typeify_sundials_pointers(notexpr) = Any[notexpr]
 
 function typeify_sundials_pointers(expr::Expr)
     if expr.head == :function &&
@@ -148,11 +148,15 @@ function typeify_sundials_pointers(expr::Expr)
         # fix integer constants should be Cint
         expr.args[1].args[2] = Expr(:call, :Cint, expr.args[1].args[2])
     end
-    expr
+    return Any[expr]
 end
 
 context.rewriter = function(exprs)
-    map(typeify_sundials_pointers, exprs)
+    mod_exprs = sizehint!(Vector{Any}(), length(exprs))
+    for expr in exprs
+        append!(mod_exprs, typeify_sundials_pointers(expr))
+    end
+    mod_exprs
 end
 
 run(context)
