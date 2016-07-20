@@ -14,8 +14,8 @@ function CVodeSetErrFile(cvode_mem::CVODEMemPtr,errfp::Ptr{FILE})
     ccall((:CVodeSetErrFile,libsundials_cvode),Cint,(CVODEMemPtr,Ptr{FILE}),cvode_mem,errfp)
 end
 
-function CVodeSetUserData(cvode_mem::CVODEMemPtr,user_data::Ptr{Void})
-    ccall((:CVodeSetUserData,libsundials_cvode),Cint,(CVODEMemPtr,Ptr{Void}),cvode_mem,user_data)
+function CVodeSetUserData(cvode_mem::CVODEMemPtr,user_data::Any)
+    ccall((:CVodeSetUserData,libsundials_cvode),Cint,(CVODEMemPtr,Any),cvode_mem,user_data)
 end
 
 function CVodeSetMaxOrd(cvode_mem::CVODEMemPtr,maxord::Cint)

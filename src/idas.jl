@@ -14,8 +14,8 @@ function IDASetErrFile(ida_mem::IDAMemPtr,errfp::Ptr{FILE})
     ccall((:IDASetErrFile,libsundials_idas),Cint,(IDAMemPtr,Ptr{FILE}),ida_mem,errfp)
 end
 
-function IDASetUserData(ida_mem::IDAMemPtr,user_data::Ptr{Void})
-    ccall((:IDASetUserData,libsundials_idas),Cint,(IDAMemPtr,Ptr{Void}),ida_mem,user_data)
+function IDASetUserData(ida_mem::IDAMemPtr,user_data::Any)
+    ccall((:IDASetUserData,libsundials_idas),Cint,(IDAMemPtr,Any),ida_mem,user_data)
 end
 
 function IDASetMaxOrd(ida_mem::IDAMemPtr,maxord::Cint)
@@ -514,8 +514,8 @@ function IDASetAdjNoSensi(ida_mem::IDAMemPtr)
     ccall((:IDASetAdjNoSensi,libsundials_idas),Cint,(IDAMemPtr,),ida_mem)
 end
 
-function IDASetUserDataB(ida_mem::IDAMemPtr,which::Cint,user_dataB::Ptr{Void})
-    ccall((:IDASetUserDataB,libsundials_idas),Cint,(IDAMemPtr,Cint,Ptr{Void}),ida_mem,which,user_dataB)
+function IDASetUserDataB(ida_mem::IDAMemPtr,which::Cint,user_dataB::Any)
+    ccall((:IDASetUserDataB,libsundials_idas),Cint,(IDAMemPtr,Cint,Any),ida_mem,which,user_dataB)
 end
 
 function IDASetMaxOrdB(ida_mem::IDAMemPtr,which::Cint,maxordB::Cint)

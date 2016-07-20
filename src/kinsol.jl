@@ -22,8 +22,8 @@ function KINSetInfoFile(kinmem::KINMemPtr,infofp::Ptr{FILE})
     ccall((:KINSetInfoFile,libsundials_kinsol),Cint,(KINMemPtr,Ptr{FILE}),kinmem,infofp)
 end
 
-function KINSetUserData(kinmem::KINMemPtr,user_data::Ptr{Void})
-    ccall((:KINSetUserData,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Void}),kinmem,user_data)
+function KINSetUserData(kinmem::KINMemPtr,user_data::Any)
+    ccall((:KINSetUserData,libsundials_kinsol),Cint,(KINMemPtr,Any),kinmem,user_data)
 end
 
 function KINSetPrintLevel(kinmemm::KINMemPtr,printfl::Cint)

@@ -129,6 +129,19 @@ function typeify_sundials_pointers(expr::Expr)
                     expr.args[2].args[1].args[3].args[1] = arg1_newtype
                 end
             end
+            if ismatch(r"UserDataB?$", func_name)
+                # replace Ptr{Void} with Any to allow passing Julia objects through user data
+                for (i, arg_expr) in enumerate(expr.args[1].args)
+                    if i > 1 && ismatch(r"^user_dataB?$", string(arg_expr.args[1]))
+                        @assert arg_expr.head == :(::) && arg_expr.args[2] == :(Ptr{Void})
+                        expr.args[1].args[i].args[2] = :(Any)
+                        # replace in ccall list
+                        @assert expr.args[2].args[1].args[3].args[i-1] == :(Ptr{Void})
+                        expr.args[2].args[1].args[3].args[i-1] = :(Any)
+                        break
+                    end
+                end
+            end
         end
     elseif expr.head == :const && expr.args[1].head == :(=) &&
            isa(expr.args[1].args[2], Int)
