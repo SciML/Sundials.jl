@@ -55,6 +55,8 @@ Base.convert(::Type{Vector}, nv::NVector)= nv.v
 Base.convert(::Type{N_Vector}, v::Vector{realtype}) = N_Vector(NVector(v))
 Base.convert{T<:Real}(::Type{N_Vector}, v::Vector{T}) = N_Vector(NVector(v))
 
+Base.similar(nv::NVector) = NVector(similar(nv.v))
+
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 # asarray() creates an array pointing to N_Vector data, but does not take the ownership
 @inline asarray(x::N_Vector) = @compat unsafe_wrap(Array, N_VGetArrayPointer_Serial(x), (nvlength(x),), false)
