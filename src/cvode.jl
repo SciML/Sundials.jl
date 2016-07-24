@@ -16,7 +16,7 @@ function __CVodeSetErrFile(cvode_mem::CVODEMemPtr,errfp::Ptr{FILE})
     ccall((:CVodeSetErrFile,libsundials_cvode),Cint,(CVODEMemPtr,Ptr{FILE}),cvode_mem,errfp)
 end
 
-CVodeSetErrFile(cvode_mem,errfp) = __CVodeSetErrFile(convert(CVODEMemPtr,cvode_mem),pointer(errfp))
+CVodeSetErrFile(cvode_mem,errfp) = __CVodeSetErrFile(convert(CVODEMemPtr,cvode_mem),errfp)
 
 function __CVodeSetUserData(cvode_mem::CVODEMemPtr,user_data::Any)
     ccall((:CVodeSetUserData,libsundials_cvode),Cint,(CVODEMemPtr,Any),cvode_mem,user_data)

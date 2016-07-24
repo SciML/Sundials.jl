@@ -16,7 +16,7 @@ function __IDASetErrFile(ida_mem::IDAMemPtr,errfp::Ptr{FILE})
     ccall((:IDASetErrFile,libsundials_ida),Cint,(IDAMemPtr,Ptr{FILE}),ida_mem,errfp)
 end
 
-IDASetErrFile(ida_mem,errfp) = __IDASetErrFile(convert(IDAMemPtr,ida_mem),pointer(errfp))
+IDASetErrFile(ida_mem,errfp) = __IDASetErrFile(convert(IDAMemPtr,ida_mem),errfp)
 
 function __IDASetUserData(ida_mem::IDAMemPtr,user_data::Any)
     ccall((:IDASetUserData,libsundials_ida),Cint,(IDAMemPtr,Any),ida_mem,user_data)

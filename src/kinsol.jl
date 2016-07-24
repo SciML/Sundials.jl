@@ -16,7 +16,7 @@ function __KINSetErrFile(kinmem::KINMemPtr,errfp::Ptr{FILE})
     ccall((:KINSetErrFile,libsundials_kinsol),Cint,(KINMemPtr,Ptr{FILE}),kinmem,errfp)
 end
 
-KINSetErrFile(kinmem,errfp) = __KINSetErrFile(convert(KINMemPtr,kinmem),pointer(errfp))
+KINSetErrFile(kinmem,errfp) = __KINSetErrFile(convert(KINMemPtr,kinmem),errfp)
 
 function __KINSetInfoHandlerFn(kinmem::KINMemPtr,ihfun::KINInfoHandlerFn,ih_data::Ptr{Void})
     ccall((:KINSetInfoHandlerFn,libsundials_kinsol),Cint,(KINMemPtr,KINInfoHandlerFn,Ptr{Void}),kinmem,ihfun,ih_data)
@@ -28,7 +28,7 @@ function __KINSetInfoFile(kinmem::KINMemPtr,infofp::Ptr{FILE})
     ccall((:KINSetInfoFile,libsundials_kinsol),Cint,(KINMemPtr,Ptr{FILE}),kinmem,infofp)
 end
 
-KINSetInfoFile(kinmem,infofp) = __KINSetInfoFile(convert(KINMemPtr,kinmem),pointer(infofp))
+KINSetInfoFile(kinmem,infofp) = __KINSetInfoFile(convert(KINMemPtr,kinmem),infofp)
 
 function __KINSetUserData(kinmem::KINMemPtr,user_data::Any)
     ccall((:KINSetUserData,libsundials_kinsol),Cint,(KINMemPtr,Any),kinmem,user_data)

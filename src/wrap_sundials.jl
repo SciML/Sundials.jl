@@ -161,7 +161,8 @@ function typeify_sundials_pointers(expr::Expr)
                                     if expr.args[2] == :N_Vector || ismatch(r"MemPtr$", string(expr.args[2]))
                                         # convert(XXXMemPtr, mem)
                                         Expr(:call, :convert, expr.args[2], expr.args[1])
-                                    elseif isa(expr.args[2], Expr) && expr.args[2].head == :curly && expr.args[2].args[1] == :Ptr
+                                    elseif isa(expr.args[2], Expr) && expr.args[2].head == :curly &&
+                                        expr.args[2].args[1] == :Ptr && expr.args[2].args[2] != :FILE
                                         # convert julia arrays to pointer
                                         # FIXME sometimes these arguments are not really arrays, but just a pointer to a var to be assigned
                                         # by the function call. Does that make sense to detect such cases and assume that input arg is a reference to Julia var?
