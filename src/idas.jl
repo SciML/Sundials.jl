@@ -34,7 +34,7 @@ function __IDASetMaxNumSteps(ida_mem::IDAMemPtr,mxsteps::Clong)
     ccall((:IDASetMaxNumSteps,libsundials_idas),Cint,(IDAMemPtr,Clong),ida_mem,mxsteps)
 end
 
-IDASetMaxNumSteps(ida_mem,mxsteps) = __IDASetMaxNumSteps(convert(IDAMemPtr,ida_mem),mxsteps)
+IDASetMaxNumSteps(ida_mem,mxsteps) = __IDASetMaxNumSteps(convert(IDAMemPtr,ida_mem),convert(Clong,mxsteps))
 
 function __IDASetInitStep(ida_mem::IDAMemPtr,hin::realtype)
     ccall((:IDASetInitStep,libsundials_idas),Cint,(IDAMemPtr,realtype),ida_mem,hin)
@@ -624,9 +624,11 @@ end
 
 IDAGetQuadSensDky1(ida_mem,t,k,is,dkyQS) = __IDAGetQuadSensDky1(convert(IDAMemPtr,ida_mem),t,k,is,convert(N_Vector,dkyQS))
 
-function IDAGetReturnFlagName(flag::Clong)
+function __IDAGetReturnFlagName(flag::Clong)
     ccall((:IDAGetReturnFlagName,libsundials_idas),Ptr{UInt8},(Clong,),flag)
 end
+
+IDAGetReturnFlagName(flag) = __IDAGetReturnFlagName(convert(Clong,flag))
 
 function __IDAFree(ida_mem::Ref{IDAMemPtr})
     ccall((:IDAFree,libsundials_idas),Void,(Ref{IDAMemPtr},),ida_mem)
@@ -656,7 +658,7 @@ function __IDAAdjInit(ida_mem::IDAMemPtr,steps::Clong,interp::Cint)
     ccall((:IDAAdjInit,libsundials_idas),Cint,(IDAMemPtr,Clong,Cint),ida_mem,steps,interp)
 end
 
-IDAAdjInit(ida_mem,steps,interp) = __IDAAdjInit(convert(IDAMemPtr,ida_mem),steps,interp)
+IDAAdjInit(ida_mem,steps,interp) = __IDAAdjInit(convert(IDAMemPtr,ida_mem),convert(Clong,steps),interp)
 
 function __IDAAdjReInit(ida_mem::IDAMemPtr)
     ccall((:IDAAdjReInit,libsundials_idas),Cint,(IDAMemPtr,),ida_mem)
@@ -782,7 +784,7 @@ function __IDASetMaxNumStepsB(ida_mem::IDAMemPtr,which::Cint,mxstepsB::Clong)
     ccall((:IDASetMaxNumStepsB,libsundials_idas),Cint,(IDAMemPtr,Cint,Clong),ida_mem,which,mxstepsB)
 end
 
-IDASetMaxNumStepsB(ida_mem,which,mxstepsB) = __IDASetMaxNumStepsB(convert(IDAMemPtr,ida_mem),which,mxstepsB)
+IDASetMaxNumStepsB(ida_mem,which,mxstepsB) = __IDASetMaxNumStepsB(convert(IDAMemPtr,ida_mem),which,convert(Clong,mxstepsB))
 
 function __IDASetInitStepB(ida_mem::IDAMemPtr,which::Cint,hinB::realtype)
     ccall((:IDASetInitStepB,libsundials_idas),Cint,(IDAMemPtr,Cint,realtype),ida_mem,which,hinB)
@@ -913,9 +915,11 @@ end
 
 IDADlsGetLastFlag(ida_mem,flag) = __IDADlsGetLastFlag(convert(IDAMemPtr,ida_mem),pointer(flag))
 
-function IDADlsGetReturnFlagName(flag::Clong)
+function __IDADlsGetReturnFlagName(flag::Clong)
     ccall((:IDADlsGetReturnFlagName,libsundials_idas),Ptr{UInt8},(Clong,),flag)
 end
+
+IDADlsGetReturnFlagName(flag) = __IDADlsGetReturnFlagName(convert(Clong,flag))
 
 function __IDADlsSetDenseJacFnB(ida_mem::IDAMemPtr,which::Cint,jacB::IDADlsDenseJacFnB)
     ccall((:IDADlsSetDenseJacFnB,libsundials_idas),Cint,(IDAMemPtr,Cint,IDADlsDenseJacFnB),ida_mem,which,jacB)
@@ -1022,9 +1026,11 @@ end
 
 IDASpilsGetLastFlag(ida_mem,flag) = __IDASpilsGetLastFlag(convert(IDAMemPtr,ida_mem),pointer(flag))
 
-function IDASpilsGetReturnFlagName(flag::Clong)
+function __IDASpilsGetReturnFlagName(flag::Clong)
     ccall((:IDASpilsGetReturnFlagName,libsundials_idas),Ptr{UInt8},(Clong,),flag)
 end
+
+IDASpilsGetReturnFlagName(flag) = __IDASpilsGetReturnFlagName(convert(Clong,flag))
 
 function __IDASpilsSetGSTypeB(ida_mem::IDAMemPtr,which::Cint,gstypeB::Cint)
     ccall((:IDASpilsSetGSTypeB,libsundials_idas),Cint,(IDAMemPtr,Cint,Cint),ida_mem,which,gstypeB)
@@ -1075,13 +1081,13 @@ function __IDABand(ida_mem::IDAMemPtr,Neq::Clong,mupper::Clong,mlower::Clong)
     ccall((:IDABand,libsundials_idas),Cint,(IDAMemPtr,Clong,Clong,Clong),ida_mem,Neq,mupper,mlower)
 end
 
-IDABand(ida_mem,Neq,mupper,mlower) = __IDABand(convert(IDAMemPtr,ida_mem),Neq,mupper,mlower)
+IDABand(ida_mem,Neq,mupper,mlower) = __IDABand(convert(IDAMemPtr,ida_mem),convert(Clong,Neq),convert(Clong,mupper),convert(Clong,mlower))
 
 function __IDABandB(idaadj_mem::IDAMemPtr,which::Cint,NeqB::Clong,mupperB::Clong,mlowerB::Clong)
     ccall((:IDABandB,libsundials_idas),Cint,(IDAMemPtr,Cint,Clong,Clong,Clong),idaadj_mem,which,NeqB,mupperB,mlowerB)
 end
 
-IDABandB(idaadj_mem,which,NeqB,mupperB,mlowerB) = __IDABandB(convert(IDAMemPtr,idaadj_mem),which,NeqB,mupperB,mlowerB)
+IDABandB(idaadj_mem,which,NeqB,mupperB,mlowerB) = __IDABandB(convert(IDAMemPtr,idaadj_mem),which,convert(Clong,NeqB),convert(Clong,mupperB),convert(Clong,mlowerB))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/idas/idas_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -1090,13 +1096,13 @@ function __IDABBDPrecInit(ida_mem::IDAMemPtr,Nlocal::Clong,mudq::Clong,mldq::Clo
     ccall((:IDABBDPrecInit,libsundials_idas),Cint,(IDAMemPtr,Clong,Clong,Clong,Clong,Clong,realtype,IDABBDLocalFn,IDABBDCommFn),ida_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm)
 end
 
-IDABBDPrecInit(ida_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm) = __IDABBDPrecInit(convert(IDAMemPtr,ida_mem),Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm)
+IDABBDPrecInit(ida_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm) = __IDABBDPrecInit(convert(IDAMemPtr,ida_mem),convert(Clong,Nlocal),convert(Clong,mudq),convert(Clong,mldq),convert(Clong,mukeep),convert(Clong,mlkeep),dq_rel_yy,Gres,Gcomm)
 
 function __IDABBDPrecReInit(ida_mem::IDAMemPtr,mudq::Clong,mldq::Clong,dq_rel_yy::realtype)
     ccall((:IDABBDPrecReInit,libsundials_idas),Cint,(IDAMemPtr,Clong,Clong,realtype),ida_mem,mudq,mldq,dq_rel_yy)
 end
 
-IDABBDPrecReInit(ida_mem,mudq,mldq,dq_rel_yy) = __IDABBDPrecReInit(convert(IDAMemPtr,ida_mem),mudq,mldq,dq_rel_yy)
+IDABBDPrecReInit(ida_mem,mudq,mldq,dq_rel_yy) = __IDABBDPrecReInit(convert(IDAMemPtr,ida_mem),convert(Clong,mudq),convert(Clong,mldq),dq_rel_yy)
 
 function __IDABBDPrecGetWorkSpace(ida_mem::IDAMemPtr,lenrwBBDP::Ptr{Clong},leniwBBDP::Ptr{Clong})
     ccall((:IDABBDPrecGetWorkSpace,libsundials_idas),Cint,(IDAMemPtr,Ptr{Clong},Ptr{Clong}),ida_mem,lenrwBBDP,leniwBBDP)
@@ -1114,13 +1120,13 @@ function __IDABBDPrecInitB(ida_mem::IDAMemPtr,which::Cint,NlocalB::Clong,mudqB::
     ccall((:IDABBDPrecInitB,libsundials_idas),Cint,(IDAMemPtr,Cint,Clong,Clong,Clong,Clong,Clong,realtype,IDABBDLocalFnB,IDABBDCommFnB),ida_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dq_rel_yyB,GresB,GcommB)
 end
 
-IDABBDPrecInitB(ida_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dq_rel_yyB,GresB,GcommB) = __IDABBDPrecInitB(convert(IDAMemPtr,ida_mem),which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dq_rel_yyB,GresB,GcommB)
+IDABBDPrecInitB(ida_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dq_rel_yyB,GresB,GcommB) = __IDABBDPrecInitB(convert(IDAMemPtr,ida_mem),which,convert(Clong,NlocalB),convert(Clong,mudqB),convert(Clong,mldqB),convert(Clong,mukeepB),convert(Clong,mlkeepB),dq_rel_yyB,GresB,GcommB)
 
 function __IDABBDPrecReInitB(ida_mem::IDAMemPtr,which::Cint,mudqB::Clong,mldqB::Clong,dq_rel_yyB::realtype)
     ccall((:IDABBDPrecReInitB,libsundials_idas),Cint,(IDAMemPtr,Cint,Clong,Clong,realtype),ida_mem,which,mudqB,mldqB,dq_rel_yyB)
 end
 
-IDABBDPrecReInitB(ida_mem,which,mudqB,mldqB,dq_rel_yyB) = __IDABBDPrecReInitB(convert(IDAMemPtr,ida_mem),which,mudqB,mldqB,dq_rel_yyB)
+IDABBDPrecReInitB(ida_mem,which,mudqB,mldqB,dq_rel_yyB) = __IDABBDPrecReInitB(convert(IDAMemPtr,ida_mem),which,convert(Clong,mudqB),convert(Clong,mldqB),dq_rel_yyB)
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/idas/idas_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -1129,13 +1135,13 @@ function __IDADense(ida_mem::IDAMemPtr,Neq::Clong)
     ccall((:IDADense,libsundials_idas),Cint,(IDAMemPtr,Clong),ida_mem,Neq)
 end
 
-IDADense(ida_mem,Neq) = __IDADense(convert(IDAMemPtr,ida_mem),Neq)
+IDADense(ida_mem,Neq) = __IDADense(convert(IDAMemPtr,ida_mem),convert(Clong,Neq))
 
 function __IDADenseB(ida_mem::IDAMemPtr,which::Cint,NeqB::Clong)
     ccall((:IDADenseB,libsundials_idas),Cint,(IDAMemPtr,Cint,Clong),ida_mem,which,NeqB)
 end
 
-IDADenseB(ida_mem,which,NeqB) = __IDADenseB(convert(IDAMemPtr,ida_mem),which,NeqB)
+IDADenseB(ida_mem,which,NeqB) = __IDADenseB(convert(IDAMemPtr,ida_mem),which,convert(Clong,NeqB))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/idas/idas_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 

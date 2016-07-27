@@ -34,7 +34,7 @@ function __IDASetMaxNumSteps(ida_mem::IDAMemPtr,mxsteps::Clong)
     ccall((:IDASetMaxNumSteps,libsundials_ida),Cint,(IDAMemPtr,Clong),ida_mem,mxsteps)
 end
 
-IDASetMaxNumSteps(ida_mem,mxsteps) = __IDASetMaxNumSteps(convert(IDAMemPtr,ida_mem),mxsteps)
+IDASetMaxNumSteps(ida_mem,mxsteps) = __IDASetMaxNumSteps(convert(IDAMemPtr,ida_mem),convert(Clong,mxsteps))
 
 function __IDASetInitStep(ida_mem::IDAMemPtr,hin::realtype)
     ccall((:IDASetInitStep,libsundials_ida),Cint,(IDAMemPtr,realtype),ida_mem,hin)
@@ -330,9 +330,11 @@ end
 
 IDAGetNonlinSolvStats(ida_mem,nniters,nncfails) = __IDAGetNonlinSolvStats(convert(IDAMemPtr,ida_mem),pointer(nniters),pointer(nncfails))
 
-function IDAGetReturnFlagName(flag::Clong)
+function __IDAGetReturnFlagName(flag::Clong)
     ccall((:IDAGetReturnFlagName,libsundials_ida),Ptr{UInt8},(Clong,),flag)
 end
+
+IDAGetReturnFlagName(flag) = __IDAGetReturnFlagName(convert(Clong,flag))
 
 function __IDAFree(ida_mem::Ref{IDAMemPtr})
     ccall((:IDAFree,libsundials_ida),Void,(Ref{IDAMemPtr},),ida_mem)
@@ -379,9 +381,11 @@ end
 
 IDADlsGetLastFlag(ida_mem,flag) = __IDADlsGetLastFlag(convert(IDAMemPtr,ida_mem),pointer(flag))
 
-function IDADlsGetReturnFlagName(flag::Clong)
+function __IDADlsGetReturnFlagName(flag::Clong)
     ccall((:IDADlsGetReturnFlagName,libsundials_ida),Ptr{UInt8},(Clong,),flag)
 end
+
+IDADlsGetReturnFlagName(flag) = __IDADlsGetReturnFlagName(convert(Clong,flag))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/ida/ida_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -476,9 +480,11 @@ end
 
 IDASpilsGetLastFlag(ida_mem,flag) = __IDASpilsGetLastFlag(convert(IDAMemPtr,ida_mem),pointer(flag))
 
-function IDASpilsGetReturnFlagName(flag::Clong)
+function __IDASpilsGetReturnFlagName(flag::Clong)
     ccall((:IDASpilsGetReturnFlagName,libsundials_ida),Ptr{UInt8},(Clong,),flag)
 end
+
+IDASpilsGetReturnFlagName(flag) = __IDASpilsGetReturnFlagName(convert(Clong,flag))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/ida/ida_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -487,7 +493,7 @@ function __IDABand(ida_mem::IDAMemPtr,Neq::Clong,mupper::Clong,mlower::Clong)
     ccall((:IDABand,libsundials_ida),Cint,(IDAMemPtr,Clong,Clong,Clong),ida_mem,Neq,mupper,mlower)
 end
 
-IDABand(ida_mem,Neq,mupper,mlower) = __IDABand(convert(IDAMemPtr,ida_mem),Neq,mupper,mlower)
+IDABand(ida_mem,Neq,mupper,mlower) = __IDABand(convert(IDAMemPtr,ida_mem),convert(Clong,Neq),convert(Clong,mupper),convert(Clong,mlower))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/ida/ida_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -496,13 +502,13 @@ function __IDABBDPrecInit(ida_mem::IDAMemPtr,Nlocal::Clong,mudq::Clong,mldq::Clo
     ccall((:IDABBDPrecInit,libsundials_ida),Cint,(IDAMemPtr,Clong,Clong,Clong,Clong,Clong,realtype,IDABBDLocalFn,IDABBDCommFn),ida_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm)
 end
 
-IDABBDPrecInit(ida_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm) = __IDABBDPrecInit(convert(IDAMemPtr,ida_mem),Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm)
+IDABBDPrecInit(ida_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_yy,Gres,Gcomm) = __IDABBDPrecInit(convert(IDAMemPtr,ida_mem),convert(Clong,Nlocal),convert(Clong,mudq),convert(Clong,mldq),convert(Clong,mukeep),convert(Clong,mlkeep),dq_rel_yy,Gres,Gcomm)
 
 function __IDABBDPrecReInit(ida_mem::IDAMemPtr,mudq::Clong,mldq::Clong,dq_rel_yy::realtype)
     ccall((:IDABBDPrecReInit,libsundials_ida),Cint,(IDAMemPtr,Clong,Clong,realtype),ida_mem,mudq,mldq,dq_rel_yy)
 end
 
-IDABBDPrecReInit(ida_mem,mudq,mldq,dq_rel_yy) = __IDABBDPrecReInit(convert(IDAMemPtr,ida_mem),mudq,mldq,dq_rel_yy)
+IDABBDPrecReInit(ida_mem,mudq,mldq,dq_rel_yy) = __IDABBDPrecReInit(convert(IDAMemPtr,ida_mem),convert(Clong,mudq),convert(Clong,mldq),dq_rel_yy)
 
 function __IDABBDPrecGetWorkSpace(ida_mem::IDAMemPtr,lenrwBBDP::Ptr{Clong},leniwBBDP::Ptr{Clong})
     ccall((:IDABBDPrecGetWorkSpace,libsundials_ida),Cint,(IDAMemPtr,Ptr{Clong},Ptr{Clong}),ida_mem,lenrwBBDP,leniwBBDP)
@@ -523,7 +529,7 @@ function __IDADense(ida_mem::IDAMemPtr,Neq::Clong)
     ccall((:IDADense,libsundials_ida),Cint,(IDAMemPtr,Clong),ida_mem,Neq)
 end
 
-IDADense(ida_mem,Neq) = __IDADense(convert(IDAMemPtr,ida_mem),Neq)
+IDADense(ida_mem,Neq) = __IDADense(convert(IDAMemPtr,ida_mem),convert(Clong,Neq))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/ida/ida_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 

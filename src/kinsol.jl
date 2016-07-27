@@ -46,7 +46,7 @@ function __KINSetNumMaxIters(kinmem::KINMemPtr,mxiter::Clong)
     ccall((:KINSetNumMaxIters,libsundials_kinsol),Cint,(KINMemPtr,Clong),kinmem,mxiter)
 end
 
-KINSetNumMaxIters(kinmem,mxiter) = __KINSetNumMaxIters(convert(KINMemPtr,kinmem),mxiter)
+KINSetNumMaxIters(kinmem,mxiter) = __KINSetNumMaxIters(convert(KINMemPtr,kinmem),convert(Clong,mxiter))
 
 function __KINSetNoInitSetup(kinmem::KINMemPtr,noInitSetup::Cint)
     ccall((:KINSetNoInitSetup,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,noInitSetup)
@@ -64,13 +64,13 @@ function __KINSetMaxSetupCalls(kinmem::KINMemPtr,msbset::Clong)
     ccall((:KINSetMaxSetupCalls,libsundials_kinsol),Cint,(KINMemPtr,Clong),kinmem,msbset)
 end
 
-KINSetMaxSetupCalls(kinmem,msbset) = __KINSetMaxSetupCalls(convert(KINMemPtr,kinmem),msbset)
+KINSetMaxSetupCalls(kinmem,msbset) = __KINSetMaxSetupCalls(convert(KINMemPtr,kinmem),convert(Clong,msbset))
 
 function __KINSetMaxSubSetupCalls(kinmem::KINMemPtr,msbsetsub::Clong)
     ccall((:KINSetMaxSubSetupCalls,libsundials_kinsol),Cint,(KINMemPtr,Clong),kinmem,msbsetsub)
 end
 
-KINSetMaxSubSetupCalls(kinmem,msbsetsub) = __KINSetMaxSubSetupCalls(convert(KINMemPtr,kinmem),msbsetsub)
+KINSetMaxSubSetupCalls(kinmem,msbsetsub) = __KINSetMaxSubSetupCalls(convert(KINMemPtr,kinmem),convert(Clong,msbsetsub))
 
 function __KINSetEtaForm(kinmem::KINMemPtr,etachoice::Cint)
     ccall((:KINSetEtaForm,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,etachoice)
@@ -118,7 +118,7 @@ function __KINSetMaxBetaFails(kinmem::KINMemPtr,mxnbcf::Clong)
     ccall((:KINSetMaxBetaFails,libsundials_kinsol),Cint,(KINMemPtr,Clong),kinmem,mxnbcf)
 end
 
-KINSetMaxBetaFails(kinmem,mxnbcf) = __KINSetMaxBetaFails(convert(KINMemPtr,kinmem),mxnbcf)
+KINSetMaxBetaFails(kinmem,mxnbcf) = __KINSetMaxBetaFails(convert(KINMemPtr,kinmem),convert(Clong,mxnbcf))
 
 function __KINSetRelErrFunc(kinmem::KINMemPtr,relfunc::realtype)
     ccall((:KINSetRelErrFunc,libsundials_kinsol),Cint,(KINMemPtr,realtype),kinmem,relfunc)
@@ -204,9 +204,11 @@ end
 
 KINGetStepLength(kinmem,steplength) = __KINGetStepLength(convert(KINMemPtr,kinmem),pointer(steplength))
 
-function KINGetReturnFlagName(flag::Clong)
+function __KINGetReturnFlagName(flag::Clong)
     ccall((:KINGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
 end
+
+KINGetReturnFlagName(flag) = __KINGetReturnFlagName(convert(Clong,flag))
 
 function __KINFree(kinmem::Ref{KINMemPtr})
     ccall((:KINFree,libsundials_kinsol),Void,(Ref{KINMemPtr},),kinmem)
@@ -253,9 +255,11 @@ end
 
 KINDlsGetLastFlag(kinmem,flag) = __KINDlsGetLastFlag(convert(KINMemPtr,kinmem),pointer(flag))
 
-function KINDlsGetReturnFlagName(flag::Clong)
+function __KINDlsGetReturnFlagName(flag::Clong)
     ccall((:KINDlsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
 end
+
+KINDlsGetReturnFlagName(flag) = __KINDlsGetReturnFlagName(convert(Clong,flag))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -326,9 +330,11 @@ end
 
 KINSpilsGetLastFlag(kinmem,flag) = __KINSpilsGetLastFlag(convert(KINMemPtr,kinmem),pointer(flag))
 
-function KINSpilsGetReturnFlagName(flag::Clong)
+function __KINSpilsGetReturnFlagName(flag::Clong)
     ccall((:KINSpilsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
 end
+
+KINSpilsGetReturnFlagName(flag) = __KINSpilsGetReturnFlagName(convert(Clong,flag))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -337,7 +343,7 @@ function __KINBand(kinmem::KINMemPtr,N::Clong,mupper::Clong,mlower::Clong)
     ccall((:KINBand,libsundials_kinsol),Cint,(KINMemPtr,Clong,Clong,Clong),kinmem,N,mupper,mlower)
 end
 
-KINBand(kinmem,N,mupper,mlower) = __KINBand(convert(KINMemPtr,kinmem),N,mupper,mlower)
+KINBand(kinmem,N,mupper,mlower) = __KINBand(convert(KINMemPtr,kinmem),convert(Clong,N),convert(Clong,mupper),convert(Clong,mlower))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -346,7 +352,7 @@ function __KINBBDPrecInit(kinmem::KINMemPtr,Nlocal::Clong,mudq::Clong,mldq::Clon
     ccall((:KINBBDPrecInit,libsundials_kinsol),Cint,(KINMemPtr,Clong,Clong,Clong,Clong,Clong,realtype,KINLocalFn,KINCommFn),kinmem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_uu,gloc,gcomm)
 end
 
-KINBBDPrecInit(kinmem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_uu,gloc,gcomm) = __KINBBDPrecInit(convert(KINMemPtr,kinmem),Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_uu,gloc,gcomm)
+KINBBDPrecInit(kinmem,Nlocal,mudq,mldq,mukeep,mlkeep,dq_rel_uu,gloc,gcomm) = __KINBBDPrecInit(convert(KINMemPtr,kinmem),convert(Clong,Nlocal),convert(Clong,mudq),convert(Clong,mldq),convert(Clong,mukeep),convert(Clong,mlkeep),dq_rel_uu,gloc,gcomm)
 
 function __KINBBDPrecGetWorkSpace(kinmem::KINMemPtr,lenrwBBDP::Ptr{Clong},leniwBBDP::Ptr{Clong})
     ccall((:KINBBDPrecGetWorkSpace,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong},Ptr{Clong}),kinmem,lenrwBBDP,leniwBBDP)
@@ -367,7 +373,7 @@ function __KINDense(kinmem::KINMemPtr,N::Clong)
     ccall((:KINDense,libsundials_kinsol),Cint,(KINMemPtr,Clong),kinmem,N)
 end
 
-KINDense(kinmem,N) = __KINDense(convert(KINMemPtr,kinmem),N)
+KINDense(kinmem,N) = __KINDense(convert(KINMemPtr,kinmem),convert(Clong,N))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 

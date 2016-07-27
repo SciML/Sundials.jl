@@ -184,7 +184,7 @@ function __CVodeSetMaxNumSteps(cvode_mem::CVODEMemPtr,mxsteps::Clong)
     ccall((:CVodeSetMaxNumSteps,libsundials_cvodes),Cint,(CVODEMemPtr,Clong),cvode_mem,mxsteps)
 end
 
-CVodeSetMaxNumSteps(cvode_mem,mxsteps) = __CVodeSetMaxNumSteps(convert(CVODEMemPtr,cvode_mem),mxsteps)
+CVodeSetMaxNumSteps(cvode_mem,mxsteps) = __CVodeSetMaxNumSteps(convert(CVODEMemPtr,cvode_mem),convert(Clong,mxsteps))
 
 function __CVodeSetMaxHnilWarns(cvode_mem::CVODEMemPtr,mxhnil::Cint)
     ccall((:CVodeSetMaxHnilWarns,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,mxhnil)
@@ -504,9 +504,11 @@ end
 
 CVodeGetNonlinSolvStats(cvode_mem,nniters,nncfails) = __CVodeGetNonlinSolvStats(convert(CVODEMemPtr,cvode_mem),pointer(nniters),pointer(nncfails))
 
-function CVodeGetReturnFlagName(flag::Clong)
+function __CVodeGetReturnFlagName(flag::Clong)
     ccall((:CVodeGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
 end
+
+CVodeGetReturnFlagName(flag) = __CVodeGetReturnFlagName(convert(Clong,flag))
 
 function __CVodeGetQuadNumRhsEvals(cvode_mem::CVODEMemPtr,nfQevals::Ptr{Clong})
     ccall((:CVodeGetQuadNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfQevals)
@@ -626,7 +628,7 @@ function __CVodeAdjInit(cvode_mem::CVODEMemPtr,steps::Clong,interp::Cint)
     ccall((:CVodeAdjInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Cint),cvode_mem,steps,interp)
 end
 
-CVodeAdjInit(cvode_mem,steps,interp) = __CVodeAdjInit(convert(CVODEMemPtr,cvode_mem),steps,interp)
+CVodeAdjInit(cvode_mem,steps,interp) = __CVodeAdjInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,steps),interp)
 
 function __CVodeAdjReInit(cvode_mem::CVODEMemPtr)
     ccall((:CVodeAdjReInit,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
@@ -746,7 +748,7 @@ function __CVodeSetMaxNumStepsB(cvode_mem::CVODEMemPtr,which::Cint,mxstepsB::Clo
     ccall((:CVodeSetMaxNumStepsB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong),cvode_mem,which,mxstepsB)
 end
 
-CVodeSetMaxNumStepsB(cvode_mem,which,mxstepsB) = __CVodeSetMaxNumStepsB(convert(CVODEMemPtr,cvode_mem),which,mxstepsB)
+CVodeSetMaxNumStepsB(cvode_mem,which,mxstepsB) = __CVodeSetMaxNumStepsB(convert(CVODEMemPtr,cvode_mem),which,convert(Clong,mxstepsB))
 
 function __CVodeSetStabLimDetB(cvode_mem::CVODEMemPtr,which::Cint,stldetB::Cint)
     ccall((:CVodeSetStabLimDetB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,stldetB)
@@ -865,9 +867,11 @@ end
 
 CVDlsGetLastFlag(cvode_mem,flag) = __CVDlsGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
 
-function CVDlsGetReturnFlagName(flag::Clong)
+function __CVDlsGetReturnFlagName(flag::Clong)
     ccall((:CVDlsGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
 end
+
+CVDlsGetReturnFlagName(flag) = __CVDlsGetReturnFlagName(convert(Clong,flag))
 
 function __CVDlsSetDenseJacFnB(cvode_mem::CVODEMemPtr,which::Cint,jacB::CVDlsDenseJacFnB)
     ccall((:CVDlsSetDenseJacFnB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVDlsDenseJacFnB),cvode_mem,which,jacB)
@@ -968,9 +972,11 @@ end
 
 CVSpilsGetLastFlag(cvode_mem,flag) = __CVSpilsGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
 
-function CVSpilsGetReturnFlagName(flag::Clong)
+function __CVSpilsGetReturnFlagName(flag::Clong)
     ccall((:CVSpilsGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
 end
+
+CVSpilsGetReturnFlagName(flag) = __CVSpilsGetReturnFlagName(convert(Clong,flag))
 
 function __CVSpilsSetPrecTypeB(cvode_mem::CVODEMemPtr,which::Cint,pretypeB::Cint)
     ccall((:CVSpilsSetPrecTypeB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,pretypeB)
@@ -1015,13 +1021,13 @@ function __CVBand(cvode_mem::CVODEMemPtr,N::Clong,mupper::Clong,mlower::Clong)
     ccall((:CVBand,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,Clong),cvode_mem,N,mupper,mlower)
 end
 
-CVBand(cvode_mem,N,mupper,mlower) = __CVBand(convert(CVODEMemPtr,cvode_mem),N,mupper,mlower)
+CVBand(cvode_mem,N,mupper,mlower) = __CVBand(convert(CVODEMemPtr,cvode_mem),convert(Clong,N),convert(Clong,mupper),convert(Clong,mlower))
 
 function __CVBandB(cvode_mem::CVODEMemPtr,which::Cint,nB::Clong,mupperB::Clong,mlowerB::Clong)
     ccall((:CVBandB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,Clong),cvode_mem,which,nB,mupperB,mlowerB)
 end
 
-CVBandB(cvode_mem,which,nB,mupperB,mlowerB) = __CVBandB(convert(CVODEMemPtr,cvode_mem),which,nB,mupperB,mlowerB)
+CVBandB(cvode_mem,which,nB,mupperB,mlowerB) = __CVBandB(convert(CVODEMemPtr,cvode_mem),which,convert(Clong,nB),convert(Clong,mupperB),convert(Clong,mlowerB))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_bandpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -1030,7 +1036,7 @@ function __CVBandPrecInit(cvode_mem::CVODEMemPtr,N::Clong,mu::Clong,ml::Clong)
     ccall((:CVBandPrecInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,Clong),cvode_mem,N,mu,ml)
 end
 
-CVBandPrecInit(cvode_mem,N,mu,ml) = __CVBandPrecInit(convert(CVODEMemPtr,cvode_mem),N,mu,ml)
+CVBandPrecInit(cvode_mem,N,mu,ml) = __CVBandPrecInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,N),convert(Clong,mu),convert(Clong,ml))
 
 function __CVBandPrecGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
     ccall((:CVBandPrecGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
@@ -1048,7 +1054,7 @@ function __CVBandPrecInitB(cvode_mem::CVODEMemPtr,which::Cint,nB::Clong,muB::Clo
     ccall((:CVBandPrecInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,Clong),cvode_mem,which,nB,muB,mlB)
 end
 
-CVBandPrecInitB(cvode_mem,which,nB,muB,mlB) = __CVBandPrecInitB(convert(CVODEMemPtr,cvode_mem),which,nB,muB,mlB)
+CVBandPrecInitB(cvode_mem,which,nB,muB,mlB) = __CVBandPrecInitB(convert(CVODEMemPtr,cvode_mem),which,convert(Clong,nB),convert(Clong,muB),convert(Clong,mlB))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -1057,13 +1063,13 @@ function __CVBBDPrecInit(cvode_mem::CVODEMemPtr,Nlocal::Clong,mudq::Clong,mldq::
     ccall((:CVBBDPrecInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,Clong,Clong,Clong,realtype,CVLocalFn,CVCommFn),cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn)
 end
 
-CVBBDPrecInit(cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn) = __CVBBDPrecInit(convert(CVODEMemPtr,cvode_mem),Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn)
+CVBBDPrecInit(cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn) = __CVBBDPrecInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,Nlocal),convert(Clong,mudq),convert(Clong,mldq),convert(Clong,mukeep),convert(Clong,mlkeep),dqrely,gloc,cfn)
 
 function __CVBBDPrecReInit(cvode_mem::CVODEMemPtr,mudq::Clong,mldq::Clong,dqrely::realtype)
     ccall((:CVBBDPrecReInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,realtype),cvode_mem,mudq,mldq,dqrely)
 end
 
-CVBBDPrecReInit(cvode_mem,mudq,mldq,dqrely) = __CVBBDPrecReInit(convert(CVODEMemPtr,cvode_mem),mudq,mldq,dqrely)
+CVBBDPrecReInit(cvode_mem,mudq,mldq,dqrely) = __CVBBDPrecReInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,mudq),convert(Clong,mldq),dqrely)
 
 function __CVBBDPrecGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwBBDP::Ptr{Clong},leniwBBDP::Ptr{Clong})
     ccall((:CVBBDPrecGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwBBDP,leniwBBDP)
@@ -1081,13 +1087,13 @@ function __CVBBDPrecInitB(cvode_mem::CVODEMemPtr,which::Cint,NlocalB::Clong,mudq
     ccall((:CVBBDPrecInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,Clong,Clong,Clong,realtype,CVLocalFnB,CVCommFnB),cvode_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dqrelyB,glocB,cfnB)
 end
 
-CVBBDPrecInitB(cvode_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dqrelyB,glocB,cfnB) = __CVBBDPrecInitB(convert(CVODEMemPtr,cvode_mem),which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dqrelyB,glocB,cfnB)
+CVBBDPrecInitB(cvode_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dqrelyB,glocB,cfnB) = __CVBBDPrecInitB(convert(CVODEMemPtr,cvode_mem),which,convert(Clong,NlocalB),convert(Clong,mudqB),convert(Clong,mldqB),convert(Clong,mukeepB),convert(Clong,mlkeepB),dqrelyB,glocB,cfnB)
 
 function __CVBBDPrecReInitB(cvode_mem::CVODEMemPtr,which::Cint,mudqB::Clong,mldqB::Clong,dqrelyB::realtype)
     ccall((:CVBBDPrecReInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,realtype),cvode_mem,which,mudqB,mldqB,dqrelyB)
 end
 
-CVBBDPrecReInitB(cvode_mem,which,mudqB,mldqB,dqrelyB) = __CVBBDPrecReInitB(convert(CVODEMemPtr,cvode_mem),which,mudqB,mldqB,dqrelyB)
+CVBBDPrecReInitB(cvode_mem,which,mudqB,mldqB,dqrelyB) = __CVBBDPrecReInitB(convert(CVODEMemPtr,cvode_mem),which,convert(Clong,mudqB),convert(Clong,mldqB),dqrelyB)
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -1096,13 +1102,13 @@ function __CVDense(cvode_mem::CVODEMemPtr,N::Clong)
     ccall((:CVDense,libsundials_cvodes),Cint,(CVODEMemPtr,Clong),cvode_mem,N)
 end
 
-CVDense(cvode_mem,N) = __CVDense(convert(CVODEMemPtr,cvode_mem),N)
+CVDense(cvode_mem,N) = __CVDense(convert(CVODEMemPtr,cvode_mem),convert(Clong,N))
 
 function __CVDenseB(cvode_mem::CVODEMemPtr,which::Cint,nB::Clong)
     ccall((:CVDenseB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong),cvode_mem,which,nB)
 end
 
-CVDenseB(cvode_mem,which,nB) = __CVDenseB(convert(CVODEMemPtr,cvode_mem),which,nB)
+CVDenseB(cvode_mem,which,nB) = __CVDenseB(convert(CVODEMemPtr,cvode_mem),which,convert(Clong,nB))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_diag.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -1131,9 +1137,11 @@ end
 
 CVDiagGetLastFlag(cvode_mem,flag) = __CVDiagGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
 
-function CVDiagGetReturnFlagName(flag::Clong)
+function __CVDiagGetReturnFlagName(flag::Clong)
     ccall((:CVDiagGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
 end
+
+CVDiagGetReturnFlagName(flag) = __CVDiagGetReturnFlagName(convert(Clong,flag))
 
 function __CVDiagB(cvode_mem::CVODEMemPtr,which::Cint)
     ccall((:CVDiagB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,which)

@@ -5,17 +5,23 @@
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function N_VNew_Serial(vec_length::Clong)
+function __N_VNew_Serial(vec_length::Clong)
     ccall((:N_VNew_Serial,libsundials_nvecserial),N_Vector,(Clong,),vec_length)
 end
 
-function N_VNewEmpty_Serial(vec_length::Clong)
+N_VNew_Serial(vec_length) = __N_VNew_Serial(convert(Clong,vec_length))
+
+function __N_VNewEmpty_Serial(vec_length::Clong)
     ccall((:N_VNewEmpty_Serial,libsundials_nvecserial),N_Vector,(Clong,),vec_length)
 end
 
-function N_VMake_Serial(vec_length::Clong,v_data::Ptr{realtype})
+N_VNewEmpty_Serial(vec_length) = __N_VNewEmpty_Serial(convert(Clong,vec_length))
+
+function __N_VMake_Serial(vec_length::Clong,v_data::Ptr{realtype})
     ccall((:N_VMake_Serial,libsundials_nvecserial),N_Vector,(Clong,Ptr{realtype}),vec_length,v_data)
 end
+
+N_VMake_Serial(vec_length,v_data) = __N_VMake_Serial(convert(Clong,vec_length),pointer(v_data))
 
 function __N_VCloneVectorArray_Serial(count::Cint,w::N_Vector)
     ccall((:N_VCloneVectorArray_Serial,libsundials_nvecserial),Ptr{N_Vector},(Cint,N_Vector),count,w)

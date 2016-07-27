@@ -34,7 +34,7 @@ function __CVodeSetMaxNumSteps(cvode_mem::CVODEMemPtr,mxsteps::Clong)
     ccall((:CVodeSetMaxNumSteps,libsundials_cvode),Cint,(CVODEMemPtr,Clong),cvode_mem,mxsteps)
 end
 
-CVodeSetMaxNumSteps(cvode_mem,mxsteps) = __CVodeSetMaxNumSteps(convert(CVODEMemPtr,cvode_mem),mxsteps)
+CVodeSetMaxNumSteps(cvode_mem,mxsteps) = __CVodeSetMaxNumSteps(convert(CVODEMemPtr,cvode_mem),convert(Clong,mxsteps))
 
 function __CVodeSetMaxHnilWarns(cvode_mem::CVODEMemPtr,mxhnil::Cint)
     ccall((:CVodeSetMaxHnilWarns,libsundials_cvode),Cint,(CVODEMemPtr,Cint),cvode_mem,mxhnil)
@@ -288,9 +288,11 @@ end
 
 CVodeGetNonlinSolvStats(cvode_mem,nniters,nncfails) = __CVodeGetNonlinSolvStats(convert(CVODEMemPtr,cvode_mem),pointer(nniters),pointer(nncfails))
 
-function CVodeGetReturnFlagName(flag::Clong)
+function __CVodeGetReturnFlagName(flag::Clong)
     ccall((:CVodeGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
 end
+
+CVodeGetReturnFlagName(flag) = __CVodeGetReturnFlagName(convert(Clong,flag))
 
 function __CVodeFree(cvode_mem::Ref{CVODEMemPtr})
     ccall((:CVodeFree,libsundials_cvode),Void,(Ref{CVODEMemPtr},),cvode_mem)
@@ -337,9 +339,11 @@ end
 
 CVDlsGetLastFlag(cvode_mem,flag) = __CVDlsGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
 
-function CVDlsGetReturnFlagName(flag::Clong)
+function __CVDlsGetReturnFlagName(flag::Clong)
     ccall((:CVDlsGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
 end
+
+CVDlsGetReturnFlagName(flag) = __CVDlsGetReturnFlagName(convert(Clong,flag))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvode/cvode_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -428,9 +432,11 @@ end
 
 CVSpilsGetLastFlag(cvode_mem,flag) = __CVSpilsGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
 
-function CVSpilsGetReturnFlagName(flag::Clong)
+function __CVSpilsGetReturnFlagName(flag::Clong)
     ccall((:CVSpilsGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
 end
+
+CVSpilsGetReturnFlagName(flag) = __CVSpilsGetReturnFlagName(convert(Clong,flag))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvode/cvode_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -439,7 +445,7 @@ function __CVBand(cvode_mem::CVODEMemPtr,N::Clong,mupper::Clong,mlower::Clong)
     ccall((:CVBand,libsundials_cvode),Cint,(CVODEMemPtr,Clong,Clong,Clong),cvode_mem,N,mupper,mlower)
 end
 
-CVBand(cvode_mem,N,mupper,mlower) = __CVBand(convert(CVODEMemPtr,cvode_mem),N,mupper,mlower)
+CVBand(cvode_mem,N,mupper,mlower) = __CVBand(convert(CVODEMemPtr,cvode_mem),convert(Clong,N),convert(Clong,mupper),convert(Clong,mlower))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvode/cvode_bandpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -448,7 +454,7 @@ function __CVBandPrecInit(cvode_mem::CVODEMemPtr,N::Clong,mu::Clong,ml::Clong)
     ccall((:CVBandPrecInit,libsundials_cvode),Cint,(CVODEMemPtr,Clong,Clong,Clong),cvode_mem,N,mu,ml)
 end
 
-CVBandPrecInit(cvode_mem,N,mu,ml) = __CVBandPrecInit(convert(CVODEMemPtr,cvode_mem),N,mu,ml)
+CVBandPrecInit(cvode_mem,N,mu,ml) = __CVBandPrecInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,N),convert(Clong,mu),convert(Clong,ml))
 
 function __CVBandPrecGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
     ccall((:CVBandPrecGetWorkSpace,libsundials_cvode),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
@@ -469,13 +475,13 @@ function __CVBBDPrecInit(cvode_mem::CVODEMemPtr,Nlocal::Clong,mudq::Clong,mldq::
     ccall((:CVBBDPrecInit,libsundials_cvode),Cint,(CVODEMemPtr,Clong,Clong,Clong,Clong,Clong,realtype,CVLocalFn,CVCommFn),cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn)
 end
 
-CVBBDPrecInit(cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn) = __CVBBDPrecInit(convert(CVODEMemPtr,cvode_mem),Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn)
+CVBBDPrecInit(cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn) = __CVBBDPrecInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,Nlocal),convert(Clong,mudq),convert(Clong,mldq),convert(Clong,mukeep),convert(Clong,mlkeep),dqrely,gloc,cfn)
 
 function __CVBBDPrecReInit(cvode_mem::CVODEMemPtr,mudq::Clong,mldq::Clong,dqrely::realtype)
     ccall((:CVBBDPrecReInit,libsundials_cvode),Cint,(CVODEMemPtr,Clong,Clong,realtype),cvode_mem,mudq,mldq,dqrely)
 end
 
-CVBBDPrecReInit(cvode_mem,mudq,mldq,dqrely) = __CVBBDPrecReInit(convert(CVODEMemPtr,cvode_mem),mudq,mldq,dqrely)
+CVBBDPrecReInit(cvode_mem,mudq,mldq,dqrely) = __CVBBDPrecReInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,mudq),convert(Clong,mldq),dqrely)
 
 function __CVBBDPrecGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
     ccall((:CVBBDPrecGetWorkSpace,libsundials_cvode),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
@@ -496,7 +502,7 @@ function __CVDense(cvode_mem::CVODEMemPtr,N::Clong)
     ccall((:CVDense,libsundials_cvode),Cint,(CVODEMemPtr,Clong),cvode_mem,N)
 end
 
-CVDense(cvode_mem,N) = __CVDense(convert(CVODEMemPtr,cvode_mem),N)
+CVDense(cvode_mem,N) = __CVDense(convert(CVODEMemPtr,cvode_mem),convert(Clong,N))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvode/cvode_diag.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
@@ -525,9 +531,11 @@ end
 
 CVDiagGetLastFlag(cvode_mem,flag) = __CVDiagGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
 
-function CVDiagGetReturnFlagName(flag::Clong)
+function __CVDiagGetReturnFlagName(flag::Clong)
     ccall((:CVDiagGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
 end
+
+CVDiagGetReturnFlagName(flag) = __CVDiagGetReturnFlagName(convert(Clong,flag))
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvode/cvode_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
