@@ -5,14 +5,6 @@ using Compat
 const SUNDIALS_PACKAGE_VERSION = "2.5.0"
 const SUNDIALS_DOUBLE_PRECISION = Cint(1)
 const SUNDIALS_BLAS_LAPACK = Cint(0)
-
-# Skipping MacroDefinition: RCONST ( x ) x
-
-const BIG_REAL = DBL_MAX
-const SMALL_REAL = DBL_MIN
-const UNIT_ROUNDOFF = DBL_EPSILON
-const FALSE = Cint(0)
-const TRUE = Cint(1)
 const SUNDIALS_DENSE = Cint(1)
 const SUNDIALS_BAND = Cint(2)
 
@@ -38,6 +30,23 @@ type _DlsMat
 end
 
 typealias DlsMat Ptr{_DlsMat}
+
+# begin enum ANONYMOUS_1
+typealias ANONYMOUS_1 UInt32
+const PREC_NONE = (UInt32)(0)
+const PREC_LEFT = (UInt32)(1)
+const PREC_RIGHT = (UInt32)(2)
+const PREC_BOTH = (UInt32)(3)
+# end enum ANONYMOUS_1
+
+# begin enum ANONYMOUS_2
+typealias ANONYMOUS_2 UInt32
+const MODIFIED_GS = (UInt32)(1)
+const CLASSICAL_GS = (UInt32)(2)
+# end enum ANONYMOUS_2
+
+typealias ATimesFn Ptr{Void}
+typealias PSolveFn Ptr{Void}
 
 type _generic_N_Vector_Ops
     nvclone::Ptr{Void}
@@ -77,37 +86,6 @@ end
 typealias N_Vector Ptr{_generic_N_Vector}
 typealias N_Vector_S Ptr{N_Vector}
 
-# begin enum ANONYMOUS_1
-typealias ANONYMOUS_1 UInt32
-const PREC_NONE = (UInt32)(0)
-const PREC_LEFT = (UInt32)(1)
-const PREC_RIGHT = (UInt32)(2)
-const PREC_BOTH = (UInt32)(3)
-# end enum ANONYMOUS_1
-
-# begin enum ANONYMOUS_7
-typealias ANONYMOUS_7 UInt32
-const PREC_NONE = (UInt32)(0)
-const PREC_LEFT = (UInt32)(1)
-const PREC_RIGHT = (UInt32)(2)
-const PREC_BOTH = (UInt32)(3)
-# end enum ANONYMOUS_7
-
-# begin enum ANONYMOUS_2
-typealias ANONYMOUS_2 UInt32
-const MODIFIED_GS = (UInt32)(1)
-const CLASSICAL_GS = (UInt32)(2)
-# end enum ANONYMOUS_2
-
-# begin enum ANONYMOUS_8
-typealias ANONYMOUS_8 UInt32
-const MODIFIED_GS = (UInt32)(1)
-const CLASSICAL_GS = (UInt32)(2)
-# end enum ANONYMOUS_8
-
-typealias ATimesFn Ptr{Void}
-typealias PSolveFn Ptr{Void}
-
 const SPBCG_SUCCESS = Cint(0)
 const SPBCG_RES_REDUCED = Cint(1)
 const SPBCG_CONV_FAIL = Cint(2)
@@ -120,20 +98,6 @@ const SPBCG_PSOLVE_FAIL_UNREC = Cint(-3)
 const SPBCG_PSET_FAIL_UNREC = Cint(-4)
 
 # Skipping MacroDefinition: SPBCG_VTEMP ( mem ) ( mem -> r )
-
-# begin enum ANONYMOUS_3
-typealias ANONYMOUS_3 UInt32
-const PREC_NONE = (UInt32)(0)
-const PREC_LEFT = (UInt32)(1)
-const PREC_RIGHT = (UInt32)(2)
-const PREC_BOTH = (UInt32)(3)
-# end enum ANONYMOUS_3
-
-# begin enum ANONYMOUS_4
-typealias ANONYMOUS_4 UInt32
-const MODIFIED_GS = (UInt32)(1)
-const CLASSICAL_GS = (UInt32)(2)
-# end enum ANONYMOUS_4
 
 type SpbcgMemRec
     l_max::Cint
@@ -163,20 +127,6 @@ const SPGMR_QRSOL_FAIL = Cint(-5)
 const SPGMR_PSET_FAIL_UNREC = Cint(-6)
 
 # Skipping MacroDefinition: SPGMR_VTEMP ( mem ) ( mem -> vtemp )
-
-# begin enum ANONYMOUS_5
-typealias ANONYMOUS_5 UInt32
-const PREC_NONE = (UInt32)(0)
-const PREC_LEFT = (UInt32)(1)
-const PREC_RIGHT = (UInt32)(2)
-const PREC_BOTH = (UInt32)(3)
-# end enum ANONYMOUS_5
-
-# begin enum ANONYMOUS_6
-typealias ANONYMOUS_6 UInt32
-const MODIFIED_GS = (UInt32)(1)
-const CLASSICAL_GS = (UInt32)(2)
-# end enum ANONYMOUS_6
 
 type _SpgmrMemRec
     l_max::Cint
@@ -229,6 +179,13 @@ end
 
 typealias SptfqmrMem Ptr{Void}
 
+# Skipping MacroDefinition: RCONST ( x ) x
+
+const BIG_REAL = DBL_MAX
+const SMALL_REAL = DBL_MIN
+const UNIT_ROUNDOFF = DBL_EPSILON
+const FALSE = Cint(0)
+const TRUE = Cint(1)
 const CV_ADAMS = Cint(1)
 const CV_BDF = Cint(2)
 const CV_FUNCTIONAL = Cint(1)

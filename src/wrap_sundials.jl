@@ -44,10 +44,10 @@ clang_includes = map(x->joinpath(ENV["JULIAHOME"], x), [
 # check_use_header(path) = true
 # Callback to test if a header should actually be wrapped (for exclusion)
 function wrap_header(top_hdr::ASCIIString, cursor_header::ASCIIString)
-    !ismatch(r"(_parallel|_impl)\.h$", top_hdr) &&
     !ismatch(r"(_parallel|_impl)\.h$", cursor_header) &&  # don't wrap parallel and implementation definitions
-    (basename(dirname(top_hdr)) == basename(dirname(cursor_header))) # don't wrap e.g. nvector in cvode or cvode in cvodes
+    (top_hdr == cursor_header) # don't wrap if header is included from the other header (e.g. nvector in cvode or cvode_direct from cvode_band)
 end
+
 function wrap_cursor(name::ASCIIString, cursor)
     if typeof(cursor) == Clang.cindex.FunctionDecl
         # only wrap API functions

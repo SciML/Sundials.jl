@@ -333,46 +333,6 @@ end
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function __KINDlsSetDenseJacFn(kinmem::KINMemPtr,jac::KINDlsDenseJacFn)
-    ccall((:KINDlsSetDenseJacFn,libsundials_kinsol),Cint,(KINMemPtr,KINDlsDenseJacFn),kinmem,jac)
-end
-
-KINDlsSetDenseJacFn(kinmem,jac) = __KINDlsSetDenseJacFn(convert(KINMemPtr,kinmem),jac)
-
-function __KINDlsSetBandJacFn(kinmem::KINMemPtr,jac::KINDlsBandJacFn)
-    ccall((:KINDlsSetBandJacFn,libsundials_kinsol),Cint,(KINMemPtr,KINDlsBandJacFn),kinmem,jac)
-end
-
-KINDlsSetBandJacFn(kinmem,jac) = __KINDlsSetBandJacFn(convert(KINMemPtr,kinmem),jac)
-
-function __KINDlsGetWorkSpace(kinmem::KINMemPtr,lenrwB::Ptr{Clong},leniwB::Ptr{Clong})
-    ccall((:KINDlsGetWorkSpace,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong},Ptr{Clong}),kinmem,lenrwB,leniwB)
-end
-
-KINDlsGetWorkSpace(kinmem,lenrwB,leniwB) = __KINDlsGetWorkSpace(convert(KINMemPtr,kinmem),pointer(lenrwB),pointer(leniwB))
-
-function __KINDlsGetNumJacEvals(kinmem::KINMemPtr,njevalsB::Ptr{Clong})
-    ccall((:KINDlsGetNumJacEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,njevalsB)
-end
-
-KINDlsGetNumJacEvals(kinmem,njevalsB) = __KINDlsGetNumJacEvals(convert(KINMemPtr,kinmem),pointer(njevalsB))
-
-function __KINDlsGetNumFuncEvals(kinmem::KINMemPtr,nfevalsB::Ptr{Clong})
-    ccall((:KINDlsGetNumFuncEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nfevalsB)
-end
-
-KINDlsGetNumFuncEvals(kinmem,nfevalsB) = __KINDlsGetNumFuncEvals(convert(KINMemPtr,kinmem),pointer(nfevalsB))
-
-function __KINDlsGetLastFlag(kinmem::KINMemPtr,flag::Ptr{Clong})
-    ccall((:KINDlsGetLastFlag,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,flag)
-end
-
-KINDlsGetLastFlag(kinmem,flag) = __KINDlsGetLastFlag(convert(KINMemPtr,kinmem),pointer(flag))
-
-function KINDlsGetReturnFlagName(flag::Clong)
-    ccall((:KINDlsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
-end
-
 function __KINBand(kinmem::KINMemPtr,N::Clong,mupper::Clong,mlower::Clong)
     ccall((:KINBand,libsundials_kinsol),Cint,(KINMemPtr,Clong,Clong,Clong),kinmem,N,mupper,mlower)
 end
@@ -403,46 +363,6 @@ KINBBDPrecGetNumGfnEvals(kinmem,ngevalsBBDP) = __KINBBDPrecGetNumGfnEvals(conver
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function __KINDlsSetDenseJacFn(kinmem::KINMemPtr,jac::KINDlsDenseJacFn)
-    ccall((:KINDlsSetDenseJacFn,libsundials_kinsol),Cint,(KINMemPtr,KINDlsDenseJacFn),kinmem,jac)
-end
-
-KINDlsSetDenseJacFn(kinmem,jac) = __KINDlsSetDenseJacFn(convert(KINMemPtr,kinmem),jac)
-
-function __KINDlsSetBandJacFn(kinmem::KINMemPtr,jac::KINDlsBandJacFn)
-    ccall((:KINDlsSetBandJacFn,libsundials_kinsol),Cint,(KINMemPtr,KINDlsBandJacFn),kinmem,jac)
-end
-
-KINDlsSetBandJacFn(kinmem,jac) = __KINDlsSetBandJacFn(convert(KINMemPtr,kinmem),jac)
-
-function __KINDlsGetWorkSpace(kinmem::KINMemPtr,lenrwB::Ptr{Clong},leniwB::Ptr{Clong})
-    ccall((:KINDlsGetWorkSpace,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong},Ptr{Clong}),kinmem,lenrwB,leniwB)
-end
-
-KINDlsGetWorkSpace(kinmem,lenrwB,leniwB) = __KINDlsGetWorkSpace(convert(KINMemPtr,kinmem),pointer(lenrwB),pointer(leniwB))
-
-function __KINDlsGetNumJacEvals(kinmem::KINMemPtr,njevalsB::Ptr{Clong})
-    ccall((:KINDlsGetNumJacEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,njevalsB)
-end
-
-KINDlsGetNumJacEvals(kinmem,njevalsB) = __KINDlsGetNumJacEvals(convert(KINMemPtr,kinmem),pointer(njevalsB))
-
-function __KINDlsGetNumFuncEvals(kinmem::KINMemPtr,nfevalsB::Ptr{Clong})
-    ccall((:KINDlsGetNumFuncEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nfevalsB)
-end
-
-KINDlsGetNumFuncEvals(kinmem,nfevalsB) = __KINDlsGetNumFuncEvals(convert(KINMemPtr,kinmem),pointer(nfevalsB))
-
-function __KINDlsGetLastFlag(kinmem::KINMemPtr,flag::Ptr{Clong})
-    ccall((:KINDlsGetLastFlag,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,flag)
-end
-
-KINDlsGetLastFlag(kinmem,flag) = __KINDlsGetLastFlag(convert(KINMemPtr,kinmem),pointer(flag))
-
-function KINDlsGetReturnFlagName(flag::Clong)
-    ccall((:KINDlsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
-end
-
 function __KINDense(kinmem::KINMemPtr,N::Clong)
     ccall((:KINDense,libsundials_kinsol),Cint,(KINMemPtr,Clong),kinmem,N)
 end
@@ -455,76 +375,6 @@ KINDense(kinmem,N) = __KINDense(convert(KINMemPtr,kinmem),N)
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function __KINSpilsSetMaxRestarts(kinmem::KINMemPtr,maxrs::Cint)
-    ccall((:KINSpilsSetMaxRestarts,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,maxrs)
-end
-
-KINSpilsSetMaxRestarts(kinmem,maxrs) = __KINSpilsSetMaxRestarts(convert(KINMemPtr,kinmem),maxrs)
-
-function __KINSpilsSetPreconditioner(kinmem::KINMemPtr,pset::KINSpilsPrecSetupFn,psolve::KINSpilsPrecSolveFn)
-    ccall((:KINSpilsSetPreconditioner,libsundials_kinsol),Cint,(KINMemPtr,KINSpilsPrecSetupFn,KINSpilsPrecSolveFn),kinmem,pset,psolve)
-end
-
-KINSpilsSetPreconditioner(kinmem,pset,psolve) = __KINSpilsSetPreconditioner(convert(KINMemPtr,kinmem),pset,psolve)
-
-function __KINSpilsSetJacTimesVecFn(kinmem::KINMemPtr,jtv::KINSpilsJacTimesVecFn)
-    ccall((:KINSpilsSetJacTimesVecFn,libsundials_kinsol),Cint,(KINMemPtr,KINSpilsJacTimesVecFn),kinmem,jtv)
-end
-
-KINSpilsSetJacTimesVecFn(kinmem,jtv) = __KINSpilsSetJacTimesVecFn(convert(KINMemPtr,kinmem),jtv)
-
-function __KINSpilsGetWorkSpace(kinmem::KINMemPtr,lenrwSG::Ptr{Clong},leniwSG::Ptr{Clong})
-    ccall((:KINSpilsGetWorkSpace,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong},Ptr{Clong}),kinmem,lenrwSG,leniwSG)
-end
-
-KINSpilsGetWorkSpace(kinmem,lenrwSG,leniwSG) = __KINSpilsGetWorkSpace(convert(KINMemPtr,kinmem),pointer(lenrwSG),pointer(leniwSG))
-
-function __KINSpilsGetNumPrecEvals(kinmem::KINMemPtr,npevals::Ptr{Clong})
-    ccall((:KINSpilsGetNumPrecEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,npevals)
-end
-
-KINSpilsGetNumPrecEvals(kinmem,npevals) = __KINSpilsGetNumPrecEvals(convert(KINMemPtr,kinmem),pointer(npevals))
-
-function __KINSpilsGetNumPrecSolves(kinmem::KINMemPtr,npsolves::Ptr{Clong})
-    ccall((:KINSpilsGetNumPrecSolves,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,npsolves)
-end
-
-KINSpilsGetNumPrecSolves(kinmem,npsolves) = __KINSpilsGetNumPrecSolves(convert(KINMemPtr,kinmem),pointer(npsolves))
-
-function __KINSpilsGetNumLinIters(kinmem::KINMemPtr,nliters::Ptr{Clong})
-    ccall((:KINSpilsGetNumLinIters,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nliters)
-end
-
-KINSpilsGetNumLinIters(kinmem,nliters) = __KINSpilsGetNumLinIters(convert(KINMemPtr,kinmem),pointer(nliters))
-
-function __KINSpilsGetNumConvFails(kinmem::KINMemPtr,nlcfails::Ptr{Clong})
-    ccall((:KINSpilsGetNumConvFails,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nlcfails)
-end
-
-KINSpilsGetNumConvFails(kinmem,nlcfails) = __KINSpilsGetNumConvFails(convert(KINMemPtr,kinmem),pointer(nlcfails))
-
-function __KINSpilsGetNumJtimesEvals(kinmem::KINMemPtr,njvevals::Ptr{Clong})
-    ccall((:KINSpilsGetNumJtimesEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,njvevals)
-end
-
-KINSpilsGetNumJtimesEvals(kinmem,njvevals) = __KINSpilsGetNumJtimesEvals(convert(KINMemPtr,kinmem),pointer(njvevals))
-
-function __KINSpilsGetNumFuncEvals(kinmem::KINMemPtr,nfevalsS::Ptr{Clong})
-    ccall((:KINSpilsGetNumFuncEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nfevalsS)
-end
-
-KINSpilsGetNumFuncEvals(kinmem,nfevalsS) = __KINSpilsGetNumFuncEvals(convert(KINMemPtr,kinmem),pointer(nfevalsS))
-
-function __KINSpilsGetLastFlag(kinmem::KINMemPtr,flag::Ptr{Clong})
-    ccall((:KINSpilsGetLastFlag,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,flag)
-end
-
-KINSpilsGetLastFlag(kinmem,flag) = __KINSpilsGetLastFlag(convert(KINMemPtr,kinmem),pointer(flag))
-
-function KINSpilsGetReturnFlagName(flag::Clong)
-    ccall((:KINSpilsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
-end
-
 function __KINSpbcg(kinmem::KINMemPtr,maxl::Cint)
     ccall((:KINSpbcg,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,maxl)
 end
@@ -534,76 +384,6 @@ KINSpbcg(kinmem,maxl) = __KINSpbcg(convert(KINMemPtr,kinmem),maxl)
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function __KINSpilsSetMaxRestarts(kinmem::KINMemPtr,maxrs::Cint)
-    ccall((:KINSpilsSetMaxRestarts,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,maxrs)
-end
-
-KINSpilsSetMaxRestarts(kinmem,maxrs) = __KINSpilsSetMaxRestarts(convert(KINMemPtr,kinmem),maxrs)
-
-function __KINSpilsSetPreconditioner(kinmem::KINMemPtr,pset::KINSpilsPrecSetupFn,psolve::KINSpilsPrecSolveFn)
-    ccall((:KINSpilsSetPreconditioner,libsundials_kinsol),Cint,(KINMemPtr,KINSpilsPrecSetupFn,KINSpilsPrecSolveFn),kinmem,pset,psolve)
-end
-
-KINSpilsSetPreconditioner(kinmem,pset,psolve) = __KINSpilsSetPreconditioner(convert(KINMemPtr,kinmem),pset,psolve)
-
-function __KINSpilsSetJacTimesVecFn(kinmem::KINMemPtr,jtv::KINSpilsJacTimesVecFn)
-    ccall((:KINSpilsSetJacTimesVecFn,libsundials_kinsol),Cint,(KINMemPtr,KINSpilsJacTimesVecFn),kinmem,jtv)
-end
-
-KINSpilsSetJacTimesVecFn(kinmem,jtv) = __KINSpilsSetJacTimesVecFn(convert(KINMemPtr,kinmem),jtv)
-
-function __KINSpilsGetWorkSpace(kinmem::KINMemPtr,lenrwSG::Ptr{Clong},leniwSG::Ptr{Clong})
-    ccall((:KINSpilsGetWorkSpace,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong},Ptr{Clong}),kinmem,lenrwSG,leniwSG)
-end
-
-KINSpilsGetWorkSpace(kinmem,lenrwSG,leniwSG) = __KINSpilsGetWorkSpace(convert(KINMemPtr,kinmem),pointer(lenrwSG),pointer(leniwSG))
-
-function __KINSpilsGetNumPrecEvals(kinmem::KINMemPtr,npevals::Ptr{Clong})
-    ccall((:KINSpilsGetNumPrecEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,npevals)
-end
-
-KINSpilsGetNumPrecEvals(kinmem,npevals) = __KINSpilsGetNumPrecEvals(convert(KINMemPtr,kinmem),pointer(npevals))
-
-function __KINSpilsGetNumPrecSolves(kinmem::KINMemPtr,npsolves::Ptr{Clong})
-    ccall((:KINSpilsGetNumPrecSolves,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,npsolves)
-end
-
-KINSpilsGetNumPrecSolves(kinmem,npsolves) = __KINSpilsGetNumPrecSolves(convert(KINMemPtr,kinmem),pointer(npsolves))
-
-function __KINSpilsGetNumLinIters(kinmem::KINMemPtr,nliters::Ptr{Clong})
-    ccall((:KINSpilsGetNumLinIters,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nliters)
-end
-
-KINSpilsGetNumLinIters(kinmem,nliters) = __KINSpilsGetNumLinIters(convert(KINMemPtr,kinmem),pointer(nliters))
-
-function __KINSpilsGetNumConvFails(kinmem::KINMemPtr,nlcfails::Ptr{Clong})
-    ccall((:KINSpilsGetNumConvFails,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nlcfails)
-end
-
-KINSpilsGetNumConvFails(kinmem,nlcfails) = __KINSpilsGetNumConvFails(convert(KINMemPtr,kinmem),pointer(nlcfails))
-
-function __KINSpilsGetNumJtimesEvals(kinmem::KINMemPtr,njvevals::Ptr{Clong})
-    ccall((:KINSpilsGetNumJtimesEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,njvevals)
-end
-
-KINSpilsGetNumJtimesEvals(kinmem,njvevals) = __KINSpilsGetNumJtimesEvals(convert(KINMemPtr,kinmem),pointer(njvevals))
-
-function __KINSpilsGetNumFuncEvals(kinmem::KINMemPtr,nfevalsS::Ptr{Clong})
-    ccall((:KINSpilsGetNumFuncEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nfevalsS)
-end
-
-KINSpilsGetNumFuncEvals(kinmem,nfevalsS) = __KINSpilsGetNumFuncEvals(convert(KINMemPtr,kinmem),pointer(nfevalsS))
-
-function __KINSpilsGetLastFlag(kinmem::KINMemPtr,flag::Ptr{Clong})
-    ccall((:KINSpilsGetLastFlag,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,flag)
-end
-
-KINSpilsGetLastFlag(kinmem,flag) = __KINSpilsGetLastFlag(convert(KINMemPtr,kinmem),pointer(flag))
-
-function KINSpilsGetReturnFlagName(flag::Clong)
-    ccall((:KINSpilsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
-end
-
 function __KINSpgmr(kinmem::KINMemPtr,maxl::Cint)
     ccall((:KINSpgmr,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,maxl)
 end
@@ -612,76 +392,6 @@ KINSpgmr(kinmem,maxl) = __KINSpgmr(convert(KINMemPtr,kinmem),maxl)
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-
-function __KINSpilsSetMaxRestarts(kinmem::KINMemPtr,maxrs::Cint)
-    ccall((:KINSpilsSetMaxRestarts,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,maxrs)
-end
-
-KINSpilsSetMaxRestarts(kinmem,maxrs) = __KINSpilsSetMaxRestarts(convert(KINMemPtr,kinmem),maxrs)
-
-function __KINSpilsSetPreconditioner(kinmem::KINMemPtr,pset::KINSpilsPrecSetupFn,psolve::KINSpilsPrecSolveFn)
-    ccall((:KINSpilsSetPreconditioner,libsundials_kinsol),Cint,(KINMemPtr,KINSpilsPrecSetupFn,KINSpilsPrecSolveFn),kinmem,pset,psolve)
-end
-
-KINSpilsSetPreconditioner(kinmem,pset,psolve) = __KINSpilsSetPreconditioner(convert(KINMemPtr,kinmem),pset,psolve)
-
-function __KINSpilsSetJacTimesVecFn(kinmem::KINMemPtr,jtv::KINSpilsJacTimesVecFn)
-    ccall((:KINSpilsSetJacTimesVecFn,libsundials_kinsol),Cint,(KINMemPtr,KINSpilsJacTimesVecFn),kinmem,jtv)
-end
-
-KINSpilsSetJacTimesVecFn(kinmem,jtv) = __KINSpilsSetJacTimesVecFn(convert(KINMemPtr,kinmem),jtv)
-
-function __KINSpilsGetWorkSpace(kinmem::KINMemPtr,lenrwSG::Ptr{Clong},leniwSG::Ptr{Clong})
-    ccall((:KINSpilsGetWorkSpace,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong},Ptr{Clong}),kinmem,lenrwSG,leniwSG)
-end
-
-KINSpilsGetWorkSpace(kinmem,lenrwSG,leniwSG) = __KINSpilsGetWorkSpace(convert(KINMemPtr,kinmem),pointer(lenrwSG),pointer(leniwSG))
-
-function __KINSpilsGetNumPrecEvals(kinmem::KINMemPtr,npevals::Ptr{Clong})
-    ccall((:KINSpilsGetNumPrecEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,npevals)
-end
-
-KINSpilsGetNumPrecEvals(kinmem,npevals) = __KINSpilsGetNumPrecEvals(convert(KINMemPtr,kinmem),pointer(npevals))
-
-function __KINSpilsGetNumPrecSolves(kinmem::KINMemPtr,npsolves::Ptr{Clong})
-    ccall((:KINSpilsGetNumPrecSolves,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,npsolves)
-end
-
-KINSpilsGetNumPrecSolves(kinmem,npsolves) = __KINSpilsGetNumPrecSolves(convert(KINMemPtr,kinmem),pointer(npsolves))
-
-function __KINSpilsGetNumLinIters(kinmem::KINMemPtr,nliters::Ptr{Clong})
-    ccall((:KINSpilsGetNumLinIters,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nliters)
-end
-
-KINSpilsGetNumLinIters(kinmem,nliters) = __KINSpilsGetNumLinIters(convert(KINMemPtr,kinmem),pointer(nliters))
-
-function __KINSpilsGetNumConvFails(kinmem::KINMemPtr,nlcfails::Ptr{Clong})
-    ccall((:KINSpilsGetNumConvFails,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nlcfails)
-end
-
-KINSpilsGetNumConvFails(kinmem,nlcfails) = __KINSpilsGetNumConvFails(convert(KINMemPtr,kinmem),pointer(nlcfails))
-
-function __KINSpilsGetNumJtimesEvals(kinmem::KINMemPtr,njvevals::Ptr{Clong})
-    ccall((:KINSpilsGetNumJtimesEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,njvevals)
-end
-
-KINSpilsGetNumJtimesEvals(kinmem,njvevals) = __KINSpilsGetNumJtimesEvals(convert(KINMemPtr,kinmem),pointer(njvevals))
-
-function __KINSpilsGetNumFuncEvals(kinmem::KINMemPtr,nfevalsS::Ptr{Clong})
-    ccall((:KINSpilsGetNumFuncEvals,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,nfevalsS)
-end
-
-KINSpilsGetNumFuncEvals(kinmem,nfevalsS) = __KINSpilsGetNumFuncEvals(convert(KINMemPtr,kinmem),pointer(nfevalsS))
-
-function __KINSpilsGetLastFlag(kinmem::KINMemPtr,flag::Ptr{Clong})
-    ccall((:KINSpilsGetLastFlag,libsundials_kinsol),Cint,(KINMemPtr,Ptr{Clong}),kinmem,flag)
-end
-
-KINSpilsGetLastFlag(kinmem,flag) = __KINSpilsGetLastFlag(convert(KINMemPtr,kinmem),pointer(flag))
-
-function KINSpilsGetReturnFlagName(flag::Clong)
-    ccall((:KINSpilsGetReturnFlagName,libsundials_kinsol),Ptr{UInt8},(Clong,),flag)
-end
 
 function __KINSptfqmr(kinmem::KINMemPtr,maxl::Cint)
     ccall((:KINSptfqmr,libsundials_kinsol),Cint,(KINMemPtr,Cint),kinmem,maxl)
