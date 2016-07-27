@@ -218,7 +218,15 @@ const CV_BAD_DKY = Cint(-26)
 const CV_TOO_CLOSE = Cint(-27)
 
 typealias CVRhsFn Ptr{Void}
+
+CVRhsFn_wrapper(fp::CVRhsFn) = fp
+CVRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
+
 typealias CVRootFn Ptr{Void}
+
+CVRootFn_wrapper(fp::CVRootFn) = fp
+CVRootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,Ptr{realtype},Ptr{Void}))
+
 typealias CVEwtFn Ptr{Void}
 typealias CVErrHandlerFn Ptr{Void}
 
@@ -344,7 +352,15 @@ const IDA_BAD_T = Cint(-26)
 const IDA_BAD_DKY = Cint(-27)
 
 typealias IDAResFn Ptr{Void}
+
+IDAResFn_wrapper(fp::IDAResFn) = fp
+IDAResFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,N_Vector,Ptr{Void}))
+
 typealias IDARootFn Ptr{Void}
+
+IDARootFn_wrapper(fp::IDARootFn) = fp
+IDARootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{realtype},Ptr{Void}))
+
 typealias IDAEwtFn Ptr{Void}
 typealias IDAErrHandlerFn Ptr{Void}
 
@@ -453,6 +469,10 @@ const KIN_NONE = Cint(0)
 const KIN_LINESEARCH = Cint(1)
 
 typealias KINSysFn Ptr{Void}
+
+KINSysFn_wrapper(fp::KINSysFn) = fp
+KINSysFn_wrapper(f) = cfunction(f,Cint,(N_Vector,N_Vector,Ptr{Void}))
+
 typealias KINErrHandlerFn Ptr{Void}
 typealias KINInfoHandlerFn Ptr{Void}
 

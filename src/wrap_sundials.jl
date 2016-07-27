@@ -103,6 +103,15 @@ const ctor_return_type = Dict(
     "KINCreate" => :(KINMemPtr)
 )
 
+# signatures for C function pointer types
+const FnTypeSignatures = Dict(
+    :CVRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Void}))),
+    :CVRootFn => (:Cint, :((realtype, N_Vector, Ptr{realtype}, Ptr{Void}))),
+    :IDAResFn => (:Cint, :((realtype, N_Vector, N_Vector, N_Vector, Ptr{Void}))),
+    :IDARootFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Void}))),
+    :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Void}))),
+)
+
 typeify_sundials_pointers(notexpr) = Any[notexpr]
 
 function typeify_sundials_pointers(expr::Expr)
@@ -165,6 +174,8 @@ function typeify_sundials_pointers(expr::Expr)
                         # FIXME sometimes these arguments are not really arrays, but just a pointer to a var to be assigned
                         # by the function call. Does that make sense to detect such cases and assume that input arg is a reference to Julia var?
                         expr = Expr(:call, :pointer, expr.args[1])
+                    elseif haskey(FnTypeSignatures, expr.args[2]) # wrap Julia function to C function using a defined signature
+                        expr = Expr(:call, Symbol(string(string(expr.args[2]), "_wrapper")), expr.args[1])
                     else # any other case, no argument wrapping
                         expr = expr.args[1]
                         wrap_arg = false
@@ -182,6 +193,19 @@ function typeify_sundials_pointers(expr::Expr)
                 return Any[expr]
             end
         end
+    elseif expr.head == :typealias && haskey(FnTypeSignatures, expr.args[1])
+        # C functional type, generate the wrapper from Julia to C function
+        # dummy wrapper that accepts pointer
+        fn_typename = expr.args[1]
+        fn_rettype, fn_argtypes = FnTypeSignatures[fn_typename]
+        wrapper_name = Symbol(string(string(fn_typename), "_wrapper"))
+        c_wrapper_def = Expr(:(=),
+                Expr(:call, wrapper_name, Expr(:(::), :fp, fn_typename)), :fp)
+        jl_wrapper_def = Expr(:(=),
+            Expr(:call, wrapper_name, :f),
+            # function declaration with argument types stripped
+            Expr(:call, :cfunction, :f, fn_rettype, fn_argtypes))
+        return Any[expr, c_wrapper_def, jl_wrapper_def]
     elseif expr.head == :const && expr.args[1].head == :(=) &&
            isa(expr.args[1].args[2], Int)
         # fix integer constants should be Cint

@@ -118,7 +118,7 @@ function __CVodeInit(cvode_mem::CVODEMemPtr,f::CVRhsFn,t0::realtype,y0::N_Vector
     ccall((:CVodeInit,libsundials_cvode),Cint,(CVODEMemPtr,CVRhsFn,realtype,N_Vector),cvode_mem,f,t0,y0)
 end
 
-CVodeInit(cvode_mem,f,t0,y0) = __CVodeInit(convert(CVODEMemPtr,cvode_mem),f,t0,convert(N_Vector,y0))
+CVodeInit(cvode_mem,f,t0,y0) = __CVodeInit(convert(CVODEMemPtr,cvode_mem),CVRhsFn_wrapper(f),t0,convert(N_Vector,y0))
 
 function __CVodeReInit(cvode_mem::CVODEMemPtr,t0::realtype,y0::N_Vector)
     ccall((:CVodeReInit,libsundials_cvode),Cint,(CVODEMemPtr,realtype,N_Vector),cvode_mem,t0,y0)
@@ -148,7 +148,7 @@ function __CVodeRootInit(cvode_mem::CVODEMemPtr,nrtfn::Cint,g::CVRootFn)
     ccall((:CVodeRootInit,libsundials_cvode),Cint,(CVODEMemPtr,Cint,CVRootFn),cvode_mem,nrtfn,g)
 end
 
-CVodeRootInit(cvode_mem,nrtfn,g) = __CVodeRootInit(convert(CVODEMemPtr,cvode_mem),nrtfn,g)
+CVodeRootInit(cvode_mem,nrtfn,g) = __CVodeRootInit(convert(CVODEMemPtr,cvode_mem),nrtfn,CVRootFn_wrapper(g))
 
 function __CVode(cvode_mem::CVODEMemPtr,tout::realtype,yout::N_Vector,tret::Ptr{realtype},itask::Cint)
     ccall((:CVode,libsundials_cvode),Cint,(CVODEMemPtr,realtype,N_Vector,Ptr{realtype},Cint),cvode_mem,tout,yout,tret,itask)

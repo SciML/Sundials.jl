@@ -112,7 +112,7 @@ function __IDAInit(ida_mem::IDAMemPtr,res::IDAResFn,t0::realtype,yy0::N_Vector,y
     ccall((:IDAInit,libsundials_idas),Cint,(IDAMemPtr,IDAResFn,realtype,N_Vector,N_Vector),ida_mem,res,t0,yy0,yp0)
 end
 
-IDAInit(ida_mem,res,t0,yy0,yp0) = __IDAInit(convert(IDAMemPtr,ida_mem),res,t0,convert(N_Vector,yy0),convert(N_Vector,yp0))
+IDAInit(ida_mem,res,t0,yy0,yp0) = __IDAInit(convert(IDAMemPtr,ida_mem),IDAResFn_wrapper(res),t0,convert(N_Vector,yy0),convert(N_Vector,yp0))
 
 function __IDAReInit(ida_mem::IDAMemPtr,t0::realtype,yy0::N_Vector,yp0::N_Vector)
     ccall((:IDAReInit,libsundials_idas),Cint,(IDAMemPtr,realtype,N_Vector,N_Vector),ida_mem,t0,yy0,yp0)
@@ -178,7 +178,7 @@ function __IDARootInit(ida_mem::IDAMemPtr,nrtfn::Cint,g::IDARootFn)
     ccall((:IDARootInit,libsundials_idas),Cint,(IDAMemPtr,Cint,IDARootFn),ida_mem,nrtfn,g)
 end
 
-IDARootInit(ida_mem,nrtfn,g) = __IDARootInit(convert(IDAMemPtr,ida_mem),nrtfn,g)
+IDARootInit(ida_mem,nrtfn,g) = __IDARootInit(convert(IDAMemPtr,ida_mem),nrtfn,IDARootFn_wrapper(g))
 
 function __IDASetQuadErrCon(ida_mem::IDAMemPtr,errconQ::Cint)
     ccall((:IDASetQuadErrCon,libsundials_idas),Cint,(IDAMemPtr,Cint),ida_mem,errconQ)

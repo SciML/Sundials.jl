@@ -148,13 +148,13 @@ function __KINSetSysFunc(kinmem::KINMemPtr,func::KINSysFn)
     ccall((:KINSetSysFunc,libsundials_kinsol),Cint,(KINMemPtr,KINSysFn),kinmem,func)
 end
 
-KINSetSysFunc(kinmem,func) = __KINSetSysFunc(convert(KINMemPtr,kinmem),func)
+KINSetSysFunc(kinmem,func) = __KINSetSysFunc(convert(KINMemPtr,kinmem),KINSysFn_wrapper(func))
 
 function __KINInit(kinmem::KINMemPtr,func::KINSysFn,tmpl::N_Vector)
     ccall((:KINInit,libsundials_kinsol),Cint,(KINMemPtr,KINSysFn,N_Vector),kinmem,func,tmpl)
 end
 
-KINInit(kinmem,func,tmpl) = __KINInit(convert(KINMemPtr,kinmem),func,convert(N_Vector,tmpl))
+KINInit(kinmem,func,tmpl) = __KINInit(convert(KINMemPtr,kinmem),KINSysFn_wrapper(func),convert(N_Vector,tmpl))
 
 function __KINSol(kinmem::KINMemPtr,uu::N_Vector,strategy::Cint,u_scale::N_Vector,f_scale::N_Vector)
     ccall((:KINSol,libsundials_kinsol),Cint,(KINMemPtr,N_Vector,Cint,N_Vector,N_Vector),kinmem,uu,strategy,u_scale,f_scale)
