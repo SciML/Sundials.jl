@@ -294,11 +294,9 @@ end
 
 CVodeGetReturnFlagName(flag) = __CVodeGetReturnFlagName(convert(Clong,flag))
 
-function __CVodeFree(cvode_mem::Ref{CVODEMemPtr})
+function CVodeFree(cvode_mem::Ref{CVODEMemPtr})
     ccall((:CVodeFree,libsundials_cvode),Void,(Ref{CVODEMemPtr},),cvode_mem)
 end
-
-CVodeFree(cvode_mem) = __CVodeFree(cvode_mem)
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/cvode/cvode_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 

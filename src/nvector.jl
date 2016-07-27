@@ -35,9 +35,11 @@ end
 
 N_VCloneVectorArrayEmpty_Serial(count,w) = __N_VCloneVectorArrayEmpty_Serial(count,convert(N_Vector,w))
 
-function N_VDestroyVectorArray_Serial(vs::Ptr{N_Vector},count::Cint)
+function __N_VDestroyVectorArray_Serial(vs::Ptr{N_Vector},count::Cint)
     ccall((:N_VDestroyVectorArray_Serial,libsundials_nvecserial),Void,(Ptr{N_Vector},Cint),vs,count)
 end
+
+N_VDestroyVectorArray_Serial(vs,count) = __N_VDestroyVectorArray_Serial(pointer(vs),count)
 
 function __N_VPrint_Serial(v::N_Vector)
     ccall((:N_VPrint_Serial,libsundials_nvecserial),Void,(N_Vector,),v)

@@ -132,11 +132,9 @@ end
 
 CVodeRootInit(cvode_mem,nrtfn,g) = __CVodeRootInit(convert(CVODEMemPtr,cvode_mem),nrtfn,g)
 
-function __CVodeFree(cvode_mem::Ref{CVODEMemPtr})
+function CVodeFree(cvode_mem::Ref{CVODEMemPtr})
     ccall((:CVodeFree,libsundials_cvodes),Void,(Ref{CVODEMemPtr},),cvode_mem)
 end
-
-CVodeFree(cvode_mem) = __CVodeFree(cvode_mem)
 
 function __CVodeQuadFree(cvode_mem::CVODEMemPtr)
     ccall((:CVodeQuadFree,libsundials_cvodes),Void,(CVODEMemPtr,),cvode_mem)

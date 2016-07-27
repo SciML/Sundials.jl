@@ -210,11 +210,9 @@ end
 
 KINGetReturnFlagName(flag) = __KINGetReturnFlagName(convert(Clong,flag))
 
-function __KINFree(kinmem::Ref{KINMemPtr})
+function KINFree(kinmem::Ref{KINMemPtr})
     ccall((:KINFree,libsundials_kinsol),Void,(Ref{KINMemPtr},),kinmem)
 end
-
-KINFree(kinmem) = __KINFree(kinmem)
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/kinsol/kinsol_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 

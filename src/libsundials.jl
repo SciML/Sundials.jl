@@ -179,9 +179,11 @@ end
 
 N_VCloneVectorArray(count,w) = __N_VCloneVectorArray(count,convert(N_Vector,w))
 
-function N_VDestroyVectorArray(vs::Ptr{N_Vector},count::Cint)
+function __N_VDestroyVectorArray(vs::Ptr{N_Vector},count::Cint)
     ccall((:N_VDestroyVectorArray,libsundials_sundials),Void,(Ptr{N_Vector},Cint),vs,count)
 end
+
+N_VDestroyVectorArray(vs,count) = __N_VDestroyVectorArray(pointer(vs),count)
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/sundials/sundials_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 

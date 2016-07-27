@@ -144,37 +144,39 @@ function typeify_sundials_pointers(expr::Expr)
                     end
                 end
             end
-            # if any N_Vector objects, convertion from NVector/Vector is required
-            convert_required = convert_required || any(expr -> expr.args[2] == :(Clong) ||
-                                                               expr.args[2] == :(N_Vector),
-                                                        drop(expr.args[1].args, 1))
-            if convert_required
+            # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
+            # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
+            lowlevel_func_name = string("__", func_name)
+            wrap_required = false
+            wrap_expr = Expr(:(=),
+                # function declaration with argument types stripped
+                Expr(:call, Symbol(func_name), map(expr -> expr.args[1], drop(expr.args[1].args, 1))...),
+                # low-level function call with Julia types converted to low-level arguments
+                Expr(:call, Symbol(lowlevel_func_name), map(drop(expr.args[1].args, 1)) do expr
+                    # process each argument
+                    wrap_arg = true # indicates whether the argument wrapper is required
+                    if expr.args[2] == :N_Vector || expr.args[2] == :Clong ||
+                        ismatch(r"MemPtr$", string(expr.args[2]))
+                        # convert(XXXMemPtr, mem)
+                        expr = Expr(:call, :convert, expr.args[2], expr.args[1])
+                    elseif isa(expr.args[2], Expr) && expr.args[2].head == :curly &&
+                        expr.args[2].args[1] == :Ptr && expr.args[2].args[2] != :FILE
+                        # convert julia arrays to pointer
+                        # FIXME sometimes these arguments are not really arrays, but just a pointer to a var to be assigned
+                        # by the function call. Does that make sense to detect such cases and assume that input arg is a reference to Julia var?
+                        expr = Expr(:call, :pointer, expr.args[1])
+                    else # any other case, no argument wrapping
+                        expr = expr.args[1]
+                        wrap_arg = false
+                    end
+                    wrap_required = wrap_required || wrap_arg
+                    expr
+                end ...)
+            )
+            if wrap_required
                 # mangle the name of the original wrapper to avoid recursion
-                orig_func_name = string("__", func_name)
-                expr.args[1].args[1] = Symbol(orig_func_name)
-                # generate a wrapper for the function that converts 1st arg to XXXMemPtr
-                # and all vector args to N_Vector
-                wrap_expr = Expr(:(=),
-                     # function declaration with argument types stripped
-                     Expr(:call, Symbol(func_name), map(expr -> expr.args[1], drop(expr.args[1].args, 1))...),
-                     # low-level function call with Julia types converted to low-level arguments
-                     Expr(:call, Symbol(orig_func_name), map(drop(expr.args[1].args, 1)) do expr
-                        # process each argument
-                        if expr.args[2] == :N_Vector || expr.args[2] == :Clong ||
-                           ismatch(r"MemPtr$", string(expr.args[2]))
-                            # convert(XXXMemPtr, mem)
-                            Expr(:call, :convert, expr.args[2], expr.args[1])
-                        elseif isa(expr.args[2], Expr) && expr.args[2].head == :curly &&
-                            expr.args[2].args[1] == :Ptr && expr.args[2].args[2] != :FILE
-                            # convert julia arrays to pointer
-                            # FIXME sometimes these arguments are not really arrays, but just a pointer to a var to be assigned
-                            # by the function call. Does that make sense to detect such cases and assume that input arg is a reference to Julia var?
-                            Expr(:call, :pointer, expr.args[1])
-                        else
-                            expr.args[1]
-                        end
-                     end ...)
-                )
+                expr.args[1].args[1] = Symbol(lowlevel_func_name)
+                # write down both low-level and higher level wrappers
                 return Any[expr, wrap_expr]
             else
                 return Any[expr]

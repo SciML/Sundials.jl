@@ -336,11 +336,9 @@ end
 
 IDAGetReturnFlagName(flag) = __IDAGetReturnFlagName(convert(Clong,flag))
 
-function __IDAFree(ida_mem::Ref{IDAMemPtr})
+function IDAFree(ida_mem::Ref{IDAMemPtr})
     ccall((:IDAFree,libsundials_ida),Void,(Ref{IDAMemPtr},),ida_mem)
 end
-
-IDAFree(ida_mem) = __IDAFree(ida_mem)
 # Julia wrapper for header: /home/astukalov/.julia/v0.4/Sundials/deps/usr/include/ida/ida_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
