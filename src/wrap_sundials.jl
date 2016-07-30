@@ -2,12 +2,12 @@
 # that uses the Clang.jl package to wrap Sundials using the headers.
 
 # Find all headers
-incpath = Pkg.dir("Sundials", "deps", "usr", "include")
+incpath = joinpath(dirname(@__FILE__), "..", "deps", "usr", "include")
 if !isdir(incpath)
   error("Run Pkg.build(\"Sundials\") before trying to wrap C headers.")
 end
 
-wdir = Pkg.dir("Sundials", "new")
+wdir = joinpath(dirname(@__FILE__), "..", "new")
 mkpath(wdir)
 cd(wdir)
 
