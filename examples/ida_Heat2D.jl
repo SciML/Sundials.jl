@@ -36,18 +36,16 @@ const bval = 0.1
 ## central differencing on the interior points, and includes algebraic
 ## equations for the boundary values.
 ##
-## So for each interior point, the residual component has the form       
-##    r_i = u'_i - (central difference)_i                              
-## while for each boundary point, it is r_i = u_i.                     
+## So for each interior point, the residual component has the form
+##    r_i = u'_i - (central difference)_i
+## while for each boundary point, it is r_i = u_i.
 ##
 
 function heatres(t, u, up, r)
-    
     r[:] = u ## Initialize r to u, to take care of boundary equations.
-    
+
     ## Loop over interior points; set res = up - (central difference).
     for j = 2:(MGRID-2)
-        
         offset = MGRID * j
         for i = 2:(MGRID-2)
             loc = offset + i
@@ -62,10 +60,9 @@ end
 
 
 function initial()
-
     mm = MGRID
     mm1 = mm - 1
-  
+
     u  = zeros(NEQ)
     id = ones(NEQ)
 
@@ -85,7 +82,7 @@ function initial()
 
     heatres(0.0, u, up, r)
 
-    ## Copy -res into up to get correct interior initial up values. 
+    ## Copy -res into up to get correct interior initial up values.
     up[:] = -1.0 * r
 
     ## Finally, set values of u, up, and id at boundary points.
@@ -103,7 +100,6 @@ function initial()
 
     constraints = ones(NEQ)
     return (u,up,id,constraints)
-    
 end
 
 nvector = Sundials.nvector

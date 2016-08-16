@@ -53,7 +53,6 @@ G_J = map(i -> CoordInterpGrid(t, vec(J[:,i]), 0.0, InterpQuadratic),1:xsteps)
 ##
 
 function cableres(t, u, up, r)
-
     r[:] = u ## Initialize r to u, to take care of boundary equations.
 
     ## Loop over segments; set res = up - (central difference).
@@ -70,7 +69,6 @@ end
 
 
 function initial()
-
     u = zeros(xsteps)
 
     u[2:xsteps-2] = -60.0 ## initial value -60 mV
@@ -86,7 +84,6 @@ function initial()
     up[:] = -1.0 * r
 
     return (u,up,id)
-
 end
 
 nvector = Sundials.nvector
