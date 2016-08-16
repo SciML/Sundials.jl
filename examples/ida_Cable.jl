@@ -65,7 +65,7 @@ function cableres(t, u, up, r)
 
     end
 
-    return (0)
+    return Sundials.CV_SUCCESS
 end
 
 
@@ -99,21 +99,21 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
                                            (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
                             t[1], nvector(y0), nvector(yp0))
-    assert(flag == 0)
+    assert(flag == Sundials.CV_SUCCESS)
     flag = Sundials.IDASetId(mem,nvector(id))
-    assert(flag == 0)
+    assert(flag == Sundials.CV_SUCCESS)
     flag = Sundials.IDASetUserData(mem, f)
-    assert(flag == 0)
+    assert(flag == Sundials.CV_SUCCESS)
     flag = Sundials.IDASStolerances(mem, reltol, abstol)
-    assert(flag == 0)
+    assert(flag == Sundials.CV_SUCCESS)
     mu = xsteps-1
     ml = xsteps-1
     flag = Sundials.IDABand(mem, neq, mu, ml)
     ##flag = Sundials.IDADense(mem, neq)
-    assert(flag == 0)
+    assert(flag == Sundials.CV_SUCCESS)
     rtest = zeros(neq)
     flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
-    assert(flag == 0)
+    assert(flag == Sundials.CV_SUCCESS)
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
     yres[1,:] = y0

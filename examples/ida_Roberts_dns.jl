@@ -43,7 +43,7 @@ function resrob(tres, yy, yp, rr, user_data)
     rval[2]  = -rval[1] - 3.0e7*yval[2]*yval[2] - ypval[2]
     rval[1] -=  ypval[1]
     rval[3]  =  yval[1] + yval[2] + yval[3] - 1.0
-    return Cint(0)   # indicates normal return
+    return Sundials.IDA_SUCCESS
 end
 
 ## Root function routine. Compute functions g_i(t,y) for i = 0,1.
@@ -52,7 +52,7 @@ function grob(t, yy, yp, gout, user_data)
     gval = Sundials.asarray(gout, (2,))
     gval[1] = yval[1] - 0.0001
     gval[2] = yval[3] - 0.01
-    return Cint(0)   # indicates normal return
+    return Sundials.IDA_SUCCESS
 end
 
 ## Define the Jacobian function. BROKEN - JJ is wrong
@@ -69,7 +69,7 @@ function jacrob(Neq, tt, cj, yy, yp, resvec,
     JJ[1,3] = 1.0e4*yval[2]
     JJ[2,3] = -1.0e4*yval[2]
     JJ[3,3] = 1.0
-    return Cint(0)   # indicates normal return
+    return Sundials.IDA_SUCCESS
 end
 
 neq = 3

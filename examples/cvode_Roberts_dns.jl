@@ -72,7 +72,7 @@ function Jac(N, t, y, fy, Jptr, user_data,
     J[2,2] = -1.0e4*y[3] - 6.0e7*y[2]
     J[2,3] = -1.0e4*y[2]
     J[3,2] = 6.0e7*y[2]
-    return Int32(0)
+    return Sundials.CV_SUCCESS
 end
 
 neq = 3

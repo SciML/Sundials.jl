@@ -18,7 +18,7 @@ function sysfn(y_in, fy_in, a_in)
     fy = Sundials.asarray(fy_in)
     fy[1] = y[1]^2 + y[2]^2 - 1.0
     fy[2] = y[2] - y[1]^2
-    return Cint(0)   # indicates normal return
+    return Sundials.KIN_SUCCESS
 end
 
 ## Initialize problem
