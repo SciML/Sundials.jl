@@ -1,11 +1,10 @@
-Sundials for Julia
-==================
+Sundials.jl
+===========
 
-[![Sundials](http://pkg.julialang.org/badges/Sundials_0.3.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=0.3)
-[![Sundials](http://pkg.julialang.org/badges/Sundials_0.4.svg)](http://pkg.julialang.org/?pkg=Sundials&ver=0.4)
-[![Build Status](https://travis-ci.org/JuliaLang/Sundials.jl.svg?branch=master)](https://travis-ci.org/JuliaLang/Sundials.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/6dxkur3rnfudj62o)](https://ci.appveyor.com/project/scidom/sundials-jl)
-[![Coverage Status](https://coveralls.io/repos/JuliaLang/Sundials.jl/badge.svg)](https://coveralls.io/r/JuliaLang/Sundials.jl)
+[![Sundials](http://pkg.julialang.org/badges/Sundials_0.4.svg)](http://pkg.julialang.org/?pkg=Sundials)
+[![Sundials](http://pkg.julialang.org/badges/Sundials_0.5.svg)](http://pkg.julialang.org/?pkg=Sundials)
+[![Build Status](https://travis-ci.org/JuliaMath/Sundials.jl.svg?branch=master)](https://travis-ci.org/JuliaMath/Sundials.jl)
+[![Coverage Status](https://coveralls.io/repos/github/JuliaMath/Sundials.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaMath/Sundials.jl?branch=master)
 
 Introduction
 ------------
