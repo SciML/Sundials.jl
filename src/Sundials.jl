@@ -1,4 +1,7 @@
 module Sundials
+
+using Compat
+
 const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
 if isfile(depsfile)
     include(depsfile)
@@ -18,7 +21,7 @@ recurs_sym_type(ex::Any) =
 macro c(ret_type, func, arg_types, lib)
   local _arg_types = Expr(:tuple, [recurs_sym_type(a) for a in arg_types.args]...)
   local _ret_type = recurs_sym_type(ret_type)
-  local _args_in = Any[ symbol(string('a',x)) for x in 1:length(_arg_types.args) ]
+  local _args_in = Any[ @compat Symbol(string('a',x)) for x in 1:length(_arg_types.args) ]
   local _lib = eval(lib)
   quote
     $(esc(func))($(_args_in...)) = ccall( ($(string(func)), $(Expr(:quote, _lib)) ), $_ret_type, $_arg_types, $(_args_in...) )
@@ -65,9 +68,9 @@ include("constants.jl")
 ##################################################################
 
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
-asarray(x::N_Vector) = pointer_to_array(N_VGetArrayPointer_Serial(x), (nvlength(x),))
+asarray(x::N_Vector) = @compat unsafe_wrap(Array, N_VGetArrayPointer_Serial(x), (nvlength(x),))
 asarray(x::Vector{realtype}) = x
-asarray(x::Ptr{realtype}, dims::Tuple) = pointer_to_array(x, dims)
+asarray(x::Ptr{realtype}, dims::Tuple) = @compat unsafe_wrap(Array, x, dims)
 asarray(x::N_Vector, dims::Tuple) = reinterpret(realtype, asarray(x), dims)
 nvector(x::Vector{realtype}) = N_VMake_Serial(length(x), x)
 nvector(x::N_Vector) = x
