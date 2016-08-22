@@ -104,9 +104,11 @@ t = [0.0, 4 * logspace(-1., 7., 9)]
 res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
 ```
 
-There are two supported keyword arguments, `reltol`, and `abstol`, for `cvode` and `idasol`.
-These functions will probably be deprecated, in order to create a unified API for
-ODE solvers under [ODE.jl](https://github.com/JuliaLang/ODE.jl)
+For `cvode`, there is an optional positional argument `integrator` to choose
+between the two provided integration options: `:BDF` for a Backwards Differentiation
+Formula method and `:Adams` for an Adams-Moulton method. There are two supported
+keyword arguments, `reltol`, and `abstol`, for `cvode` and `idasol`. For more
+details, please see the docstrings.
 
 Examples
 --------

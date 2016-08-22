@@ -16,7 +16,7 @@ end
 #
 ##################################################################
 
-recurs_sym_type(ex::Any) = 
+recurs_sym_type(ex::Any) =
   (ex==Union{} || typeof(ex)==Symbol || length(ex.args)==1) ? eval(ex) : Expr(ex.head, ex.args[1], recurs_sym_type(ex.args[2]))
 macro c(ret_type, func, arg_types, lib)
   local _arg_types = Expr(:tuple, [recurs_sym_type(a) for a in arg_types.args]...)
@@ -295,19 +295,33 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
     return Int32(0)
 end
 
-function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Float64=1e-4, abstol::Float64=1e-6)
-    # f, Function of the form
-    #         f(t, y::Vector{Float64}, yp::Vector{Float64})
-    #     where `y` is the input state vector, and `yp` is the output vector
-    #     of time derivatives for the states `y`
-    # y0, Vector of initial values
-    # t, Vector of time values at which to record integration results
-    # reltol, Relative Tolerance to be used (default=1e-4)
-    # abstol, Absolute Tolerance to be used (default=1e-6)
-    # return: a solution matrix with time steps in `t` along rows and
-    #         state variable `y` along columns
+"""
+`cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64},integrator=:BDF; reltol::Float64=1e-3, abstol::Float64=1e-6)`
+
+* `f`, Function of the form
+  `f(t, y::Vector{Float64}, yp::Vector{Float64})`
+  where `y` is the input state vector, and `yp` is the output vector
+  of time derivatives for the states `y`
+* `y0`, Vector of initial values
+* `t`, Vector of time values at which to record integration results
+* `integrator`, the chosen integration algorithm. Default is `:BDF`
+  , other option is `:Adams`
+* `reltol`, Relative Tolerance to be used (default=1e-3)
+* `abstol`, Absolute Tolerance to be used (default=1e-6)
+
+return: a solution matrix with time steps in `t` along rows and
+        state variable `y` along columns
+"""
+function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64},
+              integrator=:BDF; reltol::Float64=1e-3, abstol::Float64=1e-6)
+
     neq = length(y0)
-    mem = CVodeCreate(CV_BDF, CV_NEWTON)
+
+    if integrator==:BDF
+      mem = CVodeCreate(CV_BDF, CV_NEWTON)
+    elseif integrator==:Adams
+      mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
+    end
     if mem == C_NULL
         error("Failed to allocate CVODE solver object")
     end
@@ -331,6 +345,65 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}; reltol::Flo
     return yres
 end
 
+"""
+`cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},integrator=:BDF; reltol::Float64=1e-3, abstol::Float64=1e-6)`
+
+* `f`, Function of the form
+  `f(t, y::Vector{Float64}, yp::Vector{Float64})`
+  where `y` is the input state vector, and `yp` is the output vector
+  of time derivatives for the states `y`
+* `y0`, Vector of initial values
+* `tspan`, a vector where `tspan[1]` is the starting time and the other values are
+  time values which are guaranteed in the output
+* `integrator`, the chosen integration algorithm. Default is `:BDF`
+  , other option is `:Adams`
+* `reltol`, Relative Tolerance to be used (default=1e-3)
+* `abstol`, Absolute Tolerance to be used (default=1e-6)
+
+return: a vector with the timepoints `t` and a vector with the outputs `y0`
+"""
+function cvode_fulloutput(f::Function, y0::Vector{Float64},
+                          tspan::Vector{Float64}, integrator=:BDF;
+                          reltol::Float64=1e-3, abstol::Float64=1e-6)
+    t = tspan[1]
+    Ts = tspan[2:end]
+    neq = length(y0)
+    if integrator==:BDF
+      mem = CVodeCreate(CV_BDF, CV_NEWTON)
+    elseif integrator==:Adams
+      mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
+    end
+
+    if mem == C_NULL
+        error("Failed to allocate CVODE solver object")
+    end
+
+    yres = Vector{typeof(y0)}(0)
+    ts   = [t]
+    try
+        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Int32, (realtype, N_Vector, N_Vector, Ref{Function})), t, nvector(y0))
+        flag = @checkflag CVodeSetUserData(mem, f)
+        flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
+        flag = @checkflag CVDense(mem, neq)
+        push!(yres,y0)
+        y = copy(y0)
+        tout = [0.0]
+        for T in Ts
+          while tout[end]<T
+              flag = @checkflag CVode(mem, T, y, tout, CV_ONE_STEP)
+              push!(yres,copy(y))
+              push!(ts,tout...)
+          end
+          # Fix the end
+          flag = @checkflag CVodeGetDky(mem, T, 0, yres[end])
+          ts[end] = T
+        end
+    finally
+        CVodeFree([mem])
+    end
+    return ts,yres
+end
+
 @c Int32 IDASetUserData (Ptr{:Void},Any) libsundials_ida  ## needed to allow passing a Function through the user data
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
@@ -341,19 +414,24 @@ function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::
     return Int32(0)   # indicates normal return
 end
 
+"""
+`idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64};reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)`
+
+* `f`, Function of the form
+  `f(t, y::Vector{Float64}, yp::Vector{Float64}, r::Vector{Float64})``
+  where `y` and `yp` are the input state and derivative vectors,
+  and `r` is the output residual vector
+* `y0`, Vector of initial values
+* `yp0`, Vector of initial values of the derivatives
+* `reltol`, Relative Tolerance to be used (default=1e-3)
+* `abstol`, Absolute Tolerance to be used (default=1e-6)
+* `diffstates`, Boolean vector, true for the positions such that `r` depends on `yp[k]`
+
+return: (y,yp) two solution matrices representing the states and state derivatives
+         with time steps in `t` along rows and state variable `y` or `yp` along columns
+"""
 function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64};
-        reltol::Float64=1e-4, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
-    # f, Function of the form
-    #         f(t, y::Vector{Float64}, yp::Vector{Float64}, r::Vector{Float64})
-    #     where `y` and `yp` are the input state and derivative vectors,
-    #     and `r` is the output residual vector
-    # y0, Vector of initial values
-    # yp0, Vector of initial values of the derivatives
-    # reltol, Relative Tolerance to be used (default=1e-4)
-    # abstol, Absolute Tolerance to be used (default=1e-6)
-    # diffstates, Boolean vector, true for the positions such that `r` depends on `yp[k]`
-    # return: (y,yp) two solution matrices representing the states and state derivatives
-    #         with time steps in `t` along rows and state variable `y` or `yp` along columns
+        reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
     neq = length(y0)
     mem = IDACreate()
     if mem == C_NULL
