@@ -43,7 +43,7 @@ function resrob(tres, yy, yp, rr, user_data)
     rval[2]  = -rval[1] - 3.0e7*yval[2]*yval[2] - ypval[2]
     rval[1] -=  ypval[1]
     rval[3]  =  yval[1] + yval[2] + yval[3] - 1.0
-    return Int32(0)   # indicates normal return
+    return Cint(0)   # indicates normal return
 end
 
 ## Root function routine. Compute functions g_i(t,y) for i = 0,1.
@@ -52,7 +52,7 @@ function grob(t, yy, yp, gout, user_data)
     gval = Sundials.asarray(gout, (2,))
     gval[1] = yval[1] - 0.0001
     gval[2] = yval[3] - 0.01
-    return Int32(0)   # indicates normal return
+    return Cint(0)   # indicates normal return
 end
 
 ## Define the Jacobian function. BROKEN - JJ is wrong
@@ -69,7 +69,7 @@ function jacrob(Neq, tt, cj, yy, yp, resvec,
     JJ[1,3] = 1.0e4*yval[2]
     JJ[2,3] = -1.0e4*yval[2]
     JJ[3,3] = 1.0
-    return Int32(0)   # indicates normal return
+    return Cint(0)   # indicates normal return
 end
 
 neq = 3
@@ -86,7 +86,7 @@ retval = Sundials.IDAInit(mem, resrob, t0, yy, yp)
 retval = Sundials.IDASVtolerances(mem, rtol, avtol)
 
 ## Call IDARootInit to specify the root function grob with 2 components
-retval = Sundials.IDARootInit(mem, 2, grob)
+retval = Sundials.IDARootInit(mem, Cint(2), grob)
 
 ## Call IDADense and set up the linear solver.
 retval = Sundials.IDADense(mem, neq)
@@ -95,13 +95,13 @@ retval = Sundials.IDADense(mem, neq)
 iout = 0
 tout = tout1
 tret = [1.0]
-rootsfound = round(Int32,[0, 0])
+rootsfound = zeros(Cint, 2)
 
 while true
     retval = Sundials.IDASolve(mem, tout, tret, yy, yp, Sundials.IDA_NORMAL)
     println("T = ", tout, ", Y = ", yy)
     if retval == Sundials.IDA_ROOT_RETURN
-        retvalr = Sundials.IDAGetRootInfo(mem, pointer(rootsfound))
+        retvalr = Sundials.IDAGetRootInfo(mem, rootsfound)
         println("roots = ", rootsfound)
     end
     if retval == Sundials.IDA_SUCCESS
