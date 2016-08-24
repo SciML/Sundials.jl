@@ -9,4 +9,7 @@ function f(t, y, ydot)
     return(Int32(0))
 end
 t = [0.0; 4 * logspace(-1., 7., 9)]
-res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
+y0= [1.0, 0.0, 0.0]
+res = Sundials.cvode(f, y0, t)
+
+ts1, res3 = Sundials.cvode_fulloutput(f, y0, [0.0, 1.0])
