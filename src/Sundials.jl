@@ -6,7 +6,7 @@ const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
 if isfile(depsfile)
     include(depsfile)
 else
-    error("Sundials not properly installed. Please run Pkg.build(\"Sundials\")")
+    error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
 end
 
 ##################################################################
