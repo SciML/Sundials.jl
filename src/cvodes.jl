@@ -1,4 +1,4 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1133,7 +1133,7 @@ end
 function CVodeGetAdjCurrentCheckPoint(cvode_mem,addr)
     __CVodeGetAdjCurrentCheckPoint(convert(CVODEMemPtr,cvode_mem),pointer(addr))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_direct.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1208,7 +1208,7 @@ end
 function CVDlsSetBandJacFnB(cvode_mem,which,jacB)
     __CVDlsSetBandJacFnB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),jacB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_spils.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1379,7 +1379,7 @@ end
 function CVSpilsSetJacTimesVecFnB(cvode_mem,which,jtvB)
     __CVSpilsSetJacTimesVecFnB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),jtvB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_band.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1398,7 +1398,7 @@ end
 function CVBandB(cvode_mem,which,nB,mupperB,mlowerB)
     __CVBandB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,nB),convert(Clong,mupperB),convert(Clong,mlowerB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_bandpre.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_bandpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1433,7 +1433,7 @@ end
 function CVBandPrecInitB(cvode_mem,which,nB,muB,mlB)
     __CVBandPrecInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,nB),convert(Clong,muB),convert(Clong,mlB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_bbdpre.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1484,7 +1484,7 @@ end
 function CVBBDPrecReInitB(cvode_mem,which,mudqB,mldqB,dqrelyB)
     __CVBBDPrecReInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,mudqB),convert(Clong,mldqB),dqrelyB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_dense.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1503,7 +1503,7 @@ end
 function CVDenseB(cvode_mem,which,nB)
     __CVDenseB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,nB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_diag.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_diag.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1554,10 +1554,10 @@ end
 function CVDiagB(cvode_mem,which)
     __CVDiagB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_impl.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_spbcgs.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1576,7 +1576,7 @@ end
 function CVSpbcgB(cvode_mem,which,pretypeB,maxlB)
     __CVSpbcgB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,pretypeB),convert(Cint,maxlB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_spgmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1595,7 +1595,7 @@ end
 function CVSpgmrB(cvode_mem,which,pretypeB,maxlB)
     __CVSpgmrB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,pretypeB),convert(Cint,maxlB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/cvodes/cvodes_sptfqmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 

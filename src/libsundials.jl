@@ -1,19 +1,19 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_band.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_config.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_config.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_dense.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_direct.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_iterative.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_iterative.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_nvector.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_nvector.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -287,21 +287,21 @@ end
 function N_VDestroyVectorArray(vs,count)
     __N_VDestroyVectorArray(pointer(vs),convert(Cint,count))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_spbcgs.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_spgmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_sptfqmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_types.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_types.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_fnvector.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_fnvector.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/sundials/sundials_math.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/sundials/sundials_math.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 

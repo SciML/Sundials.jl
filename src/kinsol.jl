@@ -1,4 +1,4 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -286,7 +286,7 @@ end
 function KINFree(kinmem::Ref{KINMemPtr})
     ccall((:KINFree,libsundials_kinsol),Void,(Ref{KINMemPtr},),kinmem)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_direct.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -345,7 +345,7 @@ end
 function KINDlsGetReturnFlagName(flag)
     __KINDlsGetReturnFlagName(convert(Clong,flag))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_spils.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -444,7 +444,7 @@ end
 function KINSpilsGetReturnFlagName(flag)
     __KINSpilsGetReturnFlagName(convert(Clong,flag))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_band.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -455,7 +455,7 @@ end
 function KINBand(kinmem,N,mupper,mlower)
     __KINBand(convert(KINMemPtr,kinmem),convert(Clong,N),convert(Clong,mupper),convert(Clong,mlower))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_bbdpre.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -482,7 +482,7 @@ end
 function KINBBDPrecGetNumGfnEvals(kinmem,ngevalsBBDP)
     __KINBBDPrecGetNumGfnEvals(convert(KINMemPtr,kinmem),pointer(ngevalsBBDP))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_dense.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -493,10 +493,10 @@ end
 function KINDense(kinmem,N)
     __KINDense(convert(KINMemPtr,kinmem),convert(Clong,N))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_impl.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_spbcgs.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -507,7 +507,7 @@ end
 function KINSpbcg(kinmem,maxl)
     __KINSpbcg(convert(KINMemPtr,kinmem),convert(Cint,maxl))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_spgmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -518,7 +518,7 @@ end
 function KINSpgmr(kinmem,maxl)
     __KINSpgmr(convert(KINMemPtr,kinmem),convert(Cint,maxl))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/kinsol/kinsol_sptfqmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/kinsol/kinsol_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 

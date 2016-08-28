@@ -1,7 +1,7 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/nvector/nvector_parallel.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/nvector/nvector_parallel.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/nvector/nvector_serial.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/nvector/nvector_serial.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 

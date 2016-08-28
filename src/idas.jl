@@ -1,4 +1,4 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1214,7 +1214,7 @@ end
 function IDAGetAdjCurrentCheckPoint(ida_mem,addr)
     __IDAGetAdjCurrentCheckPoint(convert(IDAMemPtr,ida_mem),pointer(addr))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_direct.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1289,7 +1289,7 @@ end
 function IDADlsSetBandJacFnB(idaa_mem,which,jacB)
     __IDADlsSetBandJacFnB(convert(IDAMemPtr,idaa_mem),convert(Cint,which),jacB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_spils.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1476,7 +1476,7 @@ end
 function IDASpilsSetJacTimesVecFnB(ida_mem,which,jtvB)
     __IDASpilsSetJacTimesVecFnB(convert(IDAMemPtr,ida_mem),convert(Cint,which),jtvB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_band.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1495,7 +1495,7 @@ end
 function IDABandB(idaadj_mem,which,NeqB,mupperB,mlowerB)
     __IDABandB(convert(IDAMemPtr,idaadj_mem),convert(Cint,which),convert(Clong,NeqB),convert(Clong,mupperB),convert(Clong,mlowerB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_bbdpre.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1546,7 +1546,7 @@ end
 function IDABBDPrecReInitB(ida_mem,which,mudqB,mldqB,dq_rel_yyB)
     __IDABBDPrecReInitB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Clong,mudqB),convert(Clong,mldqB),dq_rel_yyB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_dense.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1565,10 +1565,10 @@ end
 function IDADenseB(ida_mem,which,NeqB)
     __IDADenseB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Clong,NeqB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_impl.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_spbcgs.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1587,7 +1587,7 @@ end
 function IDASpbcgB(ida_mem,which,maxlB)
     __IDASpbcgB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Cint,maxlB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_spgmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1606,7 +1606,7 @@ end
 function IDASpgmrB(ida_mem,which,maxlB)
     __IDASpgmrB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Cint,maxlB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/src/../deps/usr/include/idas/idas_sptfqmr.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
