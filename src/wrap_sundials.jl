@@ -155,40 +155,64 @@ function typeify_sundials_pointers(expr::Expr)
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
             # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
-            lowlevel_func_name = string("__", func_name)
-            wrap_required = false
-            wrap_expr = Expr(:(=),
-                # function declaration with argument types stripped
-                Expr(:call, Symbol(func_name), map(expr -> expr.args[1], drop(expr.args[1].args, 1))...),
-                # low-level function call with Julia types converted to low-level arguments
-                Expr(:call, Symbol(lowlevel_func_name), map(drop(expr.args[1].args, 1)) do expr
-                    # process each argument
-                    wrap_arg = true # indicates whether the argument wrapper is required
-                    if expr.args[2] == :N_Vector || expr.args[2] == :Clong ||
-                        ismatch(r"MemPtr$", string(expr.args[2]))
-                        # convert(XXXMemPtr, mem)
-                        expr = Expr(:call, :convert, expr.args[2], expr.args[1])
-                    elseif isa(expr.args[2], Expr) && expr.args[2].head == :curly &&
-                        expr.args[2].args[1] == :Ptr && expr.args[2].args[2] != :FILE
-                        # convert julia arrays to pointer
-                        # FIXME sometimes these arguments are not really arrays, but just a pointer to a var to be assigned
-                        # by the function call. Does that make sense to detect such cases and assume that input arg is a reference to Julia var?
-                        expr = Expr(:call, :pointer, expr.args[1])
-                    elseif haskey(FnTypeSignatures, expr.args[2]) # wrap Julia function to C function using a defined signature
-                        expr = Expr(:call, Symbol(string(string(expr.args[2]), "_wrapper")), expr.args[1])
-                    else # any other case, no argument wrapping
-                        expr = expr.args[1]
-                        wrap_arg = false
-                    end
-                    wrap_required = wrap_required || wrap_arg
-                    expr
-                end ...)
-            )
-            if wrap_required
-                # mangle the name of the original wrapper to avoid recursion
+            # create wrapers for all arguments that need wrapping
+            args_wrap_exprs = map(drop(expr.args[1].args, 1)) do expr
+                # process each argument
+                # return a tuple:
+                #   1) high-level wrapper arg name expr
+                #   2) expr for local var definition, nothing if not required
+                #   3) expr for low-level wrapper call
+                # if 1)==3), then no wrapping is required
+                arg_name_expr = expr.args[1]
+                arg_type_expr = expr.args[2]
+                if arg_type_expr == :N_Vector
+                    # first convert argument to NVector() and store in local var,
+                    # this guarantees that the wrapper and associated Sundials object (e.g. N_Vector)
+                    # is not removed by GC
+                    return (arg_name_expr,
+                            Expr(:call, :convert, :NVector, arg_name_expr), # convert arg to NVector to store in a local var
+                            Expr(:call, :convert, arg_type_expr, Symbol(string("__", arg_name_expr)))) # convert NVector to N_Vector
+                elseif arg_type_expr == :Clong || arg_type_expr == :Cint ||
+                    ismatch(r"MemPtr$", string(arg_type_expr))
+                    # convert(XXXMemPtr, mem), no local var required
+                    return (arg_name_expr, nothing,
+                            Expr(:call, :convert, arg_type_expr, arg_name_expr))
+                elseif isa(arg_type_expr, Expr) && arg_type_expr.head == :curly &&
+                    arg_type_expr.args[1] == :Ptr && arg_type_expr.args[2] != :FILE
+                    # convert julia arrays to pointer, no local var required
+                    # FIXME sometimes these arguments are not really arrays, but just a pointer to a var to be assigned
+                    # by the function call. Does that make sense to detect such cases and assume that input arg is a reference to Julia var?
+                    return (arg_name_expr, nothing,
+                            Expr(:call, :pointer, arg_name_expr))
+                elseif haskey(FnTypeSignatures, arg_type_expr) # wrap Julia function to C function using a defined signature
+                    return (arg_name_expr, nothing,
+                            Expr(:call, Symbol(string(arg_type_expr, "_wrapper")), arg_name_expr))
+                else # any other case, no argument wrapping
+                    return (arg_name_expr, nothing, arg_name_expr)
+                end
+            end
+            # check which arguments are wrapped
+            if any(map(arg_exprs -> arg_exprs[1] != arg_exprs[3], args_wrap_exprs))
+                # mangle the name of the low-level wrapper to avoid recursion
+                lowlevel_func_name = string("__", func_name)
                 expr.args[1].args[1] = Symbol(lowlevel_func_name)
+
+                # higher-level wrapper function
+                wrapper_func_expr = Expr(:function,
+                    # function declaration with argument types stripped, so it would accept any type
+                    Expr(:call, Symbol(func_name), map(arg_exprs -> arg_exprs[1], args_wrap_exprs)...),
+                    Expr(:block,
+                    # local var defs
+                    map(filter(arg_exprs -> arg_exprs[2] !== nothing, args_wrap_exprs)) do arg_exprs
+                        Expr(:(=), Symbol("__", arg_exprs[1]), arg_exprs[2])
+                    end...,
+                    # low-level function call with Julia types converted to low-level arguments
+                    Expr(:call, Symbol(lowlevel_func_name),
+                         map(arg_exprs -> arg_exprs[3], args_wrap_exprs)...)
+                    )
+                )
                 # write down both low-level and higher level wrappers
-                return Any[expr, wrap_expr]
+                return Any[expr, wrapper_func_expr]
             else
                 return Any[expr]
             end
