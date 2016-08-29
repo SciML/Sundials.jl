@@ -1,7 +1,7 @@
 ## This uses the simplified kinsol interface.
 ## Results should match that in kinsol_kminTest.jl.
 
-import Sundials
+using Sundials
 
 function sysfn(y, fy)
     fy[1] = y[1]^2 + y[2]^2 - 1.0

@@ -8,7 +8,7 @@ println("== start cvode Roberts example (simplified)")
 let
 include(joinpath(examples_path, "cvode_Roberts_simplified.jl"))
 println("result at t=$(t[end]):")
-println(res[end,:], "\n")
+println(res[:,end], "\n")
 end
 
 println("== start cvode Roberts example")
@@ -26,15 +26,22 @@ println("== start ida_Roberts example")
 let
 include(joinpath(examples_path, "ida_Roberts_dns.jl"))
 println("result at t=$(t[end]):")
-println(yout[end,:], "\n")
+println(yout[:,end], "\n")
 end
 
 println("== start ida_Heat2D example")
 let
 include(joinpath(examples_path, "ida_Heat2D.jl"))
 println("result at t=$(t[end]):")
-println(yout[end,:], "\n")
+println(yout[:,end], "\n")
 end
+
+#= requires Grid package
+println("== start ida_Cable example")
+let
+include(joinpath(examples_path, "ida_Cable.jl"))
+end
+=#
 
 # run kinsol example
 println("== start kinsol example (simplified)")

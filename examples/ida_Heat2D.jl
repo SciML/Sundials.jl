@@ -102,51 +102,40 @@ function initial()
     return (u,up,id,constraints)
 end
 
-nvector = Sundials.nvector
 function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
                     id::Vector{Float64}, constraints::Vector{Float64},
                     t::Vector{Float64};
                     reltol::Float64=1e-4, abstol::Float64=1e-6)
-
     neq = length(y0)
     mem = Sundials.IDACreate()
-    flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
-                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
-                            t[1], nvector(y0), nvector(yp0))
-    assert(flag == Sundials.CV_SUCCESS)
-    flag = Sundials.IDASetId(mem,nvector(id))
-    assert(flag == Sundials.CV_SUCCESS)
-    flag = Sundials.IDASetConstraints(mem,nvector(constraints))
-    assert(flag == Sundials.CV_SUCCESS)
-    flag = Sundials.IDASetUserData(mem, f)
-    assert(flag == Sundials.CV_SUCCESS)
-    flag = Sundials.IDASStolerances(mem, reltol, abstol)
-    assert(flag == Sundials.CV_SUCCESS)
-    mu = MGRID
-    ml = MGRID
-    flag = Sundials.IDABand(mem, neq, mu, ml)
-    assert(flag == Sundials.CV_SUCCESS)
+    Sundials.@checkflag Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Cint,
+                                         (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
+                                         t[1], y0, yp0)
+    Sundials.@checkflag Sundials.IDASetId(mem, id)
+    Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints)
+    Sundials.@checkflag Sundials.IDASetUserData(mem, f)
+    Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
+    Sundials.@checkflag Sundials.IDABand(mem, neq, MGRID, MGRID)
     rtest = zeros(neq)
-    flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
-    assert(flag == Sundials.CV_SUCCESS)
-    yres = zeros(length(t), length(y0))
-    ypres = zeros(length(t), length(y0))
-    yres[1,:] = y0
-    ypres[1,:] = yp0
+    Sundials.@checkflag Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
+    yres = zeros(Float64, length(y0), length(t))
+    ypres = zeros(Float64, length(y0), length(t))
+    yres[:, 1] = y0
+    ypres[:, 1] = yp0
     y = copy(y0)
     yp = copy(yp0)
     tout = [0.0]
     for k in 2:length(t)
-        retval = Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
-        yres[k,:] = y[:]
-        ypres[k,:] = yp[:]
+        Sundials.@checkflag Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
+        yres[:, k] = y
+        ypres[:, k] = yp
     end
     return yres, ypres
 end
 
-nsteps = 10
-tstep = 0.005
-t = 0.0:tstep:(tstep*nsteps)
+const nsteps = 10
+const tstep = 0.005
+const t = collect(0.0:tstep:(tstep*nsteps))
 u0, up0, id, constraints = initial()
 
 yout, ypout = idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t),
