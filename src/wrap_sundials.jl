@@ -1,54 +1,50 @@
-# This file is not an active part of the package. This is the code
-# that uses the Clang.jl package to wrap Sundials using the headers.
-
-# Find all headers
-incpath = normpath(joinpath(dirname(@__FILE__), "..", "deps", "usr", "include"))
-if !isdir(incpath)
-  error("Run Pkg.build(\"Sundials\") before trying to wrap C headers.")
-end
-
-wdir = joinpath(dirname(@__FILE__), "..", "new")
-mkpath(wdir)
-cd(wdir)
-
-sundials_names = ["nvector", "sundials", "cvode", "cvodes", "ida", "idas", "kinsol"]
-if isdir(joinpath(incpath, "arkode"))
-  push!(sundials_names, "arkode")
-end
-headers = ASCIIString[]
-for name in sundials_names
-    path = joinpath(incpath, name)
-    append!(headers, map(x->joinpath(path, x),
-            sort!(convert(Vector{ASCIIString}, readdir(path)))))
-end
-# @show headers
-
-
-## Do wrapping using Clang.jl
-ENV["JULIAHOME"] = "/Users/jgoldfar/Public/julia/usr/"
+# This script is not an active part of the package.
+# It uses Clang.jl package to parse Sundials C headers and generate
+# Julia wrapper for Sundials API.
+#
+# To run the script from Julia console:
+# include(joinpath(Pkg.dir("Sundials"), "src", "wrap_sundials.jl"));
 
 using Clang.wrap_c
 
-if (!haskey(ENV, "JULIAHOME"))
-  error("Please set JULIAHOME variable to the root of your julia install")
+# `outpath` specifies, where the julian wrappers would be generated.
+# If the generated .jl files are ok, they have to be copied to the "src" folder
+# overwriting the old ones
+const outpath = normpath(joinpath(dirname(@__FILE__), "..", "new"))
+mkpath(outpath)
+
+# Find all relevant Sundials headers
+const incpath = normpath(joinpath(dirname(@__FILE__), "..", "deps", "usr", "include"))
+if !isdir(incpath)
+    error("Sundials C headers not found. Run Pkg.build(\"Sundials\") before trying to wrap C headers.")
 end
 
-clang_includes = map(x->joinpath(ENV["JULIAHOME"], x), [
-  "deps/llvm-3.2/build/Release/lib/clang/3.2/include",
-  "deps/llvm-3.2/include",
-  "deps/llvm-3.2/include",
-  "deps/llvm-3.2/build/include/",
-  "deps/llvm-3.2/include/"
-  ])
+info("Scanning Sundials headers in $incpath...")
+const sundials_folders = filter!(isdir, map!(folder -> joinpath(incpath, folder),
+                                 ["nvector", "sundials", "cvode", "cvodes",
+                                  "ida", "idas", "kinsol", "arkode"]))
+const sundials_headers = similar(sundials_folders, 0)
+for folder in sundials_folders
+    info("Processing $folder...")
+    append!(sundials_headers,
+            map(x->joinpath(folder, x),
+                sort!(convert(typeof(sundials_headers), readdir(folder)))))
+end
+# @show sundials_headers
+
+const clang_path = "/usr/lib/clang/3.8.0" # change to your clang location
+const clang_includes = [
+    joinpath(clang_path, "include"),
+]
 
 # check_use_header(path) = true
 # Callback to test if a header should actually be wrapped (for exclusion)
-function wrap_header(top_hdr::ASCIIString, cursor_header::ASCIIString)
+function wrap_header(top_hdr::AbstractString, cursor_header::AbstractString)
     !ismatch(r"(_parallel|_impl)\.h$", cursor_header) &&  # don't wrap parallel and implementation definitions
     (top_hdr == cursor_header) # don't wrap if header is included from the other header (e.g. nvector in cvode or cvode_direct from cvode_band)
 end
 
-function wrap_cursor(name::ASCIIString, cursor)
+function wrap_cursor(name::AbstractString, cursor)
     if typeof(cursor) == Clang.cindex.FunctionDecl
         # only wrap API functions
         return ismatch(r"^(CV|KIN|IDA|N_V)", name)
@@ -63,7 +59,7 @@ function julia_file(header::AbstractString)
     if src_name == "sundials"
         src_name = "libsundials" # avoid having both Sundials.jl and sundials.jl
     end
-    return string(src_name, ".jl")
+    return joinpath(outpath, string(src_name, ".jl"))
 end
 function library_file(header::AbstractString)
     header_name = basename(header)
@@ -74,18 +70,21 @@ function library_file(header::AbstractString)
     end
 end
 
-clang_extraargs = [
-"-D", "__STDC_LIMIT_MACROS", "-D", "__STDC_CONSTANT_MACROS",
-"-v"]
-context = wrap_c.init(
-common_file="types_and_consts.jl",
-clang_args = clang_extraargs, clang_diagnostics = true,
-clang_includes = [clang_includes; incpath],
-header_outputfile = julia_file,
-header_library = library_file,
-header_wrapped=wrap_header,
-cursor_wrapped=wrap_cursor)
-context.headers = headers
+const context = wrap_c.init(
+    common_file="types_and_consts.jl",
+    clang_args = [
+        "-D", "__STDC_LIMIT_MACROS",
+        "-D", "__STDC_CONSTANT_MACROS",
+        "-v"
+    ],
+    clang_diagnostics = true,
+    clang_includes = [clang_includes; incpath],
+    header_outputfile = julia_file,
+    header_library = library_file,
+    header_wrapped=wrap_header,
+    cursor_wrapped=wrap_cursor
+)
+context.headers = sundials_headers
 
 # 1st arg name to wrapped arg type map
 const arg1_name2type = Dict(
@@ -97,6 +96,7 @@ const arg1_name2type = Dict(
     :idaadj_mem => :(IDAMemPtr), # Sundials typo?
 )
 
+# substitute Ptr{Void} with the typed pointer
 const ctor_return_type = Dict(
     "CVodeCreate" => :(CVODEMemPtr),
     "IDACreate" => :(IDAMemPtr),
@@ -246,4 +246,6 @@ context.rewriter = function(exprs)
     mod_exprs
 end
 
+info("Generating .jl wrappers for Sundials in $outpath...")
 run(context)
+info("Done generating .jl wrappers for Sundials in $outpath")
