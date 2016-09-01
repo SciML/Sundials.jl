@@ -6,7 +6,11 @@ function f(t, y, ydot)
     ydot[1] = -0.04*y[1] + 1.0e4*y[2]*y[3]
     ydot[3] = 3.0e7*y[2]*y[2]
     ydot[2] = -ydot[1] - ydot[3]
-    return(Int32(0))
+    return Sundials.CV_SUCCESS
 end
-t = [0.0; 4 * logspace(-1., 7., 9)]
-res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
+
+const t = [0.0; 4 * logspace(-1., 7., 9)]
+const y0 = [1.0, 0.0, 0.0]
+res = Sundials.cvode(f, y0, t)
+
+ts1, res3 = Sundials.cvode_fulloutput(f, y0, [0.0, 1.0])

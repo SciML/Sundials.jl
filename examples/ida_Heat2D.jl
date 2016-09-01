@@ -36,18 +36,16 @@ const bval = 0.1
 ## central differencing on the interior points, and includes algebraic
 ## equations for the boundary values.
 ##
-## So for each interior point, the residual component has the form       
-##    r_i = u'_i - (central difference)_i                              
-## while for each boundary point, it is r_i = u_i.                     
+## So for each interior point, the residual component has the form
+##    r_i = u'_i - (central difference)_i
+## while for each boundary point, it is r_i = u_i.
 ##
 
 function heatres(t, u, up, r)
-    
     r[:] = u ## Initialize r to u, to take care of boundary equations.
-    
+
     ## Loop over interior points; set res = up - (central difference).
     for j = 2:(MGRID-2)
-        
         offset = MGRID * j
         for i = 2:(MGRID-2)
             loc = offset + i
@@ -56,16 +54,15 @@ function heatres(t, u, up, r)
                                         4.0 * u[loc])
         end
     end
-    
-    return (0)
+
+    return Sundials.CV_SUCCESS
 end
 
 
 function initial()
-
     mm = MGRID
     mm1 = mm - 1
-  
+
     u  = zeros(NEQ)
     id = ones(NEQ)
 
@@ -85,7 +82,7 @@ function initial()
 
     heatres(0.0, u, up, r)
 
-    ## Copy -res into up to get correct interior initial up values. 
+    ## Copy -res into up to get correct interior initial up values.
     up[:] = -1.0 * r
 
     ## Finally, set values of u, up, and id at boundary points.
@@ -103,54 +100,42 @@ function initial()
 
     constraints = ones(NEQ)
     return (u,up,id,constraints)
-    
 end
 
-nvector = Sundials.nvector
 function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
                     id::Vector{Float64}, constraints::Vector{Float64},
                     t::Vector{Float64};
                     reltol::Float64=1e-4, abstol::Float64=1e-6)
-
     neq = length(y0)
     mem = Sundials.IDACreate()
-    flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
-                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
-                            t[1], nvector(y0), nvector(yp0))
-    assert(flag == 0)
-    flag = Sundials.IDASetId(mem,nvector(id))
-    assert(flag == 0)
-    flag = Sundials.IDASetConstraints(mem,nvector(constraints))
-    assert(flag == 0)
-    flag = Sundials.IDASetUserData(mem, f)
-    assert(flag == 0)
-    flag = Sundials.IDASStolerances(mem, reltol, abstol)
-    assert(flag == 0)
-    mu = MGRID
-    ml = MGRID
-    flag = Sundials.IDABand(mem, neq, mu, ml)
-    assert(flag == 0)
+    Sundials.@checkflag Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Cint,
+                                         (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
+                                         t[1], y0, yp0)
+    Sundials.@checkflag Sundials.IDASetId(mem, id)
+    Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints)
+    Sundials.@checkflag Sundials.IDASetUserData(mem, f)
+    Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
+    Sundials.@checkflag Sundials.IDABand(mem, neq, MGRID, MGRID)
     rtest = zeros(neq)
-    flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
-    assert(flag == 0)
-    yres = zeros(length(t), length(y0))
-    ypres = zeros(length(t), length(y0))
-    yres[1,:] = y0
-    ypres[1,:] = yp0
+    Sundials.@checkflag Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
+    yres = zeros(Float64, length(y0), length(t))
+    ypres = zeros(Float64, length(y0), length(t))
+    yres[:, 1] = y0
+    ypres[:, 1] = yp0
     y = copy(y0)
     yp = copy(yp0)
     tout = [0.0]
     for k in 2:length(t)
-        retval = Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
-        yres[k,:] = y[:]
-        ypres[k,:] = yp[:]
+        Sundials.@checkflag Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
+        yres[:, k] = y
+        ypres[:, k] = yp
     end
     return yres, ypres
 end
 
-nsteps = 10
-tstep = 0.005
-t = 0.0:tstep:(tstep*nsteps)
+const nsteps = 10
+const tstep = 0.005
+const t = collect(0.0:tstep:(tstep*nsteps))
 u0, up0, id, constraints = initial()
 
 yout, ypout = idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t),

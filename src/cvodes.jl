@@ -1,829 +1,1616 @@
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function CVodeCreate(lmm::Int,iter::Int)
-    ccall((:CVodeCreate,libsundials_cvode),Ptr{Void},(Cint,Cint),lmm,iter)
+function __CVodeCreate(lmm::Cint,iter::Cint)
+    ccall((:CVodeCreate,libsundials_cvodes),CVODEMemPtr,(Cint,Cint),lmm,iter)
 end
 
-function CVodeInit(cvode_mem::Ptr{Void},f::CVRhsFn,t0::realtype,y0::N_Vector)
-    ccall((:CVodeInit,libsundials_cvode),Cint,(Ptr{Void},CVRhsFn,realtype,N_Vector),cvode_mem,f,t0,y0)
+function CVodeCreate(lmm,iter)
+    __CVodeCreate(convert(Cint,lmm),convert(Cint,iter))
 end
 
-function CVodeReInit(cvode_mem::Ptr{Void},t0::realtype,y0::N_Vector)
-    ccall((:CVodeReInit,libsundials_cvode),Cint,(Ptr{Void},realtype,N_Vector),cvode_mem,t0,y0)
+function __CVodeInit(cvode_mem::CVODEMemPtr,f::CVRhsFn,t0::realtype,y0::N_Vector)
+    ccall((:CVodeInit,libsundials_cvodes),Cint,(CVODEMemPtr,CVRhsFn,realtype,N_Vector),cvode_mem,f,t0,y0)
 end
 
-function CVodeSStolerances(cvode_mem::Ptr{Void},reltol::realtype,abstol::realtype)
-    ccall((:CVodeSStolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,realtype),cvode_mem,reltol,abstol)
+function CVodeInit(cvode_mem,f,t0,y0)
+    __y0 = convert(NVector,y0)
+    __CVodeInit(convert(CVODEMemPtr,cvode_mem),CVRhsFn_wrapper(f),t0,convert(N_Vector,__y0))
 end
 
-function CVodeSVtolerances(cvode_mem::Ptr{Void},reltol::realtype,abstol::N_Vector)
-    ccall((:CVodeSVtolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,N_Vector),cvode_mem,reltol,abstol)
+function __CVodeReInit(cvode_mem::CVODEMemPtr,t0::realtype,y0::N_Vector)
+    ccall((:CVodeReInit,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,N_Vector),cvode_mem,t0,y0)
 end
 
-function CVodeWFtolerances(cvode_mem::Ptr{Void},efun::CVEwtFn)
-    ccall((:CVodeWFtolerances,libsundials_cvode),Cint,(Ptr{Void},CVEwtFn),cvode_mem,efun)
+function CVodeReInit(cvode_mem,t0,y0)
+    __y0 = convert(NVector,y0)
+    __CVodeReInit(convert(CVODEMemPtr,cvode_mem),t0,convert(N_Vector,__y0))
 end
 
-function CVodeQuadInit(cvode_mem::Ptr{Void},fQ::CVQuadRhsFn,yQ0::N_Vector)
-    ccall((:CVodeQuadInit,libsundials_cvode),Cint,(Ptr{Void},CVQuadRhsFn,N_Vector),cvode_mem,fQ,yQ0)
+function __CVodeSStolerances(cvode_mem::CVODEMemPtr,reltol::realtype,abstol::realtype)
+    ccall((:CVodeSStolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,realtype),cvode_mem,reltol,abstol)
 end
 
-function CVodeQuadReInit(cvode_mem::Ptr{Void},yQ0::N_Vector)
-    ccall((:CVodeQuadReInit,libsundials_cvode),Cint,(Ptr{Void},N_Vector),cvode_mem,yQ0)
+function CVodeSStolerances(cvode_mem,reltol,abstol)
+    __CVodeSStolerances(convert(CVODEMemPtr,cvode_mem),reltol,abstol)
 end
 
-function CVodeQuadSStolerances(cvode_mem::Ptr{Void},reltolQ::realtype,abstolQ::realtype)
-    ccall((:CVodeQuadSStolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,realtype),cvode_mem,reltolQ,abstolQ)
+function __CVodeSVtolerances(cvode_mem::CVODEMemPtr,reltol::realtype,abstol::N_Vector)
+    ccall((:CVodeSVtolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,N_Vector),cvode_mem,reltol,abstol)
 end
 
-function CVodeQuadSVtolerances(cvode_mem::Ptr{Void},reltolQ::realtype,abstolQ::N_Vector)
-    ccall((:CVodeQuadSVtolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,N_Vector),cvode_mem,reltolQ,abstolQ)
+function CVodeSVtolerances(cvode_mem,reltol,abstol)
+    __abstol = convert(NVector,abstol)
+    __CVodeSVtolerances(convert(CVODEMemPtr,cvode_mem),reltol,convert(N_Vector,__abstol))
 end
 
-function CVodeSensInit(cvode_mem::Ptr{Void},Ns::Int,ism::Int,fS::CVSensRhsFn,yS0::Ptr{N_Vector})
-    ccall((:CVodeSensInit,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint,CVSensRhsFn,Ptr{N_Vector}),cvode_mem,Ns,ism,fS,yS0)
+function __CVodeWFtolerances(cvode_mem::CVODEMemPtr,efun::CVEwtFn)
+    ccall((:CVodeWFtolerances,libsundials_cvodes),Cint,(CVODEMemPtr,CVEwtFn),cvode_mem,efun)
 end
 
-function CVodeSensInit1(cvode_mem::Ptr{Void},Ns::Int,ism::Int,fS1::CVSensRhs1Fn,yS0::Ptr{N_Vector})
-    ccall((:CVodeSensInit1,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint,CVSensRhs1Fn,Ptr{N_Vector}),cvode_mem,Ns,ism,fS1,yS0)
+function CVodeWFtolerances(cvode_mem,efun)
+    __CVodeWFtolerances(convert(CVODEMemPtr,cvode_mem),efun)
 end
 
-function CVodeSensReInit(cvode_mem::Ptr{Void},ism::Int,yS0::Ptr{N_Vector})
-    ccall((:CVodeSensReInit,libsundials_cvode),Cint,(Ptr{Void},Cint,Ptr{N_Vector}),cvode_mem,ism,yS0)
+function __CVodeQuadInit(cvode_mem::CVODEMemPtr,fQ::CVQuadRhsFn,yQ0::N_Vector)
+    ccall((:CVodeQuadInit,libsundials_cvodes),Cint,(CVODEMemPtr,CVQuadRhsFn,N_Vector),cvode_mem,fQ,yQ0)
 end
 
-function CVodeSensSStolerances(cvode_mem::Ptr{Void},reltolS::realtype,abstolS::Vector{realtype})
-    ccall((:CVodeSensSStolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,Ptr{realtype}),cvode_mem,reltolS,abstolS)
+function CVodeQuadInit(cvode_mem,fQ,yQ0)
+    __yQ0 = convert(NVector,yQ0)
+    __CVodeQuadInit(convert(CVODEMemPtr,cvode_mem),fQ,convert(N_Vector,__yQ0))
 end
 
-function CVodeSensSVtolerances(cvode_mem::Ptr{Void},reltolS::realtype,abstolS::Ptr{N_Vector})
-    ccall((:CVodeSensSVtolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,Ptr{N_Vector}),cvode_mem,reltolS,abstolS)
+function __CVodeQuadReInit(cvode_mem::CVODEMemPtr,yQ0::N_Vector)
+    ccall((:CVodeQuadReInit,libsundials_cvodes),Cint,(CVODEMemPtr,N_Vector),cvode_mem,yQ0)
 end
 
-function CVodeSensEEtolerances(cvode_mem::Ptr{Void})
-    ccall((:CVodeSensEEtolerances,libsundials_cvode),Cint,(Ptr{Void},),cvode_mem)
+function CVodeQuadReInit(cvode_mem,yQ0)
+    __yQ0 = convert(NVector,yQ0)
+    __CVodeQuadReInit(convert(CVODEMemPtr,cvode_mem),convert(N_Vector,__yQ0))
 end
 
-function CVodeQuadSensInit(cvode_mem::Ptr{Void},fQS::CVQuadSensRhsFn,yQS0::Ptr{N_Vector})
-    ccall((:CVodeQuadSensInit,libsundials_cvode),Cint,(Ptr{Void},CVQuadSensRhsFn,Ptr{N_Vector}),cvode_mem,fQS,yQS0)
+function __CVodeQuadSStolerances(cvode_mem::CVODEMemPtr,reltolQ::realtype,abstolQ::realtype)
+    ccall((:CVodeQuadSStolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,realtype),cvode_mem,reltolQ,abstolQ)
 end
 
-function CVodeQuadSensReInit(cvode_mem::Ptr{Void},yQS0::Ptr{N_Vector})
-    ccall((:CVodeQuadSensReInit,libsundials_cvode),Cint,(Ptr{Void},Ptr{N_Vector}),cvode_mem,yQS0)
+function CVodeQuadSStolerances(cvode_mem,reltolQ,abstolQ)
+    __CVodeQuadSStolerances(convert(CVODEMemPtr,cvode_mem),reltolQ,abstolQ)
 end
 
-function CVodeQuadSensSStolerances(cvode_mem::Ptr{Void},reltolQS::realtype,abstolQS::Vector{realtype})
-    ccall((:CVodeQuadSensSStolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,Ptr{realtype}),cvode_mem,reltolQS,abstolQS)
+function __CVodeQuadSVtolerances(cvode_mem::CVODEMemPtr,reltolQ::realtype,abstolQ::N_Vector)
+    ccall((:CVodeQuadSVtolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,N_Vector),cvode_mem,reltolQ,abstolQ)
 end
 
-function CVodeQuadSensSVtolerances(cvode_mem::Ptr{Void},reltolQS::realtype,abstolQS::Ptr{N_Vector})
-    ccall((:CVodeQuadSensSVtolerances,libsundials_cvode),Cint,(Ptr{Void},realtype,Ptr{N_Vector}),cvode_mem,reltolQS,abstolQS)
+function CVodeQuadSVtolerances(cvode_mem,reltolQ,abstolQ)
+    __abstolQ = convert(NVector,abstolQ)
+    __CVodeQuadSVtolerances(convert(CVODEMemPtr,cvode_mem),reltolQ,convert(N_Vector,__abstolQ))
 end
 
-function CVodeQuadSensEEtolerances(cvode_mem::Ptr{Void})
-    ccall((:CVodeQuadSensEEtolerances,libsundials_cvode),Cint,(Ptr{Void},),cvode_mem)
+function __CVodeSensInit(cvode_mem::CVODEMemPtr,Ns::Cint,ism::Cint,fS::CVSensRhsFn,yS0::Ptr{N_Vector})
+    ccall((:CVodeSensInit,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint,CVSensRhsFn,Ptr{N_Vector}),cvode_mem,Ns,ism,fS,yS0)
 end
 
-function CVodeRootInit(cvode_mem::Ptr{Void},nrtfn::Int,g::CVRootFn)
-    ccall((:CVodeRootInit,libsundials_cvode),Cint,(Ptr{Void},Cint,CVRootFn),cvode_mem,nrtfn,g)
+function CVodeSensInit(cvode_mem,Ns,ism,fS,yS0)
+    __CVodeSensInit(convert(CVODEMemPtr,cvode_mem),convert(Cint,Ns),convert(Cint,ism),fS,pointer(yS0))
 end
 
-function CVodeFree(cvode_mem::Vector{Ptr{Void}})
-    ccall((:CVodeFree,libsundials_cvode),Void,(Ptr{Ptr{Void}},),cvode_mem)
+function __CVodeSensInit1(cvode_mem::CVODEMemPtr,Ns::Cint,ism::Cint,fS1::CVSensRhs1Fn,yS0::Ptr{N_Vector})
+    ccall((:CVodeSensInit1,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint,CVSensRhs1Fn,Ptr{N_Vector}),cvode_mem,Ns,ism,fS1,yS0)
 end
 
-function CVodeQuadFree(cvode_mem::Ptr{Void})
-    ccall((:CVodeQuadFree,libsundials_cvode),Void,(Ptr{Void},),cvode_mem)
+function CVodeSensInit1(cvode_mem,Ns,ism,fS1,yS0)
+    __CVodeSensInit1(convert(CVODEMemPtr,cvode_mem),convert(Cint,Ns),convert(Cint,ism),fS1,pointer(yS0))
 end
 
-function CVodeSensFree(cvode_mem::Ptr{Void})
-    ccall((:CVodeSensFree,libsundials_cvode),Void,(Ptr{Void},),cvode_mem)
+function __CVodeSensReInit(cvode_mem::CVODEMemPtr,ism::Cint,yS0::Ptr{N_Vector})
+    ccall((:CVodeSensReInit,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Ptr{N_Vector}),cvode_mem,ism,yS0)
 end
 
-function CVodeQuadSensFree(cvode_mem::Ptr{Void})
-    ccall((:CVodeQuadSensFree,libsundials_cvode),Void,(Ptr{Void},),cvode_mem)
+function CVodeSensReInit(cvode_mem,ism,yS0)
+    __CVodeSensReInit(convert(CVODEMemPtr,cvode_mem),convert(Cint,ism),pointer(yS0))
 end
 
-function CVodeSetErrHandlerFn(cvode_mem::Ptr{Void},ehfun::CVErrHandlerFn,eh_data::Ptr{Void})
-    ccall((:CVodeSetErrHandlerFn,libsundials_cvode),Cint,(Ptr{Void},CVErrHandlerFn,Ptr{Void}),cvode_mem,ehfun,eh_data)
+function __CVodeSensSStolerances(cvode_mem::CVODEMemPtr,reltolS::realtype,abstolS::Ptr{realtype})
+    ccall((:CVodeSensSStolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Ptr{realtype}),cvode_mem,reltolS,abstolS)
 end
 
-function CVodeSetErrFile(cvode_mem::Ptr{Void},errfp::Ptr{Void})
-    ccall((:CVodeSetErrFile,libsundials_cvode),Cint,(Ptr{Void},Ptr{Void}),cvode_mem,errfp)
+function CVodeSensSStolerances(cvode_mem,reltolS,abstolS)
+    __CVodeSensSStolerances(convert(CVODEMemPtr,cvode_mem),reltolS,pointer(abstolS))
 end
-# function CVodeSetErrFile(cvode_mem::Ptr{Void},errfp::Ptr{Void})
-#     ccall((:CVodeSetErrFile,libsundials_cvode),Cint,(Ptr{Void},Ptr{Void}),cvode_mem,errfp)
-# end
 
-function CVodeSetUserData(cvode_mem::Ptr{Void},user_data::Ptr{Void})
-    ccall((:CVodeSetUserData,libsundials_cvode),Cint,(Ptr{Void},Ptr{Void}),cvode_mem,user_data)
+function __CVodeSensSVtolerances(cvode_mem::CVODEMemPtr,reltolS::realtype,abstolS::Ptr{N_Vector})
+    ccall((:CVodeSensSVtolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Ptr{N_Vector}),cvode_mem,reltolS,abstolS)
 end
 
-function CVodeSetMaxOrd(cvode_mem::Ptr{Void},maxord::Int)
-    ccall((:CVodeSetMaxOrd,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,maxord)
+function CVodeSensSVtolerances(cvode_mem,reltolS,abstolS)
+    __CVodeSensSVtolerances(convert(CVODEMemPtr,cvode_mem),reltolS,pointer(abstolS))
 end
 
-function CVodeSetMaxNumSteps(cvode_mem::Ptr{Void},mxsteps::Int)
-    ccall((:CVodeSetMaxNumSteps,libsundials_cvode),Cint,(Ptr{Void},Clong),cvode_mem,mxsteps)
+function __CVodeSensEEtolerances(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeSensEEtolerances,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVodeSetMaxHnilWarns(cvode_mem::Ptr{Void},mxhnil::Int)
-    ccall((:CVodeSetMaxHnilWarns,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,mxhnil)
+function CVodeSensEEtolerances(cvode_mem)
+    __CVodeSensEEtolerances(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVodeSetStabLimDet(cvode_mem::Ptr{Void},stldet::Int)
-    ccall((:CVodeSetStabLimDet,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,stldet)
+function __CVodeQuadSensInit(cvode_mem::CVODEMemPtr,fQS::CVQuadSensRhsFn,yQS0::Ptr{N_Vector})
+    ccall((:CVodeQuadSensInit,libsundials_cvodes),Cint,(CVODEMemPtr,CVQuadSensRhsFn,Ptr{N_Vector}),cvode_mem,fQS,yQS0)
 end
 
-function CVodeSetInitStep(cvode_mem::Ptr{Void},hin::realtype)
-    ccall((:CVodeSetInitStep,libsundials_cvode),Cint,(Ptr{Void},realtype),cvode_mem,hin)
+function CVodeQuadSensInit(cvode_mem,fQS,yQS0)
+    __CVodeQuadSensInit(convert(CVODEMemPtr,cvode_mem),fQS,pointer(yQS0))
 end
 
-function CVodeSetMinStep(cvode_mem::Ptr{Void},hmin::realtype)
-    ccall((:CVodeSetMinStep,libsundials_cvode),Cint,(Ptr{Void},realtype),cvode_mem,hmin)
+function __CVodeQuadSensReInit(cvode_mem::CVODEMemPtr,yQS0::Ptr{N_Vector})
+    ccall((:CVodeQuadSensReInit,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{N_Vector}),cvode_mem,yQS0)
 end
 
-function CVodeSetMaxStep(cvode_mem::Ptr{Void},hmax::realtype)
-    ccall((:CVodeSetMaxStep,libsundials_cvode),Cint,(Ptr{Void},realtype),cvode_mem,hmax)
+function CVodeQuadSensReInit(cvode_mem,yQS0)
+    __CVodeQuadSensReInit(convert(CVODEMemPtr,cvode_mem),pointer(yQS0))
 end
 
-function CVodeSetStopTime(cvode_mem::Ptr{Void},tstop::realtype)
-    ccall((:CVodeSetStopTime,libsundials_cvode),Cint,(Ptr{Void},realtype),cvode_mem,tstop)
+function __CVodeQuadSensSStolerances(cvode_mem::CVODEMemPtr,reltolQS::realtype,abstolQS::Ptr{realtype})
+    ccall((:CVodeQuadSensSStolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Ptr{realtype}),cvode_mem,reltolQS,abstolQS)
 end
 
-function CVodeSetMaxErrTestFails(cvode_mem::Ptr{Void},maxnef::Int)
-    ccall((:CVodeSetMaxErrTestFails,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,maxnef)
+function CVodeQuadSensSStolerances(cvode_mem,reltolQS,abstolQS)
+    __CVodeQuadSensSStolerances(convert(CVODEMemPtr,cvode_mem),reltolQS,pointer(abstolQS))
 end
 
-function CVodeSetMaxNonlinIters(cvode_mem::Ptr{Void},maxcor::Int)
-    ccall((:CVodeSetMaxNonlinIters,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,maxcor)
+function __CVodeQuadSensSVtolerances(cvode_mem::CVODEMemPtr,reltolQS::realtype,abstolQS::Ptr{N_Vector})
+    ccall((:CVodeQuadSensSVtolerances,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Ptr{N_Vector}),cvode_mem,reltolQS,abstolQS)
 end
 
-function CVodeSetMaxConvFails(cvode_mem::Ptr{Void},maxncf::Int)
-    ccall((:CVodeSetMaxConvFails,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,maxncf)
+function CVodeQuadSensSVtolerances(cvode_mem,reltolQS,abstolQS)
+    __CVodeQuadSensSVtolerances(convert(CVODEMemPtr,cvode_mem),reltolQS,pointer(abstolQS))
 end
 
-function CVodeSetNonlinConvCoef(cvode_mem::Ptr{Void},nlscoef::realtype)
-    ccall((:CVodeSetNonlinConvCoef,libsundials_cvode),Cint,(Ptr{Void},realtype),cvode_mem,nlscoef)
+function __CVodeQuadSensEEtolerances(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeQuadSensEEtolerances,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVodeSetIterType(cvode_mem::Ptr{Void},iter::Int)
-    ccall((:CVodeSetIterType,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,iter)
+function CVodeQuadSensEEtolerances(cvode_mem)
+    __CVodeQuadSensEEtolerances(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVodeSetRootDirection(cvode_mem::Ptr{Void},rootdir::Ptr{Cint})
-    ccall((:CVodeSetRootDirection,libsundials_cvode),Cint,(Ptr{Void},Ptr{Cint}),cvode_mem,rootdir)
+function __CVodeRootInit(cvode_mem::CVODEMemPtr,nrtfn::Cint,g::CVRootFn)
+    ccall((:CVodeRootInit,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVRootFn),cvode_mem,nrtfn,g)
 end
 
-function CVodeSetNoInactiveRootWarn(cvode_mem::Ptr{Void})
-    ccall((:CVodeSetNoInactiveRootWarn,libsundials_cvode),Cint,(Ptr{Void},),cvode_mem)
+function CVodeRootInit(cvode_mem,nrtfn,g)
+    __CVodeRootInit(convert(CVODEMemPtr,cvode_mem),convert(Cint,nrtfn),CVRootFn_wrapper(g))
 end
 
-function CVodeSetQuadErrCon(cvode_mem::Ptr{Void},errconQ::Int)
-    ccall((:CVodeSetQuadErrCon,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,errconQ)
+function CVodeFree(cvode_mem::Ref{CVODEMemPtr})
+    ccall((:CVodeFree,libsundials_cvodes),Void,(Ref{CVODEMemPtr},),cvode_mem)
 end
 
-function CVodeSetSensDQMethod(cvode_mem::Ptr{Void},DQtype::Int,DQrhomax::realtype)
-    ccall((:CVodeSetSensDQMethod,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype),cvode_mem,DQtype,DQrhomax)
+function __CVodeQuadFree(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeQuadFree,libsundials_cvodes),Void,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVodeSetSensErrCon(cvode_mem::Ptr{Void},errconS::Int)
-    ccall((:CVodeSetSensErrCon,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,errconS)
+function CVodeQuadFree(cvode_mem)
+    __CVodeQuadFree(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVodeSetSensMaxNonlinIters(cvode_mem::Ptr{Void},maxcorS::Int)
-    ccall((:CVodeSetSensMaxNonlinIters,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,maxcorS)
+function __CVodeSensFree(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeSensFree,libsundials_cvodes),Void,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVodeSetSensParams(cvode_mem::Ptr{Void},p::Vector{realtype},pbar::Vector{realtype},plist::Ptr{Cint})
-    ccall((:CVodeSetSensParams,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype},Ptr{realtype},Ptr{Cint}),cvode_mem,p,pbar,plist)
+function CVodeSensFree(cvode_mem)
+    __CVodeSensFree(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVodeSetQuadSensErrCon(cvode_mem::Ptr{Void},errconQS::Int)
-    ccall((:CVodeSetQuadSensErrCon,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,errconQS)
+function __CVodeQuadSensFree(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeQuadSensFree,libsundials_cvodes),Void,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVodeSensToggleOff(cvode_mem::Ptr{Void})
-    ccall((:CVodeSensToggleOff,libsundials_cvode),Cint,(Ptr{Void},),cvode_mem)
+function CVodeQuadSensFree(cvode_mem)
+    __CVodeQuadSensFree(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVode(cvode_mem::Ptr{Void},tout::realtype,yout::N_Vector,tret::Vector{realtype},itask::Int)
-    ccall((:CVode,libsundials_cvode),Cint,(Ptr{Void},realtype,N_Vector,Ptr{realtype},Cint),cvode_mem,tout,yout,tret,itask)
+function __CVodeSetErrHandlerFn(cvode_mem::CVODEMemPtr,ehfun::CVErrHandlerFn,eh_data::Ptr{Void})
+    ccall((:CVodeSetErrHandlerFn,libsundials_cvodes),Cint,(CVODEMemPtr,CVErrHandlerFn,Ptr{Void}),cvode_mem,ehfun,eh_data)
 end
 
-function CVodeGetDky(cvode_mem::Ptr{Void},t::realtype,k::Int,dky::N_Vector)
-    ccall((:CVodeGetDky,libsundials_cvode),Cint,(Ptr{Void},realtype,Cint,N_Vector),cvode_mem,t,k,dky)
+function CVodeSetErrHandlerFn(cvode_mem,ehfun,eh_data)
+    __CVodeSetErrHandlerFn(convert(CVODEMemPtr,cvode_mem),ehfun,pointer(eh_data))
 end
 
-function CVodeGetQuad(cvode_mem::Ptr{Void},tret::Vector{realtype},yQout::N_Vector)
-    ccall((:CVodeGetQuad,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype},N_Vector),cvode_mem,tret,yQout)
+function __CVodeSetErrFile(cvode_mem::CVODEMemPtr,errfp::Ptr{FILE})
+    ccall((:CVodeSetErrFile,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{FILE}),cvode_mem,errfp)
 end
 
-function CVodeGetQuadDky(cvode_mem::Ptr{Void},t::realtype,k::Int,dky::N_Vector)
-    ccall((:CVodeGetQuadDky,libsundials_cvode),Cint,(Ptr{Void},realtype,Cint,N_Vector),cvode_mem,t,k,dky)
+function CVodeSetErrFile(cvode_mem,errfp)
+    __CVodeSetErrFile(convert(CVODEMemPtr,cvode_mem),errfp)
 end
 
-function CVodeGetSens(cvode_mem::Ptr{Void},tret::Vector{realtype},ySout::Ptr{N_Vector})
-    ccall((:CVodeGetSens,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype},Ptr{N_Vector}),cvode_mem,tret,ySout)
+function __CVodeSetUserData(cvode_mem::CVODEMemPtr,user_data::Any)
+    ccall((:CVodeSetUserData,libsundials_cvodes),Cint,(CVODEMemPtr,Any),cvode_mem,user_data)
 end
 
-function CVodeGetSens1(cvode_mem::Ptr{Void},tret::Vector{realtype},is::Int,ySout::N_Vector)
-    ccall((:CVodeGetSens1,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype},Cint,N_Vector),cvode_mem,tret,is,ySout)
+function CVodeSetUserData(cvode_mem,user_data)
+    __CVodeSetUserData(convert(CVODEMemPtr,cvode_mem),user_data)
 end
 
-function CVodeGetSensDky(cvode_mem::Ptr{Void},t::realtype,k::Int,dkyA::Ptr{N_Vector})
-    ccall((:CVodeGetSensDky,libsundials_cvode),Cint,(Ptr{Void},realtype,Cint,Ptr{N_Vector}),cvode_mem,t,k,dkyA)
+function __CVodeSetMaxOrd(cvode_mem::CVODEMemPtr,maxord::Cint)
+    ccall((:CVodeSetMaxOrd,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,maxord)
 end
 
-function CVodeGetSensDky1(cvode_mem::Ptr{Void},t::realtype,k::Int,is::Int,dky::N_Vector)
-    ccall((:CVodeGetSensDky1,libsundials_cvode),Cint,(Ptr{Void},realtype,Cint,Cint,N_Vector),cvode_mem,t,k,is,dky)
+function CVodeSetMaxOrd(cvode_mem,maxord)
+    __CVodeSetMaxOrd(convert(CVODEMemPtr,cvode_mem),convert(Cint,maxord))
 end
 
-function CVodeGetQuadSens(cvode_mem::Ptr{Void},tret::Vector{realtype},yQSout::Ptr{N_Vector})
-    ccall((:CVodeGetQuadSens,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype},Ptr{N_Vector}),cvode_mem,tret,yQSout)
+function __CVodeSetMaxNumSteps(cvode_mem::CVODEMemPtr,mxsteps::Clong)
+    ccall((:CVodeSetMaxNumSteps,libsundials_cvodes),Cint,(CVODEMemPtr,Clong),cvode_mem,mxsteps)
 end
 
-function CVodeGetQuadSens1(cvode_mem::Ptr{Void},tret::Vector{realtype},is::Int,yQSout::N_Vector)
-    ccall((:CVodeGetQuadSens1,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype},Cint,N_Vector),cvode_mem,tret,is,yQSout)
+function CVodeSetMaxNumSteps(cvode_mem,mxsteps)
+    __CVodeSetMaxNumSteps(convert(CVODEMemPtr,cvode_mem),convert(Clong,mxsteps))
 end
 
-function CVodeGetQuadSensDky(cvode_mem::Ptr{Void},t::realtype,k::Int,dkyQS_all::Ptr{N_Vector})
-    ccall((:CVodeGetQuadSensDky,libsundials_cvode),Cint,(Ptr{Void},realtype,Cint,Ptr{N_Vector}),cvode_mem,t,k,dkyQS_all)
+function __CVodeSetMaxHnilWarns(cvode_mem::CVODEMemPtr,mxhnil::Cint)
+    ccall((:CVodeSetMaxHnilWarns,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,mxhnil)
 end
 
-function CVodeGetQuadSensDky1(cvode_mem::Ptr{Void},t::realtype,k::Int,is::Int,dkyQS::N_Vector)
-    ccall((:CVodeGetQuadSensDky1,libsundials_cvode),Cint,(Ptr{Void},realtype,Cint,Cint,N_Vector),cvode_mem,t,k,is,dkyQS)
+function CVodeSetMaxHnilWarns(cvode_mem,mxhnil)
+    __CVodeSetMaxHnilWarns(convert(CVODEMemPtr,cvode_mem),convert(Cint,mxhnil))
 end
 
-function CVodeGetWorkSpace(cvode_mem::Ptr{Void},lenrw::Ptr{Clong},leniw::Ptr{Clong})
-    ccall((:CVodeGetWorkSpace,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,lenrw,leniw)
+function __CVodeSetStabLimDet(cvode_mem::CVODEMemPtr,stldet::Cint)
+    ccall((:CVodeSetStabLimDet,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,stldet)
 end
 
-function CVodeGetNumSteps(cvode_mem::Ptr{Void},nsteps::Ptr{Clong})
-    ccall((:CVodeGetNumSteps,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nsteps)
+function CVodeSetStabLimDet(cvode_mem,stldet)
+    __CVodeSetStabLimDet(convert(CVODEMemPtr,cvode_mem),convert(Cint,stldet))
 end
 
-function CVodeGetNumRhsEvals(cvode_mem::Ptr{Void},nfevals::Ptr{Clong})
-    ccall((:CVodeGetNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfevals)
+function __CVodeSetInitStep(cvode_mem::CVODEMemPtr,hin::realtype)
+    ccall((:CVodeSetInitStep,libsundials_cvodes),Cint,(CVODEMemPtr,realtype),cvode_mem,hin)
 end
 
-function CVodeGetNumLinSolvSetups(cvode_mem::Ptr{Void},nlinsetups::Ptr{Clong})
-    ccall((:CVodeGetNumLinSolvSetups,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nlinsetups)
+function CVodeSetInitStep(cvode_mem,hin)
+    __CVodeSetInitStep(convert(CVODEMemPtr,cvode_mem),hin)
 end
 
-function CVodeGetNumErrTestFails(cvode_mem::Ptr{Void},netfails::Ptr{Clong})
-    ccall((:CVodeGetNumErrTestFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,netfails)
+function __CVodeSetMinStep(cvode_mem::CVODEMemPtr,hmin::realtype)
+    ccall((:CVodeSetMinStep,libsundials_cvodes),Cint,(CVODEMemPtr,realtype),cvode_mem,hmin)
 end
 
-function CVodeGetLastOrder(cvode_mem::Ptr{Void},qlast::Ptr{Cint})
-    ccall((:CVodeGetLastOrder,libsundials_cvode),Cint,(Ptr{Void},Ptr{Cint}),cvode_mem,qlast)
+function CVodeSetMinStep(cvode_mem,hmin)
+    __CVodeSetMinStep(convert(CVODEMemPtr,cvode_mem),hmin)
 end
 
-function CVodeGetCurrentOrder(cvode_mem::Ptr{Void},qcur::Ptr{Cint})
-    ccall((:CVodeGetCurrentOrder,libsundials_cvode),Cint,(Ptr{Void},Ptr{Cint}),cvode_mem,qcur)
+function __CVodeSetMaxStep(cvode_mem::CVODEMemPtr,hmax::realtype)
+    ccall((:CVodeSetMaxStep,libsundials_cvodes),Cint,(CVODEMemPtr,realtype),cvode_mem,hmax)
 end
 
-function CVodeGetNumStabLimOrderReds(cvode_mem::Ptr{Void},nslred::Ptr{Clong})
-    ccall((:CVodeGetNumStabLimOrderReds,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nslred)
+function CVodeSetMaxStep(cvode_mem,hmax)
+    __CVodeSetMaxStep(convert(CVODEMemPtr,cvode_mem),hmax)
 end
 
-function CVodeGetActualInitStep(cvode_mem::Ptr{Void},hinused::Vector{realtype})
-    ccall((:CVodeGetActualInitStep,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype}),cvode_mem,hinused)
+function __CVodeSetStopTime(cvode_mem::CVODEMemPtr,tstop::realtype)
+    ccall((:CVodeSetStopTime,libsundials_cvodes),Cint,(CVODEMemPtr,realtype),cvode_mem,tstop)
 end
 
-function CVodeGetLastStep(cvode_mem::Ptr{Void},hlast::Vector{realtype})
-    ccall((:CVodeGetLastStep,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype}),cvode_mem,hlast)
+function CVodeSetStopTime(cvode_mem,tstop)
+    __CVodeSetStopTime(convert(CVODEMemPtr,cvode_mem),tstop)
 end
 
-function CVodeGetCurrentStep(cvode_mem::Ptr{Void},hcur::Vector{realtype})
-    ccall((:CVodeGetCurrentStep,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype}),cvode_mem,hcur)
+function __CVodeSetMaxErrTestFails(cvode_mem::CVODEMemPtr,maxnef::Cint)
+    ccall((:CVodeSetMaxErrTestFails,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,maxnef)
 end
 
-function CVodeGetCurrentTime(cvode_mem::Ptr{Void},tcur::Vector{realtype})
-    ccall((:CVodeGetCurrentTime,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype}),cvode_mem,tcur)
+function CVodeSetMaxErrTestFails(cvode_mem,maxnef)
+    __CVodeSetMaxErrTestFails(convert(CVODEMemPtr,cvode_mem),convert(Cint,maxnef))
 end
 
-function CVodeGetTolScaleFactor(cvode_mem::Ptr{Void},tolsfac::Vector{realtype})
-    ccall((:CVodeGetTolScaleFactor,libsundials_cvode),Cint,(Ptr{Void},Ptr{realtype}),cvode_mem,tolsfac)
+function __CVodeSetMaxNonlinIters(cvode_mem::CVODEMemPtr,maxcor::Cint)
+    ccall((:CVodeSetMaxNonlinIters,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,maxcor)
 end
 
-function CVodeGetErrWeights(cvode_mem::Ptr{Void},eweight::N_Vector)
-    ccall((:CVodeGetErrWeights,libsundials_cvode),Cint,(Ptr{Void},N_Vector),cvode_mem,eweight)
+function CVodeSetMaxNonlinIters(cvode_mem,maxcor)
+    __CVodeSetMaxNonlinIters(convert(CVODEMemPtr,cvode_mem),convert(Cint,maxcor))
 end
 
-function CVodeGetEstLocalErrors(cvode_mem::Ptr{Void},ele::N_Vector)
-    ccall((:CVodeGetEstLocalErrors,libsundials_cvode),Cint,(Ptr{Void},N_Vector),cvode_mem,ele)
+function __CVodeSetMaxConvFails(cvode_mem::CVODEMemPtr,maxncf::Cint)
+    ccall((:CVodeSetMaxConvFails,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,maxncf)
 end
 
-function CVodeGetNumGEvals(cvode_mem::Ptr{Void},ngevals::Ptr{Clong})
-    ccall((:CVodeGetNumGEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,ngevals)
+function CVodeSetMaxConvFails(cvode_mem,maxncf)
+    __CVodeSetMaxConvFails(convert(CVODEMemPtr,cvode_mem),convert(Cint,maxncf))
 end
 
-function CVodeGetRootInfo(cvode_mem::Ptr{Void},rootsfound::Ptr{Cint})
-    ccall((:CVodeGetRootInfo,libsundials_cvode),Cint,(Ptr{Void},Ptr{Cint}),cvode_mem,rootsfound)
+function __CVodeSetNonlinConvCoef(cvode_mem::CVODEMemPtr,nlscoef::realtype)
+    ccall((:CVodeSetNonlinConvCoef,libsundials_cvodes),Cint,(CVODEMemPtr,realtype),cvode_mem,nlscoef)
 end
 
-function CVodeGetIntegratorStats(cvode_mem::Ptr{Void},nsteps::Ptr{Clong},nfevals::Ptr{Clong},nlinsetups::Ptr{Clong},netfails::Ptr{Clong},qlast::Ptr{Cint},qcur::Ptr{Cint},hinused::Vector{realtype},hlast::Vector{realtype},hcur::Vector{realtype},tcur::Vector{realtype})
-    ccall((:CVodeGetIntegratorStats,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong},Ptr{Clong},Ptr{Clong},Ptr{Cint},Ptr{Cint},Ptr{realtype},Ptr{realtype},Ptr{realtype},Ptr{realtype}),cvode_mem,nsteps,nfevals,nlinsetups,netfails,qlast,qcur,hinused,hlast,hcur,tcur)
+function CVodeSetNonlinConvCoef(cvode_mem,nlscoef)
+    __CVodeSetNonlinConvCoef(convert(CVODEMemPtr,cvode_mem),nlscoef)
 end
 
-function CVodeGetNumNonlinSolvIters(cvode_mem::Ptr{Void},nniters::Ptr{Clong})
-    ccall((:CVodeGetNumNonlinSolvIters,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nniters)
+function __CVodeSetIterType(cvode_mem::CVODEMemPtr,iter::Cint)
+    ccall((:CVodeSetIterType,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,iter)
 end
 
-function CVodeGetNumNonlinSolvConvFails(cvode_mem::Ptr{Void},nncfails::Ptr{Clong})
-    ccall((:CVodeGetNumNonlinSolvConvFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nncfails)
+function CVodeSetIterType(cvode_mem,iter)
+    __CVodeSetIterType(convert(CVODEMemPtr,cvode_mem),convert(Cint,iter))
 end
 
-function CVodeGetNonlinSolvStats(cvode_mem::Ptr{Void},nniters::Ptr{Clong},nncfails::Ptr{Clong})
-    ccall((:CVodeGetNonlinSolvStats,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,nniters,nncfails)
+function __CVodeSetRootDirection(cvode_mem::CVODEMemPtr,rootdir::Ptr{Cint})
+    ccall((:CVodeSetRootDirection,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Cint}),cvode_mem,rootdir)
 end
 
-function CVodeGetReturnFlagName(flag::Int)
-    ccall((:CVodeGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
+function CVodeSetRootDirection(cvode_mem,rootdir)
+    __CVodeSetRootDirection(convert(CVODEMemPtr,cvode_mem),pointer(rootdir))
 end
 
-function CVodeGetQuadNumRhsEvals(cvode_mem::Ptr{Void},nfQevals::Ptr{Clong})
-    ccall((:CVodeGetQuadNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfQevals)
+function __CVodeSetNoInactiveRootWarn(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeSetNoInactiveRootWarn,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVodeGetQuadNumErrTestFails(cvode_mem::Ptr{Void},nQetfails::Ptr{Clong})
-    ccall((:CVodeGetQuadNumErrTestFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nQetfails)
+function CVodeSetNoInactiveRootWarn(cvode_mem)
+    __CVodeSetNoInactiveRootWarn(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVodeGetQuadErrWeights(cvode_mem::Ptr{Void},eQweight::N_Vector)
-    ccall((:CVodeGetQuadErrWeights,libsundials_cvode),Cint,(Ptr{Void},N_Vector),cvode_mem,eQweight)
+function __CVodeSetQuadErrCon(cvode_mem::CVODEMemPtr,errconQ::Cint)
+    ccall((:CVodeSetQuadErrCon,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,errconQ)
 end
 
-function CVodeGetQuadStats(cvode_mem::Ptr{Void},nfQevals::Ptr{Clong},nQetfails::Ptr{Clong})
-    ccall((:CVodeGetQuadStats,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,nfQevals,nQetfails)
+function CVodeSetQuadErrCon(cvode_mem,errconQ)
+    __CVodeSetQuadErrCon(convert(CVODEMemPtr,cvode_mem),convert(Cint,errconQ))
 end
 
-function CVodeGetSensNumRhsEvals(cvode_mem::Ptr{Void},nfSevals::Ptr{Clong})
-    ccall((:CVodeGetSensNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfSevals)
+function __CVodeSetSensDQMethod(cvode_mem::CVODEMemPtr,DQtype::Cint,DQrhomax::realtype)
+    ccall((:CVodeSetSensDQMethod,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype),cvode_mem,DQtype,DQrhomax)
 end
 
-function CVodeGetNumRhsEvalsSens(cvode_mem::Ptr{Void},nfevalsS::Ptr{Clong})
-    ccall((:CVodeGetNumRhsEvalsSens,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfevalsS)
+function CVodeSetSensDQMethod(cvode_mem,DQtype,DQrhomax)
+    __CVodeSetSensDQMethod(convert(CVODEMemPtr,cvode_mem),convert(Cint,DQtype),DQrhomax)
 end
 
-function CVodeGetSensNumErrTestFails(cvode_mem::Ptr{Void},nSetfails::Ptr{Clong})
-    ccall((:CVodeGetSensNumErrTestFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nSetfails)
+function __CVodeSetSensErrCon(cvode_mem::CVODEMemPtr,errconS::Cint)
+    ccall((:CVodeSetSensErrCon,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,errconS)
 end
 
-function CVodeGetSensNumLinSolvSetups(cvode_mem::Ptr{Void},nlinsetupsS::Ptr{Clong})
-    ccall((:CVodeGetSensNumLinSolvSetups,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nlinsetupsS)
+function CVodeSetSensErrCon(cvode_mem,errconS)
+    __CVodeSetSensErrCon(convert(CVODEMemPtr,cvode_mem),convert(Cint,errconS))
 end
 
-function CVodeGetSensErrWeights(cvode_mem::Ptr{Void},eSweight::Ptr{N_Vector})
-    ccall((:CVodeGetSensErrWeights,libsundials_cvode),Cint,(Ptr{Void},Ptr{N_Vector}),cvode_mem,eSweight)
+function __CVodeSetSensMaxNonlinIters(cvode_mem::CVODEMemPtr,maxcorS::Cint)
+    ccall((:CVodeSetSensMaxNonlinIters,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,maxcorS)
 end
 
-function CVodeGetSensStats(cvode_mem::Ptr{Void},nfSevals::Ptr{Clong},nfevalsS::Ptr{Clong},nSetfails::Ptr{Clong},nlinsetupsS::Ptr{Clong})
-    ccall((:CVodeGetSensStats,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong},Ptr{Clong},Ptr{Clong}),cvode_mem,nfSevals,nfevalsS,nSetfails,nlinsetupsS)
+function CVodeSetSensMaxNonlinIters(cvode_mem,maxcorS)
+    __CVodeSetSensMaxNonlinIters(convert(CVODEMemPtr,cvode_mem),convert(Cint,maxcorS))
 end
 
-function CVodeGetSensNumNonlinSolvIters(cvode_mem::Ptr{Void},nSniters::Ptr{Clong})
-    ccall((:CVodeGetSensNumNonlinSolvIters,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nSniters)
+function __CVodeSetSensParams(cvode_mem::CVODEMemPtr,p::Ptr{realtype},pbar::Ptr{realtype},plist::Ptr{Cint})
+    ccall((:CVodeSetSensParams,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype},Ptr{realtype},Ptr{Cint}),cvode_mem,p,pbar,plist)
 end
 
-function CVodeGetSensNumNonlinSolvConvFails(cvode_mem::Ptr{Void},nSncfails::Ptr{Clong})
-    ccall((:CVodeGetSensNumNonlinSolvConvFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nSncfails)
+function CVodeSetSensParams(cvode_mem,p,pbar,plist)
+    __CVodeSetSensParams(convert(CVODEMemPtr,cvode_mem),pointer(p),pointer(pbar),pointer(plist))
 end
 
-function CVodeGetStgrSensNumNonlinSolvIters(cvode_mem::Ptr{Void},nSTGR1niters::Ptr{Clong})
-    ccall((:CVodeGetStgrSensNumNonlinSolvIters,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nSTGR1niters)
+function __CVodeSetQuadSensErrCon(cvode_mem::CVODEMemPtr,errconQS::Cint)
+    ccall((:CVodeSetQuadSensErrCon,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,errconQS)
 end
 
-function CVodeGetStgrSensNumNonlinSolvConvFails(cvode_mem::Ptr{Void},nSTGR1ncfails::Ptr{Clong})
-    ccall((:CVodeGetStgrSensNumNonlinSolvConvFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nSTGR1ncfails)
+function CVodeSetQuadSensErrCon(cvode_mem,errconQS)
+    __CVodeSetQuadSensErrCon(convert(CVODEMemPtr,cvode_mem),convert(Cint,errconQS))
 end
 
-function CVodeGetSensNonlinSolvStats(cvode_mem::Ptr{Void},nSniters::Ptr{Clong},nSncfails::Ptr{Clong})
-    ccall((:CVodeGetSensNonlinSolvStats,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,nSniters,nSncfails)
+function __CVodeSensToggleOff(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeSensToggleOff,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVodeGetQuadSensNumRhsEvals(cvode_mem::Ptr{Void},nfQSevals::Ptr{Clong})
-    ccall((:CVodeGetQuadSensNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfQSevals)
+function CVodeSensToggleOff(cvode_mem)
+    __CVodeSensToggleOff(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVodeGetQuadSensNumErrTestFails(cvode_mem::Ptr{Void},nQSetfails::Ptr{Clong})
-    ccall((:CVodeGetQuadSensNumErrTestFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nQSetfails)
+function __CVode(cvode_mem::CVODEMemPtr,tout::realtype,yout::N_Vector,tret::Ptr{realtype},itask::Cint)
+    ccall((:CVode,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,N_Vector,Ptr{realtype},Cint),cvode_mem,tout,yout,tret,itask)
 end
 
-function CVodeGetQuadSensErrWeights(cvode_mem::Ptr{Void},eQSweight::Ptr{N_Vector})
-    ccall((:CVodeGetQuadSensErrWeights,libsundials_cvode),Cint,(Ptr{Void},Ptr{N_Vector}),cvode_mem,eQSweight)
+function CVode(cvode_mem,tout,yout,tret,itask)
+    __yout = convert(NVector,yout)
+    __CVode(convert(CVODEMemPtr,cvode_mem),tout,convert(N_Vector,__yout),pointer(tret),convert(Cint,itask))
 end
 
-function CVodeGetQuadSensStats(cvode_mem::Ptr{Void},nfQSevals::Ptr{Clong},nQSetfails::Ptr{Clong})
-    ccall((:CVodeGetQuadSensStats,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,nfQSevals,nQSetfails)
+function __CVodeGetDky(cvode_mem::CVODEMemPtr,t::realtype,k::Cint,dky::N_Vector)
+    ccall((:CVodeGetDky,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Cint,N_Vector),cvode_mem,t,k,dky)
 end
 
-function CVodeAdjInit(cvode_mem::Ptr{Void},steps::Int,interp::Int)
-    ccall((:CVodeAdjInit,libsundials_cvode),Cint,(Ptr{Void},Clong,Cint),cvode_mem,steps,interp)
+function CVodeGetDky(cvode_mem,t,k,dky)
+    __dky = convert(NVector,dky)
+    __CVodeGetDky(convert(CVODEMemPtr,cvode_mem),t,convert(Cint,k),convert(N_Vector,__dky))
 end
 
-function CVodeAdjReInit(cvode_mem::Ptr{Void})
-    ccall((:CVodeAdjReInit,libsundials_cvode),Cint,(Ptr{Void},),cvode_mem)
+function __CVodeGetQuad(cvode_mem::CVODEMemPtr,tret::Ptr{realtype},yQout::N_Vector)
+    ccall((:CVodeGetQuad,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype},N_Vector),cvode_mem,tret,yQout)
 end
 
-function CVodeAdjFree(cvode_mem::Ptr{Void})
-    ccall((:CVodeAdjFree,libsundials_cvode),Void,(Ptr{Void},),cvode_mem)
+function CVodeGetQuad(cvode_mem,tret,yQout)
+    __yQout = convert(NVector,yQout)
+    __CVodeGetQuad(convert(CVODEMemPtr,cvode_mem),pointer(tret),convert(N_Vector,__yQout))
 end
 
-function CVodeCreateB(cvode_mem::Ptr{Void},lmmB::Int,iterB::Int,which::Ptr{Cint})
-    ccall((:CVodeCreateB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint,Ptr{Cint}),cvode_mem,lmmB,iterB,which)
+function __CVodeGetQuadDky(cvode_mem::CVODEMemPtr,t::realtype,k::Cint,dky::N_Vector)
+    ccall((:CVodeGetQuadDky,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Cint,N_Vector),cvode_mem,t,k,dky)
 end
 
-function CVodeInitB(cvode_mem::Ptr{Void},which::Int,fB::CVRhsFnB,tB0::realtype,yB0::N_Vector)
-    ccall((:CVodeInitB,libsundials_cvode),Cint,(Ptr{Void},Cint,CVRhsFnB,realtype,N_Vector),cvode_mem,which,fB,tB0,yB0)
+function CVodeGetQuadDky(cvode_mem,t,k,dky)
+    __dky = convert(NVector,dky)
+    __CVodeGetQuadDky(convert(CVODEMemPtr,cvode_mem),t,convert(Cint,k),convert(N_Vector,__dky))
 end
 
-function CVodeInitBS(cvode_mem::Ptr{Void},which::Int,fBs::CVRhsFnBS,tB0::realtype,yB0::N_Vector)
-    ccall((:CVodeInitBS,libsundials_cvode),Cint,(Ptr{Void},Cint,CVRhsFnBS,realtype,N_Vector),cvode_mem,which,fBs,tB0,yB0)
+function __CVodeGetSens(cvode_mem::CVODEMemPtr,tret::Ptr{realtype},ySout::Ptr{N_Vector})
+    ccall((:CVodeGetSens,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype},Ptr{N_Vector}),cvode_mem,tret,ySout)
 end
 
-function CVodeReInitB(cvode_mem::Ptr{Void},which::Int,tB0::realtype,yB0::N_Vector)
-    ccall((:CVodeReInitB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype,N_Vector),cvode_mem,which,tB0,yB0)
+function CVodeGetSens(cvode_mem,tret,ySout)
+    __CVodeGetSens(convert(CVODEMemPtr,cvode_mem),pointer(tret),pointer(ySout))
 end
 
-function CVodeSStolerancesB(cvode_mem::Ptr{Void},which::Int,reltolB::realtype,abstolB::realtype)
-    ccall((:CVodeSStolerancesB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype,realtype),cvode_mem,which,reltolB,abstolB)
+function __CVodeGetSens1(cvode_mem::CVODEMemPtr,tret::Ptr{realtype},is::Cint,ySout::N_Vector)
+    ccall((:CVodeGetSens1,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype},Cint,N_Vector),cvode_mem,tret,is,ySout)
 end
 
-function CVodeSVtolerancesB(cvode_mem::Ptr{Void},which::Int,reltolB::realtype,abstolB::N_Vector)
-    ccall((:CVodeSVtolerancesB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype,N_Vector),cvode_mem,which,reltolB,abstolB)
+function CVodeGetSens1(cvode_mem,tret,is,ySout)
+    __ySout = convert(NVector,ySout)
+    __CVodeGetSens1(convert(CVODEMemPtr,cvode_mem),pointer(tret),convert(Cint,is),convert(N_Vector,__ySout))
 end
 
-function CVodeQuadInitB(cvode_mem::Ptr{Void},which::Int,fQB::CVQuadRhsFnB,yQB0::N_Vector)
-    ccall((:CVodeQuadInitB,libsundials_cvode),Cint,(Ptr{Void},Cint,CVQuadRhsFnB,N_Vector),cvode_mem,which,fQB,yQB0)
+function __CVodeGetSensDky(cvode_mem::CVODEMemPtr,t::realtype,k::Cint,dkyA::Ptr{N_Vector})
+    ccall((:CVodeGetSensDky,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Cint,Ptr{N_Vector}),cvode_mem,t,k,dkyA)
 end
 
-function CVodeQuadInitBS(cvode_mem::Ptr{Void},which::Int,fQBs::CVQuadRhsFnBS,yQB0::N_Vector)
-    ccall((:CVodeQuadInitBS,libsundials_cvode),Cint,(Ptr{Void},Cint,CVQuadRhsFnBS,N_Vector),cvode_mem,which,fQBs,yQB0)
+function CVodeGetSensDky(cvode_mem,t,k,dkyA)
+    __CVodeGetSensDky(convert(CVODEMemPtr,cvode_mem),t,convert(Cint,k),pointer(dkyA))
 end
 
-function CVodeQuadReInitB(cvode_mem::Ptr{Void},which::Int,yQB0::N_Vector)
-    ccall((:CVodeQuadReInitB,libsundials_cvode),Cint,(Ptr{Void},Cint,N_Vector),cvode_mem,which,yQB0)
+function __CVodeGetSensDky1(cvode_mem::CVODEMemPtr,t::realtype,k::Cint,is::Cint,dky::N_Vector)
+    ccall((:CVodeGetSensDky1,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Cint,Cint,N_Vector),cvode_mem,t,k,is,dky)
 end
 
-function CVodeQuadSStolerancesB(cvode_mem::Ptr{Void},which::Int,reltolQB::realtype,abstolQB::realtype)
-    ccall((:CVodeQuadSStolerancesB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype,realtype),cvode_mem,which,reltolQB,abstolQB)
+function CVodeGetSensDky1(cvode_mem,t,k,is,dky)
+    __dky = convert(NVector,dky)
+    __CVodeGetSensDky1(convert(CVODEMemPtr,cvode_mem),t,convert(Cint,k),convert(Cint,is),convert(N_Vector,__dky))
 end
 
-function CVodeQuadSVtolerancesB(cvode_mem::Ptr{Void},which::Int,reltolQB::realtype,abstolQB::N_Vector)
-    ccall((:CVodeQuadSVtolerancesB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype,N_Vector),cvode_mem,which,reltolQB,abstolQB)
+function __CVodeGetQuadSens(cvode_mem::CVODEMemPtr,tret::Ptr{realtype},yQSout::Ptr{N_Vector})
+    ccall((:CVodeGetQuadSens,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype},Ptr{N_Vector}),cvode_mem,tret,yQSout)
 end
 
-function CVodeF(cvode_mem::Ptr{Void},tout::realtype,yout::N_Vector,tret::Vector{realtype},itask::Int,ncheckPtr::Ptr{Cint})
-    ccall((:CVodeF,libsundials_cvode),Cint,(Ptr{Void},realtype,N_Vector,Ptr{realtype},Cint,Ptr{Cint}),cvode_mem,tout,yout,tret,itask,ncheckPtr)
+function CVodeGetQuadSens(cvode_mem,tret,yQSout)
+    __CVodeGetQuadSens(convert(CVODEMemPtr,cvode_mem),pointer(tret),pointer(yQSout))
 end
 
-function CVodeB(cvode_mem::Ptr{Void},tBout::realtype,itaskB::Int)
-    ccall((:CVodeB,libsundials_cvode),Cint,(Ptr{Void},realtype,Cint),cvode_mem,tBout,itaskB)
+function __CVodeGetQuadSens1(cvode_mem::CVODEMemPtr,tret::Ptr{realtype},is::Cint,yQSout::N_Vector)
+    ccall((:CVodeGetQuadSens1,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype},Cint,N_Vector),cvode_mem,tret,is,yQSout)
 end
 
-function CVodeSetAdjNoSensi(cvode_mem::Ptr{Void})
-    ccall((:CVodeSetAdjNoSensi,libsundials_cvode),Cint,(Ptr{Void},),cvode_mem)
+function CVodeGetQuadSens1(cvode_mem,tret,is,yQSout)
+    __yQSout = convert(NVector,yQSout)
+    __CVodeGetQuadSens1(convert(CVODEMemPtr,cvode_mem),pointer(tret),convert(Cint,is),convert(N_Vector,__yQSout))
 end
 
-function CVodeSetIterTypeB(cvode_mem::Ptr{Void},which::Int,iterB::Int)
-    ccall((:CVodeSetIterTypeB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,which,iterB)
+function __CVodeGetQuadSensDky(cvode_mem::CVODEMemPtr,t::realtype,k::Cint,dkyQS_all::Ptr{N_Vector})
+    ccall((:CVodeGetQuadSensDky,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Cint,Ptr{N_Vector}),cvode_mem,t,k,dkyQS_all)
 end
 
-function CVodeSetUserDataB(cvode_mem::Ptr{Void},which::Int,user_dataB::Ptr{Void})
-    ccall((:CVodeSetUserDataB,libsundials_cvode),Cint,(Ptr{Void},Cint,Ptr{Void}),cvode_mem,which,user_dataB)
+function CVodeGetQuadSensDky(cvode_mem,t,k,dkyQS_all)
+    __CVodeGetQuadSensDky(convert(CVODEMemPtr,cvode_mem),t,convert(Cint,k),pointer(dkyQS_all))
 end
 
-function CVodeSetMaxOrdB(cvode_mem::Ptr{Void},which::Int,maxordB::Int)
-    ccall((:CVodeSetMaxOrdB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,which,maxordB)
+function __CVodeGetQuadSensDky1(cvode_mem::CVODEMemPtr,t::realtype,k::Cint,is::Cint,dkyQS::N_Vector)
+    ccall((:CVodeGetQuadSensDky1,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Cint,Cint,N_Vector),cvode_mem,t,k,is,dkyQS)
 end
 
-function CVodeSetMaxNumStepsB(cvode_mem::Ptr{Void},which::Int,mxstepsB::Int)
-    ccall((:CVodeSetMaxNumStepsB,libsundials_cvode),Cint,(Ptr{Void},Cint,Clong),cvode_mem,which,mxstepsB)
+function CVodeGetQuadSensDky1(cvode_mem,t,k,is,dkyQS)
+    __dkyQS = convert(NVector,dkyQS)
+    __CVodeGetQuadSensDky1(convert(CVODEMemPtr,cvode_mem),t,convert(Cint,k),convert(Cint,is),convert(N_Vector,__dkyQS))
 end
 
-function CVodeSetStabLimDetB(cvode_mem::Ptr{Void},which::Int,stldetB::Int)
-    ccall((:CVodeSetStabLimDetB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,which,stldetB)
+function __CVodeGetWorkSpace(cvode_mem::CVODEMemPtr,lenrw::Ptr{Clong},leniw::Ptr{Clong})
+    ccall((:CVodeGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrw,leniw)
 end
 
-function CVodeSetInitStepB(cvode_mem::Ptr{Void},which::Int,hinB::realtype)
-    ccall((:CVodeSetInitStepB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype),cvode_mem,which,hinB)
+function CVodeGetWorkSpace(cvode_mem,lenrw,leniw)
+    __CVodeGetWorkSpace(convert(CVODEMemPtr,cvode_mem),pointer(lenrw),pointer(leniw))
 end
 
-function CVodeSetMinStepB(cvode_mem::Ptr{Void},which::Int,hminB::realtype)
-    ccall((:CVodeSetMinStepB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype),cvode_mem,which,hminB)
+function __CVodeGetNumSteps(cvode_mem::CVODEMemPtr,nsteps::Ptr{Clong})
+    ccall((:CVodeGetNumSteps,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nsteps)
 end
 
-function CVodeSetMaxStepB(cvode_mem::Ptr{Void},which::Int,hmaxB::realtype)
-    ccall((:CVodeSetMaxStepB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype),cvode_mem,which,hmaxB)
+function CVodeGetNumSteps(cvode_mem,nsteps)
+    __CVodeGetNumSteps(convert(CVODEMemPtr,cvode_mem),pointer(nsteps))
 end
 
-function CVodeSetQuadErrConB(cvode_mem::Ptr{Void},which::Int,errconQB::Int)
-    ccall((:CVodeSetQuadErrConB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,which,errconQB)
+function __CVodeGetNumRhsEvals(cvode_mem::CVODEMemPtr,nfevals::Ptr{Clong})
+    ccall((:CVodeGetNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfevals)
 end
 
-function CVodeGetB(cvode_mem::Ptr{Void},which::Int,tBret::Vector{realtype},yB::N_Vector)
-    ccall((:CVodeGetB,libsundials_cvode),Cint,(Ptr{Void},Cint,Ptr{realtype},N_Vector),cvode_mem,which,tBret,yB)
+function CVodeGetNumRhsEvals(cvode_mem,nfevals)
+    __CVodeGetNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfevals))
 end
 
-function CVodeGetQuadB(cvode_mem::Ptr{Void},which::Int,tBret::Vector{realtype},qB::N_Vector)
-    ccall((:CVodeGetQuadB,libsundials_cvode),Cint,(Ptr{Void},Cint,Ptr{realtype},N_Vector),cvode_mem,which,tBret,qB)
+function __CVodeGetNumLinSolvSetups(cvode_mem::CVODEMemPtr,nlinsetups::Ptr{Clong})
+    ccall((:CVodeGetNumLinSolvSetups,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nlinsetups)
 end
 
-function CVodeGetAdjCVodeBmem(cvode_mem::Ptr{Void},which::Int)
-    ccall((:CVodeGetAdjCVodeBmem,libsundials_cvode),Ptr{Void},(Ptr{Void},Cint),cvode_mem,which)
+function CVodeGetNumLinSolvSetups(cvode_mem,nlinsetups)
+    __CVodeGetNumLinSolvSetups(convert(CVODEMemPtr,cvode_mem),pointer(nlinsetups))
 end
 
-function CVodeGetAdjY(cvode_mem::Ptr{Void},t::realtype,y::N_Vector)
-    ccall((:CVodeGetAdjY,libsundials_cvode),Cint,(Ptr{Void},realtype,N_Vector),cvode_mem,t,y)
+function __CVodeGetNumErrTestFails(cvode_mem::CVODEMemPtr,netfails::Ptr{Clong})
+    ccall((:CVodeGetNumErrTestFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,netfails)
 end
 
-function CVodeGetAdjCheckPointsInfo(cvode_mem::Ptr{Void},ckpnt::Ptr{CVadjCheckPointRec})
-    ccall((:CVodeGetAdjCheckPointsInfo,libsundials_cvode),Cint,(Ptr{Void},Ptr{CVadjCheckPointRec}),cvode_mem,ckpnt)
+function CVodeGetNumErrTestFails(cvode_mem,netfails)
+    __CVodeGetNumErrTestFails(convert(CVODEMemPtr,cvode_mem),pointer(netfails))
 end
 
-function CVodeGetAdjDataPointHermite(cvode_mem::Ptr{Void},which::Int,t::Vector{realtype},y::N_Vector,yd::N_Vector)
-    ccall((:CVodeGetAdjDataPointHermite,libsundials_cvode),Cint,(Ptr{Void},Cint,Ptr{realtype},N_Vector,N_Vector),cvode_mem,which,t,y,yd)
+function __CVodeGetLastOrder(cvode_mem::CVODEMemPtr,qlast::Ptr{Cint})
+    ccall((:CVodeGetLastOrder,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Cint}),cvode_mem,qlast)
 end
 
-function CVodeGetAdjDataPointPolynomial(cvode_mem::Ptr{Void},which::Int,t::Vector{realtype},order::Ptr{Cint},y::N_Vector)
-    ccall((:CVodeGetAdjDataPointPolynomial,libsundials_cvode),Cint,(Ptr{Void},Cint,Ptr{realtype},Ptr{Cint},N_Vector),cvode_mem,which,t,order,y)
+function CVodeGetLastOrder(cvode_mem,qlast)
+    __CVodeGetLastOrder(convert(CVODEMemPtr,cvode_mem),pointer(qlast))
 end
 
-function CVodeGetAdjCurrentCheckPoint(cvode_mem::Ptr{Void},addr::Vector{Ptr{Void}})
-    ccall((:CVodeGetAdjCurrentCheckPoint,libsundials_cvode),Cint,(Ptr{Void},Ptr{Ptr{Void}}),cvode_mem,addr)
+function __CVodeGetCurrentOrder(cvode_mem::CVODEMemPtr,qcur::Ptr{Cint})
+    ccall((:CVodeGetCurrentOrder,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Cint}),cvode_mem,qcur)
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_direct.h
+
+function CVodeGetCurrentOrder(cvode_mem,qcur)
+    __CVodeGetCurrentOrder(convert(CVODEMemPtr,cvode_mem),pointer(qcur))
+end
+
+function __CVodeGetNumStabLimOrderReds(cvode_mem::CVODEMemPtr,nslred::Ptr{Clong})
+    ccall((:CVodeGetNumStabLimOrderReds,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nslred)
+end
+
+function CVodeGetNumStabLimOrderReds(cvode_mem,nslred)
+    __CVodeGetNumStabLimOrderReds(convert(CVODEMemPtr,cvode_mem),pointer(nslred))
+end
+
+function __CVodeGetActualInitStep(cvode_mem::CVODEMemPtr,hinused::Ptr{realtype})
+    ccall((:CVodeGetActualInitStep,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype}),cvode_mem,hinused)
+end
+
+function CVodeGetActualInitStep(cvode_mem,hinused)
+    __CVodeGetActualInitStep(convert(CVODEMemPtr,cvode_mem),pointer(hinused))
+end
+
+function __CVodeGetLastStep(cvode_mem::CVODEMemPtr,hlast::Ptr{realtype})
+    ccall((:CVodeGetLastStep,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype}),cvode_mem,hlast)
+end
+
+function CVodeGetLastStep(cvode_mem,hlast)
+    __CVodeGetLastStep(convert(CVODEMemPtr,cvode_mem),pointer(hlast))
+end
+
+function __CVodeGetCurrentStep(cvode_mem::CVODEMemPtr,hcur::Ptr{realtype})
+    ccall((:CVodeGetCurrentStep,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype}),cvode_mem,hcur)
+end
+
+function CVodeGetCurrentStep(cvode_mem,hcur)
+    __CVodeGetCurrentStep(convert(CVODEMemPtr,cvode_mem),pointer(hcur))
+end
+
+function __CVodeGetCurrentTime(cvode_mem::CVODEMemPtr,tcur::Ptr{realtype})
+    ccall((:CVodeGetCurrentTime,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype}),cvode_mem,tcur)
+end
+
+function CVodeGetCurrentTime(cvode_mem,tcur)
+    __CVodeGetCurrentTime(convert(CVODEMemPtr,cvode_mem),pointer(tcur))
+end
+
+function __CVodeGetTolScaleFactor(cvode_mem::CVODEMemPtr,tolsfac::Ptr{realtype})
+    ccall((:CVodeGetTolScaleFactor,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{realtype}),cvode_mem,tolsfac)
+end
+
+function CVodeGetTolScaleFactor(cvode_mem,tolsfac)
+    __CVodeGetTolScaleFactor(convert(CVODEMemPtr,cvode_mem),pointer(tolsfac))
+end
+
+function __CVodeGetErrWeights(cvode_mem::CVODEMemPtr,eweight::N_Vector)
+    ccall((:CVodeGetErrWeights,libsundials_cvodes),Cint,(CVODEMemPtr,N_Vector),cvode_mem,eweight)
+end
+
+function CVodeGetErrWeights(cvode_mem,eweight)
+    __eweight = convert(NVector,eweight)
+    __CVodeGetErrWeights(convert(CVODEMemPtr,cvode_mem),convert(N_Vector,__eweight))
+end
+
+function __CVodeGetEstLocalErrors(cvode_mem::CVODEMemPtr,ele::N_Vector)
+    ccall((:CVodeGetEstLocalErrors,libsundials_cvodes),Cint,(CVODEMemPtr,N_Vector),cvode_mem,ele)
+end
+
+function CVodeGetEstLocalErrors(cvode_mem,ele)
+    __ele = convert(NVector,ele)
+    __CVodeGetEstLocalErrors(convert(CVODEMemPtr,cvode_mem),convert(N_Vector,__ele))
+end
+
+function __CVodeGetNumGEvals(cvode_mem::CVODEMemPtr,ngevals::Ptr{Clong})
+    ccall((:CVodeGetNumGEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,ngevals)
+end
+
+function CVodeGetNumGEvals(cvode_mem,ngevals)
+    __CVodeGetNumGEvals(convert(CVODEMemPtr,cvode_mem),pointer(ngevals))
+end
+
+function __CVodeGetRootInfo(cvode_mem::CVODEMemPtr,rootsfound::Ptr{Cint})
+    ccall((:CVodeGetRootInfo,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Cint}),cvode_mem,rootsfound)
+end
+
+function CVodeGetRootInfo(cvode_mem,rootsfound)
+    __CVodeGetRootInfo(convert(CVODEMemPtr,cvode_mem),pointer(rootsfound))
+end
+
+function __CVodeGetIntegratorStats(cvode_mem::CVODEMemPtr,nsteps::Ptr{Clong},nfevals::Ptr{Clong},nlinsetups::Ptr{Clong},netfails::Ptr{Clong},qlast::Ptr{Cint},qcur::Ptr{Cint},hinused::Ptr{realtype},hlast::Ptr{realtype},hcur::Ptr{realtype},tcur::Ptr{realtype})
+    ccall((:CVodeGetIntegratorStats,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong},Ptr{Clong},Ptr{Clong},Ptr{Cint},Ptr{Cint},Ptr{realtype},Ptr{realtype},Ptr{realtype},Ptr{realtype}),cvode_mem,nsteps,nfevals,nlinsetups,netfails,qlast,qcur,hinused,hlast,hcur,tcur)
+end
+
+function CVodeGetIntegratorStats(cvode_mem,nsteps,nfevals,nlinsetups,netfails,qlast,qcur,hinused,hlast,hcur,tcur)
+    __CVodeGetIntegratorStats(convert(CVODEMemPtr,cvode_mem),pointer(nsteps),pointer(nfevals),pointer(nlinsetups),pointer(netfails),pointer(qlast),pointer(qcur),pointer(hinused),pointer(hlast),pointer(hcur),pointer(tcur))
+end
+
+function __CVodeGetNumNonlinSolvIters(cvode_mem::CVODEMemPtr,nniters::Ptr{Clong})
+    ccall((:CVodeGetNumNonlinSolvIters,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nniters)
+end
+
+function CVodeGetNumNonlinSolvIters(cvode_mem,nniters)
+    __CVodeGetNumNonlinSolvIters(convert(CVODEMemPtr,cvode_mem),pointer(nniters))
+end
+
+function __CVodeGetNumNonlinSolvConvFails(cvode_mem::CVODEMemPtr,nncfails::Ptr{Clong})
+    ccall((:CVodeGetNumNonlinSolvConvFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nncfails)
+end
+
+function CVodeGetNumNonlinSolvConvFails(cvode_mem,nncfails)
+    __CVodeGetNumNonlinSolvConvFails(convert(CVODEMemPtr,cvode_mem),pointer(nncfails))
+end
+
+function __CVodeGetNonlinSolvStats(cvode_mem::CVODEMemPtr,nniters::Ptr{Clong},nncfails::Ptr{Clong})
+    ccall((:CVodeGetNonlinSolvStats,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,nniters,nncfails)
+end
+
+function CVodeGetNonlinSolvStats(cvode_mem,nniters,nncfails)
+    __CVodeGetNonlinSolvStats(convert(CVODEMemPtr,cvode_mem),pointer(nniters),pointer(nncfails))
+end
+
+function __CVodeGetReturnFlagName(flag::Clong)
+    ccall((:CVodeGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
+end
+
+function CVodeGetReturnFlagName(flag)
+    __CVodeGetReturnFlagName(convert(Clong,flag))
+end
+
+function __CVodeGetQuadNumRhsEvals(cvode_mem::CVODEMemPtr,nfQevals::Ptr{Clong})
+    ccall((:CVodeGetQuadNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfQevals)
+end
+
+function CVodeGetQuadNumRhsEvals(cvode_mem,nfQevals)
+    __CVodeGetQuadNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfQevals))
+end
+
+function __CVodeGetQuadNumErrTestFails(cvode_mem::CVODEMemPtr,nQetfails::Ptr{Clong})
+    ccall((:CVodeGetQuadNumErrTestFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nQetfails)
+end
+
+function CVodeGetQuadNumErrTestFails(cvode_mem,nQetfails)
+    __CVodeGetQuadNumErrTestFails(convert(CVODEMemPtr,cvode_mem),pointer(nQetfails))
+end
+
+function __CVodeGetQuadErrWeights(cvode_mem::CVODEMemPtr,eQweight::N_Vector)
+    ccall((:CVodeGetQuadErrWeights,libsundials_cvodes),Cint,(CVODEMemPtr,N_Vector),cvode_mem,eQweight)
+end
+
+function CVodeGetQuadErrWeights(cvode_mem,eQweight)
+    __eQweight = convert(NVector,eQweight)
+    __CVodeGetQuadErrWeights(convert(CVODEMemPtr,cvode_mem),convert(N_Vector,__eQweight))
+end
+
+function __CVodeGetQuadStats(cvode_mem::CVODEMemPtr,nfQevals::Ptr{Clong},nQetfails::Ptr{Clong})
+    ccall((:CVodeGetQuadStats,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,nfQevals,nQetfails)
+end
+
+function CVodeGetQuadStats(cvode_mem,nfQevals,nQetfails)
+    __CVodeGetQuadStats(convert(CVODEMemPtr,cvode_mem),pointer(nfQevals),pointer(nQetfails))
+end
+
+function __CVodeGetSensNumRhsEvals(cvode_mem::CVODEMemPtr,nfSevals::Ptr{Clong})
+    ccall((:CVodeGetSensNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfSevals)
+end
+
+function CVodeGetSensNumRhsEvals(cvode_mem,nfSevals)
+    __CVodeGetSensNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfSevals))
+end
+
+function __CVodeGetNumRhsEvalsSens(cvode_mem::CVODEMemPtr,nfevalsS::Ptr{Clong})
+    ccall((:CVodeGetNumRhsEvalsSens,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfevalsS)
+end
+
+function CVodeGetNumRhsEvalsSens(cvode_mem,nfevalsS)
+    __CVodeGetNumRhsEvalsSens(convert(CVODEMemPtr,cvode_mem),pointer(nfevalsS))
+end
+
+function __CVodeGetSensNumErrTestFails(cvode_mem::CVODEMemPtr,nSetfails::Ptr{Clong})
+    ccall((:CVodeGetSensNumErrTestFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nSetfails)
+end
+
+function CVodeGetSensNumErrTestFails(cvode_mem,nSetfails)
+    __CVodeGetSensNumErrTestFails(convert(CVODEMemPtr,cvode_mem),pointer(nSetfails))
+end
+
+function __CVodeGetSensNumLinSolvSetups(cvode_mem::CVODEMemPtr,nlinsetupsS::Ptr{Clong})
+    ccall((:CVodeGetSensNumLinSolvSetups,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nlinsetupsS)
+end
+
+function CVodeGetSensNumLinSolvSetups(cvode_mem,nlinsetupsS)
+    __CVodeGetSensNumLinSolvSetups(convert(CVODEMemPtr,cvode_mem),pointer(nlinsetupsS))
+end
+
+function __CVodeGetSensErrWeights(cvode_mem::CVODEMemPtr,eSweight::Ptr{N_Vector})
+    ccall((:CVodeGetSensErrWeights,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{N_Vector}),cvode_mem,eSweight)
+end
+
+function CVodeGetSensErrWeights(cvode_mem,eSweight)
+    __CVodeGetSensErrWeights(convert(CVODEMemPtr,cvode_mem),pointer(eSweight))
+end
+
+function __CVodeGetSensStats(cvode_mem::CVODEMemPtr,nfSevals::Ptr{Clong},nfevalsS::Ptr{Clong},nSetfails::Ptr{Clong},nlinsetupsS::Ptr{Clong})
+    ccall((:CVodeGetSensStats,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong},Ptr{Clong},Ptr{Clong}),cvode_mem,nfSevals,nfevalsS,nSetfails,nlinsetupsS)
+end
+
+function CVodeGetSensStats(cvode_mem,nfSevals,nfevalsS,nSetfails,nlinsetupsS)
+    __CVodeGetSensStats(convert(CVODEMemPtr,cvode_mem),pointer(nfSevals),pointer(nfevalsS),pointer(nSetfails),pointer(nlinsetupsS))
+end
+
+function __CVodeGetSensNumNonlinSolvIters(cvode_mem::CVODEMemPtr,nSniters::Ptr{Clong})
+    ccall((:CVodeGetSensNumNonlinSolvIters,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nSniters)
+end
+
+function CVodeGetSensNumNonlinSolvIters(cvode_mem,nSniters)
+    __CVodeGetSensNumNonlinSolvIters(convert(CVODEMemPtr,cvode_mem),pointer(nSniters))
+end
+
+function __CVodeGetSensNumNonlinSolvConvFails(cvode_mem::CVODEMemPtr,nSncfails::Ptr{Clong})
+    ccall((:CVodeGetSensNumNonlinSolvConvFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nSncfails)
+end
+
+function CVodeGetSensNumNonlinSolvConvFails(cvode_mem,nSncfails)
+    __CVodeGetSensNumNonlinSolvConvFails(convert(CVODEMemPtr,cvode_mem),pointer(nSncfails))
+end
+
+function __CVodeGetStgrSensNumNonlinSolvIters(cvode_mem::CVODEMemPtr,nSTGR1niters::Ptr{Clong})
+    ccall((:CVodeGetStgrSensNumNonlinSolvIters,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nSTGR1niters)
+end
+
+function CVodeGetStgrSensNumNonlinSolvIters(cvode_mem,nSTGR1niters)
+    __CVodeGetStgrSensNumNonlinSolvIters(convert(CVODEMemPtr,cvode_mem),pointer(nSTGR1niters))
+end
+
+function __CVodeGetStgrSensNumNonlinSolvConvFails(cvode_mem::CVODEMemPtr,nSTGR1ncfails::Ptr{Clong})
+    ccall((:CVodeGetStgrSensNumNonlinSolvConvFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nSTGR1ncfails)
+end
+
+function CVodeGetStgrSensNumNonlinSolvConvFails(cvode_mem,nSTGR1ncfails)
+    __CVodeGetStgrSensNumNonlinSolvConvFails(convert(CVODEMemPtr,cvode_mem),pointer(nSTGR1ncfails))
+end
+
+function __CVodeGetSensNonlinSolvStats(cvode_mem::CVODEMemPtr,nSniters::Ptr{Clong},nSncfails::Ptr{Clong})
+    ccall((:CVodeGetSensNonlinSolvStats,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,nSniters,nSncfails)
+end
+
+function CVodeGetSensNonlinSolvStats(cvode_mem,nSniters,nSncfails)
+    __CVodeGetSensNonlinSolvStats(convert(CVODEMemPtr,cvode_mem),pointer(nSniters),pointer(nSncfails))
+end
+
+function __CVodeGetQuadSensNumRhsEvals(cvode_mem::CVODEMemPtr,nfQSevals::Ptr{Clong})
+    ccall((:CVodeGetQuadSensNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfQSevals)
+end
+
+function CVodeGetQuadSensNumRhsEvals(cvode_mem,nfQSevals)
+    __CVodeGetQuadSensNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfQSevals))
+end
+
+function __CVodeGetQuadSensNumErrTestFails(cvode_mem::CVODEMemPtr,nQSetfails::Ptr{Clong})
+    ccall((:CVodeGetQuadSensNumErrTestFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nQSetfails)
+end
+
+function CVodeGetQuadSensNumErrTestFails(cvode_mem,nQSetfails)
+    __CVodeGetQuadSensNumErrTestFails(convert(CVODEMemPtr,cvode_mem),pointer(nQSetfails))
+end
+
+function __CVodeGetQuadSensErrWeights(cvode_mem::CVODEMemPtr,eQSweight::Ptr{N_Vector})
+    ccall((:CVodeGetQuadSensErrWeights,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{N_Vector}),cvode_mem,eQSweight)
+end
+
+function CVodeGetQuadSensErrWeights(cvode_mem,eQSweight)
+    __CVodeGetQuadSensErrWeights(convert(CVODEMemPtr,cvode_mem),pointer(eQSweight))
+end
+
+function __CVodeGetQuadSensStats(cvode_mem::CVODEMemPtr,nfQSevals::Ptr{Clong},nQSetfails::Ptr{Clong})
+    ccall((:CVodeGetQuadSensStats,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,nfQSevals,nQSetfails)
+end
+
+function CVodeGetQuadSensStats(cvode_mem,nfQSevals,nQSetfails)
+    __CVodeGetQuadSensStats(convert(CVODEMemPtr,cvode_mem),pointer(nfQSevals),pointer(nQSetfails))
+end
+
+function __CVodeAdjInit(cvode_mem::CVODEMemPtr,steps::Clong,interp::Cint)
+    ccall((:CVodeAdjInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Cint),cvode_mem,steps,interp)
+end
+
+function CVodeAdjInit(cvode_mem,steps,interp)
+    __CVodeAdjInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,steps),convert(Cint,interp))
+end
+
+function __CVodeAdjReInit(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeAdjReInit,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
+end
+
+function CVodeAdjReInit(cvode_mem)
+    __CVodeAdjReInit(convert(CVODEMemPtr,cvode_mem))
+end
+
+function __CVodeAdjFree(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeAdjFree,libsundials_cvodes),Void,(CVODEMemPtr,),cvode_mem)
+end
+
+function CVodeAdjFree(cvode_mem)
+    __CVodeAdjFree(convert(CVODEMemPtr,cvode_mem))
+end
+
+function __CVodeCreateB(cvode_mem::CVODEMemPtr,lmmB::Cint,iterB::Cint,which::Ptr{Cint})
+    ccall((:CVodeCreateB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint,Ptr{Cint}),cvode_mem,lmmB,iterB,which)
+end
+
+function CVodeCreateB(cvode_mem,lmmB,iterB,which)
+    __CVodeCreateB(convert(CVODEMemPtr,cvode_mem),convert(Cint,lmmB),convert(Cint,iterB),pointer(which))
+end
+
+function __CVodeInitB(cvode_mem::CVODEMemPtr,which::Cint,fB::CVRhsFnB,tB0::realtype,yB0::N_Vector)
+    ccall((:CVodeInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVRhsFnB,realtype,N_Vector),cvode_mem,which,fB,tB0,yB0)
+end
+
+function CVodeInitB(cvode_mem,which,fB,tB0,yB0)
+    __yB0 = convert(NVector,yB0)
+    __CVodeInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),fB,tB0,convert(N_Vector,__yB0))
+end
+
+function __CVodeInitBS(cvode_mem::CVODEMemPtr,which::Cint,fBs::CVRhsFnBS,tB0::realtype,yB0::N_Vector)
+    ccall((:CVodeInitBS,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVRhsFnBS,realtype,N_Vector),cvode_mem,which,fBs,tB0,yB0)
+end
+
+function CVodeInitBS(cvode_mem,which,fBs,tB0,yB0)
+    __yB0 = convert(NVector,yB0)
+    __CVodeInitBS(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),fBs,tB0,convert(N_Vector,__yB0))
+end
+
+function __CVodeReInitB(cvode_mem::CVODEMemPtr,which::Cint,tB0::realtype,yB0::N_Vector)
+    ccall((:CVodeReInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype,N_Vector),cvode_mem,which,tB0,yB0)
+end
+
+function CVodeReInitB(cvode_mem,which,tB0,yB0)
+    __yB0 = convert(NVector,yB0)
+    __CVodeReInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),tB0,convert(N_Vector,__yB0))
+end
+
+function __CVodeSStolerancesB(cvode_mem::CVODEMemPtr,which::Cint,reltolB::realtype,abstolB::realtype)
+    ccall((:CVodeSStolerancesB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype,realtype),cvode_mem,which,reltolB,abstolB)
+end
+
+function CVodeSStolerancesB(cvode_mem,which,reltolB,abstolB)
+    __CVodeSStolerancesB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),reltolB,abstolB)
+end
+
+function __CVodeSVtolerancesB(cvode_mem::CVODEMemPtr,which::Cint,reltolB::realtype,abstolB::N_Vector)
+    ccall((:CVodeSVtolerancesB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype,N_Vector),cvode_mem,which,reltolB,abstolB)
+end
+
+function CVodeSVtolerancesB(cvode_mem,which,reltolB,abstolB)
+    __abstolB = convert(NVector,abstolB)
+    __CVodeSVtolerancesB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),reltolB,convert(N_Vector,__abstolB))
+end
+
+function __CVodeQuadInitB(cvode_mem::CVODEMemPtr,which::Cint,fQB::CVQuadRhsFnB,yQB0::N_Vector)
+    ccall((:CVodeQuadInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVQuadRhsFnB,N_Vector),cvode_mem,which,fQB,yQB0)
+end
+
+function CVodeQuadInitB(cvode_mem,which,fQB,yQB0)
+    __yQB0 = convert(NVector,yQB0)
+    __CVodeQuadInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),fQB,convert(N_Vector,__yQB0))
+end
+
+function __CVodeQuadInitBS(cvode_mem::CVODEMemPtr,which::Cint,fQBs::CVQuadRhsFnBS,yQB0::N_Vector)
+    ccall((:CVodeQuadInitBS,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVQuadRhsFnBS,N_Vector),cvode_mem,which,fQBs,yQB0)
+end
+
+function CVodeQuadInitBS(cvode_mem,which,fQBs,yQB0)
+    __yQB0 = convert(NVector,yQB0)
+    __CVodeQuadInitBS(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),fQBs,convert(N_Vector,__yQB0))
+end
+
+function __CVodeQuadReInitB(cvode_mem::CVODEMemPtr,which::Cint,yQB0::N_Vector)
+    ccall((:CVodeQuadReInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,N_Vector),cvode_mem,which,yQB0)
+end
+
+function CVodeQuadReInitB(cvode_mem,which,yQB0)
+    __yQB0 = convert(NVector,yQB0)
+    __CVodeQuadReInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(N_Vector,__yQB0))
+end
+
+function __CVodeQuadSStolerancesB(cvode_mem::CVODEMemPtr,which::Cint,reltolQB::realtype,abstolQB::realtype)
+    ccall((:CVodeQuadSStolerancesB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype,realtype),cvode_mem,which,reltolQB,abstolQB)
+end
+
+function CVodeQuadSStolerancesB(cvode_mem,which,reltolQB,abstolQB)
+    __CVodeQuadSStolerancesB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),reltolQB,abstolQB)
+end
+
+function __CVodeQuadSVtolerancesB(cvode_mem::CVODEMemPtr,which::Cint,reltolQB::realtype,abstolQB::N_Vector)
+    ccall((:CVodeQuadSVtolerancesB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype,N_Vector),cvode_mem,which,reltolQB,abstolQB)
+end
+
+function CVodeQuadSVtolerancesB(cvode_mem,which,reltolQB,abstolQB)
+    __abstolQB = convert(NVector,abstolQB)
+    __CVodeQuadSVtolerancesB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),reltolQB,convert(N_Vector,__abstolQB))
+end
+
+function __CVodeF(cvode_mem::CVODEMemPtr,tout::realtype,yout::N_Vector,tret::Ptr{realtype},itask::Cint,ncheckPtr::Ptr{Cint})
+    ccall((:CVodeF,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,N_Vector,Ptr{realtype},Cint,Ptr{Cint}),cvode_mem,tout,yout,tret,itask,ncheckPtr)
+end
+
+function CVodeF(cvode_mem,tout,yout,tret,itask,ncheckPtr)
+    __yout = convert(NVector,yout)
+    __CVodeF(convert(CVODEMemPtr,cvode_mem),tout,convert(N_Vector,__yout),pointer(tret),convert(Cint,itask),pointer(ncheckPtr))
+end
+
+function __CVodeB(cvode_mem::CVODEMemPtr,tBout::realtype,itaskB::Cint)
+    ccall((:CVodeB,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,Cint),cvode_mem,tBout,itaskB)
+end
+
+function CVodeB(cvode_mem,tBout,itaskB)
+    __CVodeB(convert(CVODEMemPtr,cvode_mem),tBout,convert(Cint,itaskB))
+end
+
+function __CVodeSetAdjNoSensi(cvode_mem::CVODEMemPtr)
+    ccall((:CVodeSetAdjNoSensi,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
+end
+
+function CVodeSetAdjNoSensi(cvode_mem)
+    __CVodeSetAdjNoSensi(convert(CVODEMemPtr,cvode_mem))
+end
+
+function __CVodeSetIterTypeB(cvode_mem::CVODEMemPtr,which::Cint,iterB::Cint)
+    ccall((:CVodeSetIterTypeB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,iterB)
+end
+
+function CVodeSetIterTypeB(cvode_mem,which,iterB)
+    __CVodeSetIterTypeB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,iterB))
+end
+
+function __CVodeSetUserDataB(cvode_mem::CVODEMemPtr,which::Cint,user_dataB::Any)
+    ccall((:CVodeSetUserDataB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Any),cvode_mem,which,user_dataB)
+end
+
+function CVodeSetUserDataB(cvode_mem,which,user_dataB)
+    __CVodeSetUserDataB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),user_dataB)
+end
+
+function __CVodeSetMaxOrdB(cvode_mem::CVODEMemPtr,which::Cint,maxordB::Cint)
+    ccall((:CVodeSetMaxOrdB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,maxordB)
+end
+
+function CVodeSetMaxOrdB(cvode_mem,which,maxordB)
+    __CVodeSetMaxOrdB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,maxordB))
+end
+
+function __CVodeSetMaxNumStepsB(cvode_mem::CVODEMemPtr,which::Cint,mxstepsB::Clong)
+    ccall((:CVodeSetMaxNumStepsB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong),cvode_mem,which,mxstepsB)
+end
+
+function CVodeSetMaxNumStepsB(cvode_mem,which,mxstepsB)
+    __CVodeSetMaxNumStepsB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,mxstepsB))
+end
+
+function __CVodeSetStabLimDetB(cvode_mem::CVODEMemPtr,which::Cint,stldetB::Cint)
+    ccall((:CVodeSetStabLimDetB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,stldetB)
+end
+
+function CVodeSetStabLimDetB(cvode_mem,which,stldetB)
+    __CVodeSetStabLimDetB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,stldetB))
+end
+
+function __CVodeSetInitStepB(cvode_mem::CVODEMemPtr,which::Cint,hinB::realtype)
+    ccall((:CVodeSetInitStepB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype),cvode_mem,which,hinB)
+end
+
+function CVodeSetInitStepB(cvode_mem,which,hinB)
+    __CVodeSetInitStepB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),hinB)
+end
+
+function __CVodeSetMinStepB(cvode_mem::CVODEMemPtr,which::Cint,hminB::realtype)
+    ccall((:CVodeSetMinStepB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype),cvode_mem,which,hminB)
+end
+
+function CVodeSetMinStepB(cvode_mem,which,hminB)
+    __CVodeSetMinStepB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),hminB)
+end
+
+function __CVodeSetMaxStepB(cvode_mem::CVODEMemPtr,which::Cint,hmaxB::realtype)
+    ccall((:CVodeSetMaxStepB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype),cvode_mem,which,hmaxB)
+end
+
+function CVodeSetMaxStepB(cvode_mem,which,hmaxB)
+    __CVodeSetMaxStepB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),hmaxB)
+end
+
+function __CVodeSetQuadErrConB(cvode_mem::CVODEMemPtr,which::Cint,errconQB::Cint)
+    ccall((:CVodeSetQuadErrConB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,errconQB)
+end
+
+function CVodeSetQuadErrConB(cvode_mem,which,errconQB)
+    __CVodeSetQuadErrConB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,errconQB))
+end
+
+function __CVodeGetB(cvode_mem::CVODEMemPtr,which::Cint,tBret::Ptr{realtype},yB::N_Vector)
+    ccall((:CVodeGetB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Ptr{realtype},N_Vector),cvode_mem,which,tBret,yB)
+end
+
+function CVodeGetB(cvode_mem,which,tBret,yB)
+    __yB = convert(NVector,yB)
+    __CVodeGetB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),pointer(tBret),convert(N_Vector,__yB))
+end
+
+function __CVodeGetQuadB(cvode_mem::CVODEMemPtr,which::Cint,tBret::Ptr{realtype},qB::N_Vector)
+    ccall((:CVodeGetQuadB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Ptr{realtype},N_Vector),cvode_mem,which,tBret,qB)
+end
+
+function CVodeGetQuadB(cvode_mem,which,tBret,qB)
+    __qB = convert(NVector,qB)
+    __CVodeGetQuadB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),pointer(tBret),convert(N_Vector,__qB))
+end
+
+function __CVodeGetAdjCVodeBmem(cvode_mem::CVODEMemPtr,which::Cint)
+    ccall((:CVodeGetAdjCVodeBmem,libsundials_cvodes),Ptr{Void},(CVODEMemPtr,Cint),cvode_mem,which)
+end
+
+function CVodeGetAdjCVodeBmem(cvode_mem,which)
+    __CVodeGetAdjCVodeBmem(convert(CVODEMemPtr,cvode_mem),convert(Cint,which))
+end
+
+function __CVodeGetAdjY(cvode_mem::CVODEMemPtr,t::realtype,y::N_Vector)
+    ccall((:CVodeGetAdjY,libsundials_cvodes),Cint,(CVODEMemPtr,realtype,N_Vector),cvode_mem,t,y)
+end
+
+function CVodeGetAdjY(cvode_mem,t,y)
+    __y = convert(NVector,y)
+    __CVodeGetAdjY(convert(CVODEMemPtr,cvode_mem),t,convert(N_Vector,__y))
+end
+
+function __CVodeGetAdjCheckPointsInfo(cvode_mem::CVODEMemPtr,ckpnt::Ptr{CVadjCheckPointRec})
+    ccall((:CVodeGetAdjCheckPointsInfo,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{CVadjCheckPointRec}),cvode_mem,ckpnt)
+end
+
+function CVodeGetAdjCheckPointsInfo(cvode_mem,ckpnt)
+    __CVodeGetAdjCheckPointsInfo(convert(CVODEMemPtr,cvode_mem),pointer(ckpnt))
+end
+
+function __CVodeGetAdjDataPointHermite(cvode_mem::CVODEMemPtr,which::Cint,t::Ptr{realtype},y::N_Vector,yd::N_Vector)
+    ccall((:CVodeGetAdjDataPointHermite,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Ptr{realtype},N_Vector,N_Vector),cvode_mem,which,t,y,yd)
+end
+
+function CVodeGetAdjDataPointHermite(cvode_mem,which,t,y,yd)
+    __y = convert(NVector,y)
+    __yd = convert(NVector,yd)
+    __CVodeGetAdjDataPointHermite(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),pointer(t),convert(N_Vector,__y),convert(N_Vector,__yd))
+end
+
+function __CVodeGetAdjDataPointPolynomial(cvode_mem::CVODEMemPtr,which::Cint,t::Ptr{realtype},order::Ptr{Cint},y::N_Vector)
+    ccall((:CVodeGetAdjDataPointPolynomial,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Ptr{realtype},Ptr{Cint},N_Vector),cvode_mem,which,t,order,y)
+end
+
+function CVodeGetAdjDataPointPolynomial(cvode_mem,which,t,order,y)
+    __y = convert(NVector,y)
+    __CVodeGetAdjDataPointPolynomial(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),pointer(t),pointer(order),convert(N_Vector,__y))
+end
+
+function __CVodeGetAdjCurrentCheckPoint(cvode_mem::CVODEMemPtr,addr::Ptr{Ptr{Void}})
+    ccall((:CVodeGetAdjCurrentCheckPoint,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Ptr{Void}}),cvode_mem,addr)
+end
+
+function CVodeGetAdjCurrentCheckPoint(cvode_mem,addr)
+    __CVodeGetAdjCurrentCheckPoint(convert(CVODEMemPtr,cvode_mem),pointer(addr))
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function CVDlsSetDenseJacFn(cvode_mem::Ptr{Void},jac::CVDlsDenseJacFn)
-    ccall((:CVDlsSetDenseJacFn,libsundials_cvode),Cint,(Ptr{Void},CVDlsDenseJacFn),cvode_mem,jac)
+function __CVDlsSetDenseJacFn(cvode_mem::CVODEMemPtr,jac::CVDlsDenseJacFn)
+    ccall((:CVDlsSetDenseJacFn,libsundials_cvodes),Cint,(CVODEMemPtr,CVDlsDenseJacFn),cvode_mem,jac)
 end
 
-function CVDlsSetBandJacFn(cvode_mem::Ptr{Void},jac::CVDlsBandJacFn)
-    ccall((:CVDlsSetBandJacFn,libsundials_cvode),Cint,(Ptr{Void},CVDlsBandJacFn),cvode_mem,jac)
+function CVDlsSetDenseJacFn(cvode_mem,jac)
+    __CVDlsSetDenseJacFn(convert(CVODEMemPtr,cvode_mem),jac)
 end
 
-function CVDlsGetWorkSpace(cvode_mem::Ptr{Void},lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
-    ccall((:CVDlsGetWorkSpace,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
+function __CVDlsSetBandJacFn(cvode_mem::CVODEMemPtr,jac::CVDlsBandJacFn)
+    ccall((:CVDlsSetBandJacFn,libsundials_cvodes),Cint,(CVODEMemPtr,CVDlsBandJacFn),cvode_mem,jac)
 end
 
-function CVDlsGetNumJacEvals(cvode_mem::Ptr{Void},njevals::Ptr{Clong})
-    ccall((:CVDlsGetNumJacEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,njevals)
+function CVDlsSetBandJacFn(cvode_mem,jac)
+    __CVDlsSetBandJacFn(convert(CVODEMemPtr,cvode_mem),jac)
 end
 
-function CVDlsGetNumRhsEvals(cvode_mem::Ptr{Void},nfevalsLS::Ptr{Clong})
-    ccall((:CVDlsGetNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfevalsLS)
+function __CVDlsGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
+    ccall((:CVDlsGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
 end
 
-function CVDlsGetLastFlag(cvode_mem::Ptr{Void},flag::Ptr{Clong})
-    ccall((:CVDlsGetLastFlag,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,flag)
+function CVDlsGetWorkSpace(cvode_mem,lenrwLS,leniwLS)
+    __CVDlsGetWorkSpace(convert(CVODEMemPtr,cvode_mem),pointer(lenrwLS),pointer(leniwLS))
 end
 
-function CVDlsGetReturnFlagName(flag::Int)
-    ccall((:CVDlsGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
+function __CVDlsGetNumJacEvals(cvode_mem::CVODEMemPtr,njevals::Ptr{Clong})
+    ccall((:CVDlsGetNumJacEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,njevals)
 end
 
-function CVDlsSetDenseJacFnB(cvode_mem::Ptr{Void},which::Int,jacB::CVDlsDenseJacFnB)
-    ccall((:CVDlsSetDenseJacFnB,libsundials_cvode),Cint,(Ptr{Void},Cint,CVDlsDenseJacFnB),cvode_mem,which,jacB)
+function CVDlsGetNumJacEvals(cvode_mem,njevals)
+    __CVDlsGetNumJacEvals(convert(CVODEMemPtr,cvode_mem),pointer(njevals))
 end
 
-function CVDlsSetBandJacFnB(cvode_mem::Ptr{Void},which::Int,jacB::CVDlsBandJacFnB)
-    ccall((:CVDlsSetBandJacFnB,libsundials_cvode),Cint,(Ptr{Void},Cint,CVDlsBandJacFnB),cvode_mem,which,jacB)
+function __CVDlsGetNumRhsEvals(cvode_mem::CVODEMemPtr,nfevalsLS::Ptr{Clong})
+    ccall((:CVDlsGetNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfevalsLS)
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_spils.h
+
+function CVDlsGetNumRhsEvals(cvode_mem,nfevalsLS)
+    __CVDlsGetNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfevalsLS))
+end
+
+function __CVDlsGetLastFlag(cvode_mem::CVODEMemPtr,flag::Ptr{Clong})
+    ccall((:CVDlsGetLastFlag,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,flag)
+end
+
+function CVDlsGetLastFlag(cvode_mem,flag)
+    __CVDlsGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
+end
+
+function __CVDlsGetReturnFlagName(flag::Clong)
+    ccall((:CVDlsGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
+end
+
+function CVDlsGetReturnFlagName(flag)
+    __CVDlsGetReturnFlagName(convert(Clong,flag))
+end
+
+function __CVDlsSetDenseJacFnB(cvode_mem::CVODEMemPtr,which::Cint,jacB::CVDlsDenseJacFnB)
+    ccall((:CVDlsSetDenseJacFnB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVDlsDenseJacFnB),cvode_mem,which,jacB)
+end
+
+function CVDlsSetDenseJacFnB(cvode_mem,which,jacB)
+    __CVDlsSetDenseJacFnB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),jacB)
+end
+
+function __CVDlsSetBandJacFnB(cvode_mem::CVODEMemPtr,which::Cint,jacB::CVDlsBandJacFnB)
+    ccall((:CVDlsSetBandJacFnB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVDlsBandJacFnB),cvode_mem,which,jacB)
+end
+
+function CVDlsSetBandJacFnB(cvode_mem,which,jacB)
+    __CVDlsSetBandJacFnB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),jacB)
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVSpilsSetPrecType(cvode_mem::Ptr{Void},pretype::Int)
-    ccall((:CVSpilsSetPrecType,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,pretype)
+
+function __CVSpilsSetPrecType(cvode_mem::CVODEMemPtr,pretype::Cint)
+    ccall((:CVSpilsSetPrecType,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,pretype)
 end
 
-function CVSpilsSetGSType(cvode_mem::Ptr{Void},gstype::Int)
-    ccall((:CVSpilsSetGSType,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,gstype)
+function CVSpilsSetPrecType(cvode_mem,pretype)
+    __CVSpilsSetPrecType(convert(CVODEMemPtr,cvode_mem),convert(Cint,pretype))
 end
 
-function CVSpilsSetMaxl(cvode_mem::Ptr{Void},maxl::Int)
-    ccall((:CVSpilsSetMaxl,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,maxl)
+function __CVSpilsSetGSType(cvode_mem::CVODEMemPtr,gstype::Cint)
+    ccall((:CVSpilsSetGSType,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,gstype)
 end
 
-function CVSpilsSetEpsLin(cvode_mem::Ptr{Void},eplifac::realtype)
-    ccall((:CVSpilsSetEpsLin,libsundials_cvode),Cint,(Ptr{Void},realtype),cvode_mem,eplifac)
+function CVSpilsSetGSType(cvode_mem,gstype)
+    __CVSpilsSetGSType(convert(CVODEMemPtr,cvode_mem),convert(Cint,gstype))
 end
 
-function CVSpilsSetPreconditioner(cvode_mem::Ptr{Void},pset::CVSpilsPrecSetupFn,psolve::CVSpilsPrecSolveFn)
-    ccall((:CVSpilsSetPreconditioner,libsundials_cvode),Cint,(Ptr{Void},CVSpilsPrecSetupFn,CVSpilsPrecSolveFn),cvode_mem,pset,psolve)
+function __CVSpilsSetMaxl(cvode_mem::CVODEMemPtr,maxl::Cint)
+    ccall((:CVSpilsSetMaxl,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,maxl)
 end
 
-function CVSpilsSetJacTimesVecFn(cvode_mem::Ptr{Void},jtv::CVSpilsJacTimesVecFn)
-    ccall((:CVSpilsSetJacTimesVecFn,libsundials_cvode),Cint,(Ptr{Void},CVSpilsJacTimesVecFn),cvode_mem,jtv)
+function CVSpilsSetMaxl(cvode_mem,maxl)
+    __CVSpilsSetMaxl(convert(CVODEMemPtr,cvode_mem),convert(Cint,maxl))
 end
 
-function CVSpilsGetWorkSpace(cvode_mem::Ptr{Void},lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
-    ccall((:CVSpilsGetWorkSpace,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
+function __CVSpilsSetEpsLin(cvode_mem::CVODEMemPtr,eplifac::realtype)
+    ccall((:CVSpilsSetEpsLin,libsundials_cvodes),Cint,(CVODEMemPtr,realtype),cvode_mem,eplifac)
 end
 
-function CVSpilsGetNumPrecEvals(cvode_mem::Ptr{Void},npevals::Ptr{Clong})
-    ccall((:CVSpilsGetNumPrecEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,npevals)
+function CVSpilsSetEpsLin(cvode_mem,eplifac)
+    __CVSpilsSetEpsLin(convert(CVODEMemPtr,cvode_mem),eplifac)
 end
 
-function CVSpilsGetNumPrecSolves(cvode_mem::Ptr{Void},npsolves::Ptr{Clong})
-    ccall((:CVSpilsGetNumPrecSolves,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,npsolves)
+function __CVSpilsSetPreconditioner(cvode_mem::CVODEMemPtr,pset::CVSpilsPrecSetupFn,psolve::CVSpilsPrecSolveFn)
+    ccall((:CVSpilsSetPreconditioner,libsundials_cvodes),Cint,(CVODEMemPtr,CVSpilsPrecSetupFn,CVSpilsPrecSolveFn),cvode_mem,pset,psolve)
 end
 
-function CVSpilsGetNumLinIters(cvode_mem::Ptr{Void},nliters::Ptr{Clong})
-    ccall((:CVSpilsGetNumLinIters,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nliters)
+function CVSpilsSetPreconditioner(cvode_mem,pset,psolve)
+    __CVSpilsSetPreconditioner(convert(CVODEMemPtr,cvode_mem),pset,psolve)
 end
 
-function CVSpilsGetNumConvFails(cvode_mem::Ptr{Void},nlcfails::Ptr{Clong})
-    ccall((:CVSpilsGetNumConvFails,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nlcfails)
+function __CVSpilsSetJacTimesVecFn(cvode_mem::CVODEMemPtr,jtv::CVSpilsJacTimesVecFn)
+    ccall((:CVSpilsSetJacTimesVecFn,libsundials_cvodes),Cint,(CVODEMemPtr,CVSpilsJacTimesVecFn),cvode_mem,jtv)
 end
 
-function CVSpilsGetNumJtimesEvals(cvode_mem::Ptr{Void},njvevals::Ptr{Clong})
-    ccall((:CVSpilsGetNumJtimesEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,njvevals)
+function CVSpilsSetJacTimesVecFn(cvode_mem,jtv)
+    __CVSpilsSetJacTimesVecFn(convert(CVODEMemPtr,cvode_mem),jtv)
 end
 
-function CVSpilsGetNumRhsEvals(cvode_mem::Ptr{Void},nfevalsLS::Ptr{Clong})
-    ccall((:CVSpilsGetNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfevalsLS)
+function __CVSpilsGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
+    ccall((:CVSpilsGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
 end
 
-function CVSpilsGetLastFlag(cvode_mem::Ptr{Void},flag::Ptr{Clong})
-    ccall((:CVSpilsGetLastFlag,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,flag)
+function CVSpilsGetWorkSpace(cvode_mem,lenrwLS,leniwLS)
+    __CVSpilsGetWorkSpace(convert(CVODEMemPtr,cvode_mem),pointer(lenrwLS),pointer(leniwLS))
 end
 
-function CVSpilsGetReturnFlagName(flag::Int)
-    ccall((:CVSpilsGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
+function __CVSpilsGetNumPrecEvals(cvode_mem::CVODEMemPtr,npevals::Ptr{Clong})
+    ccall((:CVSpilsGetNumPrecEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,npevals)
 end
 
-function CVSpilsSetPrecTypeB(cvode_mem::Ptr{Void},which::Int,pretypeB::Int)
-    ccall((:CVSpilsSetPrecTypeB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,which,pretypeB)
+function CVSpilsGetNumPrecEvals(cvode_mem,npevals)
+    __CVSpilsGetNumPrecEvals(convert(CVODEMemPtr,cvode_mem),pointer(npevals))
 end
 
-function CVSpilsSetGSTypeB(cvode_mem::Ptr{Void},which::Int,gstypeB::Int)
-    ccall((:CVSpilsSetGSTypeB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,which,gstypeB)
+function __CVSpilsGetNumPrecSolves(cvode_mem::CVODEMemPtr,npsolves::Ptr{Clong})
+    ccall((:CVSpilsGetNumPrecSolves,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,npsolves)
 end
 
-function CVSpilsSetEpslinB(cvode_mem::Ptr{Void},which::Int,eplifacB::realtype)
-    ccall((:CVSpilsSetEpslinB,libsundials_cvode),Cint,(Ptr{Void},Cint,realtype),cvode_mem,which,eplifacB)
+function CVSpilsGetNumPrecSolves(cvode_mem,npsolves)
+    __CVSpilsGetNumPrecSolves(convert(CVODEMemPtr,cvode_mem),pointer(npsolves))
 end
 
-function CVSpilsSetMaxlB(cvode_mem::Ptr{Void},which::Int,maxlB::Int)
-    ccall((:CVSpilsSetMaxlB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,which,maxlB)
+function __CVSpilsGetNumLinIters(cvode_mem::CVODEMemPtr,nliters::Ptr{Clong})
+    ccall((:CVSpilsGetNumLinIters,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nliters)
 end
 
-function CVSpilsSetPreconditionerB(cvode_mem::Ptr{Void},which::Int,psetB::CVSpilsPrecSetupFnB,psolveB::CVSpilsPrecSolveFnB)
-    ccall((:CVSpilsSetPreconditionerB,libsundials_cvode),Cint,(Ptr{Void},Cint,CVSpilsPrecSetupFnB,CVSpilsPrecSolveFnB),cvode_mem,which,psetB,psolveB)
+function CVSpilsGetNumLinIters(cvode_mem,nliters)
+    __CVSpilsGetNumLinIters(convert(CVODEMemPtr,cvode_mem),pointer(nliters))
 end
 
-function CVSpilsSetJacTimesVecFnB(cvode_mem::Ptr{Void},which::Int,jtvB::CVSpilsJacTimesVecFnB)
-    ccall((:CVSpilsSetJacTimesVecFnB,libsundials_cvode),Cint,(Ptr{Void},Cint,CVSpilsJacTimesVecFnB),cvode_mem,which,jtvB)
+function __CVSpilsGetNumConvFails(cvode_mem::CVODEMemPtr,nlcfails::Ptr{Clong})
+    ccall((:CVSpilsGetNumConvFails,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nlcfails)
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_band.h
+
+function CVSpilsGetNumConvFails(cvode_mem,nlcfails)
+    __CVSpilsGetNumConvFails(convert(CVODEMemPtr,cvode_mem),pointer(nlcfails))
+end
+
+function __CVSpilsGetNumJtimesEvals(cvode_mem::CVODEMemPtr,njvevals::Ptr{Clong})
+    ccall((:CVSpilsGetNumJtimesEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,njvevals)
+end
+
+function CVSpilsGetNumJtimesEvals(cvode_mem,njvevals)
+    __CVSpilsGetNumJtimesEvals(convert(CVODEMemPtr,cvode_mem),pointer(njvevals))
+end
+
+function __CVSpilsGetNumRhsEvals(cvode_mem::CVODEMemPtr,nfevalsLS::Ptr{Clong})
+    ccall((:CVSpilsGetNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfevalsLS)
+end
+
+function CVSpilsGetNumRhsEvals(cvode_mem,nfevalsLS)
+    __CVSpilsGetNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfevalsLS))
+end
+
+function __CVSpilsGetLastFlag(cvode_mem::CVODEMemPtr,flag::Ptr{Clong})
+    ccall((:CVSpilsGetLastFlag,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,flag)
+end
+
+function CVSpilsGetLastFlag(cvode_mem,flag)
+    __CVSpilsGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
+end
+
+function __CVSpilsGetReturnFlagName(flag::Clong)
+    ccall((:CVSpilsGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
+end
+
+function CVSpilsGetReturnFlagName(flag)
+    __CVSpilsGetReturnFlagName(convert(Clong,flag))
+end
+
+function __CVSpilsSetPrecTypeB(cvode_mem::CVODEMemPtr,which::Cint,pretypeB::Cint)
+    ccall((:CVSpilsSetPrecTypeB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,pretypeB)
+end
+
+function CVSpilsSetPrecTypeB(cvode_mem,which,pretypeB)
+    __CVSpilsSetPrecTypeB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,pretypeB))
+end
+
+function __CVSpilsSetGSTypeB(cvode_mem::CVODEMemPtr,which::Cint,gstypeB::Cint)
+    ccall((:CVSpilsSetGSTypeB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,gstypeB)
+end
+
+function CVSpilsSetGSTypeB(cvode_mem,which,gstypeB)
+    __CVSpilsSetGSTypeB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,gstypeB))
+end
+
+function __CVSpilsSetEpslinB(cvode_mem::CVODEMemPtr,which::Cint,eplifacB::realtype)
+    ccall((:CVSpilsSetEpslinB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,realtype),cvode_mem,which,eplifacB)
+end
+
+function CVSpilsSetEpslinB(cvode_mem,which,eplifacB)
+    __CVSpilsSetEpslinB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),eplifacB)
+end
+
+function __CVSpilsSetMaxlB(cvode_mem::CVODEMemPtr,which::Cint,maxlB::Cint)
+    ccall((:CVSpilsSetMaxlB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,which,maxlB)
+end
+
+function CVSpilsSetMaxlB(cvode_mem,which,maxlB)
+    __CVSpilsSetMaxlB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,maxlB))
+end
+
+function __CVSpilsSetPreconditionerB(cvode_mem::CVODEMemPtr,which::Cint,psetB::CVSpilsPrecSetupFnB,psolveB::CVSpilsPrecSolveFnB)
+    ccall((:CVSpilsSetPreconditionerB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVSpilsPrecSetupFnB,CVSpilsPrecSolveFnB),cvode_mem,which,psetB,psolveB)
+end
+
+function CVSpilsSetPreconditionerB(cvode_mem,which,psetB,psolveB)
+    __CVSpilsSetPreconditionerB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),psetB,psolveB)
+end
+
+function __CVSpilsSetJacTimesVecFnB(cvode_mem::CVODEMemPtr,which::Cint,jtvB::CVSpilsJacTimesVecFnB)
+    ccall((:CVSpilsSetJacTimesVecFnB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,CVSpilsJacTimesVecFnB),cvode_mem,which,jtvB)
+end
+
+function CVSpilsSetJacTimesVecFnB(cvode_mem,which,jtvB)
+    __CVSpilsSetJacTimesVecFnB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),jtvB)
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVBand(cvode_mem::Ptr{Void},N::Int,mupper::Int,mlower::Int)
-    ccall((:CVBand,libsundials_cvode),Cint,(Ptr{Void},Clong,Clong,Clong),cvode_mem,N,mupper,mlower)
+
+function __CVBand(cvode_mem::CVODEMemPtr,N::Clong,mupper::Clong,mlower::Clong)
+    ccall((:CVBand,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,Clong),cvode_mem,N,mupper,mlower)
 end
 
-function CVBandB(cvode_mem::Ptr{Void},which::Int,nB::Int,mupperB::Int,mlowerB::Int)
-    ccall((:CVBandB,libsundials_cvode),Cint,(Ptr{Void},Cint,Clong,Clong,Clong),cvode_mem,which,nB,mupperB,mlowerB)
+function CVBand(cvode_mem,N,mupper,mlower)
+    __CVBand(convert(CVODEMemPtr,cvode_mem),convert(Clong,N),convert(Clong,mupper),convert(Clong,mlower))
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_bandpre.h
+
+function __CVBandB(cvode_mem::CVODEMemPtr,which::Cint,nB::Clong,mupperB::Clong,mlowerB::Clong)
+    ccall((:CVBandB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,Clong),cvode_mem,which,nB,mupperB,mlowerB)
+end
+
+function CVBandB(cvode_mem,which,nB,mupperB,mlowerB)
+    __CVBandB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,nB),convert(Clong,mupperB),convert(Clong,mlowerB))
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_bandpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVBandPrecInit(cvode_mem::Ptr{Void},N::Int,mu::Int,ml::Int)
-    ccall((:CVBandPrecInit,libsundials_cvode),Cint,(Ptr{Void},Clong,Clong,Clong),cvode_mem,N,mu,ml)
+
+function __CVBandPrecInit(cvode_mem::CVODEMemPtr,N::Clong,mu::Clong,ml::Clong)
+    ccall((:CVBandPrecInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,Clong),cvode_mem,N,mu,ml)
 end
 
-function CVBandPrecGetWorkSpace(cvode_mem::Ptr{Void},lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
-    ccall((:CVBandPrecGetWorkSpace,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
+function CVBandPrecInit(cvode_mem,N,mu,ml)
+    __CVBandPrecInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,N),convert(Clong,mu),convert(Clong,ml))
 end
 
-function CVBandPrecGetNumRhsEvals(cvode_mem::Ptr{Void},nfevalsBP::Ptr{Clong})
-    ccall((:CVBandPrecGetNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfevalsBP)
+function __CVBandPrecGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
+    ccall((:CVBandPrecGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
 end
 
-function CVBandPrecInitB(cvode_mem::Ptr{Void},which::Int,nB::Int,muB::Int,mlB::Int)
-    ccall((:CVBandPrecInitB,libsundials_cvode),Cint,(Ptr{Void},Cint,Clong,Clong,Clong),cvode_mem,which,nB,muB,mlB)
+function CVBandPrecGetWorkSpace(cvode_mem,lenrwLS,leniwLS)
+    __CVBandPrecGetWorkSpace(convert(CVODEMemPtr,cvode_mem),pointer(lenrwLS),pointer(leniwLS))
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_bbdpre.h
+
+function __CVBandPrecGetNumRhsEvals(cvode_mem::CVODEMemPtr,nfevalsBP::Ptr{Clong})
+    ccall((:CVBandPrecGetNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfevalsBP)
+end
+
+function CVBandPrecGetNumRhsEvals(cvode_mem,nfevalsBP)
+    __CVBandPrecGetNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfevalsBP))
+end
+
+function __CVBandPrecInitB(cvode_mem::CVODEMemPtr,which::Cint,nB::Clong,muB::Clong,mlB::Clong)
+    ccall((:CVBandPrecInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,Clong),cvode_mem,which,nB,muB,mlB)
+end
+
+function CVBandPrecInitB(cvode_mem,which,nB,muB,mlB)
+    __CVBandPrecInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,nB),convert(Clong,muB),convert(Clong,mlB))
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVBBDPrecInit(cvode_mem::Ptr{Void},Nlocal::Int,mudq::Int,mldq::Int,mukeep::Int,mlkeep::Int,dqrely::realtype,gloc::CVLocalFn,cfn::CVCommFn)
-    ccall((:CVBBDPrecInit,libsundials_cvode),Cint,(Ptr{Void},Clong,Clong,Clong,Clong,Clong,realtype,CVLocalFn,CVCommFn),cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn)
+
+function __CVBBDPrecInit(cvode_mem::CVODEMemPtr,Nlocal::Clong,mudq::Clong,mldq::Clong,mukeep::Clong,mlkeep::Clong,dqrely::realtype,gloc::CVLocalFn,cfn::CVCommFn)
+    ccall((:CVBBDPrecInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,Clong,Clong,Clong,realtype,CVLocalFn,CVCommFn),cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn)
 end
 
-function CVBBDPrecReInit(cvode_mem::Ptr{Void},mudq::Int,mldq::Int,dqrely::realtype)
-    ccall((:CVBBDPrecReInit,libsundials_cvode),Cint,(Ptr{Void},Clong,Clong,realtype),cvode_mem,mudq,mldq,dqrely)
+function CVBBDPrecInit(cvode_mem,Nlocal,mudq,mldq,mukeep,mlkeep,dqrely,gloc,cfn)
+    __CVBBDPrecInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,Nlocal),convert(Clong,mudq),convert(Clong,mldq),convert(Clong,mukeep),convert(Clong,mlkeep),dqrely,gloc,cfn)
 end
 
-function CVBBDPrecGetWorkSpace(cvode_mem::Ptr{Void},lenrwBBDP::Ptr{Clong},leniwBBDP::Ptr{Clong})
-    ccall((:CVBBDPrecGetWorkSpace,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwBBDP,leniwBBDP)
+function __CVBBDPrecReInit(cvode_mem::CVODEMemPtr,mudq::Clong,mldq::Clong,dqrely::realtype)
+    ccall((:CVBBDPrecReInit,libsundials_cvodes),Cint,(CVODEMemPtr,Clong,Clong,realtype),cvode_mem,mudq,mldq,dqrely)
 end
 
-function CVBBDPrecGetNumGfnEvals(cvode_mem::Ptr{Void},ngevalsBBDP::Ptr{Clong})
-    ccall((:CVBBDPrecGetNumGfnEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,ngevalsBBDP)
+function CVBBDPrecReInit(cvode_mem,mudq,mldq,dqrely)
+    __CVBBDPrecReInit(convert(CVODEMemPtr,cvode_mem),convert(Clong,mudq),convert(Clong,mldq),dqrely)
 end
 
-function CVBBDPrecInitB(cvode_mem::Ptr{Void},which::Int,NlocalB::Int,mudqB::Int,mldqB::Int,mukeepB::Int,mlkeepB::Int,dqrelyB::realtype,glocB::CVLocalFnB,cfnB::CVCommFnB)
-    ccall((:CVBBDPrecInitB,libsundials_cvode),Cint,(Ptr{Void},Cint,Clong,Clong,Clong,Clong,Clong,realtype,CVLocalFnB,CVCommFnB),cvode_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dqrelyB,glocB,cfnB)
+function __CVBBDPrecGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwBBDP::Ptr{Clong},leniwBBDP::Ptr{Clong})
+    ccall((:CVBBDPrecGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwBBDP,leniwBBDP)
 end
 
-function CVBBDPrecReInitB(cvode_mem::Ptr{Void},which::Int,mudqB::Int,mldqB::Int,dqrelyB::realtype)
-    ccall((:CVBBDPrecReInitB,libsundials_cvode),Cint,(Ptr{Void},Cint,Clong,Clong,realtype),cvode_mem,which,mudqB,mldqB,dqrelyB)
+function CVBBDPrecGetWorkSpace(cvode_mem,lenrwBBDP,leniwBBDP)
+    __CVBBDPrecGetWorkSpace(convert(CVODEMemPtr,cvode_mem),pointer(lenrwBBDP),pointer(leniwBBDP))
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_dense.h
+
+function __CVBBDPrecGetNumGfnEvals(cvode_mem::CVODEMemPtr,ngevalsBBDP::Ptr{Clong})
+    ccall((:CVBBDPrecGetNumGfnEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,ngevalsBBDP)
+end
+
+function CVBBDPrecGetNumGfnEvals(cvode_mem,ngevalsBBDP)
+    __CVBBDPrecGetNumGfnEvals(convert(CVODEMemPtr,cvode_mem),pointer(ngevalsBBDP))
+end
+
+function __CVBBDPrecInitB(cvode_mem::CVODEMemPtr,which::Cint,NlocalB::Clong,mudqB::Clong,mldqB::Clong,mukeepB::Clong,mlkeepB::Clong,dqrelyB::realtype,glocB::CVLocalFnB,cfnB::CVCommFnB)
+    ccall((:CVBBDPrecInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,Clong,Clong,Clong,realtype,CVLocalFnB,CVCommFnB),cvode_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dqrelyB,glocB,cfnB)
+end
+
+function CVBBDPrecInitB(cvode_mem,which,NlocalB,mudqB,mldqB,mukeepB,mlkeepB,dqrelyB,glocB,cfnB)
+    __CVBBDPrecInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,NlocalB),convert(Clong,mudqB),convert(Clong,mldqB),convert(Clong,mukeepB),convert(Clong,mlkeepB),dqrelyB,glocB,cfnB)
+end
+
+function __CVBBDPrecReInitB(cvode_mem::CVODEMemPtr,which::Cint,mudqB::Clong,mldqB::Clong,dqrelyB::realtype)
+    ccall((:CVBBDPrecReInitB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong,Clong,realtype),cvode_mem,which,mudqB,mldqB,dqrelyB)
+end
+
+function CVBBDPrecReInitB(cvode_mem,which,mudqB,mldqB,dqrelyB)
+    __CVBBDPrecReInitB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,mudqB),convert(Clong,mldqB),dqrelyB)
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVDense(cvode_mem::Ptr{Void},N::Int)
-    ccall((:CVDense,libsundials_cvode),Cint,(Ptr{Void},Clong),cvode_mem,N)
+
+function __CVDense(cvode_mem::CVODEMemPtr,N::Clong)
+    ccall((:CVDense,libsundials_cvodes),Cint,(CVODEMemPtr,Clong),cvode_mem,N)
 end
 
-function CVDenseB(cvode_mem::Ptr{Void},which::Int,nB::Int)
-    ccall((:CVDenseB,libsundials_cvode),Cint,(Ptr{Void},Cint,Clong),cvode_mem,which,nB)
+function CVDense(cvode_mem,N)
+    __CVDense(convert(CVODEMemPtr,cvode_mem),convert(Clong,N))
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_diag.h
+
+function __CVDenseB(cvode_mem::CVODEMemPtr,which::Cint,nB::Clong)
+    ccall((:CVDenseB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Clong),cvode_mem,which,nB)
+end
+
+function CVDenseB(cvode_mem,which,nB)
+    __CVDenseB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Clong,nB))
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_diag.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVDiag(cvode_mem::Ptr{Void})
-    ccall((:CVDiag,libsundials_cvode),Cint,(Ptr{Void},),cvode_mem)
+
+function __CVDiag(cvode_mem::CVODEMemPtr)
+    ccall((:CVDiag,libsundials_cvodes),Cint,(CVODEMemPtr,),cvode_mem)
 end
 
-function CVDiagGetWorkSpace(cvode_mem::Ptr{Void},lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
-    ccall((:CVDiagGetWorkSpace,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
+function CVDiag(cvode_mem)
+    __CVDiag(convert(CVODEMemPtr,cvode_mem))
 end
 
-function CVDiagGetNumRhsEvals(cvode_mem::Ptr{Void},nfevalsLS::Ptr{Clong})
-    ccall((:CVDiagGetNumRhsEvals,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,nfevalsLS)
+function __CVDiagGetWorkSpace(cvode_mem::CVODEMemPtr,lenrwLS::Ptr{Clong},leniwLS::Ptr{Clong})
+    ccall((:CVDiagGetWorkSpace,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong},Ptr{Clong}),cvode_mem,lenrwLS,leniwLS)
 end
 
-function CVDiagGetLastFlag(cvode_mem::Ptr{Void},flag::Ptr{Clong})
-    ccall((:CVDiagGetLastFlag,libsundials_cvode),Cint,(Ptr{Void},Ptr{Clong}),cvode_mem,flag)
+function CVDiagGetWorkSpace(cvode_mem,lenrwLS,leniwLS)
+    __CVDiagGetWorkSpace(convert(CVODEMemPtr,cvode_mem),pointer(lenrwLS),pointer(leniwLS))
 end
 
-function CVDiagGetReturnFlagName(flag::Int)
-    ccall((:CVDiagGetReturnFlagName,libsundials_cvode),Ptr{UInt8},(Clong,),flag)
+function __CVDiagGetNumRhsEvals(cvode_mem::CVODEMemPtr,nfevalsLS::Ptr{Clong})
+    ccall((:CVDiagGetNumRhsEvals,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,nfevalsLS)
 end
 
-function CVDiagB(cvode_mem::Ptr{Void},which::Int)
-    ccall((:CVDiagB,libsundials_cvode),Cint,(Ptr{Void},Cint),cvode_mem,which)
+function CVDiagGetNumRhsEvals(cvode_mem,nfevalsLS)
+    __CVDiagGetNumRhsEvals(convert(CVODEMemPtr,cvode_mem),pointer(nfevalsLS))
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_impl.h
+
+function __CVDiagGetLastFlag(cvode_mem::CVODEMemPtr,flag::Ptr{Clong})
+    ccall((:CVDiagGetLastFlag,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{Clong}),cvode_mem,flag)
+end
+
+function CVDiagGetLastFlag(cvode_mem,flag)
+    __CVDiagGetLastFlag(convert(CVODEMemPtr,cvode_mem),pointer(flag))
+end
+
+function __CVDiagGetReturnFlagName(flag::Clong)
+    ccall((:CVDiagGetReturnFlagName,libsundials_cvodes),Ptr{UInt8},(Clong,),flag)
+end
+
+function CVDiagGetReturnFlagName(flag)
+    __CVDiagGetReturnFlagName(convert(Clong,flag))
+end
+
+function __CVDiagB(cvode_mem::CVODEMemPtr,which::Cint)
+    ccall((:CVDiagB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint),cvode_mem,which)
+end
+
+function CVDiagB(cvode_mem,which)
+    __CVDiagB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which))
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function cvEwtSet(ycur::N_Vector,weight::N_Vector,data::Ptr{Void})
-    ccall((:cvEwtSet,libsundials_cvode),Cint,(N_Vector,N_Vector,Ptr{Void}),ycur,weight,data)
-end
-
-function cvErrHandler(error_code::Int,_module::Ptr{UInt8},_function::Ptr{UInt8},msg::Ptr{UInt8},data::Ptr{Void})
-    ccall((:cvErrHandler,libsundials_cvode),Void,(Cint,Ptr{UInt8},Ptr{UInt8},Ptr{UInt8},Ptr{Void}),error_code,_module,_function,msg,data)
-end
-
-function cvSensRhsWrapper(cv_mem::CVodeMem,time::realtype,ycur::N_Vector,fcur::N_Vector,yScur::Ptr{N_Vector},fScur::Ptr{N_Vector},temp1::N_Vector,temp2::N_Vector)
-    ccall((:cvSensRhsWrapper,libsundials_cvode),Cint,(CVodeMem,realtype,N_Vector,N_Vector,Ptr{N_Vector},Ptr{N_Vector},N_Vector,N_Vector),cv_mem,time,ycur,fcur,yScur,fScur,temp1,temp2)
-end
-
-function cvSensRhs1Wrapper(cv_mem::CVodeMem,time::realtype,ycur::N_Vector,fcur::N_Vector,is::Int,yScur::N_Vector,fScur::N_Vector,temp1::N_Vector,temp2::N_Vector)
-    ccall((:cvSensRhs1Wrapper,libsundials_cvode),Cint,(CVodeMem,realtype,N_Vector,N_Vector,Cint,N_Vector,N_Vector,N_Vector,N_Vector),cv_mem,time,ycur,fcur,is,yScur,fScur,temp1,temp2)
-end
-
-function cvSensRhsInternalDQ(Ns::Int,t::realtype,y::N_Vector,ydot::N_Vector,yS::Ptr{N_Vector},ySdot::Ptr{N_Vector},fS_data::Ptr{Void},tempv::N_Vector,ftemp::N_Vector)
-    ccall((:cvSensRhsInternalDQ,libsundials_cvode),Cint,(Cint,realtype,N_Vector,N_Vector,Ptr{N_Vector},Ptr{N_Vector},Ptr{Void},N_Vector,N_Vector),Ns,t,y,ydot,yS,ySdot,fS_data,tempv,ftemp)
-end
-
-function cvSensRhs1InternalDQ(Ns::Int,t::realtype,y::N_Vector,ydot::N_Vector,is::Int,yS::N_Vector,ySdot::N_Vector,fS_data::Ptr{Void},tempv::N_Vector,ftemp::N_Vector)
-    ccall((:cvSensRhs1InternalDQ,libsundials_cvode),Cint,(Cint,realtype,N_Vector,N_Vector,Cint,N_Vector,N_Vector,Ptr{Void},N_Vector,N_Vector),Ns,t,y,ydot,is,yS,ySdot,fS_data,tempv,ftemp)
-end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_spbcgs.h
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVSpbcg(cvode_mem::Ptr{Void},pretype::Int,maxl::Int)
-    ccall((:CVSpbcg,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,pretype,maxl)
+
+function __CVSpbcg(cvode_mem::CVODEMemPtr,pretype::Cint,maxl::Cint)
+    ccall((:CVSpbcg,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,pretype,maxl)
 end
 
-function CVSpbcgB(cvode_mem::Ptr{Void},which::Int,pretypeB::Int,maxlB::Int)
-    ccall((:CVSpbcgB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint,Cint),cvode_mem,which,pretypeB,maxlB)
+function CVSpbcg(cvode_mem,pretype,maxl)
+    __CVSpbcg(convert(CVODEMemPtr,cvode_mem),convert(Cint,pretype),convert(Cint,maxl))
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_spgmr.h
+
+function __CVSpbcgB(cvode_mem::CVODEMemPtr,which::Cint,pretypeB::Cint,maxlB::Cint)
+    ccall((:CVSpbcgB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint,Cint),cvode_mem,which,pretypeB,maxlB)
+end
+
+function CVSpbcgB(cvode_mem,which,pretypeB,maxlB)
+    __CVSpbcgB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,pretypeB),convert(Cint,maxlB))
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVSpgmr(cvode_mem::Ptr{Void},pretype::Int,maxl::Int)
-    ccall((:CVSpgmr,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,pretype,maxl)
+
+function __CVSpgmr(cvode_mem::CVODEMemPtr,pretype::Cint,maxl::Cint)
+    ccall((:CVSpgmr,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,pretype,maxl)
 end
 
-function CVSpgmrB(cvode_mem::Ptr{Void},which::Int,pretypeB::Int,maxlB::Int)
-    ccall((:CVSpgmrB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint,Cint),cvode_mem,which,pretypeB,maxlB)
+function CVSpgmr(cvode_mem,pretype,maxl)
+    __CVSpgmr(convert(CVODEMemPtr,cvode_mem),convert(Cint,pretype),convert(Cint,maxl))
 end
-# Julia wrapper for header: /Users/jgoldfar/.julia/v0.4/Sundials/deps/usr/include/cvodes/cvodes_sptfqmr.h
+
+function __CVSpgmrB(cvode_mem::CVODEMemPtr,which::Cint,pretypeB::Cint,maxlB::Cint)
+    ccall((:CVSpgmrB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint,Cint),cvode_mem,which,pretypeB,maxlB)
+end
+
+function CVSpgmrB(cvode_mem,which,pretypeB,maxlB)
+    __CVSpgmrB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,pretypeB),convert(Cint,maxlB))
+end
+# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/cvodes/cvodes_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVSptfqmr(cvode_mem::Ptr{Void},pretype::Int,maxl::Int)
-    ccall((:CVSptfqmr,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint),cvode_mem,pretype,maxl)
+
+function __CVSptfqmr(cvode_mem::CVODEMemPtr,pretype::Cint,maxl::Cint)
+    ccall((:CVSptfqmr,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint),cvode_mem,pretype,maxl)
 end
 
-function CVSptfqmrB(cvode_mem::Ptr{Void},which::Int,pretypeB::Int,maxlB::Int)
-    ccall((:CVSptfqmrB,libsundials_cvode),Cint,(Ptr{Void},Cint,Cint,Cint),cvode_mem,which,pretypeB,maxlB)
+function CVSptfqmr(cvode_mem,pretype,maxl)
+    __CVSptfqmr(convert(CVODEMemPtr,cvode_mem),convert(Cint,pretype),convert(Cint,maxl))
+end
+
+function __CVSptfqmrB(cvode_mem::CVODEMemPtr,which::Cint,pretypeB::Cint,maxlB::Cint)
+    ccall((:CVSptfqmrB,libsundials_cvodes),Cint,(CVODEMemPtr,Cint,Cint,Cint),cvode_mem,which,pretypeB,maxlB)
+end
+
+function CVSptfqmrB(cvode_mem,which,pretypeB,maxlB)
+    __CVSptfqmrB(convert(CVODEMemPtr,cvode_mem),convert(Cint,which),convert(Cint,pretypeB),convert(Cint,maxlB))
 end

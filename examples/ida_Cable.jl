@@ -15,35 +15,35 @@ using Grid ## for interpolating grids
 ##
 
 ## Length of cable in um
-L = 4000
+const L = 4000
 
 ## Number of space steps to simulate
-dx = 10
-xsteps = round(Int,L/dx)
+const dx = 10.0
+const xsteps = round(Int, L/dx)
 
 ## Number of timesteps to simulate
-tf = 10.0
-dt = 0.1
-timesteps = round(Int, tf/dt)
-t = 0.0:dt:(dt*(timesteps-1))
+const tf = 10.0
+const dt = 0.1
+const timesteps = round(Int, tf/dt)
+const t = collect(0.0:dt:(dt*(timesteps-1)))
 
-d = 4.0 * 1e-4 ## Cable diameter in cm
-R_m = 2.5e11 ## Membrane resistance in Ohms/cm^2
-G_m = 1.0/R_m ## Membrane conductance
-R_i = 30.0  ## Longitudinal resistivity in Ohms*cm
-C_m = 1e-6  ## Membrane capacitance in F/cm^2
+const d = 4.0 * 1e-4 ## Cable diameter in cm
+const R_m = 2.5e11 ## Membrane resistance in Ohms/cm^2
+const G_m = 1.0/R_m ## Membrane conductance
+const R_i = 30.0  ## Longitudinal resistivity in Ohms*cm
+const C_m = 1e-6  ## Membrane capacitance in F/cm^2
 
 
 ## Define the injected current J
-J = zeros(timesteps,xsteps)
-I_in = 0.1
+const J = zeros(timesteps, xsteps)
+const I_in = 0.1
 ## When to start injecting current
-I_delay = 1.0
+const I_delay = 1.0
 ## Duration of injected current
-I_dur = 5.0
+const I_dur = 5.0
 J[max(1,round(Int,(I_delay)/dt)):round(Int,(I_delay+I_dur)/dt),round(Int,1*xsteps/2)] = I_in
 
-G_J = map(i -> CoordInterpGrid(t, vec(J[:,i]), 0.0, InterpQuadratic),1:xsteps)
+const G_J = map(i -> CoordInterpGrid(t, vec(J[:,i]), 0.0, InterpQuadratic),1:xsteps)
 
 
 ##
@@ -53,7 +53,6 @@ G_J = map(i -> CoordInterpGrid(t, vec(J[:,i]), 0.0, InterpQuadratic),1:xsteps)
 ##
 
 function cableres(t, u, up, r)
-
     r[:] = u ## Initialize r to u, to take care of boundary equations.
 
     ## Loop over segments; set res = up - (central difference).
@@ -65,12 +64,11 @@ function cableres(t, u, up, r)
 
     end
 
-    return (0)
+    return Sundials.CV_SUCCESS
 end
 
 
 function initial()
-
     u = zeros(xsteps)
 
     u[2:xsteps-2] = -60.0 ## initial value -60 mV
@@ -86,45 +84,35 @@ function initial()
     up[:] = -1.0 * r
 
     return (u,up,id)
-
 end
 
-nvector = Sundials.nvector
 function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
                     id::Vector{Float64}, t::Vector{Float64};
                     reltol::Float64=1e-4, abstol::Float64=1e-6)
 
     neq = length(y0)
     mem = Sundials.IDACreate()
-    flag = Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Int32,
-                                           (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
-                            t[1], nvector(y0), nvector(yp0))
-    assert(flag == 0)
-    flag = Sundials.IDASetId(mem,nvector(id))
-    assert(flag == 0)
-    flag = Sundials.IDASetUserData(mem, f)
-    assert(flag == 0)
-    flag = Sundials.IDASStolerances(mem, reltol, abstol)
-    assert(flag == 0)
-    mu = xsteps-1
-    ml = xsteps-1
-    flag = Sundials.IDABand(mem, neq, mu, ml)
-    ##flag = Sundials.IDADense(mem, neq)
-    assert(flag == 0)
+    Sundials.@checkflag Sundials.IDAInit(mem, cfunction(Sundials.idasolfun, Cint,
+                                         (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
+                                         t[1], y0, yp0)
+    Sundials.@checkflag Sundials.IDASetId(mem, id)
+    Sundials.@checkflag Sundials.IDASetUserData(mem, f)
+    Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
+    Sundials.@checkflag Sundials.IDABand(mem, neq, xsteps-1, xsteps-1)
+    ##Sundials.@checkflag Sundials.IDADense(mem, neq)
     rtest = zeros(neq)
-    flag = Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
-    assert(flag == 0)
-    yres = zeros(length(t), length(y0))
-    ypres = zeros(length(t), length(y0))
-    yres[1,:] = y0
-    ypres[1,:] = yp0
+    Sundials.@checkflag Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
+    yres = zeros(Float64, length(y0), length(t))
+    ypres = zeros(Float64, length(y0), length(t))
+    yres[:, 1] = y0
+    ypres[:, 1] = yp0
     y = copy(y0)
     yp = copy(yp0)
     tout = [0.0]
     for k in 2:length(t)
-        retval = Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
-        yres[k,:] = y[:]
-        ypres[k,:] = yp[:]
+        Sundials.@checkflag Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
+        yres[:, k] = y
+        ypres[:, k] = yp
     end
     return yres, ypres
 end
