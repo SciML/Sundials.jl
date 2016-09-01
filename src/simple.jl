@@ -97,8 +97,13 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-              integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
+cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6) = 
+    cvode!(f, y0, t, zeros(length(t), length(y0)), userdata; 
+                    integrator=integrator, reltol=reltol, abstol=abstol)
+
+function cvode!(f::Function, y0::Vector{Float64}, t::Vector{Float64}, y::Matrix{Float64}, userdata::Any=nothing;
+                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -107,8 +112,6 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
     if mem == C_NULL
         error("Failed to allocate CVODE solver object")
     end
-
-    yres = zeros(length(t), length(y0))
     try
         userfun = UserFunctionAndData(f, userdata)
         y0nv = NVector(y0)
@@ -116,18 +119,19 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
         flag = @checkflag CVodeSetUserData(mem, userfun)
         flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
         flag = @checkflag CVDense(mem, length(y0))
-        yres[1,:] = y0
+        y[1,:] = y0
         ynv = NVector(copy(y0))
         tout = [0.0]
         for k in 2:length(t)
             flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
-            yres[k,:] = convert(Vector, ynv)
+            y[k,:] = convert(Vector, ynv)
         end
     finally
         CVodeFree(Ref{CVODEMemPtr}(mem))
     end
-    return yres
+    return y
 end
+    
 
 """
 `cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
