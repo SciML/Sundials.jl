@@ -143,9 +143,11 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-               integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
+cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing; kwargs...) = 
+    cvode!(zeros(length(t), length(y0)), f, y0, t, userdata; kwargs...)
 
+function cvode!(y::Matrix{Float64}, f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
     if integrator==:BDF
         mem_ptr = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -155,7 +157,6 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    yres = zeros(length(t), length(y0))
     c = 1
 
     userfun = UserFunctionAndData(f, userdata)
@@ -168,7 +169,7 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     LS = Sundials.SUNDenseLinearSolver(y0nv,A)
     flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
-    yres[1,:] = y0
+    y[1,:] = y0
     ynv = NVector(copy(y0))
     tout = [0.0]
     for k in 2:length(t)
@@ -176,7 +177,7 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
         if !callback(mem, t[k], ynv)
             break
         end
-        yres[k,:] = convert(Vector, ynv)
+        y[k,:] = convert(Vector, ynv)
         c = c + 1
     end
 
@@ -184,7 +185,7 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
 
-    return yres[1:c,:]
+    return y
 end
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
