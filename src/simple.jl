@@ -97,12 +97,12 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+cvode(f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing;
                 integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6) = 
     cvode!(f, y0, t, zeros(length(t), length(y0)), userdata; 
                     integrator=integrator, reltol=reltol, abstol=abstol)
 
-function cvode!(f::Function, y0::Vector{Float64}, t::Vector{Float64}, y::Matrix{Float64}, userdata::Any=nothing;
+function cvode!(f::Function, y0::Vector{Float64}, t::AbstractVector, y::Matrix{Float64}, userdata::Any=nothing;
                 integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
