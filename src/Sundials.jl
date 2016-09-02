@@ -39,7 +39,7 @@ if isdefined(:libsundials_cvodes)
 else
     include("cvode.jl")
 end
-if isdefined(:libsundials_cvodes)
+if isdefined(:libsundials_idas)
     include("idas.jl")
 else
     include("ida.jl")
