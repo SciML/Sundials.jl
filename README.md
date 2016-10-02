@@ -101,7 +101,7 @@ function f(t, y, ydot)
     ydot[2] = -ydot[1] - ydot[3]
 end
 
-t = [0.0, 4 * logspace(-1., 7., 9)]
+t = [0.0; 4 * logspace(-1., 7., 9)]
 res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
 ```
 
