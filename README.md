@@ -31,18 +31,6 @@ Note that *CVODES* and *IDAS* contain all functions provided by *CVODE* and *IDA
 without sensitivity analysis). If you need to use the latter, you can set `enable_sensitivities=false`
 in `deps/build.jl` and (re)build the package.
 
-[Julia](http://julialang.org) is a fast, Matlab-like language that is
-well suited to modeling and simulations. It's particularly suited for
-use with Sundials because the functions representing the system will
-run at nearly the speed of C functions. Julia functions are compiled
-on the fly (JIT), so it is also possible to quickly recompile a system
-to model structural changes to the system.
-
-I use Sundials in [Sims](https://github.com/tshort/Sims.jl), a Julia
-package to support equation-based modeling for simulations. Sims is
-like a lite version of Modelica. Sims can currently use Sundials or
-DASSL.
-
 Installation
 ---
 
