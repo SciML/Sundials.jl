@@ -109,7 +109,7 @@ Output type is set by specifying the Val type.
 
 return: `(t,y)`: `t` are the timepoints and `y` are the values.
 """
-function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
                userdata::Any = nothing;
                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -123,7 +123,7 @@ function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
          abstol=abstol)
 end
 
-function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
                ::Type{Val{false}},userdata::Any = nothing;
                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -141,7 +141,7 @@ function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
     return t,y
 end
 
-function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
                ::Type{Val{true}},userdata::Any = nothing;
                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -155,7 +155,7 @@ function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
     return t,y
 end
 
-function cvode!(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+function cvode!(f::Function, y0::AbstractVector, tspan::AbstractVector,
                 y_mat::Matrix{Float64},userdata = nothing;
                 collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                 integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -177,7 +177,7 @@ function cvode!(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
     nothing
 end
 
-function cvode!(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+function cvode!(f::Function, y0::AbstractVector, tspan::AbstractVector,
                 y::AbstractVector,userdata::Any = nothing;
                 collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                 integrator::Symbol=DEFAULT_INTEGRATOR,
