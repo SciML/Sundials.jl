@@ -13,4 +13,4 @@ const t = [0.0; 4 * logspace(-1., 7., 9)]
 const y0 = [1.0, 0.0, 0.0]
 ts,res = Sundials.cvode(f, y0, t)
 
-ts1, res3 = Sundials.cvode(f, y0, [0.0, 1.0],collect_times=:all)
+ts1,res3 = Sundials.cvode(f, y0, [0.0, 1.0],collect_times=:all)

@@ -108,6 +108,7 @@ function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
                userdata::Any = nothing;
                collect_times::Symbol=:specified,integrator::Symbol=:BDF,
                reltol::Float64=1e-3, abstol::Float64=1e-6)
+
     t0 = tspan[1]
     Ts = tspan[2:end]
     if integrator==:BDF
@@ -136,19 +137,20 @@ function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
           for t in Ts
               while tout[end] < t
                   flag = @checkflag CVode(mem, t, ynv, tout, CV_ONE_STEP)
-                  push!(yres,convert(Vector,copy(ynv)))
+                  y = convert(Vector,ynv)
+                  push!(yres,copy(y))
                   push!(ts, tout...)
               end
               # Fix the end
-              flag = @checkflag CVodeGetDky(mem, t, Cint(0), yres[end])
+              flag = @checkflag CVodeGetDky(mem, t, Cint(0), NVector(yres[end]))
               ts[end] = t
           end
 
         elseif collect_times == :specified
+          ts = Ts
           for t in Ts
             flag = @checkflag CVode(mem, t, ynv, tout, CV_NORMAL)
             push!(yres,convert(Vector,copy(ynv)))
-            push!(ts, tout...)
           end
         end
 

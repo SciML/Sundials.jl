@@ -93,7 +93,7 @@ t = [0.0; 4 * logspace(-1., 7., 9)]
 res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
 ```
 
-For `cvode`, there is an optional positional argument `integrator` to choose
+For `cvode`, there is a keyword argument `integrator` to choose
 between the two provided integration options: `:BDF` for a Backwards Differentiation
 Formula method and `:Adams` for an Adams-Moulton method. There are two supported
 keyword arguments, `reltol`, and `abstol`, for `cvode` and `idasol`. For more
