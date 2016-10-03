@@ -79,6 +79,7 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
     return CV_SUCCESS
 end
 
+#=
 """
 `cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
        integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
@@ -128,6 +129,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
     end
     return yres
 end
+=#
 
 """
 `cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
@@ -140,15 +142,20 @@ end
 * `y0`, Vector of initial values
 * `tspan`, a vector where `tspan[1]` is the starting time and the other values are
   time values which are guaranteed in the output
-* `integrator`, the chosen integration algorithm. Default is `:BDF`
-  , other option is `:Adams`
+* `collect_times`, the behavior for saving the output. Default is `:specified`
+  which will only return the times specified in `tspan` (the CV_NORMAL behavior).
+  The other choice is `:all` which will also return every internal timestep
+  (the `CV_ONE_STEP` behavior).
+* `integrator`, the chosen integration algorithm. Default is `:BDF`, a good
+  algorithm for stiff equations. The other option is `:Adams`, which is a good
+  algorithm for nonstiff equations with large function evaluation costs.
 * `reltol`, Relative Tolerance to be used (default=1e-3)
 * `abstol`, Absolute Tolerance to be used (default=1e-6)
 
-return: a vector with the timepoints `t` and a vector with the outputs `y0`
+return: `(t,y)`: `t` are the timepoints and `y` are the values.
 """
-function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                          integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
+function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
+                        collect_times=:specified,integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
     t0 = tspan[1]
     Ts = tspan[2:end]
     if integrator==:BDF
@@ -169,19 +176,30 @@ function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float6
         flag = @checkflag CVodeSetUserData(mem, userfun)
         flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
         flag = @checkflag CVDense(mem, length(y0))
-        push!(yres, y0)
-        y = copy(y0)
+        push!(yres, copy(y0))
+        ynv = NVector(y0)
         tout = [0.0]
-        for t in Ts
-            while tout[end] < t
-                flag = @checkflag CVode(mem, t, y, tout, CV_ONE_STEP)
-                push!(yres,copy(y))
-                push!(ts, tout...)
-            end
-            # Fix the end
-            flag = @checkflag CVodeGetDky(mem, t, Cint(0), yres[end])
-            ts[end] = t
+
+        if collect_times == :all
+          for t in Ts
+              while tout[end] < t
+                  flag = @checkflag CVode(mem, t, ynv, tout, CV_ONE_STEP)
+                  push!(yres,convert(Vector,copy(ynv)))
+                  push!(ts, tout...)
+              end
+              # Fix the end
+              flag = @checkflag CVodeGetDky(mem, t, Cint(0), yres[end])
+              ts[end] = t
+          end
+
+        elseif collect_times == :specified
+          for t in Ts
+            flag = @checkflag CVode(mem, t, ynv, tout, CV_NORMAL)
+            push!(yres,convert(Vector,copy(ynv)))
+            push!(ts, tout...)
+          end
         end
+
     finally
         CVodeFree(Ref{CVODEMemPtr}(mem))
     end
