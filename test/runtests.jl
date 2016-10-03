@@ -7,6 +7,10 @@ examples_path = joinpath(dirname(@__FILE__), "..", "examples")
 println("== start cvode Roberts example (simplified)")
 let
 include(joinpath(examples_path, "cvode_Roberts_simplified.jl"))
+
+@test_approx_eq ts2[35] ts[3]  # Should be the same due to intermediate stepping
+@test_approx_eq_eps res2[35] res[3] 1e-4 # Should interpolate the same
+
 println("result at t=$(t[end]):")
 println(res[:,end], "\n")
 end

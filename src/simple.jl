@@ -109,8 +109,21 @@ function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
                collect_times::Symbol=:specified,integrator::Symbol=:BDF,
                reltol::Float64=1e-3, abstol::Float64=1e-6)
 
-    t0 = tspan[1]
-    Ts = tspan[2:end]
+    yres=Vector{Vector{Float64}}(length(tspan))
+    for i in eachindex(yres)
+      yres[i] = Vector{Float64}(length(y0))
+    end
+    cvode!(f,y0,tspan,yres,userdata;
+          collect_times=collect_times,integrator=integrator,
+          reltol=reltol, abstol=abstol)
+    return tspan,yres
+end
+
+function cvode!(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+                yres::AbstractArray,userdata::Any = nothing;
+               collect_times::Symbol=:specified,integrator::Symbol=:BDF,
+               reltol::Float64=1e-3, abstol::Float64=1e-6)
+
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -119,45 +132,57 @@ function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
     if mem == C_NULL
         error("Failed to allocate CVODE solver object")
     end
+    init_length = length(yres)
 
-    yres = Vector{Vector{Float64}}()
-    ts   = [t0]
     try
         userfun = UserFunctionAndData(f, userdata)
         y0nv = NVector(y0)
-        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t0, convert(N_Vector, y0nv))
+        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), tspan[1], convert(N_Vector, y0nv))
         flag = @checkflag CVodeSetUserData(mem, userfun)
         flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
         flag = @checkflag CVDense(mem, length(y0))
-        push!(yres, copy(y0))
-        ynv = NVector(y0)
+        yres[1] = copy(y0)
+        ynv = NVector(copy(y0))
         tout = [0.0]
 
         if collect_times == :all
+          Ts = tspan[2:end]
+          iter = 0
+          init_t_length = length(tspan)
           for t in Ts
               while tout[end] < t
-                  flag = @checkflag CVode(mem, t, ynv, tout, CV_ONE_STEP)
-                  y = convert(Vector,ynv)
+                iter+=1
+                flag = @checkflag CVode(mem, t, ynv, tout, CV_ONE_STEP)
+                y = convert(Vector,ynv)
+                if iter <= init_length # Save y
+                  copy!(yres[iter],y)
+                else
                   push!(yres,copy(y))
-                  push!(ts, tout...)
+                end
+                if iter <= init_t_length # Save t
+                  tspan[iter:(length(tout)+iter-1)] = tout
+                else
+                  push!(tspan, tout...)
+                end
               end
               # Fix the end
               flag = @checkflag CVodeGetDky(mem, t, Cint(0), NVector(yres[end]))
-              ts[end] = t
+              tspan[iter] = t
           end
 
         elseif collect_times == :specified
-          ts = Ts
-          for t in Ts
-            flag = @checkflag CVode(mem, t, ynv, tout, CV_NORMAL)
-            push!(yres,convert(Vector,copy(ynv)))
+          for i in 2:length(tspan)
+            flag = @checkflag CVode(mem, tspan[i], ynv, tout, CV_NORMAL)
+            copy!(yres[i],convert(Vector,ynv))
           end
         end
 
+    catch err
+        throw(err)
     finally
         CVodeFree(Ref{CVODEMemPtr}(mem))
     end
-    return ts, yres
+    nothing
 end
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
