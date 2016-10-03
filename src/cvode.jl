@@ -1,7 +1,7 @@
 # Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/src/../deps/usr/include/cvode/cvode.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-function CVodeCreate(lmm::Cint,iter::Cint)
+function CVodeCreate(lmm,iter)
     ccall((:CVodeCreate,shlib),Ptr{Void},(Cint,Cint),lmm,iter)
 end
 

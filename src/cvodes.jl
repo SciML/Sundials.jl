@@ -2,7 +2,7 @@
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function CVodeCreate(lmm::Cint,iter::Cint)
+function CVodeCreate(lmm,iter)
     ccall((:CVodeCreate,shlib),Ptr{Void},(Cint,Cint),lmm,iter)
 end
 
@@ -1216,10 +1216,6 @@ function CVDiagB(cvode_mem,which::Cint)
 end
 # Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/src/../deps/usr/include/cvodes/shlib.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
-
-function CVodeCreate(lmm::Cint,iter::Cint)
-    ccall((:CVodeCreate,shlib),Ptr{Void},(Cint,Cint),lmm,iter)
-end
 
 function CVodeInit(cvode_mem,f::CVRhsFn,t0::realtype,y0::N_Vector)
     ccall((:CVodeInit,shlib),Cint,(Ptr{Void},CVRhsFn,realtype,N_Vector),cvode_mem,f,t0,y0)
