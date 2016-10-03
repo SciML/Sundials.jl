@@ -79,69 +79,19 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
     return CV_SUCCESS
 end
 
-#=
 """
-`cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-       integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
+`cvode(f::Function, y0::Vector{Float64},
+       tspan::Vector{Float64}, userdata::Any = nothing;
+       collect_times::Symbol=:specified,integrator=:BDF,
+       reltol::Float64=1e-3, abstol::Float64=1e-6)`
 
 * `f`, Function of the form
   `f(t, y::Vector{Float64}, yp::Vector{Float64})`
   where `y` is the input state vector, and `yp` is the output vector
   of time derivatives for the states `y`
 * `y0`, Vector of initial values
-* `t`, Vector of time values at which to record integration results
-* `integrator`, the chosen integration algorithm. Default is `:BDF`
-  , other option is `:Adams`
-* `reltol`, Relative Tolerance to be used (default=1e-3)
-* `abstol`, Absolute Tolerance to be used (default=1e-6)
-
-return: a solution matrix with time steps in `t` along rows and
-        state variable `y` along columns
-"""
-function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-              integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
-    if integrator==:BDF
-        mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    elseif integrator==:Adams
-        mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
-    end
-    if mem == C_NULL
-        error("Failed to allocate CVODE solver object")
-    end
-
-    yres = zeros(length(t), length(y0))
-    try
-        userfun = UserFunctionAndData(f, userdata)
-        y0nv = NVector(y0)
-        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t[1], convert(N_Vector, y0nv))
-        flag = @checkflag CVodeSetUserData(mem, userfun)
-        flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
-        flag = @checkflag CVDense(mem, length(y0))
-        yres[1,:] = y0
-        ynv = NVector(copy(y0))
-        tout = [0.0]
-        for k in 2:length(t)
-            flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
-            yres[k,:] = convert(Vector, ynv)
-        end
-    finally
-        CVodeFree(Ref{CVODEMemPtr}(mem))
-    end
-    return yres
-end
-=#
-
-"""
-`cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                  integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
-
-* `f`, Function of the form
-  `f(t, y::Vector{Float64}, yp::Vector{Float64})`
-  where `y` is the input state vector, and `yp` is the output vector
-  of time derivatives for the states `y`
-* `y0`, Vector of initial values
-* `tspan`, a vector where `tspan[1]` is the starting time and the other values are
-  time values which are guaranteed in the output
+* `tspan`, a vector where `tspan[1]` is the starting time and the other
+  values are time values which are guaranteed in the output
 * `collect_times`, the behavior for saving the output. Default is `:specified`
   which will only return the times specified in `tspan` (the CV_NORMAL behavior).
   The other choice is `:all` which will also return every internal timestep
@@ -154,8 +104,10 @@ end
 
 return: `(t,y)`: `t` are the timepoints and `y` are the values.
 """
-function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                        collect_times=:specified,integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
+function cvode(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+               userdata::Any = nothing;
+               collect_times::Symbol=:specified,integrator::Symbol=:BDF,
+               reltol::Float64=1e-3, abstol::Float64=1e-6)
     t0 = tspan[1]
     Ts = tspan[2:end]
     if integrator==:BDF
