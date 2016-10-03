@@ -21,26 +21,26 @@ macro checkflag(ex)
 end
 
 type UserFunctionAndData
-    func::Function
+    func::Base.Callable
     data::Any
 
-    UserFunctionAndData(func::Function, data::Any) = new(func, data)
+    UserFunctionAndData(func::Base.Callable, data::Any) = new(func, data)
 end
 
-UserFunctionAndData(func::Function) = func
-UserFunctionAndData(func::Function, data::Void) = func
+UserFunctionAndData(func::Base.Callable) = func
+UserFunctionAndData(func::Base.Callable, data::Void) = func
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
     userfun[].func(convert(Vector, y), convert(Vector, fy), userfun[].data)
     return KIN_SUCCESS
 end
 
-function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
+function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Base.Callable)
     userfun(convert(Vector, y), convert(Vector, fy))
     return KIN_SUCCESS
 end
 
-function kinsol(f::Function, y0::Vector{Float64}, userdata::Any = nothing)
+function kinsol(f::Base.Callable, y0::Vector{Float64}, userdata::Any = nothing)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -74,13 +74,13 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::UserFunctionAn
     return CV_SUCCESS
 end
 
-function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
+function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Base.Callable)
     userfun(t, convert(Vector, y), convert(Vector, yp))
     return CV_SUCCESS
 end
 
 """
-`cvode(f::Function, y0::Vector{Float64},
+`cvode(f::Base.Callable, y0::Vector{Float64},
        tspan::Vector{Float64}, userdata::Any = nothing,::Type{Val{Bool}};
        collect_times::Symbol=:specified,integrator=:BDF,
        reltol::Float64=DEFAULT_RELTOL, abstol::Float64=DEFAULT_ABSTOL)`
@@ -109,7 +109,7 @@ Output type is set by specifying the Val type.
 
 return: `(t,y)`: `t` are the timepoints and `y` are the values.
 """
-function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
+function cvode(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
                userdata::Any = nothing;
                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -123,7 +123,7 @@ function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
          abstol=abstol)
 end
 
-function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
+function cvode(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
                ::Type{Val{false}},userdata::Any = nothing;
                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -141,7 +141,7 @@ function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
     return t,y
 end
 
-function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
+function cvode(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
                ::Type{Val{true}},userdata::Any = nothing;
                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -155,7 +155,7 @@ function cvode(f::Function, y0::AbstractVector, tspan::AbstractVector,
     return t,y
 end
 
-function cvode!(f::Function, y0::AbstractVector, tspan::AbstractVector,
+function cvode!(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
                 y_mat::Matrix{Float64},userdata = nothing;
                 collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                 integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -177,7 +177,7 @@ function cvode!(f::Function, y0::AbstractVector, tspan::AbstractVector,
     nothing
 end
 
-function cvode!(f::Function, y0::AbstractVector, tspan::AbstractVector,
+function cvode!(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
                 y::AbstractVector,userdata::Any = nothing;
                 collect_times::Symbol=DEFAULT_COLLECT_TIMES,
                 integrator::Symbol=DEFAULT_INTEGRATOR,
@@ -248,13 +248,13 @@ function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::
     return IDA_SUCCESS
 end
 
-function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
+function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Base.Callable)
     userfun(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r))
     return IDA_SUCCESS
 end
 
 """
-`idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+`idasol(f::Base.Callable, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
         reltol::Float64=DEFAULT_RELTOL, abstol::Float64=DEFAULT_ABSTOL, diffstates::Union{Vector{Bool},Void}=nothing)`
 
 * `f`, Function of the form
@@ -270,7 +270,7 @@ end
 return: (y,yp) two solution matrices representing the states and state derivatives
          with time steps in `t` along rows and state variable `y` or `yp` along columns
 """
-function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+function idasol(f::Base.Callable, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                 reltol::Float64=DEFAULT_RELTOL, abstol::Float64=DEFAULT_ABSTOL, diffstates::Union{Vector{Bool},Void}=nothing)
     mem = IDACreate()
     if mem == C_NULL
