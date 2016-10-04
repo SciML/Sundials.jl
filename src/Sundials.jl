@@ -49,6 +49,7 @@ if isdefined(:libsundials_idas)
 else
     include("ida.jl")
 end
+include("arkode.jl")
 include("kinsol.jl")
 
 shlib = libsundials_arkode

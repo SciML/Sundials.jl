@@ -22,6 +22,9 @@ typealias IDAMemPtr Ptr{IDAMem}
 immutable KINMem <: AbstractSundialsObject end
 typealias KINMemPtr Ptr{KINMem}
 
+immutable ARKODEMem <: AbstractSundialsObject end
+typealias ARKODEMemPtr Ptr{ARKODEMem}
+
 """
    Handle for Sundials objects (CVODE, IDA, KIN).
 
@@ -46,6 +49,7 @@ release_handle{T}(ptr_ref::Ref{Ptr{T}}) = throw(MethodError("Freeing objects of 
 release_handle(ptr_ref::Ref{Ptr{KINMem}}) = KINSOLFree(ptr_ref)
 release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = CVodeFree(ptr_ref)
 release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = IDAFree(ptr_ref)
+release_handle(ptr_ref::Ref{Ptr{ARKODEMem}}) = ARKodeFree(ptr_ref)
 
 ##################################################################
 #
@@ -56,3 +60,4 @@ release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = IDAFree(ptr_ref)
 typealias CVODEh Handle{CVODEMem}
 typealias KINh Handle{KINMem}
 typealias IDAh Handle{IDAMem}
+typealias ARKh Handle{ARKODEMem}
