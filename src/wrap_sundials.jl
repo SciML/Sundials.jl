@@ -112,9 +112,9 @@ const FnTypeSignatures = Dict(
     :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Void}))),
 )
 
-typeify_sundials_pointers(notexpr) = Any[notexpr]
+wrap_sundials_api(notexpr) = Any[notexpr]
 
-function typeify_sundials_pointers(expr::Expr)
+function wrap_sundials_api(expr::Expr)
     if expr.head == :function &&
         expr.args[1].head == :call
         func_name = string(expr.args[1].args[1])
@@ -241,7 +241,7 @@ end
 context.rewriter = function(exprs)
     mod_exprs = sizehint!(Vector{Any}(), length(exprs))
     for expr in exprs
-        append!(mod_exprs, typeify_sundials_pointers(expr))
+        append!(mod_exprs, wrap_sundials_api(expr))
     end
     mod_exprs
 end
