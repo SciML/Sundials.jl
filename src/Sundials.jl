@@ -52,9 +52,6 @@ end
 include("arkode.jl")
 include("kinsol.jl")
 
-shlib = libsundials_arkode
-include("arkode.jl")
-
 include("simple.jl")
 
 end # module
