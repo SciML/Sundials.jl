@@ -71,7 +71,7 @@ function library_file(header::AbstractString)
 end
 
 const context = wrap_c.init(
-    common_file="types_and_consts.jl",
+    common_file = joinpath(outpath, "types_and_consts.jl"),
     clang_args = [
         "-D", "__STDC_LIMIT_MACROS",
         "-D", "__STDC_CONSTANT_MACROS",
