@@ -98,7 +98,7 @@ return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
 function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-              integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
+              integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=x->true)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -109,6 +109,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
     end
 
     yres = zeros(length(t), length(y0))
+    c = 1
     try
         userfun = UserFunctionAndData(f, userdata)
         y0nv = NVector(y0)
@@ -121,12 +122,16 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
         tout = [0.0]
         for k in 2:length(t)
             flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
+            if !callback(ynv)
+                break
+            end
             yres[k,:] = convert(Vector, ynv)
+            c = c + 1
         end
     finally
         CVodeFree(Ref{CVODEMemPtr}(mem))
     end
-    return yres
+    return yres[1:c,:]
 end
 
 """
