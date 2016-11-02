@@ -1,7 +1,4 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/nvector/nvector_parallel.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
-
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/nvector/nvector_serial.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/nvector/nvector_serial.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -55,6 +52,15 @@ function N_VDestroyVectorArray_Serial(vs,count)
     __N_VDestroyVectorArray_Serial(pointer(vs),convert(Cint,count))
 end
 
+function __N_VGetLength_Serial(v::N_Vector)
+    ccall((:N_VGetLength_Serial,libsundials_nvecserial),Clong,(N_Vector,),v)
+end
+
+function N_VGetLength_Serial(v)
+    __v = convert(NVector,v)
+    __N_VGetLength_Serial(convert(N_Vector,__v))
+end
+
 function __N_VPrint_Serial(v::N_Vector)
     ccall((:N_VPrint_Serial,libsundials_nvecserial),Void,(N_Vector,),v)
 end
@@ -62,6 +68,15 @@ end
 function N_VPrint_Serial(v)
     __v = convert(NVector,v)
     __N_VPrint_Serial(convert(N_Vector,__v))
+end
+
+function __N_VGetVectorID_Serial(v::N_Vector)
+    ccall((:N_VGetVectorID_Serial,libsundials_nvecserial),N_Vector_ID,(N_Vector,),v)
+end
+
+function N_VGetVectorID_Serial(v)
+    __v = convert(NVector,v)
+    __N_VGetVectorID_Serial(convert(N_Vector,__v))
 end
 
 function __N_VCloneEmpty_Serial(w::N_Vector)

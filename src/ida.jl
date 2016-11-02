@@ -1,4 +1,4 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -463,7 +463,7 @@ end
 function IDAFree(ida_mem::Ref{IDAMemPtr})
     ccall((:IDAFree,libsundials_ida),Void,(Ref{IDAMemPtr},),ida_mem)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_direct.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -522,7 +522,7 @@ end
 function IDADlsGetReturnFlagName(flag)
     __IDADlsGetReturnFlagName(convert(Clong,flag))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_spils.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -653,7 +653,7 @@ end
 function IDASpilsGetReturnFlagName(flag)
     __IDASpilsGetReturnFlagName(convert(Clong,flag))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_band.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -664,7 +664,7 @@ end
 function IDABand(ida_mem,Neq,mupper,mlower)
     __IDABand(convert(IDAMemPtr,ida_mem),convert(Clong,Neq),convert(Clong,mupper),convert(Clong,mlower))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_bbdpre.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -699,7 +699,7 @@ end
 function IDABBDPrecGetNumGfnEvals(ida_mem,ngevalsBBDP)
     __IDABBDPrecGetNumGfnEvals(convert(IDAMemPtr,ida_mem),pointer(ngevalsBBDP))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_dense.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -710,10 +710,10 @@ end
 function IDADense(ida_mem,Neq)
     __IDADense(convert(IDAMemPtr,ida_mem),convert(Clong,Neq))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_impl.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_spbcgs.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -724,7 +724,7 @@ end
 function IDASpbcg(ida_mem,maxl)
     __IDASpbcg(convert(IDAMemPtr,ida_mem),convert(Cint,maxl))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_spgmr.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -735,7 +735,7 @@ end
 function IDASpgmr(ida_mem,maxl)
     __IDASpgmr(convert(IDAMemPtr,ida_mem),convert(Cint,maxl))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/ida/ida_sptfqmr.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/ida/ida_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 

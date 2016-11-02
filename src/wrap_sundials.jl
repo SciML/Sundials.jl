@@ -47,7 +47,7 @@ end
 function wrap_cursor(name::AbstractString, cursor)
     if typeof(cursor) == Clang.cindex.FunctionDecl
         # only wrap API functions
-        return ismatch(r"^(CV|KIN|IDA|N_V)", name)
+        return ismatch(r"^(CV|KIN|IDA|ARK|N_V)", name)
     else
         # skip problematic definitions
         return !ismatch(r"^(ABS|SQRT|EXP)$", name)
@@ -71,7 +71,7 @@ function library_file(header::AbstractString)
 end
 
 const context = wrap_c.init(
-    common_file="types_and_consts.jl",
+    common_file = joinpath(outpath, "types_and_consts.jl"),
     clang_args = [
         "-D", "__STDC_LIMIT_MACROS",
         "-D", "__STDC_CONSTANT_MACROS",
@@ -88,7 +88,9 @@ context.headers = sundials_headers
 
 # 1st arg name to wrapped arg type map
 const arg1_name2type = Dict(
+    :arkode_mem => :(ARKODEMemPtr),
     :cvode_mem => :(CVODEMemPtr),
+    :cv_mem => :(CVODEMemPtr),
     :kinmem => :(KINMemPtr),
     :kinmemm => :(KINMemPtr), # Sundials typo?
     :ida_mem => :(IDAMemPtr),
@@ -98,6 +100,7 @@ const arg1_name2type = Dict(
 
 # substitute Ptr{Void} with the typed pointer
 const ctor_return_type = Dict(
+    "ARKodeCreate" => :(ARKODEMemPtr),
     "CVodeCreate" => :(CVODEMemPtr),
     "IDACreate" => :(IDAMemPtr),
     "KINCreate" => :(KINMemPtr)
@@ -105,6 +108,7 @@ const ctor_return_type = Dict(
 
 # signatures for C function pointer types
 const FnTypeSignatures = Dict(
+    :ARKRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Void}))),
     :CVRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Void}))),
     :CVRootFn => (:Cint, :((realtype, N_Vector, Ptr{realtype}, Ptr{Void}))),
     :IDAResFn => (:Cint, :((realtype, N_Vector, N_Vector, N_Vector, Ptr{Void}))),
@@ -112,14 +116,14 @@ const FnTypeSignatures = Dict(
     :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Void}))),
 )
 
-typeify_sundials_pointers(notexpr) = Any[notexpr]
+wrap_sundials_api(notexpr) = Any[notexpr]
 
-function typeify_sundials_pointers(expr::Expr)
+function wrap_sundials_api(expr::Expr)
     if expr.head == :function &&
         expr.args[1].head == :call
         func_name = string(expr.args[1].args[1])
         convert_required = false
-        if ismatch(r"^(CV|KIN|IDA|N_V)", func_name)
+        if ismatch(r"^(ARK|CV|KIN|IDA|N_V)", func_name)
             if ismatch(r"Create$", func_name)
                 # create functions return typed pointers
                 @assert expr.args[2].args[1].args[2] == :(Ptr{Void})
@@ -241,7 +245,7 @@ end
 context.rewriter = function(exprs)
     mod_exprs = sizehint!(Vector{Any}(), length(exprs))
     for expr in exprs
-        append!(mod_exprs, typeify_sundials_pointers(expr))
+        append!(mod_exprs, wrap_sundials_api(expr))
     end
     mod_exprs
 end

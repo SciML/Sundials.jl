@@ -60,3 +60,11 @@ let
 include(joinpath(examples_path, "kinsol_mkinTest.jl"))
 @test abs(minimum(residual)) < 1e-5
 end
+
+#= (Requires StrPack, and example fails...)
+# Run arkode example
+println("== start arkode example")
+let
+include(joinpath(examples_path, "arkode_test.jl"))
+end
+=#

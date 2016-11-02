@@ -1,4 +1,4 @@
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1051,12 +1051,12 @@ function IDASolveB(ida_mem,tBout,itaskB)
     __IDASolveB(convert(IDAMemPtr,ida_mem),tBout,convert(Cint,itaskB))
 end
 
-function __IDASetAdjNoSensi(ida_mem::IDAMemPtr)
-    ccall((:IDASetAdjNoSensi,libsundials_idas),Cint,(IDAMemPtr,),ida_mem)
+function __IDAAdjSetNoSensi(ida_mem::IDAMemPtr)
+    ccall((:IDAAdjSetNoSensi,libsundials_idas),Cint,(IDAMemPtr,),ida_mem)
 end
 
-function IDASetAdjNoSensi(ida_mem)
-    __IDASetAdjNoSensi(convert(IDAMemPtr,ida_mem))
+function IDAAdjSetNoSensi(ida_mem)
+    __IDAAdjSetNoSensi(convert(IDAMemPtr,ida_mem))
 end
 
 function __IDASetUserDataB(ida_mem::IDAMemPtr,which::Cint,user_dataB::Any)
@@ -1214,7 +1214,7 @@ end
 function IDAGetAdjCurrentCheckPoint(ida_mem,addr)
     __IDAGetAdjCurrentCheckPoint(convert(IDAMemPtr,ida_mem),pointer(addr))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_direct.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_direct.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1282,6 +1282,14 @@ function IDADlsSetDenseJacFnB(ida_mem,which,jacB)
     __IDADlsSetDenseJacFnB(convert(IDAMemPtr,ida_mem),convert(Cint,which),jacB)
 end
 
+function __IDADlsSetDenseJacFnBS(ida_mem::IDAMemPtr,which::Cint,jacBS::IDADlsDenseJacFnBS)
+    ccall((:IDADlsSetDenseJacFnBS,libsundials_idas),Cint,(IDAMemPtr,Cint,IDADlsDenseJacFnBS),ida_mem,which,jacBS)
+end
+
+function IDADlsSetDenseJacFnBS(ida_mem,which,jacBS)
+    __IDADlsSetDenseJacFnBS(convert(IDAMemPtr,ida_mem),convert(Cint,which),jacBS)
+end
+
 function __IDADlsSetBandJacFnB(idaa_mem::IDAMemPtr,which::Cint,jacB::IDADlsBandJacFnB)
     ccall((:IDADlsSetBandJacFnB,libsundials_idas),Cint,(IDAMemPtr,Cint,IDADlsBandJacFnB),idaa_mem,which,jacB)
 end
@@ -1289,7 +1297,15 @@ end
 function IDADlsSetBandJacFnB(idaa_mem,which,jacB)
     __IDADlsSetBandJacFnB(convert(IDAMemPtr,idaa_mem),convert(Cint,which),jacB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_spils.h
+
+function __IDADlsSetBandJacFnBS(idaa_mem::IDAMemPtr,which::Cint,jacBS::IDADlsBandJacFnBS)
+    ccall((:IDADlsSetBandJacFnBS,libsundials_idas),Cint,(IDAMemPtr,Cint,IDADlsBandJacFnBS),idaa_mem,which,jacBS)
+end
+
+function IDADlsSetBandJacFnBS(idaa_mem,which,jacBS)
+    __IDADlsSetBandJacFnBS(convert(IDAMemPtr,idaa_mem),convert(Cint,which),jacBS)
+end
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1469,6 +1485,14 @@ function IDASpilsSetPreconditionerB(ida_mem,which,psetB,psolveB)
     __IDASpilsSetPreconditionerB(convert(IDAMemPtr,ida_mem),convert(Cint,which),psetB,psolveB)
 end
 
+function __IDASpilsSetPreconditionerBS(ida_mem::IDAMemPtr,which::Cint,psetBS::IDASpilsPrecSetupFnBS,psolveBS::IDASpilsPrecSolveFnBS)
+    ccall((:IDASpilsSetPreconditionerBS,libsundials_idas),Cint,(IDAMemPtr,Cint,IDASpilsPrecSetupFnBS,IDASpilsPrecSolveFnBS),ida_mem,which,psetBS,psolveBS)
+end
+
+function IDASpilsSetPreconditionerBS(ida_mem,which,psetBS,psolveBS)
+    __IDASpilsSetPreconditionerBS(convert(IDAMemPtr,ida_mem),convert(Cint,which),psetBS,psolveBS)
+end
+
 function __IDASpilsSetJacTimesVecFnB(ida_mem::IDAMemPtr,which::Cint,jtvB::IDASpilsJacTimesVecFnB)
     ccall((:IDASpilsSetJacTimesVecFnB,libsundials_idas),Cint,(IDAMemPtr,Cint,IDASpilsJacTimesVecFnB),ida_mem,which,jtvB)
 end
@@ -1476,7 +1500,15 @@ end
 function IDASpilsSetJacTimesVecFnB(ida_mem,which,jtvB)
     __IDASpilsSetJacTimesVecFnB(convert(IDAMemPtr,ida_mem),convert(Cint,which),jtvB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_band.h
+
+function __IDASpilsSetJacTimesVecFnBS(ida_mem::IDAMemPtr,which::Cint,jtvBS::IDASpilsJacTimesVecFnBS)
+    ccall((:IDASpilsSetJacTimesVecFnBS,libsundials_idas),Cint,(IDAMemPtr,Cint,IDASpilsJacTimesVecFnBS),ida_mem,which,jtvBS)
+end
+
+function IDASpilsSetJacTimesVecFnBS(ida_mem,which,jtvBS)
+    __IDASpilsSetJacTimesVecFnBS(convert(IDAMemPtr,ida_mem),convert(Cint,which),jtvBS)
+end
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_band.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1495,7 +1527,7 @@ end
 function IDABandB(idaadj_mem,which,NeqB,mupperB,mlowerB)
     __IDABandB(convert(IDAMemPtr,idaadj_mem),convert(Cint,which),convert(Clong,NeqB),convert(Clong,mupperB),convert(Clong,mlowerB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_bbdpre.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1546,7 +1578,7 @@ end
 function IDABBDPrecReInitB(ida_mem,which,mudqB,mldqB,dq_rel_yyB)
     __IDABBDPrecReInitB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Clong,mudqB),convert(Clong,mldqB),dq_rel_yyB)
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_dense.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_dense.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1565,10 +1597,61 @@ end
 function IDADenseB(ida_mem,which,NeqB)
     __IDADenseB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Clong,NeqB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_impl.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_spbcgs.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_sparse.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+
+function __IDASlsSetSparseJacFn(ida_mem::IDAMemPtr,jac::IDASlsSparseJacFn)
+    ccall((:IDASlsSetSparseJacFn,libsundials_idas),Cint,(IDAMemPtr,IDASlsSparseJacFn),ida_mem,jac)
+end
+
+function IDASlsSetSparseJacFn(ida_mem,jac)
+    __IDASlsSetSparseJacFn(convert(IDAMemPtr,ida_mem),jac)
+end
+
+function __IDASlsGetNumJacEvals(ida_mem::IDAMemPtr,njevals::Ptr{Clong})
+    ccall((:IDASlsGetNumJacEvals,libsundials_idas),Cint,(IDAMemPtr,Ptr{Clong}),ida_mem,njevals)
+end
+
+function IDASlsGetNumJacEvals(ida_mem,njevals)
+    __IDASlsGetNumJacEvals(convert(IDAMemPtr,ida_mem),pointer(njevals))
+end
+
+function __IDASlsGetLastFlag(ida_mem::IDAMemPtr,flag::Ptr{Clong})
+    ccall((:IDASlsGetLastFlag,libsundials_idas),Cint,(IDAMemPtr,Ptr{Clong}),ida_mem,flag)
+end
+
+function IDASlsGetLastFlag(ida_mem,flag)
+    __IDASlsGetLastFlag(convert(IDAMemPtr,ida_mem),pointer(flag))
+end
+
+function __IDASlsGetReturnFlagName(flag::Clong)
+    ccall((:IDASlsGetReturnFlagName,libsundials_idas),Ptr{UInt8},(Clong,),flag)
+end
+
+function IDASlsGetReturnFlagName(flag)
+    __IDASlsGetReturnFlagName(convert(Clong,flag))
+end
+
+function __IDASlsSetSparseJacFnB(ida_mem::IDAMemPtr,which::Cint,jacB::IDASlsSparseJacFnB)
+    ccall((:IDASlsSetSparseJacFnB,libsundials_idas),Cint,(IDAMemPtr,Cint,IDASlsSparseJacFnB),ida_mem,which,jacB)
+end
+
+function IDASlsSetSparseJacFnB(ida_mem,which,jacB)
+    __IDASlsSetSparseJacFnB(convert(IDAMemPtr,ida_mem),convert(Cint,which),jacB)
+end
+
+function __IDASlsSetSparseJacFnBS(ida_mem::IDAMemPtr,which::Cint,jacBS::IDASlsSparseJacFnBS)
+    ccall((:IDASlsSetSparseJacFnBS,libsundials_idas),Cint,(IDAMemPtr,Cint,IDASlsSparseJacFnBS),ida_mem,which,jacBS)
+end
+
+function IDASlsSetSparseJacFnBS(ida_mem,which,jacBS)
+    __IDASlsSetSparseJacFnBS(convert(IDAMemPtr,ida_mem),convert(Cint,which),jacBS)
+end
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_spbcgs.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1587,7 +1670,7 @@ end
 function IDASpbcgB(ida_mem,which,maxlB)
     __IDASpbcgB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Cint,maxlB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_spgmr.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
@@ -1606,7 +1689,7 @@ end
 function IDASpgmrB(ida_mem,which,maxlB)
     __IDASpgmrB(convert(IDAMemPtr,ida_mem),convert(Cint,which),convert(Cint,maxlB))
 end
-# Julia wrapper for header: /home/astukalov/.julia/v0.5/Sundials/deps/usr/include/idas/idas_sptfqmr.h
+# Julia wrapper for header: /Users/jgoldfar/Documents/misc/julia/Sundials/deps/usr/include/idas/idas_sptfqmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 

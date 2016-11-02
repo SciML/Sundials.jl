@@ -32,6 +32,11 @@ include("types_and_consts.jl")
 include("handle.jl")
 include("nvector_wrapper.jl")
 
+if isdefined(:libsundials_cvodes)
+    const libsundials_cvode = libsundials_cvodes
+    const libsundials_ida = libsundials_idas
+end
+
 include("nvector.jl")
 include("libsundials.jl")
 if isdefined(:libsundials_cvodes)
@@ -44,6 +49,7 @@ if isdefined(:libsundials_idas)
 else
     include("ida.jl")
 end
+include("arkode.jl")
 include("kinsol.jl")
 
 include("simple.jl")
