@@ -3,7 +3,6 @@ os:
     - osx
     - linux
 julia:
-    - 0.4
     - 0.5
     - nightly
 notifications:
@@ -13,4 +12,3 @@ notifications:
 #    - julia -e 'Pkg.clone(pwd()); Pkg.build("Sundials"); Pkg.test("Sundials"; coverage=true)';
 after_success:
     - julia -e 'cd(Pkg.dir("Sundials")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())';
-
