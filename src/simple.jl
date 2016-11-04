@@ -21,26 +21,26 @@ macro checkflag(ex)
 end
 
 type UserFunctionAndData
-    func::Function
+    func::Base.Callable
     data::Any
 
-    UserFunctionAndData(func::Function, data::Any) = new(func, data)
+    UserFunctionAndData(func::Base.Callable, data::Any) = new(func, data)
 end
 
-UserFunctionAndData(func::Function) = func
-UserFunctionAndData(func::Function, data::Void) = func
+UserFunctionAndData(func::Base.Callable) = func
+UserFunctionAndData(func::Base.Callable, data::Void) = func
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
     userfun[].func(convert(Vector, y), convert(Vector, fy), userfun[].data)
     return KIN_SUCCESS
 end
 
-function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
+function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Base.Callable)
     userfun(convert(Vector, y), convert(Vector, fy))
     return KIN_SUCCESS
 end
 
-function kinsol(f::Function, y0::Vector{Float64}, userdata::Any = nothing)
+function kinsol(f::Base.Callable, y0::Vector{Float64}, userdata::Any = nothing)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -74,83 +74,115 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::UserFunctionAn
     return CV_SUCCESS
 end
 
-function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
+function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Base.Callable)
     userfun(t, convert(Vector, y), convert(Vector, yp))
     return CV_SUCCESS
 end
 
 """
-`cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-       integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
+`cvode(f::Base.Callable, y0::Vector{Float64},
+       tspan::Vector{Float64}, userdata::Any = nothing,::Type{Val{Bool}};
+       collect_times::Symbol=:specified,integrator=:BDF,
+       reltol::Float64=DEFAULT_RELTOL, abstol::Float64=DEFAULT_ABSTOL)`
 
 * `f`, Function of the form
   `f(t, y::Vector{Float64}, yp::Vector{Float64})`
   where `y` is the input state vector, and `yp` is the output vector
   of time derivatives for the states `y`
 * `y0`, Vector of initial values
-* `t`, Vector of time values at which to record integration results
-* `integrator`, the chosen integration algorithm. Default is `:BDF`
-  , other option is `:Adams`
+* `tspan`, a vector where `tspan[1]` is the starting time and the other
+  values are time values which are guaranteed in the output
+* `collect_times`, the behavior for saving the output. Default is `:specified`
+  which will only return the times specified in `tspan` (the CV_NORMAL behavior).
+  The other choice is `:all` which will also return every internal timestep
+  (the `CV_ONE_STEP` behavior).
+* `integrator`, the chosen integration algorithm. Default is `:BDF`, a good
+  algorithm for stiff equations. The other option is `:Adams`, which is a good
+  algorithm for nonstiff equations with large function evaluation costs.
 * `reltol`, Relative Tolerance to be used (default=1e-3)
 * `abstol`, Absolute Tolerance to be used (default=1e-6)
 
-return: a solution matrix with time steps in `t` along rows and
-        state variable `y` along columns
-"""
-function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-              integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
-    if integrator==:BDF
-        mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    elseif integrator==:Adams
-        mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
-    end
-    if mem == C_NULL
-        error("Failed to allocate CVODE solver object")
-    end
+Output type is set by specifying the Val type.
 
-    yres = zeros(length(t), length(y0))
-    try
-        userfun = UserFunctionAndData(f, userdata)
-        y0nv = NVector(y0)
-        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t[1], convert(N_Vector, y0nv))
-        flag = @checkflag CVodeSetUserData(mem, userfun)
-        flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
-        flag = @checkflag CVDense(mem, length(y0))
-        yres[1,:] = y0
-        ynv = NVector(copy(y0))
-        tout = [0.0]
-        for k in 2:length(t)
-            flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
-            yres[k,:] = convert(Vector, ynv)
-        end
-    finally
-        CVodeFree(Ref{CVODEMemPtr}(mem))
-    end
-    return yres
+* Val{true}  - Matrix output
+* Val{false} - `Vector{Vector}` output
+
+return: `(t,y)`: `t` are the timepoints and `y` are the values.
+"""
+function cvode(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
+               userdata::Any = nothing;
+               collect_times::Symbol=DEFAULT_COLLECT_TIMES,
+               integrator::Symbol=DEFAULT_INTEGRATOR,
+               reltol::Float64=DEFAULT_RELTOL,
+               abstol::Float64=DEFAULT_ABSTOL)
+
+   cvode(f,y0,tspan,Val{true},userdata;
+         collect_times=collect_times,
+         integrator=integrator,
+         reltol=reltol,
+         abstol=abstol)
 end
 
-"""
-`cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                  integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
+function cvode(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
+               ::Type{Val{false}},userdata::Any = nothing;
+               collect_times::Symbol=DEFAULT_COLLECT_TIMES,
+               integrator::Symbol=DEFAULT_INTEGRATOR,
+               reltol::Float64=DEFAULT_RELTOL,
+               abstol::Float64=DEFAULT_ABSTOL)
 
-* `f`, Function of the form
-  `f(t, y::Vector{Float64}, yp::Vector{Float64})`
-  where `y` is the input state vector, and `yp` is the output vector
-  of time derivatives for the states `y`
-* `y0`, Vector of initial values
-* `tspan`, a vector where `tspan[1]` is the starting time and the other values are
-  time values which are guaranteed in the output
-* `integrator`, the chosen integration algorithm. Default is `:BDF`
-  , other option is `:Adams`
-* `reltol`, Relative Tolerance to be used (default=1e-3)
-* `abstol`, Absolute Tolerance to be used (default=1e-6)
+    y=Vector{Vector{Float64}}(length(tspan))
+    for i in eachindex(y)
+      y[i] = Vector{Float64}(length(y0))
+    end
+    t = copy(tspan)
+    cvode!(f,y0,t,y,userdata;
+          collect_times=collect_times,integrator=integrator,
+          reltol=reltol, abstol=abstol)
+    return t,y
+end
 
-return: a vector with the timepoints `t` and a vector with the outputs `y0`
-"""
-function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                          integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
-    t0 = tspan[1]
-    Ts = tspan[2:end]
+function cvode(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
+               ::Type{Val{true}},userdata::Any = nothing;
+               collect_times::Symbol=DEFAULT_COLLECT_TIMES,
+               integrator::Symbol=DEFAULT_INTEGRATOR,
+               reltol::Float64=DEFAULT_RELTOL,
+               abstol::Float64=DEFAULT_ABSTOL)
+    y = Matrix{Float64}(length(tspan),length(y0))
+    t = copy(tspan)
+    cvode!(f,y0,t,y,userdata;
+          collect_times=collect_times,integrator=integrator,
+          reltol=reltol, abstol=abstol)
+    return t,y
+end
+
+function cvode!(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
+                y_mat::Matrix{Float64},userdata = nothing;
+                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
+                integrator::Symbol=DEFAULT_INTEGRATOR,
+                reltol::Float64=DEFAULT_RELTOL,
+                abstol::Float64=DEFAULT_ABSTOL)
+
+    y = Vector{typeof(view(y_mat,1,:))}(size(y_mat,1))
+    for i in 1:length(y)
+        y[i] = view(y_mat,i,:)
+    end
+    cvode!(f,y0,tspan,y,userdata;
+           collect_times=collect_times,
+           integrator=integrator,
+           reltol=reltol,
+           abstol=abstol)
+    if length(y) > size(y_mat,1) # hcat if size grew
+        y_mat = hcat(y_mat,y[size(y_mat,1)+1:end])
+    end
+    nothing
+end
+
+function cvode!(f::Base.Callable, y0::AbstractVector, tspan::AbstractVector,
+                y::AbstractVector,userdata::Any = nothing;
+                collect_times::Symbol=DEFAULT_COLLECT_TIMES,
+                integrator::Symbol=DEFAULT_INTEGRATOR,
+                reltol::Float64=DEFAULT_RELTOL,
+                abstol::Float64=DEFAULT_ABSTOL)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -159,33 +191,56 @@ function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float6
     if mem == C_NULL
         error("Failed to allocate CVODE solver object")
     end
-
-    yres = Vector{Vector{Float64}}()
-    ts   = [t0]
+    init_length = length(y)
+    vec_length = length(y0)
     try
         userfun = UserFunctionAndData(f, userdata)
         y0nv = NVector(y0)
-        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t0, convert(N_Vector, y0nv))
+        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), tspan[1], convert(N_Vector, y0nv))
         flag = @checkflag CVodeSetUserData(mem, userfun)
         flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
         flag = @checkflag CVDense(mem, length(y0))
-        push!(yres, y0)
-        y = copy(y0)
+        copy!(y[1],y0)
+        ynv = NVector(copy(y0))
         tout = [0.0]
-        for t in Ts
-            while tout[end] < t
-                flag = @checkflag CVode(mem, t, y, tout, CV_ONE_STEP)
-                push!(yres,copy(y))
-                push!(ts, tout...)
-            end
-            # Fix the end
-            flag = @checkflag CVodeGetDky(mem, t, Cint(0), yres[end])
-            ts[end] = t
+        if collect_times == :all
+          Ts = tspan[2:end]
+          iter = 0
+          init_t_length = length(tspan)
+          for t in Ts
+              while tout[end] < t
+                iter+=1
+                flag = @checkflag CVode(mem, t, ynv, tout, CV_ONE_STEP)
+
+                if iter <= init_length # Save y
+                  copy!(y[iter],convert(Vector,ynv))
+                else
+                  push!(y,copy(convert(Vector,ynv)))
+                end
+                if iter <= init_t_length # Save t
+                  tspan[iter:(length(tout)+iter-1)] = tout
+                else
+                  push!(tspan, tout...)
+                end
+              end
+              # Fix the end
+              flag = @checkflag CVodeGetDky(mem, t, Cint(0), NVector(y[end]))
+              tspan[iter] = t
+          end
+
+        elseif collect_times == :specified
+          for i in 2:length(tspan)
+            flag = @checkflag CVode(mem, tspan[i], ynv, tout, CV_NORMAL)
+            copy!(y[i],convert(Vector,ynv))
+          end
         end
+
+    catch err
+      throw(err)
     finally
         CVodeFree(Ref{CVODEMemPtr}(mem))
     end
-    return ts, yres
+    nothing
 end
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
@@ -193,14 +248,14 @@ function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::
     return IDA_SUCCESS
 end
 
-function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
+function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Base.Callable)
     userfun(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r))
     return IDA_SUCCESS
 end
 
 """
-`idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-        reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)`
+`idasol(f::Base.Callable, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+        reltol::Float64=DEFAULT_RELTOL, abstol::Float64=DEFAULT_ABSTOL, diffstates::Union{Vector{Bool},Void}=nothing)`
 
 * `f`, Function of the form
   `f(t, y::Vector{Float64}, yp::Vector{Float64}, r::Vector{Float64})``
@@ -215,8 +270,8 @@ end
 return: (y,yp) two solution matrices representing the states and state derivatives
          with time steps in `t` along rows and state variable `y` or `yp` along columns
 """
-function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-                reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
+function idasol(f::Base.Callable, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+                reltol::Float64=DEFAULT_RELTOL, abstol::Float64=DEFAULT_ABSTOL, diffstates::Union{Vector{Bool},Void}=nothing)
     mem = IDACreate()
     if mem == C_NULL
         error("Failed to allocate IDA solver object")
@@ -256,3 +311,8 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
 
     return yres, ypres
 end
+
+const DEFAULT_RELTOL = 1e-3
+const DEFAULT_ABSTOL = 1e-6
+const DEFAULT_INTEGRATOR = :BDF
+const DEFAULT_COLLECT_TIMES = :specified
