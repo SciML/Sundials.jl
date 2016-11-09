@@ -130,7 +130,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
 end
 
 """
-`cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
+`cvode_common(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
                   integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
 
 * `f`, Function of the form
@@ -147,10 +147,12 @@ end
 
 return: a vector with the timepoints `t` and a vector with the outputs `y0`
 """
-function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                          integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
+function cvode_common(f::Function, y0::Vector{Float64}, tspan::Vector{Float64},
+                      userdata::Any = nothing; integrator=:BDF,
+                      reltol::Float64=1e-3, abstol::Float64=1e-6,
+                      saveat=Float64[],save_timeseries=false,kwargs...)
     t0 = tspan[1]
-    Ts = tspan[2:end]
+    T = tspan[end]
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -161,7 +163,16 @@ function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float6
     end
 
     yres = Vector{Vector{Float64}}()
-    ts   = [t0]
+    local ts
+    save_ts = sort(unique([t0;saveat;T]))
+
+    if T < save_ts[end]
+        error("Final saving timepoint is past the solving timespan")
+    end
+    if t0 > save_ts[1]
+        error("First saving timepoint is before the solving timespan")
+    end
+
     try
         userfun = UserFunctionAndData(f, userdata)
         y0nv = NVector(y0)
@@ -169,19 +180,31 @@ function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float6
         flag = @checkflag CVodeSetUserData(mem, userfun)
         flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
         flag = @checkflag CVDense(mem, length(y0))
-        push!(yres, y0)
-        y = copy(y0)
+        push!(yres, copy(y0))
+        y = NVector(copy(y0))
+        ytmp = NVector(copy(y0))
         tout = [0.0]
-        for t in Ts
-            while tout[end] < t
-                flag = @checkflag CVode(mem, t, y, tout, CV_ONE_STEP)
-                push!(yres,copy(y))
-                push!(ts, tout...)
-            end
-            # Fix the end
-            flag = @checkflag CVodeGetDky(mem, t, Cint(0), yres[end])
-            ts[end] = t
+        @show save_ts
+        if save_timeseries
+          ts   = [t0]
+          for t in save_ts
+              while tout[end] < t
+                  flag = @checkflag CVode(mem, t, y, tout, CV_ONE_STEP)
+                  push!(yres,copy(y))
+                  push!(ts, tout...)
+              end
+              # Fix the end
+              flag = @checkflag CVodeGetDky(mem, t, Cint(0), yres[end])
+              ts[end] = t
+          end
+        else
+          for k in 2:length(save_ts)
+              flag = @checkflag CVode(mem, save_ts[k], ytmp, tout, CV_NORMAL)
+              push!(yres,copy(ytmp))
+          end
+          ts = save_ts
         end
+
     finally
         CVodeFree(Ref{CVODEMemPtr}(mem))
     end
