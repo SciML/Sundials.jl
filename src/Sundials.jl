@@ -2,7 +2,8 @@ __precompile__()
 
 module Sundials
 
-using Compat
+using Compat, DiffEqBase
+import DiffEqBase: solve
 
 const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
 if isfile(depsfile)
@@ -47,5 +48,8 @@ end
 include("kinsol.jl")
 
 include("simple.jl")
+include("common.jl")
+
+export solve
 
 end # module
