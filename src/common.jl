@@ -1,7 +1,7 @@
 function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(prob::AbstractODEProblem{uType,tType,Val{isinplace},F},
-    alg::Type{algType}=DefaultODEAlgorithm(),timeseries=[],ts=[],ks=[];
+    alg::Type{algType},timeseries=[],ts=[],ks=[];
     callback=()->nothing,abstol=1/10^6,reltol=1/10^3,saveat=Float64[],adaptive=true,
-    timeseries_errors=true,dense_errors=false,save_timeseries=true,userdata=nothing,
+    timeseries_errors=true,save_timeseries=true,userdata=nothing,
     kwargs...)
 
     tspan = prob.tspan
@@ -17,8 +17,6 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(prob::Abstrac
         error("First saving timepoint is before the solving timespan")
     end
 
-    atomloaded = isdefined(Main,:Atom)
-
     if typeof(prob.u0) <: Number
       u0 = [prob.u0]
     else
@@ -26,6 +24,8 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(prob::Abstrac
     end
 
     sizeu = size(prob.u0)
+
+    ### Fix the more general function to Sundials allowed style
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
       f! = (t,u,du) -> (du[:] = prob.f(t,u); 0)
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
@@ -60,6 +60,8 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(prob::Abstrac
         u = Sundials.NVector(copy(u0))
         utmp = Sundials.NVector(copy(u0))
         tout = [0.0]
+
+        # The Inner Loops : Style depends on save_timeseries
         if save_timeseries
           for k in 2:length(save_ts)
               looped = false
@@ -79,7 +81,7 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(prob::Abstrac
                   push!(ts, save_ts[k]...)
               end
           end
-        else
+        else # save_timeseries == false, so use CV_NORMAL style
           for k in 2:length(save_ts)
               flag = Sundials.@checkflag Sundials.CVode(mem, save_ts[k], utmp, tout, Sundials.CV_NORMAL)
               push!(ures,copy(utmp))
@@ -91,7 +93,7 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(prob::Abstrac
         Sundials.CVodeFree(Ref{Sundials.CVODEMemPtr}(mem))
     end
 
-    ###
+    ### Finishing Routine
 
     timeseries = Vector{uType}(0)
     if typeof(prob.u0)<:Number
@@ -104,16 +106,6 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(prob::Abstrac
       end
     end
 
-    if typeof(prob) <: ODETestProblem
-      timeseries_analytic = Vector{uType}(0)
-      for i in 1:size(timeseries,1)
-        push!(timeseries_analytic,prob.analytic(ts[i],prob.u0))
-      end
-      return(ODESolution(ts,timeseries,prob,alg,
-      u_analytic=timeseries_analytic,
-      timeseries_errors = timeseries_errors,
-      dense_errors = dense_errors))
-    else
-      return(ODESolution(ts,timeseries,prob,alg))
-    end
+    build_ode_solution(prob,alg,ts,timeseries,
+                      timeseries_errors = timeseries_errors)
 end
