@@ -2,7 +2,7 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
     prob::AbstractODEProblem{uType,tType,Val{isinplace},F},
     alg::Type{algType},timeseries=[],ts=[],ks=[];
     callback=()->nothing,abstol=1/10^6,reltol=1/10^3,
-    saveat=Float64[],adaptive=true,
+    saveat=Float64[],adaptive=true,maxiter=Int(1e5),
     timeseries_errors=true,save_timeseries=true,
     userdata=nothing,kwargs...)
 
@@ -40,12 +40,12 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
     end
 
     if alg == CVODE_BDF
-        mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
+        mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif alg ==  CVODE_Adams
-        mem = Sundials.CVodeCreate(Sundials.CV_ADAMS, Sundials.CV_FUNCTIONAL)
+        mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
     end
 
-    if mem == Sundials.C_NULL
+    if mem == C_NULL
         error("Failed to allocate CVODE solver object")
     end
 
@@ -53,19 +53,20 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
     ts   = [t0]
 
     try
-        userfun = Sundials.UserFunctionAndData(f!, userdata)
-        u0nv = Sundials.NVector(u0)
-        flag = Sundials.@checkflag Sundials.CVodeInit(mem,
-                              cfunction(Sundials.cvodefun, Cint,
-                              (Sundials.realtype, Sundials.N_Vector,
-                              Sundials.N_Vector, Ref{typeof(userfun)})),
-                              t0, convert(Sundials.N_Vector, u0nv))
-        flag = Sundials.@checkflag Sundials.CVodeSetUserData(mem, userfun)
-        flag = Sundials.@checkflag Sundials.CVodeSStolerances(mem, reltol, abstol)
-        flag = Sundials.@checkflag Sundials.CVDense(mem, length(u0))
+        userfun = UserFunctionAndData(f!, userdata)
+        u0nv = NVector(u0)
+        flag = @checkflag CVodeInit(mem,
+                              cfunction(cvodefun, Cint,
+                              (realtype, N_Vector,
+                              N_Vector, Ref{typeof(userfun)})),
+                              t0, convert(N_Vector, u0nv))
+        flag = @checkflag CVodeSetUserData(mem, userfun)
+        flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
+        flag = @checkflag CVodeSetMaxNumSteps(mem, maxiter)
+        flag = @checkflag CVDense(mem, length(u0))
         push!(ures, copy(u0))
-        u = Sundials.NVector(copy(u0))
-        utmp = Sundials.NVector(copy(u0))
+        u = NVector(copy(u0))
+        utmp = NVector(copy(u0))
         tout = [0.0]
 
         # The Inner Loops : Style depends on save_timeseries
@@ -74,18 +75,18 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
                 looped = false
                 while tout[end] < save_ts[k]
                     looped = true
-                    flag = Sundials.@checkflag Sundials.CVode(mem,
-                                    save_ts[k], u, tout, Sundials.CV_ONE_STEP)
+                    flag = @checkflag CVode(mem,
+                                    save_ts[k], u, tout, CV_ONE_STEP)
                     push!(ures,copy(u))
                     push!(ts, tout...)
                 end
                 if looped
                     # Fix the end
-                    flag = Sundials.@checkflag Sundials.CVodeGetDky(
+                    flag = @checkflag CVodeGetDky(
                                             mem, save_ts[k], Cint(0), ures[end])
                     ts[end] = save_ts[k]
                 else # Just push another value
-                    flag = Sundials.@checkflag Sundials.CVodeGetDky(
+                    flag = @checkflag CVodeGetDky(
                                             mem, save_ts[k], Cint(0), ures[end])
                     push!(ures,copy(u))
                     push!(ts, save_ts[k]...)
@@ -93,14 +94,14 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
         end
         else # save_timeseries == false, so use CV_NORMAL style
             for k in 2:length(save_ts)
-                flag = Sundials.@checkflag Sundials.CVode(mem,
-                                    save_ts[k], utmp, tout, Sundials.CV_NORMAL)
+                flag = @checkflag CVode(mem,
+                                    save_ts[k], utmp, tout, CV_NORMAL)
                 push!(ures,copy(utmp))
             end
             ts = save_ts
         end
     finally
-        Sundials.CVodeFree(Ref{Sundials.CVODEMemPtr}(mem))
+        CVodeFree(Ref{CVODEMemPtr}(mem))
     end
 
     ### Finishing Routine
