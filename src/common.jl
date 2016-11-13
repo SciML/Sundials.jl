@@ -1,5 +1,5 @@
 function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
-    prob::AbstractODEProblem{uType,tType,Val{isinplace},F},
+    prob::AbstractODEProblem{uType,tType,isinplace,F},
     alg::Type{algType},timeseries=[],ts=[],ks=[];
     callback=()->nothing,abstol=1/10^6,reltol=1/10^3,
     saveat=Float64[],adaptive=true,maxiter=Int(1e5),
