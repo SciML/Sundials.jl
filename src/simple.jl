@@ -142,7 +142,8 @@ function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float6
     else
       error("Integrator must be `:BDF` or `:Adams`")
     end
-    solve(prob,alg;userdata=userdata,reltol=reltol,abstol=abstol,kwargs...)
+    sol = solve(prob,alg;userdata=userdata,reltol=reltol,abstol=abstol,kwargs...)
+    sol.t,sol.u
 end
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
