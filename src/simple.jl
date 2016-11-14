@@ -129,23 +129,6 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
     return yres
 end
 
-
-function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                          integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6,kwargs...)
-    Base.depwarn("cvode_fulloutput has been deprecated for the common interface `solve`.", :cvode_fulloutput)
-    new_tspan = (tspan[1],tspan[end])
-    prob = ODEProblem(f,y0,new_tspan)
-    if integrator == :BDF
-      alg = CVODE_BDF
-    elseif integrator == :Adams
-      alg = CVODE_Adams
-    else
-      error("Integrator must be `:BDF` or `:Adams`")
-    end
-    sol = solve(prob,alg;userdata=userdata,reltol=reltol,abstol=abstol,kwargs...)
-    sol.t,sol.u
-end
-
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
     userfun.func(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r), userfun.data)
     return IDA_SUCCESS

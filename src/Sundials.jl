@@ -20,6 +20,22 @@ end
 @deprecate asarray convert
 @deprecate nvector NVector
 
+function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
+                          integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6,kwargs...)
+    Base.depwarn("cvode_fulloutput has been deprecated for the common interface `solve`.", :cvode_fulloutput)
+    new_tspan = (tspan[1],tspan[end])
+    prob = ODEProblem(f,y0,new_tspan)
+    if integrator == :BDF
+      alg = CVODE_BDF
+    elseif integrator == :Adams
+      alg = CVODE_Adams
+    else
+      error("Integrator must be `:BDF` or `:Adams`")
+    end
+    sol = solve(prob,alg;userdata=userdata,reltol=reltol,abstol=abstol,kwargs...)
+    sol.t,sol.u
+end
+
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)
 const DBL_MIN = nextfloat(-Inf)
