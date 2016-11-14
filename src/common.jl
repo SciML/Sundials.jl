@@ -91,7 +91,7 @@ function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
                     push!(ures,copy(u))
                     push!(ts, save_ts[k]...)
                 end
-        end
+            end
         else # save_timeseries == false, so use CV_NORMAL style
             for k in 2:length(save_ts)
                 flag = @checkflag CVode(mem,
