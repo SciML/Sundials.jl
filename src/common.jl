@@ -1,3 +1,9 @@
+# Sundials.jl algorithms
+
+abstract SundialsAlgorithm <: AbstractODEAlgorithm
+immutable CVODE_BDF <: SundialsAlgorithm end
+immutable CVODE_Adams <: SundialsAlgorithm end
+
 function solve{uType,tType,isinplace,algType<:SundialsAlgorithm,F}(
     prob::AbstractODEProblem{uType,tType,isinplace,F},
     alg::Type{algType},timeseries=[],ts=[],ks=[];

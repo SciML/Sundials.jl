@@ -12,7 +12,7 @@ else
     error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
 end
 
-export solve
+export solve, SundialsAlgorithm, CVODE_BDF, CVODE_Adams
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)
