@@ -64,5 +64,5 @@ end
 println("== test common interface")
 let
 include(joinpath(examples_path, "common_interface.jl"))
-@test bool1 && bool2 && bool3 && bool4
+@test bool1 && bool2 && bool3 && bool4 && bool5 && bool6
 end

@@ -97,7 +97,7 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
               integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
@@ -156,7 +156,7 @@ end
 return: (y,yp) two solution matrices representing the states and state derivatives
          with time steps in `t` along rows and state variable `y` or `yp` along columns
 """
-function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                 reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
     mem = IDACreate()
     if mem == C_NULL
@@ -174,7 +174,7 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
         flag = @checkflag IDADense(mem, length(y0))
         rtest = zeros(length(y0))
         f(t[1], y0, yp0, rtest)
-        if any(abs(rtest) .>= reltol)
+        if any(abs.(rtest) .>= reltol)
             if diffstates === nothing
                 error("Must supply diffstates argument to use IDA initial value solver.")
             end
