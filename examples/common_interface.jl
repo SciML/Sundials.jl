@@ -1,4 +1,4 @@
-using DiffEqProblemLibrary, DiffEqBase
+using DiffEqProblemLibrary, DiffEqBase, Sundials
 
 prob = prob_ode_linear
 dt = 1//2^(4)
@@ -27,3 +27,12 @@ u0 = [1.0 2.0
       3.0 2.0]
 prob = ODEProblem(h,u0,(0.0,1.0))
 @time sol = solve(prob,CVODE_BDF)
+
+prob = prob_dae_resrob
+dt = 1000
+saveat = float(collect(0:dt:100000))
+sol = solve(prob,IDA)
+sol = solve(prob,IDA,saveat=saveat)
+bool5 = intersect(sol.t,saveat) == saveat
+sol = solve(prob,IDA,saveat=saveat,save_timeseries=false)
+bool6 = sol.t == saveat
