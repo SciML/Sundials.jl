@@ -174,7 +174,7 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
         flag = @checkflag IDADense(mem, length(y0))
         rtest = zeros(length(y0))
         f(t[1], y0, yp0, rtest)
-        if any(abs(rtest) .>= reltol)
+        if any(abs.(rtest) .>= reltol)
             if diffstates === nothing
                 error("Must supply diffstates argument to use IDA initial value solver.")
             end

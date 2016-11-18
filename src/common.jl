@@ -206,7 +206,7 @@ function solve{uType,duType,tType,isinplace,algType<:SundialsDAEAlgorithm,F}(
 
         rtest = zeros(length(u0))
         f!(t0, u0, du0, rtest)
-        if any(abs(rtest) .>= reltol)
+        if any(abs.(rtest) .>= reltol)
             if diffstates === nothing
                 error("Must supply diffstates argument to use IDA initial value solver.")
             end
