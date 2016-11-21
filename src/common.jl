@@ -1,14 +1,24 @@
 # Sundials.jl algorithms
 
-abstract SundialsODEAlgorithm <: AbstractODEAlgorithm
-abstract SundialsDAEAlgorithm <: AbstractDAEAlgorithm
-immutable CVODE_BDF <: SundialsODEAlgorithm end
-immutable CVODE_Adams <: SundialsODEAlgorithm end
-immutable IDA <: SundialsDAEAlgorithm end
+# Abstract Types
+abstract SundialsODEAlgorithm{Method,LinearSolver} <: AbstractODEAlgorithm
+abstract SundialsDAEAlgorithm{LinearSolver} <: AbstractDAEAlgorithm
 
-function solve{uType,tType,isinplace,algType<:SundialsODEAlgorithm,F}(
+# ODE Algorithms
+immutable CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver} end
+CVODE_BDF(;method=:Newton,linear_solver=:Dense) = CVODE_BDF{method,linear_solver}()
+
+immutable CVODE_Adams{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver} end
+CVODE_Adams(;method=:Functional,linear_solver=:None) = CVODE_Adams{method,linear_solver}()
+
+# DAE Algorithms
+immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver} end
+IDA(;linear_solver=:Dense) = IDA{linear_solver}()
+
+function solve{uType,tType,isinplace,F,Method,LinearSolver}(
     prob::AbstractODEProblem{uType,tType,isinplace,F},
-    alg::Type{algType},timeseries=[],ts=[],ks=[];
+    alg::SundialsODEAlgorithm{Method,LinearSolver},
+    timeseries=[],ts=[],ks=[];
     callback=()->nothing,abstol=1/10^6,reltol=1/10^3,
     saveat=Float64[],adaptive=true,maxiter=Int(1e5),
     timeseries_errors=true,save_timeseries=true,
@@ -47,11 +57,19 @@ function solve{uType,tType,isinplace,algType<:SundialsODEAlgorithm,F}(
                           u = vec(u); du=vec(du); 0)
     end
 
-    if alg == CVODE_BDF
-        mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    elseif alg ==  CVODE_Adams
-        mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
+    if typeof(alg) <: CVODE_BDF
+        alg_code = CV_BDF
+    elseif typeof(alg) <:  CVODE_Adams
+        alg_code = CV_ADAMS
     end
+
+    if Method == :Newton
+        method_code = CV_NEWTON
+    elseif Method ==  :Functional
+        method_code = CV_FUNCTIONAL
+    end
+
+    mem = CVodeCreate(alg_code, method_code)
 
     if mem == C_NULL
         error("Failed to allocate CVODE solver object")
@@ -71,7 +89,12 @@ function solve{uType,tType,isinplace,algType<:SundialsODEAlgorithm,F}(
         flag = @checkflag CVodeSetUserData(mem, userfun)
         flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
         flag = @checkflag CVodeSetMaxNumSteps(mem, maxiter)
-        flag = @checkflag CVDense(mem, length(u0))
+        if Method == :Newton # Only use a linear solver if it's a Newton-based method
+            if LinearSolver == :Dense
+                flag = @checkflag CVDense(mem, length(u0))
+            end
+        end
+
         push!(ures, copy(u0))
         utmp = NVector(copy(u0))
         tout = [0.0]
@@ -130,9 +153,10 @@ end
 
 ## Solve for DAEs uses IDA
 
-function solve{uType,duType,tType,isinplace,algType<:SundialsDAEAlgorithm,F}(
+function solve{uType,duType,tType,isinplace,F,LinearSolver}(
     prob::AbstractDAEProblem{uType,duType,tType,isinplace,F},
-    alg::Type{algType},timeseries=[],ts=[],ks=[];
+    alg::SundialsDAEAlgorithm{LinearSolver},
+    timeseries=[],ts=[],ks=[];
     callback=()->nothing,abstol=1/10^6,reltol=1/10^3,
     saveat=Float64[],adaptive=true,maxiter=Int(1e5),
     timeseries_errors=true,save_timeseries=true,
@@ -197,7 +221,9 @@ function solve{uType,duType,tType,isinplace,algType<:SundialsDAEAlgorithm,F}(
         flag = @checkflag IDASetUserData(mem, userfun)
         flag = @checkflag IDASStolerances(mem, reltol, abstol)
         flag = @checkflag IDASetMaxNumSteps(mem, maxiter)
-        flag = @checkflag IDADense(mem, length(u0))
+        if LinearSolver == :Dense
+            flag = @checkflag IDADense(mem, length(u0))
+        end
 
         push!(ures, copy(u0))
         utmp = NVector(copy(u0))
