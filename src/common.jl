@@ -1,19 +1,4 @@
-# Sundials.jl algorithms
-
-# Abstract Types
-abstract SundialsODEAlgorithm{Method,LinearSolver} <: AbstractODEAlgorithm
-abstract SundialsDAEAlgorithm{LinearSolver} <: AbstractDAEAlgorithm
-
-# ODE Algorithms
-immutable CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver} end
-CVODE_BDF(;method=:Newton,linear_solver=:Dense) = CVODE_BDF{method,linear_solver}()
-
-immutable CVODE_Adams{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver} end
-CVODE_Adams(;method=:Functional,linear_solver=:None) = CVODE_Adams{method,linear_solver}()
-
-# DAE Algorithms
-immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver} end
-IDA(;linear_solver=:Dense) = IDA{linear_solver}()
+## Common Interface Solve Functions
 
 function solve{uType,tType,isinplace,F,Method,LinearSolver}(
     prob::AbstractODEProblem{uType,tType,isinplace,F},
@@ -92,6 +77,16 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
         if Method == :Newton # Only use a linear solver if it's a Newton-based method
             if LinearSolver == :Dense
                 flag = @checkflag CVDense(mem, length(u0))
+            elseif LinearSolver == :Banded
+                flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+            elseif LinearSolver == :Diagonal
+                flag = @checkflag CVDiag(mem)
+            elseif LinearSolver == :GMRES
+                flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            elseif LinearSolver == :BCG
+                flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            elseif LinearSolver == :TFQMR
+                flag = @checkflag CVSptfqmr(mem,PREC_NONE,alg.krylov_dim)
             end
         end
 
@@ -223,7 +218,18 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
         flag = @checkflag IDASetMaxNumSteps(mem, maxiter)
         if LinearSolver == :Dense
             flag = @checkflag IDADense(mem, length(u0))
+        elseif LinearSolver == :Band
+            flag = @checkflag IDABand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+        elseif LinearSolver == :Diagonal
+            flag = @checkflag IDADiag(mem)
+        elseif LinearSolver == :GMRES
+            flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
+        elseif LinearSolver == :BCG
+            flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
+        elseif LinearSolver == :TFQMR
+            flag = @checkflag IDASptfqmr(mem,PREC_NONE,alg.krylov_dim)
         end
+
 
         push!(ures, copy(u0))
         utmp = NVector(copy(u0))
