@@ -219,15 +219,15 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
         if LinearSolver == :Dense
             flag = @checkflag IDADense(mem, length(u0))
         elseif LinearSolver == :Band
-            flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+            flag = @checkflag IDABand(mem,length(u0),alg.jac_upper,alg.jac_lower)
         elseif LinearSolver == :Diagonal
-            flag = @checkflag CVDiag(mem)
+            flag = @checkflag IDADiag(mem)
         elseif LinearSolver == :GMRES
-            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
         elseif LinearSolver == :BCG
-            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
         elseif LinearSolver == :TFQMR
-            flag = @checkflag CVSptfqmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag IDASptfqmr(mem,PREC_NONE,alg.krylov_dim)
         end
 
 
