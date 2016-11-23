@@ -81,6 +81,12 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                 flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
             elseif LinearSolver == :Diagonal
                 flag = @checkflag CVDiag(mem)
+            elseif LinearSolver == :GMRES
+                flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            elseif LinearSolver == :BCG
+                flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            elseif LinearSolver == :TFQMR
+                flag = @checkflag CVSptfqmr(mem,PREC_NONE,alg.krylov_dim)
             end
         end
 
@@ -216,7 +222,14 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
             flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
         elseif LinearSolver == :Diagonal
             flag = @checkflag CVDiag(mem)
+        elseif LinearSolver == :GMRES
+            flag = @checkflag CVpgmr(mem,PREC_NONE,alg.krylov_dim)
+        elseif LinearSolver == :BCG
+            flag = @checkflag CVpgmr(mem,PREC_NONE,alg.krylov_dim)
+        elseif LinearSolver == :TFQMR
+            flag = @checkflag CVptfqmr(mem,PREC_NONE,alg.krylov_dim)
         end
+
 
         push!(ures, copy(u0))
         utmp = NVector(copy(u0))

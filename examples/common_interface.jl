@@ -38,9 +38,15 @@ prob = ODEProblem(h,u0,(0.0,1.0))
 @time sol1 = solve(prob,CVODE_BDF(method=:Functional))
 @time sol2 = solve(prob,CVODE_BDF(linear_solver=:Banded,jac_upper=3,jac_lower=3))
 @time sol3 = solve(prob,CVODE_BDF(linear_solver=:Diagonal))
+@time sol4 = solve(prob,CVODE_BDF(linear_solver=:GMRES))
+@time sol5 = solve(prob,CVODE_BDF(linear_solver=:BCG))
+@time sol6 = solve(prob,CVODE_BDF(linear_solver=:TFQMR))
 
 @test isapprox(sol1[end],sol2[end],rtol=1e-3)
 @test isapprox(sol1[end],sol3[end],rtol=1e-3)
+@test isapprox(sol1[end],sol4[end],rtol=1e-3)
+@test isapprox(sol1[end],sol5[end],rtol=1e-3)
+@test isapprox(sol1[end],sol6[end],rtol=1e-3)
 
 # Test DAE
 prob = prob_dae_resrob
