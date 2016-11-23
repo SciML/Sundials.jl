@@ -36,9 +36,11 @@ prob = ODEProblem(h,u0,(0.0,1.0))
 
 # Test Algorithm Choices
 @time sol1 = solve(prob,CVODE_BDF(method=:Functional))
-@time sol2 = solve(prob,CVODE_BDF(linear_solver=:Band,jac_upper=3,jac_lower=3))
+@time sol2 = solve(prob,CVODE_BDF(linear_solver=:Banded,jac_upper=3,jac_lower=3))
+@time sol3 = solve(prob,CVODE_BDF(linear_solver=:Diagonal))
 
 @test isapprox(sol1[end],sol2[end],rtol=1e-3)
+@test isapprox(sol1[end],sol3[end],rtol=1e-3)
 
 # Test DAE
 prob = prob_dae_resrob

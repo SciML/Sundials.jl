@@ -77,8 +77,10 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
         if Method == :Newton # Only use a linear solver if it's a Newton-based method
             if LinearSolver == :Dense
                 flag = @checkflag CVDense(mem, length(u0))
-            elseif LinearSolver == :Band
+            elseif LinearSolver == :Banded
                 flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+            elseif LinearSolver == :Diagonal
+                flag = @checkflag CVDiag(mem)
             end
         end
 
@@ -212,6 +214,8 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
             flag = @checkflag IDADense(mem, length(u0))
         elseif LinearSolver == :Band
             flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+        elseif LinearSolver == :Diagonal
+            flag = @checkflag CVDiag(mem)
         end
 
         push!(ures, copy(u0))
