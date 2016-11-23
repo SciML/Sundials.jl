@@ -42,6 +42,7 @@ end
 include("kinsol.jl")
 
 include("simple.jl")
+include("algorithms.jl")
 include("common.jl")
 
 ##################################################################
