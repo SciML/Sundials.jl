@@ -223,11 +223,11 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
         elseif LinearSolver == :Diagonal
             flag = @checkflag CVDiag(mem)
         elseif LinearSolver == :GMRES
-            flag = @checkflag CVpgmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
         elseif LinearSolver == :BCG
-            flag = @checkflag CVpgmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
         elseif LinearSolver == :TFQMR
-            flag = @checkflag CVptfqmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag CVSptfqmr(mem,PREC_NONE,alg.krylov_dim)
         end
 
 
