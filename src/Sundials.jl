@@ -4,6 +4,7 @@ module Sundials
 
 using Compat, DiffEqBase
 import DiffEqBase: solve
+import Base: convert
 
 const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
 if isfile(depsfile)
@@ -44,6 +45,11 @@ include("kinsol.jl")
 include("simple.jl")
 include("algorithms.jl")
 include("common.jl")
+
+### Finalizers
+
+# Note that these have to go after the respective library (cvode.jl, etc.)
+# And those have to go after the type definition for the dispatches
 
 ##################################################################
 # Deprecations
