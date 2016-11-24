@@ -80,7 +80,7 @@ const rtol = 1e-4
 const avtol = [1e-8, 1e-14, 1e-6]
 const tout1 = 0.4
 
-mem = Sundials.IDACreate()
+mem = Sundials.IDAMemContainer()
 Sundials.@checkflag Sundials.IDAInit(mem, resrob, t0, yy0, yp0)
 Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
 
