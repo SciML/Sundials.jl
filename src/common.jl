@@ -138,7 +138,14 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
         end
     end
 
-    build_solution(prob,alg,ts,timeseries,
+    function interp(t::Float64)
+      utmp = NVector(copy(u0))
+      flag = @checkflag CVodeGetDky(mem,t,Cint(0),utmp)
+      convert(typeof(u0),utmp)
+    end
+    interp(t::Vector{Float64}) = interp.(t)
+
+    build_solution(prob,alg,ts,timeseries,interp=interp,
                       timeseries_errors = timeseries_errors)
 end
 
@@ -287,6 +294,13 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
         end
     end
 
-    build_solution(prob,alg,ts,timeseries,
+    function interp(t::Float64)
+      utmp = NVector(copy(u0))
+      flag = @checkflag IDAGetDky(mem,t,Cint(0),utmp)
+      convert(typeof(u0),utmp)
+    end
+    interp(t::Vector{Float64}) = interp.(t)
+
+    build_solution(prob,alg,ts,timeseries,interp=interp,
                       timeseries_errors = timeseries_errors)
 end
