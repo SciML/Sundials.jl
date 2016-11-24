@@ -50,7 +50,7 @@ const y0 = [1.0, 0.0, 0.0]
 const reltol = 1e-4
 const abstol = [1e-8, 1e-14, 1e-6]
 
-cvode_mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
+cvode_mem = Sundials.CVODEMemContainer(Sundials.CV_BDF, Sundials.CV_NEWTON)
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, f, t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g)

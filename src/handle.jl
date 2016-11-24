@@ -14,13 +14,43 @@
 abstract AbstractSundialsObject
 
 immutable CVODEMem <: AbstractSundialsObject end
+type CVODEMemContainer <: AbstractSundialsObject
+    ptr::Ptr{CVODEMem}
+    function CVODEMemContainer(lmm, iter)
+        ptr = new(CVodeCreate(lmm,iter))
+        finalizer(ptr,cvode_finalizer)
+        ptr
+    end
+end
 typealias CVODEMemPtr Ptr{CVODEMem}
+cvode_finalizer(mem::CVODEMemContainer) = mem.ptr == C_NULL || (CVodeFree(Ref{CVODEMemPtr}(mem.ptr)) ; mem.ptr = C_NULL)
+convert(::Type{CVODEMemPtr},mem::CVODEMemContainer) = mem.ptr
 
 immutable IDAMem <: AbstractSundialsObject end
+type IDAMemContainer <: AbstractSundialsObject
+  ptr::Ptr{IDAMem}
+  function IDAMemContainer()
+      ptr = new(IDACreate())
+      finalizer(ptr,ida_finalizer)
+      ptr
+  end
+end
 typealias IDAMemPtr Ptr{IDAMem}
+ida_finalizer(mem::IDAMemContainer) = mem.ptr == C_NULL || (IDAFree(Ref{IDAMemPtr}(mem.ptr)) ; mem.ptr = C_NULL)
+convert(::Type{IDAMemPtr},mem::IDAMemContainer) = mem.ptr
 
 immutable KINMem <: AbstractSundialsObject end
+type KINMemContainer <: AbstractSundialsObject
+  ptr::Ptr{KINMem}
+  function KINMemContainer()
+      ptr = new(KINCreate())
+      finalizer(ptr,kin_finalizer)
+      ptr
+  end
+end
 typealias KINMemPtr Ptr{KINMem}
+kin_finalizer(mem::KINMemContainer) = mem.ptr == C_NULL || (KINFree(Ref{KINMemPtr}(mem.ptr)) ; mem.ptr = C_NULL)
+convert(::Type{KINMemPtr},mem::KINMemContainer) = mem.ptr
 
 """
    Handle for Sundials objects (CVODE, IDA, KIN).

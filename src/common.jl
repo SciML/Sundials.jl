@@ -54,79 +54,75 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
         method_code = CV_FUNCTIONAL
     end
 
-    mem = CVodeCreate(alg_code, method_code)
+    mem = CVODEMemContainer(alg_code, method_code)
 
-    if mem == C_NULL
+    if mem.ptr == C_NULL
         error("Failed to allocate CVODE solver object")
     end
 
     ures = Vector{Vector{Float64}}()
     ts   = [t0]
 
-    try
-        userfun = UserFunctionAndData(f!, userdata)
-        u0nv = NVector(u0)
-        flag = @checkflag CVodeInit(mem,
-                              cfunction(cvodefun, Cint,
-                              (realtype, N_Vector,
-                              N_Vector, Ref{typeof(userfun)})),
-                              t0, convert(N_Vector, u0nv))
-        flag = @checkflag CVodeSetUserData(mem, userfun)
-        flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
-        flag = @checkflag CVodeSetMaxNumSteps(mem, maxiter)
-        if Method == :Newton # Only use a linear solver if it's a Newton-based method
-            if LinearSolver == :Dense
-                flag = @checkflag CVDense(mem, length(u0))
-            elseif LinearSolver == :Banded
-                flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
-            elseif LinearSolver == :Diagonal
-                flag = @checkflag CVDiag(mem)
-            elseif LinearSolver == :GMRES
-                flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
-            elseif LinearSolver == :BCG
-                flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
-            elseif LinearSolver == :TFQMR
-                flag = @checkflag CVSptfqmr(mem,PREC_NONE,alg.krylov_dim)
-            end
+    userfun = UserFunctionAndData(f!, userdata)
+    u0nv = NVector(u0)
+    flag = @checkflag CVodeInit(mem,
+                          cfunction(cvodefun, Cint,
+                          (realtype, N_Vector,
+                          N_Vector, Ref{typeof(userfun)})),
+                          t0, convert(N_Vector, u0nv))
+    flag = @checkflag CVodeSetUserData(mem, userfun)
+    flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
+    flag = @checkflag CVodeSetMaxNumSteps(mem, maxiter)
+    if Method == :Newton # Only use a linear solver if it's a Newton-based method
+        if LinearSolver == :Dense
+            flag = @checkflag CVDense(mem, length(u0))
+        elseif LinearSolver == :Banded
+            flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+        elseif LinearSolver == :Diagonal
+            flag = @checkflag CVDiag(mem)
+        elseif LinearSolver == :GMRES
+            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+        elseif LinearSolver == :BCG
+            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+        elseif LinearSolver == :TFQMR
+            flag = @checkflag CVSptfqmr(mem,PREC_NONE,alg.krylov_dim)
         end
+    end
 
-        push!(ures, copy(u0))
-        utmp = NVector(copy(u0))
-        tout = [0.0]
+    push!(ures, copy(u0))
+    utmp = NVector(copy(u0))
+    tout = [0.0]
 
-        # The Inner Loops : Style depends on save_timeseries
-        if save_timeseries
-            for k in 2:length(save_ts)
-                looped = false
-                while tout[end] < save_ts[k]
-                    looped = true
-                    flag = @checkflag CVode(mem,
-                                    save_ts[k], utmp, tout, CV_ONE_STEP)
-                    push!(ures,copy(utmp))
-                    push!(ts, tout...)
-                end
-                if looped
-                    # Fix the end
-                    flag = @checkflag CVodeGetDky(
-                                            mem, save_ts[k], Cint(0), ures[end])
-                    ts[end] = save_ts[k]
-                else # Just push another value
-                    flag = @checkflag CVodeGetDky(
-                                            mem, save_ts[k], Cint(0), utmp)
-                    push!(ures,copy(utmp))
-                    push!(ts, save_ts[k]...)
-                end
-            end
-        else # save_timeseries == false, so use CV_NORMAL style
-            for k in 2:length(save_ts)
+    # The Inner Loops : Style depends on save_timeseries
+    if save_timeseries
+        for k in 2:length(save_ts)
+            looped = false
+            while tout[end] < save_ts[k]
+                looped = true
                 flag = @checkflag CVode(mem,
-                                    save_ts[k], utmp, tout, CV_NORMAL)
+                                save_ts[k], utmp, tout, CV_ONE_STEP)
                 push!(ures,copy(utmp))
+                push!(ts, tout...)
             end
-            ts = save_ts
+            if looped
+                # Fix the end
+                flag = @checkflag CVodeGetDky(
+                                        mem, save_ts[k], Cint(0), ures[end])
+                ts[end] = save_ts[k]
+            else # Just push another value
+                flag = @checkflag CVodeGetDky(
+                                        mem, save_ts[k], Cint(0), utmp)
+                push!(ures,copy(utmp))
+                push!(ts, save_ts[k]...)
+            end
         end
-    finally
-        CVodeFree(Ref{CVODEMemPtr}(mem))
+    else # save_timeseries == false, so use CV_NORMAL style
+        for k in 2:length(save_ts)
+            flag = @checkflag CVode(mem,
+                                save_ts[k], utmp, tout, CV_NORMAL)
+            push!(ures,copy(utmp))
+        end
+        ts = save_ts
     end
 
     ### Finishing Routine
@@ -142,7 +138,14 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
         end
     end
 
-    build_solution(prob,alg,ts,timeseries,
+    function interp(t::Float64)
+      utmp = NVector(copy(u0))
+      flag = @checkflag CVodeGetDky(mem,t,Cint(0),utmp)
+      convert(typeof(u0),utmp)
+    end
+    interp(t::Vector{Float64}) = interp.(t)
+
+    build_solution(prob,alg,ts,timeseries,interp=interp,
                       timeseries_errors = timeseries_errors)
 end
 
@@ -197,89 +200,85 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
                           u = vec(u); du=vec(du); 0)
     end
 
-    mem = IDACreate()
-    if mem == C_NULL
+    mem = IDAMemContainer()
+    if mem.ptr == C_NULL
         error("Failed to allocate IDA solver object")
     end
 
     ures = Vector{Vector{Float64}}()
     ts   = [t0]
 
-    try
-        userfun = UserFunctionAndData(f!, userdata)
-        u0nv = NVector(u0)
-        flag = @checkflag IDAInit(mem, cfunction(idasolfun,
-                                  Cint, (realtype, N_Vector, N_Vector,
-                                  N_Vector, Ref{typeof(userfun)})),
-                                  t0, convert(N_Vector, u0),
-                                  convert(N_Vector, du0))
-        flag = @checkflag IDASetUserData(mem, userfun)
-        flag = @checkflag IDASStolerances(mem, reltol, abstol)
-        flag = @checkflag IDASetMaxNumSteps(mem, maxiter)
-        if LinearSolver == :Dense
-            flag = @checkflag IDADense(mem, length(u0))
-        elseif LinearSolver == :Band
-            flag = @checkflag IDABand(mem,length(u0),alg.jac_upper,alg.jac_lower)
-        elseif LinearSolver == :Diagonal
-            flag = @checkflag IDADiag(mem)
-        elseif LinearSolver == :GMRES
-            flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
-        elseif LinearSolver == :BCG
-            flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
-        elseif LinearSolver == :TFQMR
-            flag = @checkflag IDASptfqmr(mem,PREC_NONE,alg.krylov_dim)
+    userfun = UserFunctionAndData(f!, userdata)
+    u0nv = NVector(u0)
+    flag = @checkflag IDAInit(mem, cfunction(idasolfun,
+                              Cint, (realtype, N_Vector, N_Vector,
+                              N_Vector, Ref{typeof(userfun)})),
+                              t0, convert(N_Vector, u0),
+                              convert(N_Vector, du0))
+    flag = @checkflag IDASetUserData(mem, userfun)
+    flag = @checkflag IDASStolerances(mem, reltol, abstol)
+    flag = @checkflag IDASetMaxNumSteps(mem, maxiter)
+    if LinearSolver == :Dense
+        flag = @checkflag IDADense(mem, length(u0))
+    elseif LinearSolver == :Band
+        flag = @checkflag IDABand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+    elseif LinearSolver == :Diagonal
+        flag = @checkflag IDADiag(mem)
+    elseif LinearSolver == :GMRES
+        flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
+    elseif LinearSolver == :BCG
+        flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
+    elseif LinearSolver == :TFQMR
+        flag = @checkflag IDASptfqmr(mem,PREC_NONE,alg.krylov_dim)
+    end
+
+
+    push!(ures, copy(u0))
+    utmp = NVector(copy(u0))
+    dutmp = NVector(copy(u0))
+    tout = [0.0]
+
+    rtest = zeros(length(u0))
+    f!(t0, u0, du0, rtest)
+    if any(abs.(rtest) .>= reltol)
+        if diffstates === nothing
+            error("Must supply diffstates argument to use IDA initial value solver.")
         end
+        flag = @checkflag IDASetId(mem, collect(Float64, diffstates))
+        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[2])
+    end
 
-
-        push!(ures, copy(u0))
-        utmp = NVector(copy(u0))
-        dutmp = NVector(copy(u0))
-        tout = [0.0]
-
-        rtest = zeros(length(u0))
-        f!(t0, u0, du0, rtest)
-        if any(abs.(rtest) .>= reltol)
-            if diffstates === nothing
-                error("Must supply diffstates argument to use IDA initial value solver.")
-            end
-            flag = @checkflag IDASetId(mem, collect(Float64, diffstates))
-            flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[2])
-        end
-
-        # The Inner Loops : Style depends on save_timeseries
-        if save_timeseries
-            for k in 2:length(save_ts)
-                looped = false
-                while tout[end] < save_ts[k]
-                    looped = true
-                    flag = @checkflag IDASolve(mem,
-                                    save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
-
-                    push!(ures,copy(utmp))
-                    push!(ts, tout...)
-                end
-                if looped
-                    # Fix the end
-                    flag = @checkflag IDAGetDky(
-                                            mem, save_ts[k], Cint(0), ures[end])
-                    ts[end] = save_ts[k]
-                else # Just push another value
-                    flag = @checkflag IDAGetDky(
-                                            mem, save_ts[k], Cint(0), utmp)
-                    push!(ures,copy(utmp))
-                    push!(ts, save_ts[k]...)
-                end
-            end
-        else # save_timeseries == false, so use IDA_NORMAL style
-            for k in 2:length(save_ts)
+    # The Inner Loops : Style depends on save_timeseries
+    if save_timeseries
+        for k in 2:length(save_ts)
+            looped = false
+            while tout[end] < save_ts[k]
+                looped = true
                 flag = @checkflag IDASolve(mem,
-                                    save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
+                                save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
+
                 push!(ures,copy(utmp))
+                push!(ts, tout...)
             end
-            ts = save_ts
+            if looped
+                # Fix the end
+                flag = @checkflag IDAGetDky(
+                                        mem, save_ts[k], Cint(0), ures[end])
+                ts[end] = save_ts[k]
+            else # Just push another value
+                flag = @checkflag IDAGetDky(
+                                        mem, save_ts[k], Cint(0), utmp)
+                push!(ures,copy(utmp))
+                push!(ts, save_ts[k]...)
+            end
         end
-    finally
-        IDAFree(Ref{IDAMemPtr}(mem))
+    else # save_timeseries == false, so use IDA_NORMAL style
+        for k in 2:length(save_ts)
+            flag = @checkflag IDASolve(mem,
+                                save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
+            push!(ures,copy(utmp))
+        end
+        ts = save_ts
     end
 
     ### Finishing Routine
@@ -295,6 +294,13 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
         end
     end
 
-    build_solution(prob,alg,ts,timeseries,
+    function interp(t::Float64)
+      utmp = NVector(copy(u0))
+      flag = @checkflag IDAGetDky(mem,t,Cint(0),utmp)
+      convert(typeof(u0),utmp)
+    end
+    interp(t::Vector{Float64}) = interp.(t)
+
+    build_solution(prob,alg,ts,timeseries,interp=interp,
                       timeseries_errors = timeseries_errors)
 end
