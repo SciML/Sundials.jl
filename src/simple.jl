@@ -81,7 +81,7 @@ end
 
 """
 `cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-       integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
+       integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=(mem,t,y)->true)`
 
 * `f`, Function of the form
   `f(t, y::Vector{Float64}, yp::Vector{Float64})`
@@ -93,12 +93,17 @@ end
   , other option is `:Adams`
 * `reltol`, Relative Tolerance to be used (default=1e-3)
 * `abstol`, Absolute Tolerance to be used (default=1e-6)
+* `callback`, Callback function of the form
+  `callback(mem, t_k::Float64, y_k::Vector{Float64})::Bool`
+  where `mem` is the integrator and `t_k`/`y_k` the time/state at timestep `k`.
+  A return value of `false` exits the integrator at timestep `k` and returns the all the timesteps preceding `k`.
+  (default=(mem,t_k,y_k)->true)
 
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
 function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-              integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=x->true)
+               integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=(x,y,z)->true)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -122,7 +127,7 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
         tout = [0.0]
         for k in 2:length(t)
             flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
-            if !callback(ynv)
+            if !callback(mem, t[k], ynv)
                 break
             end
             yres[k,:] = convert(Vector, ynv)
