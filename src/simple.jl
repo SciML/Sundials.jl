@@ -139,65 +139,6 @@ function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::A
     return yres[1:c,:]
 end
 
-"""
-`cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                  integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)`
-
-* `f`, Function of the form
-  `f(t, y::Vector{Float64}, yp::Vector{Float64})`
-  where `y` is the input state vector, and `yp` is the output vector
-  of time derivatives for the states `y`
-* `y0`, Vector of initial values
-* `tspan`, a vector where `tspan[1]` is the starting time and the other values are
-  time values which are guaranteed in the output
-* `integrator`, the chosen integration algorithm. Default is `:BDF`
-  , other option is `:Adams`
-* `reltol`, Relative Tolerance to be used (default=1e-3)
-* `abstol`, Absolute Tolerance to be used (default=1e-6)
-
-return: a vector with the timepoints `t` and a vector with the outputs `y0`
-"""
-function cvode_fulloutput(f::Function, y0::Vector{Float64}, tspan::Vector{Float64}, userdata::Any = nothing;
-                          integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6)
-    t0 = tspan[1]
-    Ts = tspan[2:end]
-    if integrator==:BDF
-        mem = CVodeCreate(CV_BDF, CV_NEWTON)
-    elseif integrator==:Adams
-        mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
-    end
-    if mem == C_NULL
-        error("Failed to allocate CVODE solver object")
-    end
-
-    yres = Vector{Vector{Float64}}()
-    ts   = [t0]
-    try
-        userfun = UserFunctionAndData(f, userdata)
-        y0nv = NVector(y0)
-        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t0, convert(N_Vector, y0nv))
-        flag = @checkflag CVodeSetUserData(mem, userfun)
-        flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
-        flag = @checkflag CVDense(mem, length(y0))
-        push!(yres, y0)
-        y = copy(y0)
-        tout = [0.0]
-        for t in Ts
-            while tout[end] < t
-                flag = @checkflag CVode(mem, t, y, tout, CV_ONE_STEP)
-                push!(yres,copy(y))
-                push!(ts, tout...)
-            end
-            # Fix the end
-            flag = @checkflag CVodeGetDky(mem, t, Cint(0), yres[end])
-            ts[end] = t
-        end
-    finally
-        CVodeFree(Ref{CVODEMemPtr}(mem))
-    end
-    return ts, yres
-end
-
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
     userfun.func(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r), userfun.data)
     return IDA_SUCCESS
@@ -225,7 +166,7 @@ end
 return: (y,yp) two solution matrices representing the states and state derivatives
          with time steps in `t` along rows and state variable `y` or `yp` along columns
 """
-function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                 reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
     mem = IDACreate()
     if mem == C_NULL
@@ -243,7 +184,7 @@ function idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vecto
         flag = @checkflag IDADense(mem, length(y0))
         rtest = zeros(length(y0))
         f(t[1], y0, yp0, rtest)
-        if any(abs(rtest) .>= reltol)
+        if any(abs.(rtest) .>= reltol)
             if diffstates === nothing
                 error("Must supply diffstates argument to use IDA initial value solver.")
             end
