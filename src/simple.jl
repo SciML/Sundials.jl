@@ -20,15 +20,15 @@ macro checkflag(ex)
     end
 end
 
-type UserFunctionAndData
-    func::Function
+type UserFunctionAndData{F}
+    func::F
     data::Any
 
-    UserFunctionAndData(func::Function, data::Any) = new(func, data)
+    UserFunctionAndData(func, data) = new(func, data)
 end
 
-UserFunctionAndData(func::Function) = func
-UserFunctionAndData(func::Function, data::Void) = func
+UserFunctionAndData(func) = func
+UserFunctionAndData(func, data::Void) = func
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
     userfun[].func(convert(Vector, y), convert(Vector, fy), userfun[].data)
@@ -40,7 +40,7 @@ function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
     return KIN_SUCCESS
 end
 
-function kinsol(f::Function, y0::Vector{Float64}, userdata::Any = nothing)
+function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -80,7 +80,7 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
 end
 
 """
-`cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+`cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
        integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=(mem,t,y)->true)`
 
 * `f`, Function of the form
@@ -102,7 +102,7 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-function cvode(f::Function, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=(x,y,z)->true)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
