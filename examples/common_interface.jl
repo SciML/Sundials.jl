@@ -48,6 +48,12 @@ prob = ODEProblem(h,u0,(0.0,1.0))
 @test isapprox(sol1[end],sol5[end],rtol=1e-3)
 @test isapprox(sol1[end],sol6[end],rtol=1e-3)
 
+# Backwards
+prob = deepcopy(prob_ode_2Dlinear)
+prob.tspan = (1.0,0.0)
+sol = solve(prob,CVODE_BDF())
+@test maximum(diff(sol.t)) < 0 # Make sure all go negative
+
 # Test DAE
 prob = prob_dae_resrob
 dt = 1000
@@ -60,3 +66,8 @@ sol = solve(prob,IDA(),saveat=saveat)
 sol = solve(prob,IDA(),saveat=saveat,save_timeseries=false)
 
 @test sol.t == saveat
+
+prob = deepcopy(prob_dae_resrob)
+prob.tspan = (1.0,0.0)
+sol = solve(prob,IDA())
+@test maximum(diff(sol.t)) < 0 # Make sure all go negative
