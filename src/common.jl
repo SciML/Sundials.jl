@@ -11,16 +11,21 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
 
     tspan = prob.tspan
     t0 = tspan[1]
-    T = tspan[end]
 
-    save_ts = sort(unique([t0;saveat;T]))
+    tdir = sign(tspan[2]-tspan[1])
 
-    if T < save_ts[end]
-        error("Final saving timepoint is past the solving timespan")
+    if !isempty(saveat) && saveat[1] == tspan[1]
+      save_ts = @view saveat[2:end]
+    else
+      save_ts = saveat
     end
-    if t0 > save_ts[1]
-        error("First saving timepoint is before the solving timespan")
+
+    if !isempty(save_ts) && save_ts[end] != tspan[2]
+      push!(save_ts,tspan[2])
+    elseif isempty(save_ts)
+      save_ts = [tspan[2]]
     end
+
 
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
@@ -92,13 +97,13 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
 
         push!(ures, copy(u0))
         utmp = NVector(copy(u0))
-        tout = [0.0]
+        tout = [tspan[1]]
 
         # The Inner Loops : Style depends on save_timeseries
         if save_timeseries
-            for k in 2:length(save_ts)
+            for k in 1:length(save_ts)
                 looped = false
-                while tout[end] < save_ts[k]
+                while tdir*tout[end] < tdir*save_ts[k]
                     looped = true
                     flag = @checkflag CVode(mem,
                                     save_ts[k], utmp, tout, CV_ONE_STEP)
@@ -118,12 +123,12 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                 end
             end
         else # save_timeseries == false, so use CV_NORMAL style
-            for k in 2:length(save_ts)
+            for k in 1:length(save_ts)
                 flag = @checkflag CVode(mem,
                                     save_ts[k], utmp, tout, CV_NORMAL)
                 push!(ures,copy(utmp))
+                push!(ts, save_ts[k]...)
             end
-            ts = save_ts
         end
     finally
         CVodeFree(Ref{CVODEMemPtr}(mem))
@@ -159,15 +164,19 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
 
     tspan = prob.tspan
     t0 = tspan[1]
-    T = tspan[end]
 
-    save_ts = sort(unique([t0;saveat;T]))
+    tdir = sign(tspan[2]-tspan[1])
 
-    if T < save_ts[end]
-        error("Final saving timepoint is past the solving timespan")
+    if !isempty(saveat) && saveat[1] == tspan[1]
+      save_ts = @view saveat[2:end]
+    else
+      save_ts = saveat
     end
-    if t0 > save_ts[1]
-        error("First saving timepoint is before the solving timespan")
+
+    if !isempty(save_ts) && save_ts[end] != tspan[2]
+      push!(save_ts,tspan[2])
+    elseif isempty(save_ts)
+      save_ts = [tspan[2]]
     end
 
     if typeof(prob.u0) <: Number
@@ -234,7 +243,7 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
         push!(ures, copy(u0))
         utmp = NVector(copy(u0))
         dutmp = NVector(copy(u0))
-        tout = [0.0]
+        tout = [tspan[1]]
 
         rtest = zeros(length(u0))
         f!(t0, u0, du0, rtest)
@@ -248,9 +257,9 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
 
         # The Inner Loops : Style depends on save_timeseries
         if save_timeseries
-            for k in 2:length(save_ts)
+            for k in 1:length(save_ts)
                 looped = false
-                while tout[end] < save_ts[k]
+                while tdir*tout[end] < tdir*save_ts[k]
                     looped = true
                     flag = @checkflag IDASolve(mem,
                                     save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
@@ -271,12 +280,12 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
                 end
             end
         else # save_timeseries == false, so use IDA_NORMAL style
-            for k in 2:length(save_ts)
+            for k in 1:length(save_ts)
                 flag = @checkflag IDASolve(mem,
                                     save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
                 push!(ures,copy(utmp))
+                push!(ts, save_ts[k]...)
             end
-            ts = save_ts
         end
     finally
         IDAFree(Ref{IDAMemPtr}(mem))
