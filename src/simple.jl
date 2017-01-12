@@ -35,7 +35,7 @@ function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
     return KIN_SUCCESS
 end
 
-function kinsolfun(y::N_Vector, fy::N_Vector, userfun::Function)
+function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
     userfun(convert(Vector, y), convert(Vector, fy))
     return KIN_SUCCESS
 end
@@ -74,14 +74,14 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::UserFunctionAn
     return CV_SUCCESS
 end
 
-function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::Function)
+function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun)
     userfun(t, convert(Vector, y), convert(Vector, yp))
     return CV_SUCCESS
 end
 
 """
 `cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-       integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=(mem,t,y)->true)`
+       integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(mem,t,y)->true)`
 
 * `f`, Function of the form
   `f(t, y::Vector{Float64}, yp::Vector{Float64})`
@@ -103,7 +103,7 @@ return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
 function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-               integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback::Function=(x,y,z)->true)
+               integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
     if integrator==:BDF
         mem = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
@@ -144,13 +144,13 @@ function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::
     return IDA_SUCCESS
 end
 
-function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::Function)
+function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun)
     userfun(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r))
     return IDA_SUCCESS
 end
 
 """
-`idasol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
+`idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
         reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)`
 
 * `f`, Function of the form

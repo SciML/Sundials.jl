@@ -10,7 +10,7 @@ immutable CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSo
   jac_lower::Int
   krylov_dim::Int
 end
-function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
+Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
                     jac_upper=0,jac_lower=0,non_zero=0,krylov_dim=0)
     if linear_solver == :Banded && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
@@ -23,7 +23,7 @@ immutable CVODE_Adams{Method,LinearSolver} <: SundialsODEAlgorithm{Method,Linear
   jac_lower::Int
   krylov_dim::Int
 end
-function CVODE_Adams(;method=:Functional,linear_solver=:None,
+Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                       jac_upper=0,jac_lower=0,krylov_dim=0)
     if linear_solver == :Banded && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
@@ -37,7 +37,7 @@ immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver}
   jac_lower::Int
   krylov_dim::Int
 end
-function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0)
+Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0)
   if linear_solver == :Banded && (jac_upper==0 || jac_lower==0)
       error("Banded solver must set the jac_upper and jac_lower")
   end
