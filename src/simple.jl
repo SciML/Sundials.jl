@@ -45,26 +45,24 @@ function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
     # return: the solution vector
-    kmem = KINCreate()
+    kmem = Handle(KINCreate())
     if kmem == C_NULL
         error("Failed to allocate KINSOL solver object")
     end
 
     y = copy(y0)
-    try
-        # use the user_data field to pass a function
-        #   see: https://github.com/JuliaLang/julia/issues/2554
-        userfun = UserFunctionAndData(f, userdata)
-        flag = @checkflag KINInit(kmem, cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{typeof(userfun)})), NVector(y0))
-        flag = @checkflag KINDense(kmem, length(y0))
-        flag = @checkflag KINSetUserData(kmem, userfun)
-        ## Solve problem
-        scale = ones(length(y0))
-        strategy = KIN_NONE
-        flag = @checkflag KINSol(kmem, y, strategy, scale, scale)
-    finally
-        KINFree(Ref{KINMemPtr}(kmem))
-    end
+
+    # use the user_data field to pass a function
+    #   see: https://github.com/JuliaLang/julia/issues/2554
+    userfun = UserFunctionAndData(f, userdata)
+    flag = @checkflag KINInit(kmem, cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{typeof(userfun)})), NVector(y0))
+    flag = @checkflag KINDense(kmem, length(y0))
+    flag = @checkflag KINSetUserData(kmem, userfun)
+    ## Solve problem
+    scale = ones(length(y0))
+    strategy = KIN_NONE
+    flag = @checkflag KINSol(kmem, y, strategy, scale, scale)
+
 
     return y
 end
@@ -105,9 +103,9 @@ return: a solution matrix with time steps in `t` along rows and
 function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
     if integrator==:BDF
-        mem = CVodeCreate(CV_BDF, CV_NEWTON)
+        mem = Handle(CVodeCreate(CV_BDF, CV_NEWTON))
     elseif integrator==:Adams
-        mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
+        mem = Handle(CVodeCreate(CV_ADAMS, CV_FUNCTIONAL))
     end
     if mem == C_NULL
         error("Failed to allocate CVODE solver object")
@@ -115,27 +113,25 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
 
     yres = zeros(length(t), length(y0))
     c = 1
-    try
-        userfun = UserFunctionAndData(f, userdata)
-        y0nv = NVector(y0)
-        flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t[1], convert(N_Vector, y0nv))
-        flag = @checkflag CVodeSetUserData(mem, userfun)
-        flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
-        flag = @checkflag CVDense(mem, length(y0))
-        yres[1,:] = y0
-        ynv = NVector(copy(y0))
-        tout = [0.0]
-        for k in 2:length(t)
-            flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
-            if !callback(mem, t[k], ynv)
-                break
-            end
-            yres[k,:] = convert(Vector, ynv)
-            c = c + 1
+
+    userfun = UserFunctionAndData(f, userdata)
+    y0nv = NVector(y0)
+    flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t[1], convert(N_Vector, y0nv))
+    flag = @checkflag CVodeSetUserData(mem, userfun)
+    flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
+    flag = @checkflag CVDense(mem, length(y0))
+    yres[1,:] = y0
+    ynv = NVector(copy(y0))
+    tout = [0.0]
+    for k in 2:length(t)
+        flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
+        if !callback(mem, t[k], ynv)
+            break
         end
-    finally
-        CVodeFree(Ref{CVODEMemPtr}(mem))
+        yres[k,:] = convert(Vector, ynv)
+        c = c + 1
     end
+
     return yres[1:c,:]
 end
 
@@ -168,41 +164,38 @@ return: (y,yp) two solution matrices representing the states and state derivativ
 """
 function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                 reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
-    mem = IDACreate()
+    mem = Handle(IDACreate())
     if mem == C_NULL
         error("Failed to allocate IDA solver object")
     end
 
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
-    try
-        userfun = UserFunctionAndData(f, userdata)
-        flag = @checkflag IDAInit(mem, cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{typeof(userfun)})),
-                                  t[1], y0, yp0)
-        flag = @checkflag IDASetUserData(mem, userfun)
-        flag = @checkflag IDASStolerances(mem, reltol, abstol)
-        flag = @checkflag IDADense(mem, length(y0))
-        rtest = zeros(length(y0))
-        f(t[1], y0, yp0, rtest)
-        if any(abs.(rtest) .>= reltol)
-            if diffstates === nothing
-                error("Must supply diffstates argument to use IDA initial value solver.")
-            end
-            flag = @checkflag IDASetId(mem, collect(Float64, diffstates))
-            flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2])
+
+    userfun = UserFunctionAndData(f, userdata)
+    flag = @checkflag IDAInit(mem, cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{typeof(userfun)})),
+                              t[1], y0, yp0)
+    flag = @checkflag IDASetUserData(mem, userfun)
+    flag = @checkflag IDASStolerances(mem, reltol, abstol)
+    flag = @checkflag IDADense(mem, length(y0))
+    rtest = zeros(length(y0))
+    f(t[1], y0, yp0, rtest)
+    if any(abs.(rtest) .>= reltol)
+        if diffstates === nothing
+            error("Must supply diffstates argument to use IDA initial value solver.")
         end
-        yres[1,:] = y0
-        ypres[1,:] = yp0
-        y = copy(y0)
-        yp = copy(yp0)
-        tout = [0.0]
-        for k in 2:length(t)
-            retval = @checkflag IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL)
-            yres[k,:] = y
-            ypres[k,:] = yp
-        end
-    finally
-        IDAFree(Ref{IDAMemPtr}(mem))
+        flag = @checkflag IDASetId(mem, collect(Float64, diffstates))
+        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2])
+    end
+    yres[1,:] = y0
+    ypres[1,:] = yp0
+    y = copy(y0)
+    yp = copy(yp0)
+    tout = [0.0]
+    for k in 2:length(t)
+        retval = @checkflag IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL)
+        yres[k,:] = y
+        ypres[k,:] = yp
     end
 
     return yres, ypres

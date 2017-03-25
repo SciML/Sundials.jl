@@ -43,7 +43,7 @@ Base.convert{T}(::Type{Ptr{T}}, h::Handle{T}) = h.ptr_ref[]
 Base.convert{T}(::Type{Ptr{Ptr{T}}}, h::Handle{T}) = convert(Ptr{Ptr{T}}, h.ptr_ref[])
 
 release_handle{T}(ptr_ref::Ref{Ptr{T}}) = throw(MethodError("Freeing objects of type $T not supported"))
-release_handle(ptr_ref::Ref{Ptr{KINMem}}) = KINSOLFree(ptr_ref)
+release_handle(ptr_ref::Ref{Ptr{KINMem}}) = KINFree(ptr_ref)
 release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = CVodeFree(ptr_ref)
 release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = IDAFree(ptr_ref)
 
