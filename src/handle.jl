@@ -33,7 +33,7 @@ immutable Handle{T <: AbstractSundialsObject}
     ptr_ref::Ref{Ptr{T}} # pointer to a pointer
 
     @compat function (::Type{Handle}){T}(ptr::Ptr{T})
-        T <: Void && throw(ArgumentError("Handle assigned to a null pointer"))
+        (ptr == C_NULL) && throw(ArgumentError("Null pointer passed to Handle()"))
         h = new{T}(Ref{Ptr{T}}(ptr))
         finalizer(h.ptr_ref, release_handle)
         return h
