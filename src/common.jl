@@ -59,11 +59,12 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
         method_code = CV_FUNCTIONAL
     end
 
-    mem = Handle(CVodeCreate(alg_code, method_code))
+    mem_ptr = CVodeCreate(alg_code, method_code)
 
-    if mem == C_NULL
+    if mem_ptr == C_NULL
         error("Failed to allocate CVODE solver object")
     end
+    mem = Handle(mem_ptr)
 
     ures = Vector{Vector{Float64}}()
     ts   = [t0]
@@ -202,10 +203,11 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
                           u = vec(u); du=vec(du); 0)
     end
 
-    mem = Handle(IDACreate())
-    if mem == C_NULL
+    mem_ptr = IDACreate()
+    if mem_ptr == C_NULL
         error("Failed to allocate IDA solver object")
     end
+    mem = Handle(mem_ptr)
 
     ures = Vector{Vector{Float64}}()
     ts   = [t0]

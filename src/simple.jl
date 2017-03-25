@@ -45,10 +45,11 @@ function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
     # return: the solution vector
-    kmem = Handle(KINCreate())
-    if kmem == C_NULL
+    mem_ptr = KINCreate()
+    if mem_ptr == C_NULL
         error("Failed to allocate KINSOL solver object")
     end
+    kmem = Handle(mem_ptr)
 
     y = copy(y0)
 
@@ -103,13 +104,14 @@ return: a solution matrix with time steps in `t` along rows and
 function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
     if integrator==:BDF
-        mem = Handle(CVodeCreate(CV_BDF, CV_NEWTON))
+        mem_ptr = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
-        mem = Handle(CVodeCreate(CV_ADAMS, CV_FUNCTIONAL))
+        mem_ptr = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
     end
-    if mem == C_NULL
+    if mem_ptr == C_NULL
         error("Failed to allocate CVODE solver object")
     end
+    mem = Handle(mem_ptr)
 
     yres = zeros(length(t), length(y0))
     c = 1
@@ -164,10 +166,11 @@ return: (y,yp) two solution matrices representing the states and state derivativ
 """
 function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                 reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
-    mem = Handle(IDACreate())
-    if mem == C_NULL
+    mem_ptr = IDACreate()
+    if mem_ptr == C_NULL
         error("Failed to allocate IDA solver object")
     end
+    mem = Handle(mem_ptr)
 
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
