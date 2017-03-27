@@ -33,6 +33,7 @@ immutable Handle{T <: AbstractSundialsObject}
     ptr_ref::Ref{Ptr{T}} # pointer to a pointer
 
     @compat function (::Type{Handle}){T}(ptr::Ptr{T})
+        (ptr == C_NULL) && throw(ArgumentError("Null pointer passed to Handle()"))
         h = new{T}(Ref{Ptr{T}}(ptr))
         finalizer(h.ptr_ref, release_handle)
         return h
@@ -43,7 +44,7 @@ Base.convert{T}(::Type{Ptr{T}}, h::Handle{T}) = h.ptr_ref[]
 Base.convert{T}(::Type{Ptr{Ptr{T}}}, h::Handle{T}) = convert(Ptr{Ptr{T}}, h.ptr_ref[])
 
 release_handle{T}(ptr_ref::Ref{Ptr{T}}) = throw(MethodError("Freeing objects of type $T not supported"))
-release_handle(ptr_ref::Ref{Ptr{KINMem}}) = KINSOLFree(ptr_ref)
+release_handle(ptr_ref::Ref{Ptr{KINMem}}) = KINFree(ptr_ref)
 release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = CVodeFree(ptr_ref)
 release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = IDAFree(ptr_ref)
 
