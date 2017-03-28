@@ -44,9 +44,9 @@ Base.convert{T}(::Type{Ptr{T}}, h::Handle{T}) = h.ptr_ref[]
 Base.convert{T}(::Type{Ptr{Ptr{T}}}, h::Handle{T}) = convert(Ptr{Ptr{T}}, h.ptr_ref[])
 
 release_handle{T}(ptr_ref::Ref{Ptr{T}}) = throw(MethodError("Freeing objects of type $T not supported"))
-release_handle(ptr_ref::Ref{Ptr{KINMem}}) = !isempty(h) && KINFree(ptr_ref)
-release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = !isempty(h) && CVodeFree(ptr_ref)
-release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = !isempty(h) && IDAFree(ptr_ref)
+release_handle(ptr_ref::Ref{Ptr{KINMem}}) = (ptr_ref == C_NULL) && KINFree(ptr_ref)
+release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = (ptr_ref == C_NULL) && CVodeFree(ptr_ref)
+release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = (ptr_ref == C_NULL) && IDAFree(ptr_ref)
 
 Base.empty!{T}(h::Handle{T}) = release_handle(h.ptr_ref)
 Base.isempty{T}(h::Handle{T}) = h.ptr_ref == C_NULL
