@@ -13,7 +13,7 @@ macro checkflag(ex)
     fname = ex.args[1]
     quote
         flag = $(esc(ex))
-        if flag != 0
+        if flag < 0
             error($(string(fname, " failed with error code = ")), flag)
         end
         flag
