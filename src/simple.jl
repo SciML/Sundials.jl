@@ -46,8 +46,9 @@ function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     # y0, Vector of initial values
     # return: the solution vector
     mem_ptr = KINCreate()
-    (mem_ptr == C_NULL) && error("Failed to allocate KINSOL solver object")
     kmem = Handle(mem_ptr)
+    (mem_ptr == C_NULL) && (empty!(kmem);error("Failed to allocate KINSOL solver object"))
+
 
     y = copy(y0)
 
@@ -62,6 +63,7 @@ function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     strategy = KIN_NONE
     flag = @checkflag KINSol(kmem, y, strategy, scale, scale)
 
+    empty!(kmem)
 
     return y
 end
@@ -106,8 +108,8 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     elseif integrator==:Adams
         mem_ptr = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
     end
-    (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
+    (mem_ptr == C_NULL) && (empty!(mem);error("Failed to allocate CVODE solver object"))
 
     yres = zeros(length(t), length(y0))
     c = 1
@@ -129,6 +131,8 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
         yres[k,:] = convert(Vector, ynv)
         c = c + 1
     end
+
+    empty!(mem)
 
     return yres[1:c,:]
 end
@@ -163,8 +167,8 @@ return: (y,yp) two solution matrices representing the states and state derivativ
 function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                 reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
     mem_ptr = IDACreate()
-    (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
+    (mem_ptr == C_NULL) && (empty!(mem);error("Failed to allocate IDA solver object"))
 
     yres = zeros(length(t), length(y0))
     ypres = zeros(length(t), length(y0))
@@ -194,6 +198,8 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
         yres[k,:] = y
         ypres[k,:] = yp
     end
+
+    empty!(mem)
 
     return yres, ypres
 end
