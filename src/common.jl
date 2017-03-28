@@ -107,11 +107,11 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                 push!(ures,copy(utmp))
                 push!(ts, tout...)
                 if flag != 0
-                  break
+                    break
                 end
             end
             if flag != 0
-              break
+                break
             end
             if looped
                 # Fix the end
@@ -125,7 +125,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                 push!(ts, save_ts[k]...)
             end
             if flag != 0
-              break
+                break
             end
         end
     else # save_timeseries == false, so use CV_NORMAL style
@@ -135,7 +135,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
             push!(ures,copy(utmp))
             push!(ts, save_ts[k]...)
             if flag != 0
-              break
+                break
             end
         end
     end
