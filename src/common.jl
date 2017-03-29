@@ -1,13 +1,13 @@
 ## Common Interface Solve Functions
 
-function solve{uType,tType,isinplace,F,Method,LinearSolver}(
-    prob::AbstractODEProblem{uType,tType,isinplace,F},
+function solve{uType, tType, inplace, F, Method, LinearSolver}(
+    prob::AbstractODEProblem{uType, tType, isinplace, F},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
-    timeseries=[],ts=[],ks=[];
-    callback=()->nothing,abstol=1/10^6,reltol=1/10^3,
-    saveat=Float64[],adaptive=true,maxiter=Int(1e5),
-    timeseries_errors=true,save_timeseries=true,
-    userdata=nothing,kwargs...)
+    timeseries=[], ts=[], ks=[];
+    callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
+    saveat=Float64[], adaptive=true, maxiter=Int(1e5),
+    timeseries_errors=true, save_timeseries=true,
+    userdata=nothing, kwargs...)
 
     tspan = prob.tspan
     t0 = tspan[1]
@@ -21,7 +21,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
     end
 
     if !isempty(save_ts) && save_ts[end] != tspan[2]
-      push!(save_ts,tspan[2])
+      push!(save_ts, tspan[2])
     elseif isempty(save_ts)
       save_ts = [tspan[2]]
     end
@@ -37,14 +37,14 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (t,u,du) -> (du[:] = prob.f(t,u); 0)
+        f! = (t, u, du) -> (du[:] = prob.f(t, u); 0)
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t,u,du) -> (du[:] = vec(prob.f(t,reshape(u,sizeu))); 0)
+        f! = (t, u, du) -> (du[:] = vec(prob.f(t, reshape(u, sizeu))); 0)
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (t,u,du) -> (prob.f(t,reshape(u,sizeu),reshape(du,sizeu));
-                          u = vec(u); du=vec(du); 0)
+        f! = (t, u, du) -> (prob.f(t, reshape(u, sizeu),reshape(du, sizeu));
+            u = vec(u); du=vec(du); 0)
     end
 
     if typeof(alg) <: CVODE_BDF
@@ -80,15 +80,15 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
         if LinearSolver == :Dense
             flag = @checkflag CVDense(mem, length(u0))
         elseif LinearSolver == :Banded
-            flag = @checkflag CVBand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+            flag = @checkflag CVBand(mem,length(u0), alg.jac_upper, alg.jac_lower)
         elseif LinearSolver == :Diagonal
             flag = @checkflag CVDiag(mem)
         elseif LinearSolver == :GMRES
-            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag CVSpgmr(mem, PREC_NONE, alg.krylov_dim)
         elseif LinearSolver == :BCG
-            flag = @checkflag CVSpgmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag CVSpgmr(mem, PREC_NONE, alg.krylov_dim)
         elseif LinearSolver == :TFQMR
-            flag = @checkflag CVSptfqmr(mem,PREC_NONE,alg.krylov_dim)
+            flag = @checkflag CVSptfqmr(mem, PREC_NONE, alg.krylov_dim)
         end
     end
 
@@ -104,7 +104,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                 looped = true
                 flag = @checkflag CVode(mem,
                                 save_ts[k], utmp, tout, CV_ONE_STEP)
-                push!(ures,copy(utmp))
+                push!(ures, copy(utmp))
                 push!(ts, tout...)
                 if flag < 0
                     break
@@ -121,7 +121,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
             else # Just push another value
                 flag = @checkflag CVodeGetDky(
                                         mem, save_ts[k], Cint(0), utmp)
-                push!(ures,copy(utmp))
+                push!(ures, copy(utmp))
                 push!(ts, save_ts[k]...)
             end
             if flag < 0
@@ -145,28 +145,28 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
     timeseries = Vector{uType}(0)
     if typeof(prob.u0)<:Number
         for i=1:length(ures)
-            push!(timeseries,ures[i][1])
+            push!(timeseries, ures[i][1])
         end
     else
         for i=1:length(ures)
-            push!(timeseries,reshape(ures[i],sizeu))
+            push!(timeseries, reshape(ures[i], sizeu))
         end
     end
 
-    build_solution(prob,alg,ts,timeseries,
+    build_solution(prob, alg, ts, timeseries,
                       timeseries_errors = timeseries_errors)
 end
 
 ## Solve for DAEs uses IDA
 
-function solve{uType,duType,tType,isinplace,F,LinearSolver}(
-    prob::AbstractDAEProblem{uType,duType,tType,isinplace,F},
+function solve{uType, duType, tType, isinplace, F, LinearSolver}(
+    prob::AbstractDAEProblem{uType, duType, tType, isinplace, F},
     alg::SundialsDAEAlgorithm{LinearSolver},
-    timeseries=[],ts=[],ks=[];
-    callback=()->nothing,abstol=1/10^6,reltol=1/10^3,
-    saveat=Float64[],adaptive=true,maxiter=Int(1e5),
-    timeseries_errors=true,save_timeseries=true,
-    userdata=nothing,kwargs...)
+    timeseries=[], ts=[], ks=[];
+    callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
+    saveat=Float64[], adaptive=true, maxiter=Int(1e5),
+    timeseries_errors=true, save_timeseries=true,
+    userdata=nothing, kwargs...)
 
     tspan = prob.tspan
     t0 = tspan[1]
@@ -202,13 +202,13 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (t,u,du,out) -> (out[:] = prob.f(t,u,du); 0)
+        f! = (t, u, du, out) -> (out[:] = prob.f(t, u, du); 0)
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t,u,du,out) -> (out[:] = vec(prob.f(t,reshape(u,sizeu),reshape(du,sizedu))); 0)
+        f! = (t, u, du, out) -> (out[:] = vec(prob.f(t, reshape(u, sizeu), reshape(du, sizedu))); 0)
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (t,u,du,out) -> (prob.f(t,reshape(u,sizeu),reshape(du,sizedu),out);
+        f! = (t, u, du, out) -> (prob.f(t, reshape(u, sizeu), reshape(du, sizedu), out);
                           u = vec(u); du=vec(du); 0)
     end
 
@@ -232,15 +232,15 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
     if LinearSolver == :Dense
         flag = @checkflag IDADense(mem, length(u0))
     elseif LinearSolver == :Band
-        flag = @checkflag IDABand(mem,length(u0),alg.jac_upper,alg.jac_lower)
+        flag = @checkflag IDABand(mem, length(u0), alg.jac_upper, alg.jac_lower)
     elseif LinearSolver == :Diagonal
         flag = @checkflag IDADiag(mem)
     elseif LinearSolver == :GMRES
-        flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
+        flag = @checkflag IDASpgmr(mem, PREC_NONE, alg.krylov_dim)
     elseif LinearSolver == :BCG
-        flag = @checkflag IDASpgmr(mem,PREC_NONE,alg.krylov_dim)
+        flag = @checkflag IDASpgmr(mem, PREC_NONE, alg.krylov_dim)
     elseif LinearSolver == :TFQMR
-        flag = @checkflag IDASptfqmr(mem,PREC_NONE,alg.krylov_dim)
+        flag = @checkflag IDASptfqmr(mem, PREC_NONE, alg.krylov_dim)
     end
 
 
@@ -279,7 +279,7 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
             else # Just push another value
                 flag = @checkflag IDAGetDky(
                                         mem, save_ts[k], Cint(0), utmp)
-                push!(ures,copy(utmp))
+                push!(ures, copy(utmp))
                 push!(ts, save_ts[k]...)
             end
         end
@@ -287,7 +287,7 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
         for k in 1:length(save_ts)
             flag = @checkflag IDASolve(mem,
                                 save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
-            push!(ures,copy(utmp))
+            push!(ures, copy(utmp))
             push!(ts, save_ts[k]...)
         end
     end
@@ -297,14 +297,14 @@ function solve{uType,duType,tType,isinplace,F,LinearSolver}(
     timeseries = Vector{uType}(0)
     if typeof(prob.u0)<:Number
         for i=1:length(ures)
-            push!(timeseries,ures[i][1])
+            push!(timeseries, ures[i][1])
         end
     else
         for i=1:length(ures)
-            push!(timeseries,reshape(ures[i],sizeu))
+            push!(timeseries, reshape(ures[i], sizeu))
         end
     end
 
-    build_solution(prob,alg,ts,timeseries,
+    build_solution(prob, alg, ts, timeseries,
                       timeseries_errors = timeseries_errors)
 end
