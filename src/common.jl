@@ -106,11 +106,11 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                                 save_ts[k], utmp, tout, CV_ONE_STEP)
                 push!(ures,copy(utmp))
                 push!(ts, tout...)
-                if flag != 0
+                if flag < 0
                     break
                 end
             end
-            if flag != 0
+            if flag < 0
                 break
             end
             if looped
@@ -124,7 +124,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                 push!(ures,copy(utmp))
                 push!(ts, save_ts[k]...)
             end
-            if flag != 0
+            if flag < 0
                 break
             end
         end
@@ -134,7 +134,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
                                 save_ts[k], utmp, tout, CV_NORMAL)
             push!(ures,copy(utmp))
             push!(ts, save_ts[k]...)
-            if flag != 0
+            if flag < 0
                 break
             end
         end
