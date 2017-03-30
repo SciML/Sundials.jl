@@ -1,6 +1,6 @@
 ## Common Interface Solve Functions
 
-function solve{uType, tType, inplace, F, Method, LinearSolver}(
+function solve{uType, tType, isinplace, F, Method, LinearSolver}(
     prob::AbstractODEProblem{uType, tType, isinplace, F},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
