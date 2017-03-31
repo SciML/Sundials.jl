@@ -32,7 +32,7 @@ typealias KINMemPtr Ptr{KINMem}
 immutable Handle{T <: AbstractSundialsObject}
     ptr_ref::Ref{Ptr{T}} # pointer to a pointer
 
-    @compat function (::Type{Handle}){T <: AbstractSundialsObject}(ptr::Ptr{T})
+    @compat function (::Type{Handle}){T <: Union{AbstractSundialsObject,Void}}(ptr::Ptr{T})
         (ptr == C_NULL) && throw(ArgumentError("Null pointer passed to Handle()"))
         h = new{T}(Ref{Ptr{T}}(ptr))
         finalizer(h.ptr_ref, release_handle)
