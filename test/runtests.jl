@@ -61,6 +61,11 @@ include(joinpath(examples_path, "kinsol_mkinTest.jl"))
 @test abs(minimum(residual)) < 1e-5
 end
 
+println("== handle tests")
+let
+@testset "Handle Tests" begin include("handle_tests.jl") end
+end
+
 println("== test common interface")
 let
 @testset "Common Interface" begin include(joinpath(examples_path, "common_interface.jl")) end
