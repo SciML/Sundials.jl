@@ -7,7 +7,9 @@ h2 = h1
 empty!(h1)
 
 @test isempty(h1)
-@test isempty(h2)
+@test isempty(h2) # Check that the pointers are correct, and h1 empties h2
 
-h = Sundials.Handle(h1.ptr_ref[])
+empty!(h1) # Make sure this does not throw
+
+h = Sundials.Handle(h1.ptr_ref[]) # Check construction with null pointers 
 @test isempty(h)
