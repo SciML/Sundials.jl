@@ -1,13 +1,13 @@
 ## Common Interface Solve Functions
 
-function solve{uType,tType,isinplace,F,Method,LinearSolver}(
-    prob::AbstractODEProblem{uType,tType,isinplace,F},
+function solve{uType, tType, isinplace, F, Method, LinearSolver}(
+    prob::AbstractODEProblem{uType, tType, isinplace, F},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
-    timeseries=[],ts=[],ks=[];
-    callback=()->nothing,abstol=1/10^6,reltol=1/10^3,
-    saveat=Float64[],adaptive=true,maxiter=Int(1e5),
-    timeseries_errors=true,save_timeseries=true,
-    userdata=nothing,kwargs...)
+    timeseries=[], ts=[], ks=[];
+    callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
+    saveat=Float64[], adaptive=true, maxiter=Int(1e5),
+    timeseries_errors=true, save_timeseries=true,
+    userdata=nothing, kwargs...)
 
     tspan = prob.tspan
     t0 = tspan[1]
@@ -21,7 +21,7 @@ function solve{uType,tType,isinplace,F,Method,LinearSolver}(
     end
 
     if !isempty(save_ts) && save_ts[end] != tspan[2]
-      push!(save_ts,tspan[2])
+      push!(save_ts, tspan[2])
     elseif isempty(save_ts)
       save_ts = [tspan[2]]
     end
