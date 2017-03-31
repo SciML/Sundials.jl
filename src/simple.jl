@@ -8,13 +8,17 @@
     Insert a check that the given function call returns 0,
     throw an error otherwise. Only apply directly to function calls.
 """
-macro checkflag(ex)
+macro checkflag(ex,throw_error=false)
     @assert Base.Meta.isexpr(ex, :call)
     fname = ex.args[1]
     quote
         flag = $(esc(ex))
-        if flag != 0
-            error($(string(fname, " failed with error code = ")), flag)
+        if flag < 0
+            if $(esc(throw_error))
+                error($(string(fname, " failed with error code = ")), flag)
+            else
+                warn($(string(fname, " failed with error code = ")), flag)
+            end
         end
         flag
     end
@@ -54,13 +58,13 @@ function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     # use the user_data field to pass a function
     #   see: https://github.com/JuliaLang/julia/issues/2554
     userfun = UserFunctionAndData(f, userdata)
-    flag = @checkflag KINInit(kmem, cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{typeof(userfun)})), NVector(y0))
-    flag = @checkflag KINDense(kmem, length(y0))
-    flag = @checkflag KINSetUserData(kmem, userfun)
+    flag = @checkflag KINInit(kmem, cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{typeof(userfun)})), NVector(y0)) true
+    flag = @checkflag KINDense(kmem, length(y0)) true
+    flag = @checkflag KINSetUserData(kmem, userfun) true
     ## Solve problem
     scale = ones(length(y0))
     strategy = KIN_NONE
-    flag = @checkflag KINSol(kmem, y, strategy, scale, scale)
+    flag = @checkflag KINSol(kmem, y, strategy, scale, scale) true
 
     empty!(kmem)
 
@@ -115,15 +119,15 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
 
     userfun = UserFunctionAndData(f, userdata)
     y0nv = NVector(y0)
-    flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t[1], convert(N_Vector, y0nv))
-    flag = @checkflag CVodeSetUserData(mem, userfun)
-    flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
-    flag = @checkflag CVDense(mem, length(y0))
+    flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t[1], convert(N_Vector, y0nv)) true
+    flag = @checkflag CVodeSetUserData(mem, userfun) true
+    flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
+    flag = @checkflag CVDense(mem, length(y0)) true
     yres[1,:] = y0
     ynv = NVector(copy(y0))
     tout = [0.0]
     for k in 2:length(t)
-        flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL)
+        flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL) true
         if !callback(mem, t[k], ynv)
             break
         end
@@ -174,18 +178,18 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
 
     userfun = UserFunctionAndData(f, userdata)
     flag = @checkflag IDAInit(mem, cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{typeof(userfun)})),
-                              t[1], y0, yp0)
-    flag = @checkflag IDASetUserData(mem, userfun)
-    flag = @checkflag IDASStolerances(mem, reltol, abstol)
-    flag = @checkflag IDADense(mem, length(y0))
+                              t[1], y0, yp0) true
+    flag = @checkflag IDASetUserData(mem, userfun) true
+    flag = @checkflag IDASStolerances(mem, reltol, abstol) true
+    flag = @checkflag IDADense(mem, length(y0)) true
     rtest = zeros(length(y0))
     f(t[1], y0, yp0, rtest)
     if any(abs.(rtest) .>= reltol)
         if diffstates === nothing
             error("Must supply diffstates argument to use IDA initial value solver.")
         end
-        flag = @checkflag IDASetId(mem, collect(Float64, diffstates))
-        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2])
+        flag = @checkflag IDASetId(mem, collect(Float64, diffstates)) true
+        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2]) true
     end
     yres[1,:] = y0
     ypres[1,:] = yp0
@@ -193,7 +197,7 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
     yp = copy(yp0)
     tout = [0.0]
     for k in 2:length(t)
-        retval = @checkflag IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL)
+        retval = @checkflag IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL) true
         yres[k,:] = y
         ypres[k,:] = yp
     end
