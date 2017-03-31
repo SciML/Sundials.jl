@@ -26,7 +26,6 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
       save_ts = [tspan[2]]
     end
 
-
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
@@ -106,13 +105,9 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
                                 save_ts[k], utmp, tout, CV_ONE_STEP)
                 push!(ures, copy(utmp))
                 push!(ts, tout...)
-                if flag < 0
-                    break
-                end
+                (flag < 0) && break
             end
-            if flag < 0
-                break
-            end
+            (flag < 0) && break
             if looped
                 # Fix the end
                 flag = @checkflag CVodeGetDky(
@@ -124,9 +119,7 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
                 push!(ures, copy(utmp))
                 push!(ts, save_ts[k]...)
             end
-            if flag < 0
-                break
-            end
+            (flag < 0) && break
         end
     else # save_timeseries == false, so use CV_NORMAL style
         for k in 1:length(save_ts)
@@ -134,9 +127,7 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
                                 save_ts[k], utmp, tout, CV_NORMAL)
             push!(ures,copy(utmp))
             push!(ts, save_ts[k]...)
-            if flag < 0
-                break
-            end
+            (flag < 0) && break
         end
     end
 
@@ -152,6 +143,8 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
             push!(timeseries, reshape(ures[i], sizeu))
         end
     end
+
+    empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
                       timeseries_errors = timeseries_errors)
@@ -267,10 +260,11 @@ function solve{uType, duType, tType, isinplace, F, LinearSolver}(
                 looped = true
                 flag = @checkflag IDASolve(mem,
                                 save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
-
+                (flag < 0) && break
                 push!(ures,copy(utmp))
                 push!(ts, tout...)
             end
+            (flag < 0) && break
             if looped
                 # Fix the end
                 flag = @checkflag IDAGetDky(
@@ -282,11 +276,13 @@ function solve{uType, duType, tType, isinplace, F, LinearSolver}(
                 push!(ures, copy(utmp))
                 push!(ts, save_ts[k]...)
             end
+            (flag < 0) && break
         end
     else # save_timeseries == false, so use IDA_NORMAL style
         for k in 1:length(save_ts)
             flag = @checkflag IDASolve(mem,
                                 save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
+            (flag < 0) && break
             push!(ures, copy(utmp))
             push!(ts, save_ts[k]...)
         end
@@ -304,6 +300,8 @@ function solve{uType, duType, tType, isinplace, F, LinearSolver}(
             push!(timeseries, reshape(ures[i], sizeu))
         end
     end
+
+    empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
                       timeseries_errors = timeseries_errors)

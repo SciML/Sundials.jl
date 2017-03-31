@@ -66,6 +66,7 @@ function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     strategy = KIN_NONE
     flag = @checkflag KINSol(kmem, y, strategy, scale, scale) true
 
+    empty!(kmem)
 
     return y
 end
@@ -134,6 +135,8 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
         c = c + 1
     end
 
+    empty!(mem)
+
     return yres[1:c,:]
 end
 
@@ -198,6 +201,8 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
         yres[k,:] = y
         ypres[k,:] = yp
     end
+
+    empty!(mem)
 
     return yres, ypres
 end
