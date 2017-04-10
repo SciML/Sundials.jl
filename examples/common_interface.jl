@@ -18,6 +18,10 @@ sol = solve(prob,CVODE_Adams(),saveat=saveat,save_everystep=true)
 @test sol.t != saveat
 @test intersect(sol.t,saveat) == saveat
 
+sol = solve(prob,CVODE_Adams(),saveat=saveat,save_everystep=true,save_start=false)
+
+@test sol.t[1] != 0
+
 prob = prob_ode_2Dlinear
 sol = solve(prob,CVODE_BDF())
 sol = solve(prob,CVODE_Adams())

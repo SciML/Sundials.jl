@@ -7,6 +7,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
     timeseries_errors=true, save_everystep=isempty(saveat),
+    save_start = true,
     save_timeseries = nothing,
     userdata=nothing, kwargs...)
 
@@ -74,7 +75,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     mem = Handle(mem_ptr)
 
     ures = Vector{Vector{Float64}}()
-    ts   = [t0]
+    save_start ? ts = [t0] : ts = Float64[]
 
     userfun = UserFunctionAndData(f!, userdata)
     u0nv = NVector(u0)
@@ -102,7 +103,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         end
     end
 
-    push!(ures, copy(u0))
+    save_start && push!(ures, copy(u0))
     utmp = NVector(copy(u0))
     tout = [tspan[1]]
 
