@@ -1,29 +1,41 @@
 ## Common Interface Solve Functions
 
-function solve{uType, tType, isinplace, F, Method, LinearSolver}(
-    prob::AbstractODEProblem{uType, tType, isinplace, F},
+function solve{uType, tType, isinplace, Method, LinearSolver}(
+    prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
     callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
-    timeseries_errors=true, save_timeseries=true,
+    timeseries_errors=true, save_everystep=isempty(saveat),
+    save_start = true,
+    save_timeseries = nothing,
     userdata=nothing, kwargs...)
+
+    if save_timeseries != nothing
+        warn("save_timeseries is deprecated. Use save_everystep instead")
+        save_everystep = save_timeseries
+    end
 
     tspan = prob.tspan
     t0 = tspan[1]
 
     tdir = sign(tspan[2]-tspan[1])
 
-    if !isempty(saveat) && saveat[1] == tspan[1]
-      save_ts = @view saveat[2:end]
+    if typeof(saveat) <: Number
+      saveat_vec = convert(Vector{tType},saveat:saveat:(tspan[end]-saveat))
+      # Exclude the endpoint because of floating point issues
     else
-      save_ts = saveat
+      saveat_vec =  convert(Vector{tType},collect(saveat))
     end
 
-    if !isempty(save_ts) && save_ts[end] != tspan[2]
-      push!(save_ts, tspan[2])
-    elseif isempty(save_ts)
-      save_ts = [tspan[2]]
+    if !isempty(saveat_vec) && saveat_vec[end] == tspan[2]
+      pop!(saveat_vec)
+    end
+
+    if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
+      save_ts = sort(unique([saveat_vec[2:end];tspan[2]]))
+    else
+      save_ts = sort(unique([saveat_vec;tspan[2]]))
     end
 
     if typeof(prob.u0) <: Number
@@ -63,7 +75,7 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
     mem = Handle(mem_ptr)
 
     ures = Vector{Vector{Float64}}()
-    ts   = [t0]
+    save_start ? ts = [t0] : ts = Float64[]
 
     userfun = UserFunctionAndData(f!, userdata)
     u0nv = NVector(u0)
@@ -91,12 +103,12 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
         end
     end
 
-    push!(ures, copy(u0))
+    save_start && push!(ures, copy(u0))
     utmp = NVector(copy(u0))
     tout = [tspan[1]]
 
-    # The Inner Loops : Style depends on save_timeseries
-    if save_timeseries
+    # The Inner Loops : Style depends on save_everystep
+    if save_everystep
         for k in 1:length(save_ts)
             looped = false
             while tdir*tout[end] < tdir*save_ts[k]
@@ -121,7 +133,7 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
             end
             (flag < 0) && break
         end
-    else # save_timeseries == false, so use CV_NORMAL style
+    else # save_everystep == false, so use CV_NORMAL style
         for k in 1:length(save_ts)
             flag = @checkflag CVode(mem,
                                 save_ts[k], utmp, tout, CV_NORMAL)
@@ -147,35 +159,47 @@ function solve{uType, tType, isinplace, F, Method, LinearSolver}(
     empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
-                      timeseries_errors = timeseries_errors)
+                      timeseries_errors = timeseries_errors,
+                      retcode = :Success)
 end
 
 ## Solve for DAEs uses IDA
 
-function solve{uType, duType, tType, isinplace, F, LinearSolver}(
-    prob::AbstractDAEProblem{uType, duType, tType, isinplace, F},
+function solve{uType, duType, tType, isinplace, LinearSolver}(
+    prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
     callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
-    timeseries_errors=true, save_timeseries=true,
+    timeseries_errors=true, save_everystep=isempty(saveat),
+    save_timeseries = nothing,
     userdata=nothing, kwargs...)
+
+    if save_timeseries != nothing
+        warn("save_timeseries is deprecated. Use save_everystep instead")
+        save_everystep = save_timeseries
+    end
 
     tspan = prob.tspan
     t0 = tspan[1]
 
     tdir = sign(tspan[2]-tspan[1])
 
-    if !isempty(saveat) && saveat[1] == tspan[1]
-      save_ts = @view saveat[2:end]
+    if typeof(saveat) <: Number
+      saveat_vec = convert(Vector{tType},saveat:saveat:(tspan[end]-saveat))
+      # Exclude the endpoint because of floating point issues
     else
-      save_ts = saveat
+      saveat_vec =  convert(Vector{tType},collect(saveat))
     end
 
-    if !isempty(save_ts) && save_ts[end] != tspan[2]
-      push!(save_ts,tspan[2])
-    elseif isempty(save_ts)
-      save_ts = [tspan[2]]
+    if !isempty(saveat_vec) && saveat_vec[end] == tspan[2]
+      pop!(saveat_vec)
+    end
+
+    if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
+      save_ts = sort(unique([saveat_vec[2:end];tspan[2]]))
+    else
+      save_ts = sort(unique([saveat_vec;tspan[2]]))
     end
 
     if typeof(prob.u0) <: Number
@@ -252,8 +276,8 @@ function solve{uType, duType, tType, isinplace, F, LinearSolver}(
         flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[2])
     end
 
-    # The Inner Loops : Style depends on save_timeseries
-    if save_timeseries
+    # The Inner Loops : Style depends on save_everystep
+    if save_everystep
         for k in 1:length(save_ts)
             looped = false
             while tdir*tout[end] < tdir*save_ts[k]
@@ -278,7 +302,7 @@ function solve{uType, duType, tType, isinplace, F, LinearSolver}(
             end
             (flag < 0) && break
         end
-    else # save_timeseries == false, so use IDA_NORMAL style
+    else # save_everystep == false, so use IDA_NORMAL style
         for k in 1:length(save_ts)
             flag = @checkflag IDASolve(mem,
                                 save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
@@ -304,5 +328,6 @@ function solve{uType, duType, tType, isinplace, F, LinearSolver}(
     empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
-                      timeseries_errors = timeseries_errors)
+                      timeseries_errors = timeseries_errors,
+                      retcode = :Success)
 end
