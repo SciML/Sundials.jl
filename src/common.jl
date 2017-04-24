@@ -4,7 +4,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
-    callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
+    callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_start = true,
@@ -14,6 +14,10 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     if save_timeseries != nothing
         warn("save_timeseries is deprecated. Use save_everystep instead")
         save_everystep = save_timeseries
+    end
+
+    if callback != nothing
+        error("Sundials is not compatible with callbacks.")
     end
 
     tspan = prob.tspan
@@ -169,7 +173,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
-    callback=()->nothing, abstol=1/10^6, reltol=1/10^3,
+    callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_timeseries = nothing,
@@ -178,6 +182,10 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     if save_timeseries != nothing
         warn("save_timeseries is deprecated. Use save_everystep instead")
         save_everystep = save_timeseries
+    end
+
+    if callback != nothing
+        error("Sundials is not compatible with callbacks.")
     end
 
     tspan = prob.tspan
