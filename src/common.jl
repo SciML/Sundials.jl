@@ -15,6 +15,10 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         warn("save_timeseries is deprecated. Use save_everystep instead")
         save_everystep = save_timeseries
     end
+    
+    if prob.mass_matrix != I
+        error("This solver is not able to use mass matrices.")
+    end
 
     if callback != nothing
         error("Sundials is not compatible with callbacks.")
