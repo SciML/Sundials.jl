@@ -28,7 +28,7 @@ type UserFunctionAndData{F}
     func::F
     data::Any
 
-    UserFunctionAndData(func, data) = new(func, data)
+    (::Type{UserFunctionAndData{F}}){F}(func, data) = new{F}(func, data)
 end
 
 UserFunctionAndData(func) = func

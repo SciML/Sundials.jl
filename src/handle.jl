@@ -11,7 +11,7 @@
 
     See `Handle`.
 """
-abstract AbstractSundialsObject
+@compat abstract type AbstractSundialsObject end
 
 immutable CVODEMem <: AbstractSundialsObject end
 @compat const CVODEMemPtr = Ptr{CVODEMem}
