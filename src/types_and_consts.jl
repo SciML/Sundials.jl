@@ -14,7 +14,7 @@ const SUNDIALS_BAND = Cint(2)
 # Skipping MacroDefinition: BAND_COL_ELEM ( col_j , i , j ) ( col_j [ ( i ) - ( j ) ] )
 # Skipping MacroDefinition: BAND_ELEM ( A , i , j ) ( ( A -> cols ) [ j ] [ ( i ) - ( j ) + ( A -> s_mu ) ] )
 
-typealias realtype Cdouble
+@compat const realtype = Cdouble
 
 type _DlsMat
     _type::Cint
@@ -29,10 +29,10 @@ type _DlsMat
     cols::Ptr{Ptr{realtype}}
 end
 
-typealias DlsMat Ptr{_DlsMat}
+@compat const DlsMat = Ptr{_DlsMat}
 
 # begin enum ANONYMOUS_1
-typealias ANONYMOUS_1 UInt32
+@compat const ANONYMOUS_1 = UInt32
 const PREC_NONE = (UInt32)(0)
 const PREC_LEFT = (UInt32)(1)
 const PREC_RIGHT = (UInt32)(2)
@@ -40,13 +40,13 @@ const PREC_BOTH = (UInt32)(3)
 # end enum ANONYMOUS_1
 
 # begin enum ANONYMOUS_2
-typealias ANONYMOUS_2 UInt32
+@compat const ANONYMOUS_2 = UInt32
 const MODIFIED_GS = (UInt32)(1)
 const CLASSICAL_GS = (UInt32)(2)
 # end enum ANONYMOUS_2
 
-typealias ATimesFn Ptr{Void}
-typealias PSolveFn Ptr{Void}
+@compat const ATimesFn = Ptr{Void}
+@compat const PSolveFn = Ptr{Void}
 
 type _generic_N_Vector_Ops
     nvclone::Ptr{Void}
@@ -76,15 +76,15 @@ type _generic_N_Vector_Ops
     nvminquotient::Ptr{Void}
 end
 
-typealias N_Vector_Ops Ptr{_generic_N_Vector_Ops}
+@compat const N_Vector_Ops = Ptr{_generic_N_Vector_Ops}
 
 type _generic_N_Vector
     content::Ptr{Void}
     ops::Ptr{_generic_N_Vector_Ops}
 end
 
-typealias N_Vector Ptr{_generic_N_Vector}
-typealias N_Vector_S Ptr{N_Vector}
+@compat const N_Vector = Ptr{_generic_N_Vector}
+@compat const N_Vector_S = Ptr{N_Vector}
 
 const SPBCG_SUCCESS = Cint(0)
 const SPBCG_RES_REDUCED = Cint(1)
@@ -110,7 +110,7 @@ type SpbcgMemRec
     vtemp::N_Vector
 end
 
-typealias SpbcgMem Ptr{Void}
+@compat const SpbcgMem = Ptr{Void}
 
 const SPGMR_SUCCESS = Cint(0)
 const SPGMR_RES_REDUCED = Cint(1)
@@ -148,7 +148,7 @@ type SpgmrMemRec
     vtemp::N_Vector
 end
 
-typealias SpgmrMem Ptr{_SpgmrMemRec}
+@compat const SpgmrMem = Ptr{_SpgmrMemRec}
 
 const SPTFQMR_SUCCESS = Cint(0)
 const SPTFQMR_RES_REDUCED = Cint(1)
@@ -177,7 +177,7 @@ type SptfqmrMemRec
     vtemp3::N_Vector
 end
 
-typealias SptfqmrMem Ptr{Void}
+@compat const SptfqmrMem = Ptr{Void}
 
 # Skipping MacroDefinition: RCONST ( x ) x
 
@@ -217,18 +217,18 @@ const CV_BAD_T = Cint(-25)
 const CV_BAD_DKY = Cint(-26)
 const CV_TOO_CLOSE = Cint(-27)
 
-typealias CVRhsFn Ptr{Void}
+@compat const CVRhsFn = Ptr{Void}
 
 CVRhsFn_wrapper(fp::CVRhsFn) = fp
 CVRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
 
-typealias CVRootFn Ptr{Void}
+@compat const CVRootFn = Ptr{Void}
 
 CVRootFn_wrapper(fp::CVRootFn) = fp
 CVRootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,Ptr{realtype},Ptr{Void}))
 
-typealias CVEwtFn Ptr{Void}
-typealias CVErrHandlerFn Ptr{Void}
+@compat const CVEwtFn = Ptr{Void}
+@compat const CVErrHandlerFn = Ptr{Void}
 
 const CVDLS_SUCCESS = Cint(0)
 const CVDLS_MEM_NULL = Cint(-1)
@@ -238,8 +238,8 @@ const CVDLS_MEM_FAIL = Cint(-4)
 const CVDLS_JACFUNC_UNRECVR = Cint(-5)
 const CVDLS_JACFUNC_RECVR = Cint(-6)
 
-typealias CVDlsDenseJacFn Ptr{Void}
-typealias CVDlsBandJacFn Ptr{Void}
+@compat const CVDlsDenseJacFn = Ptr{Void}
+@compat const CVDlsBandJacFn = Ptr{Void}
 
 const CVSPILS_SUCCESS = Cint(0)
 const CVSPILS_MEM_NULL = Cint(-1)
@@ -253,9 +253,9 @@ const CVSPILS_MSBPRE = Cint(50)
 # Skipping MacroDefinition: CVSPILS_DGMAX RCONST ( 0.2 )
 # Skipping MacroDefinition: CVSPILS_EPLIN RCONST ( 0.05 )
 
-typealias CVSpilsPrecSetupFn Ptr{Void}
-typealias CVSpilsPrecSolveFn Ptr{Void}
-typealias CVSpilsJacTimesVecFn Ptr{Void}
+@compat const CVSpilsPrecSetupFn = Ptr{Void}
+@compat const CVSpilsPrecSolveFn = Ptr{Void}
+@compat const CVSpilsJacTimesVecFn = Ptr{Void}
 
 const CV_SIMULTANEOUS = Cint(1)
 const CV_STAGGERED = Cint(2)
@@ -288,14 +288,14 @@ const CV_REIFWD_FAIL = Cint(-105)
 const CV_FWD_FAIL = Cint(-106)
 const CV_GETY_BADT = Cint(-107)
 
-typealias CVQuadRhsFn Ptr{Void}
-typealias CVSensRhsFn Ptr{Void}
-typealias CVSensRhs1Fn Ptr{Void}
-typealias CVQuadSensRhsFn Ptr{Void}
-typealias CVRhsFnB Ptr{Void}
-typealias CVRhsFnBS Ptr{Void}
-typealias CVQuadRhsFnB Ptr{Void}
-typealias CVQuadRhsFnBS Ptr{Void}
+@compat const CVQuadRhsFn = Ptr{Void}
+@compat const CVSensRhsFn = Ptr{Void}
+@compat const CVSensRhs1Fn = Ptr{Void}
+@compat const CVQuadSensRhsFn = Ptr{Void}
+@compat const CVRhsFnB = Ptr{Void}
+@compat const CVRhsFnBS = Ptr{Void}
+@compat const CVQuadRhsFnB = Ptr{Void}
+@compat const CVQuadRhsFnBS = Ptr{Void}
 
 type CVadjCheckPointRec
     my_addr::Ptr{Void}
@@ -310,15 +310,15 @@ end
 const CVDLS_NO_ADJ = Cint(-101)
 const CVDLS_LMEMB_NULL = Cint(-102)
 
-typealias CVDlsDenseJacFnB Ptr{Void}
-typealias CVDlsBandJacFnB Ptr{Void}
+@compat const CVDlsDenseJacFnB = Ptr{Void}
+@compat const CVDlsBandJacFnB = Ptr{Void}
 
 const CVSPILS_NO_ADJ = Cint(-101)
 const CVSPILS_LMEMB_NULL = Cint(-102)
 
-typealias CVSpilsPrecSetupFnB Ptr{Void}
-typealias CVSpilsPrecSolveFnB Ptr{Void}
-typealias CVSpilsJacTimesVecFnB Ptr{Void}
+@compat const CVSpilsPrecSetupFnB = Ptr{Void}
+@compat const CVSpilsPrecSolveFnB = Ptr{Void}
+@compat const CVSpilsJacTimesVecFnB = Ptr{Void}
 
 const IDA_NORMAL = Cint(1)
 const IDA_ONE_STEP = Cint(2)
@@ -351,18 +351,18 @@ const IDA_BAD_K = Cint(-25)
 const IDA_BAD_T = Cint(-26)
 const IDA_BAD_DKY = Cint(-27)
 
-typealias IDAResFn Ptr{Void}
+@compat const IDAResFn = Ptr{Void}
 
 IDAResFn_wrapper(fp::IDAResFn) = fp
 IDAResFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,N_Vector,Ptr{Void}))
 
-typealias IDARootFn Ptr{Void}
+@compat const IDARootFn = Ptr{Void}
 
 IDARootFn_wrapper(fp::IDARootFn) = fp
 IDARootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{realtype},Ptr{Void}))
 
-typealias IDAEwtFn Ptr{Void}
-typealias IDAErrHandlerFn Ptr{Void}
+@compat const IDAEwtFn = Ptr{Void}
+@compat const IDAErrHandlerFn = Ptr{Void}
 
 const IDADLS_SUCCESS = Cint(0)
 const IDADLS_MEM_NULL = Cint(-1)
@@ -372,8 +372,8 @@ const IDADLS_MEM_FAIL = Cint(-4)
 const IDADLS_JACFUNC_UNRECVR = Cint(-5)
 const IDADLS_JACFUNC_RECVR = Cint(-6)
 
-typealias IDADlsDenseJacFn Ptr{Void}
-typealias IDADlsBandJacFn Ptr{Void}
+@compat const IDADlsDenseJacFn = Ptr{Void}
+@compat const IDADlsBandJacFn = Ptr{Void}
 
 const IDASPILS_SUCCESS = Cint(0)
 const IDASPILS_MEM_NULL = Cint(-1)
@@ -382,9 +382,9 @@ const IDASPILS_ILL_INPUT = Cint(-3)
 const IDASPILS_MEM_FAIL = Cint(-4)
 const IDASPILS_PMEM_NULL = Cint(-5)
 
-typealias IDASpilsPrecSetupFn Ptr{Void}
-typealias IDASpilsPrecSolveFn Ptr{Void}
-typealias IDASpilsJacTimesVecFn Ptr{Void}
+@compat const IDASpilsPrecSetupFn = Ptr{Void}
+@compat const IDASpilsPrecSolveFn = Ptr{Void}
+@compat const IDASpilsJacTimesVecFn = Ptr{Void}
 
 const IDA_SIMULTANEOUS = Cint(1)
 const IDA_STAGGERED = Cint(2)
@@ -412,13 +412,13 @@ const IDA_REIFWD_FAIL = Cint(-105)
 const IDA_FWD_FAIL = Cint(-106)
 const IDA_GETY_BADT = Cint(-107)
 
-typealias IDAQuadRhsFn Ptr{Void}
-typealias IDASensResFn Ptr{Void}
-typealias IDAQuadSensRhsFn Ptr{Void}
-typealias IDAResFnB Ptr{Void}
-typealias IDAResFnBS Ptr{Void}
-typealias IDAQuadRhsFnB Ptr{Void}
-typealias IDAQuadRhsFnBS Ptr{Void}
+@compat const IDAQuadRhsFn = Ptr{Void}
+@compat const IDASensResFn = Ptr{Void}
+@compat const IDAQuadSensRhsFn = Ptr{Void}
+@compat const IDAResFnB = Ptr{Void}
+@compat const IDAResFnBS = Ptr{Void}
+@compat const IDAQuadRhsFnB = Ptr{Void}
+@compat const IDAQuadRhsFnBS = Ptr{Void}
 
 type IDAadjCheckPointRec
     my_addr::Ptr{Void}
@@ -433,15 +433,15 @@ end
 const IDADLS_NO_ADJ = Cint(-101)
 const IDADLS_LMEMB_NULL = Cint(-102)
 
-typealias IDADlsDenseJacFnB Ptr{Void}
-typealias IDADlsBandJacFnB Ptr{Void}
+@compat const IDADlsDenseJacFnB = Ptr{Void}
+@compat const IDADlsBandJacFnB = Ptr{Void}
 
 const IDASPILS_NO_ADJ = Cint(-101)
 const IDASPILS_LMEMB_NULL = Cint(-102)
 
-typealias IDASpilsPrecSetupFnB Ptr{Void}
-typealias IDASpilsPrecSolveFnB Ptr{Void}
-typealias IDASpilsJacTimesVecFnB Ptr{Void}
+@compat const IDASpilsPrecSetupFnB = Ptr{Void}
+@compat const IDASpilsPrecSolveFnB = Ptr{Void}
+@compat const IDASpilsJacTimesVecFnB = Ptr{Void}
 
 const KIN_SUCCESS = Cint(0)
 const KIN_INITIAL_GUESS_OK = Cint(1)
@@ -468,13 +468,13 @@ const KIN_ETACONSTANT = Cint(3)
 const KIN_NONE = Cint(0)
 const KIN_LINESEARCH = Cint(1)
 
-typealias KINSysFn Ptr{Void}
+@compat const KINSysFn = Ptr{Void}
 
 KINSysFn_wrapper(fp::KINSysFn) = fp
 KINSysFn_wrapper(f) = cfunction(f,Cint,(N_Vector,N_Vector,Ptr{Void}))
 
-typealias KINErrHandlerFn Ptr{Void}
-typealias KINInfoHandlerFn Ptr{Void}
+@compat const KINErrHandlerFn = Ptr{Void}
+@compat const KINInfoHandlerFn = Ptr{Void}
 
 const KINDLS_SUCCESS = Cint(0)
 const KINDLS_MEM_NULL = Cint(-1)
@@ -484,8 +484,8 @@ const KINDLS_MEM_FAIL = Cint(-4)
 const KINDLS_JACFUNC_UNRECVR = Cint(-5)
 const KINDLS_JACFUNC_RECVR = Cint(-6)
 
-typealias KINDlsDenseJacFn Ptr{Void}
-typealias KINDlsBandJacFn Ptr{Void}
+@compat const KINDlsDenseJacFn = Ptr{Void}
+@compat const KINDlsBandJacFn = Ptr{Void}
 
 const KINSPILS_SUCCESS = Cint(0)
 const KINSPILS_MEM_NULL = Cint(-1)
@@ -495,9 +495,9 @@ const KINSPILS_MEM_FAIL = Cint(-4)
 const KINSPILS_PMEM_NULL = Cint(-5)
 const KINSPILS_MAXL = Cint(10)
 
-typealias KINSpilsPrecSetupFn Ptr{Void}
-typealias KINSpilsPrecSolveFn Ptr{Void}
-typealias KINSpilsJacTimesVecFn Ptr{Void}
+@compat const KINSpilsPrecSetupFn = Ptr{Void}
+@compat const KINSpilsPrecSolveFn = Ptr{Void}
+@compat const KINSpilsJacTimesVecFn = Ptr{Void}
 
 # Skipping MacroDefinition: NV_CONTENT_S ( v ) ( ( N_VectorContent_Serial ) ( v -> content ) )
 # Skipping MacroDefinition: NV_LENGTH_S ( v ) ( NV_CONTENT_S ( v ) -> length )
@@ -511,7 +511,7 @@ type _N_VectorContent_Serial
     data::Ptr{realtype}
 end
 
-typealias N_VectorContent_Serial Ptr{_N_VectorContent_Serial}
+@compat const N_VectorContent_Serial = Ptr{_N_VectorContent_Serial}
 
 const FCMIX_CVODE = Cint(1)
 const FCMIX_IDA = Cint(2)
@@ -521,8 +521,8 @@ const FCMIX_KINSOL = Cint(3)
 # Skipping MacroDefinition: MAX ( A , B ) ( ( A ) > ( B ) ? ( A ) : ( B ) )
 # Skipping MacroDefinition: SQR ( A ) ( ( A ) * ( A ) )
 
-typealias CVLocalFn Ptr{Void}
-typealias CVCommFn Ptr{Void}
+@compat const CVLocalFn = Ptr{Void}
+@compat const CVCommFn = Ptr{Void}
 
 const CVDIAG_SUCCESS = Cint(0)
 const CVDIAG_MEM_NULL = Cint(-1)
@@ -533,19 +533,19 @@ const CVDIAG_INV_FAIL = Cint(-5)
 const CVDIAG_RHSFUNC_UNRECVR = Cint(-6)
 const CVDIAG_RHSFUNC_RECVR = Cint(-7)
 
-typealias CVLocalFnB Ptr{Void}
-typealias CVCommFnB Ptr{Void}
+@compat const CVLocalFnB = Ptr{Void}
+@compat const CVCommFnB = Ptr{Void}
 
 const CVDIAG_NO_ADJ = Cint(-101)
 
-typealias IDABBDLocalFn Ptr{Void}
-typealias IDABBDCommFn Ptr{Void}
-typealias IDABBDLocalFnB Ptr{Void}
-typealias IDABBDCommFnB Ptr{Void}
+@compat const IDABBDLocalFn = Ptr{Void}
+@compat const IDABBDCommFn = Ptr{Void}
+@compat const IDABBDLocalFnB = Ptr{Void}
+@compat const IDABBDCommFnB = Ptr{Void}
 
 const KINBBDPRE_SUCCESS = Cint(0)
 const KINBBDPRE_PDATA_NULL = Cint(-11)
 const KINBBDPRE_FUNC_UNRECVR = Cint(-12)
 
-typealias KINCommFn Ptr{Void}
-typealias KINLocalFn Ptr{Void}
+@compat const KINCommFn = Ptr{Void}
+@compat const KINLocalFn = Ptr{Void}
