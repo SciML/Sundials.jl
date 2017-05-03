@@ -14,13 +14,13 @@
 abstract AbstractSundialsObject
 
 immutable CVODEMem <: AbstractSundialsObject end
-typealias CVODEMemPtr Ptr{CVODEMem}
+@compat const CVODEMemPtr = Ptr{CVODEMem}
 
 immutable IDAMem <: AbstractSundialsObject end
-typealias IDAMemPtr Ptr{IDAMem}
+@compat const IDAMemPtr = Ptr{IDAMem}
 
 immutable KINMem <: AbstractSundialsObject end
-typealias KINMemPtr Ptr{KINMem}
+@compat const KINMemPtr = Ptr{KINMem}
 
 """
    Handle for Sundials objects (CVODE, IDA, KIN).
@@ -56,6 +56,6 @@ Base.isempty{T}(h::Handle{T}) = h.ptr_ref[] == C_NULL
 #
 ##################################################################
 
-typealias CVODEh Handle{CVODEMem}
-typealias KINh Handle{KINMem}
-typealias IDAh Handle{IDAMem}
+@compat const CVODEh = Handle{CVODEMem}
+@compat const KINh =  Handle{KINMem}
+@compat const IDAh =  Handle{IDAMem}
