@@ -14,7 +14,7 @@ const SUNDIALS_BAND = Cint(2)
 # Skipping MacroDefinition: BAND_COL_ELEM ( col_j , i , j ) ( col_j [ ( i ) - ( j ) ] )
 # Skipping MacroDefinition: BAND_ELEM ( A , i , j ) ( ( A -> cols ) [ j ] [ ( i ) - ( j ) + ( A -> s_mu ) ] )
 
-@compat const realtype = Cdouble
+const realtype = Cdouble
 
 type _DlsMat
     _type::Cint
@@ -32,7 +32,7 @@ end
 @compat const DlsMat = Ptr{_DlsMat}
 
 # begin enum ANONYMOUS_1
-@compat const ANONYMOUS_1 = UInt32
+const ANONYMOUS_1 = UInt32
 const PREC_NONE = (UInt32)(0)
 const PREC_LEFT = (UInt32)(1)
 const PREC_RIGHT = (UInt32)(2)
@@ -40,7 +40,7 @@ const PREC_BOTH = (UInt32)(3)
 # end enum ANONYMOUS_1
 
 # begin enum ANONYMOUS_2
-@compat const ANONYMOUS_2 = UInt32
+const ANONYMOUS_2 = UInt32
 const MODIFIED_GS = (UInt32)(1)
 const CLASSICAL_GS = (UInt32)(2)
 # end enum ANONYMOUS_2
