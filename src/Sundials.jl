@@ -19,8 +19,8 @@ const DBL_MAX = prevfloat(Inf)
 const DBL_MIN = nextfloat(-Inf)
 const DBL_EPSILON = eps(Cdouble)
 
-typealias FILE Void
-typealias __builtin_va_list Ptr{Void}
+const FILE = Void
+@compat const __builtin_va_list = Ptr{Void}
 
 include("types_and_consts.jl")
 

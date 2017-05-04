@@ -1,8 +1,8 @@
 # Sundials.jl algorithms
 
 # Abstract Types
-abstract SundialsODEAlgorithm{Method,LinearSolver} <: AbstractODEAlgorithm
-abstract SundialsDAEAlgorithm{LinearSolver} <: AbstractDAEAlgorithm
+@compat abstract type SundialsODEAlgorithm{Method,LinearSolver} <: AbstractODEAlgorithm end
+@compat abstract type SundialsDAEAlgorithm{LinearSolver} <: AbstractDAEAlgorithm end
 
 # ODE Algorithms
 immutable CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver}
