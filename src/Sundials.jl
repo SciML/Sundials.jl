@@ -20,7 +20,7 @@ const DBL_MIN = nextfloat(-Inf)
 const DBL_EPSILON = eps(Cdouble)
 
 const FILE = Void
-@compat const __builtin_va_list = Ptr{Void}
+const __builtin_va_list = Ptr{Void}
 
 include("types_and_consts.jl")
 
