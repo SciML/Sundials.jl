@@ -7,6 +7,8 @@ Sundials.jl
 [![Travis](https://travis-ci.org/JuliaDiffEq/Sundials.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/Sundials.jl)
 [![AppVoyer](https://ci.appveyor.com/api/projects/status/s14c4i1sd322x6ko/branch/master?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/sundials-jl/branch/master)
 [![Coveralls](https://coveralls.io/repos/github/JuliaDiffEq/Sundials.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaDiffEq/Sundials.jl?branch=master)
+[![Sundials](http://pkg.julialang.org/badges/Sundials_0.5.svg)](http://pkg.julialang.org/?pkg=Sundials)
+[![Sundials](http://pkg.julialang.org/badges/Sundials_0.6.svg)](http://pkg.julialang.org/?pkg=Sundials)
 
 Introduction
 ------------
