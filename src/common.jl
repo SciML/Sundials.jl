@@ -4,12 +4,12 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
-    verbose=true,
-    dt = nothing, dense = true,
+
+    verbose=true, dense = true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[],
     maxiter=Int(1e5),
-    dtmin = 0.0, dtmax = 0.0,
+    dt = nothing, dtmin = 0.0, dtmax = 0.0,
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_start = true,
     save_timeseries = nothing,
@@ -223,7 +223,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                    du = du_timeseries,
                    timeseries_errors = timeseries_errors,
                    retcode = :Success)
-end
+end # function solve
 
 ## Solve for DAEs uses IDA
 
@@ -231,14 +231,14 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
-    verbose=true,
-    dt = nothing, dense = true,
-    dtmax = 0.0,
-    save_start = true,
+
+    verbose=true, dense=true,
+    dt=nothing, dtmax=0.0,
+    save_start=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[], maxiter=Int(1e5),
     timeseries_errors=true, save_everystep=isempty(saveat),
-    save_timeseries = nothing,
+    save_timeseries=nothing,
     userdata=nothing, kwargs...)
 
     verbose && !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
@@ -258,7 +258,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     tdir = sign(tspan[2]-tspan[1])
 
     if typeof(saveat) <: Number
-        saveat_vec = convert(Vector{tType},saveat:saveat:(tspan[end]-saveat))
+        saveat_vec = convert(Vector{tType},saveat+tspan[1]:saveat:(tspan[end]-saveat))
         # Exclude the endpoint because of floating point issues
     else
         saveat_vec = convert(Vector{tType}, collect(saveat))
@@ -319,7 +319,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                               convert(N_Vector, du0))
     dt != nothing && (flag = @checkflag IDASetInitStep(mem, dt))
     flag = @checkflag IDASetUserData(mem, userfun)
-    flag = @checkflag IDASetMaxStep(mem,dtmax)
+    flag = @checkflag IDASetMaxStep(mem, dtmax)
     flag = @checkflag IDASStolerances(mem, reltol, abstol)
     flag = @checkflag IDASetMaxNumSteps(mem, maxiter)
     flag = @checkflag IDASetMaxOrd(mem,alg.max_order)
@@ -447,4 +447,4 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                    du = du_timeseries,
                    timeseries_errors = timeseries_errors,
                    retcode = :Success)
-end
+end # function solve
