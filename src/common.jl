@@ -15,7 +15,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         warn("save_timeseries is deprecated. Use save_everystep instead")
         save_everystep = save_timeseries
     end
-    
+
     if prob.mass_matrix != I
         error("This solver is not able to use mass matrices.")
     end
@@ -30,7 +30,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     tdir = sign(tspan[2]-tspan[1])
 
     if typeof(saveat) <: Number
-      saveat_vec = convert(Vector{tType},saveat:saveat:(tspan[end]-saveat))
+      saveat_vec = convert(Vector{tType},saveat+tspan[1]:saveat:(tspan[end]-saveat))
       # Exclude the endpoint because of floating point issues
     else
       saveat_vec =  convert(Vector{tType},collect(saveat))
