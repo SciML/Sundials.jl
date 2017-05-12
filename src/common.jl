@@ -4,6 +4,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
+    dt = nothing,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
     dtmin = 0.0, dtmax = Inf,
@@ -93,6 +94,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                           (realtype, N_Vector,
                           N_Vector, Ref{typeof(userfun)})),
                           t0, convert(N_Vector, u0nv))
+    dt != nothing && (flag = @checkflag CVodeSetInitStep(mem,dt))
     flag = @checkflag CVodeSetMinStep(mem,dtmin)
     flag = @checkflag CVodeSetMaxStep(mem,dtmax)
     flag = @checkflag CVodeSetUserData(mem, userfun)
@@ -187,6 +189,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
+    dt = nothing,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
     timeseries_errors=true, save_everystep=isempty(saveat),
@@ -265,9 +268,22 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                               N_Vector, Ref{typeof(userfun)})),
                               t0, convert(N_Vector, u0),
                               convert(N_Vector, du0))
+    dt != nothing && (flag = @checkflag IDASetInitStep(mem,dt))
     flag = @checkflag IDASetUserData(mem, userfun)
     flag = @checkflag IDASStolerances(mem, reltol, abstol)
     flag = @checkflag IDASetMaxNumSteps(mem, maxiter)
+    flag = @checkflag IDASetMaxOrd(mem,alg.max_order)
+    flag = @checkflag IDASetMaxErrTestFails(mem,alg.max_error_test_failures)
+    flag = @checkflag IDASetNonlinConvCoef(mem,alg.nonlinear_convergence_coefficient)
+    flag = @checkflag IDASetMaxNonlinIters(mem,alg.max_nonlinear_iters)
+    flag = @checkflag IDASetMaxConvFails(mem,alg.max_convergence_failures)
+    flag = @checkflag IDASetNonlinConvCoefIC(mem,alg.nonlinear_convergence_coefficient_ic)
+    flag = @checkflag IDASetMaxNumStepsIC(mem,alg.max_num_steps_ic)
+    flag = @checkflag IDASetMaxNumJacsIC(mem,alg.max_num_jacs_ic)
+    flag = @checkflag IDASetMaxNumItersIC(mem,alg.max_num_iters_ic)
+    #flag = @checkflag IDASetMaxBacksIC(mem,alg.max_num_backs_ic) # Needs newer version?
+    flag = @checkflag IDASetLineSearchOffIC(mem,alg.use_linesearch_ic)
+
     if LinearSolver == :Dense
         flag = @checkflag IDADense(mem, length(u0))
     elseif LinearSolver == :Band
@@ -291,10 +307,10 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     rtest = zeros(length(u0))
     f!(t0, u0, du0, rtest)
     if any(abs.(rtest) .>= reltol)
-        if diffstates === nothing
-            error("Must supply diffstates argument to use IDA initial value solver.")
+        if prob.differential_vars === nothing
+            error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
         end
-        flag = @checkflag IDASetId(mem, collect(Float64, diffstates))
+        flag = @checkflag IDASetId(mem, collect(Float64, prob.differential_vars))
         flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[2])
     end
 
