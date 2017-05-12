@@ -1,10 +1,13 @@
-using DiffEqProblemLibrary, DiffEqBase, Sundials
+using DiffEqProblemLibrary, DiffEqBase, Sundials, Base.Test
 
 prob = prob_ode_linear
 dt = 1//2^(4)
 saveat = float(collect(0:dt:1))
 sol = solve(prob,CVODE_BDF())
 sol = solve(prob,CVODE_Adams())
+@test sol.errors[:l2] < 1e-3
+sol = solve(prob,CVODE_Adams(),reltol=1e-5)
+@test sol.errors[:l2] < 1e-5
 sol = solve(prob,CVODE_Adams(),saveat=saveat)
 
 @test sol.t == saveat

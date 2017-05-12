@@ -4,7 +4,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
-    dt = nothing,
+    dt = nothing, dense = true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[],
     maxiter=Int(1e5),
@@ -85,7 +85,8 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    ures = Vector{Vector{Float64}}()
+    ures  = Vector{Vector{Float64}}()
+    dures = Vector{Vector{Float64}}()
     save_start ? ts = [t0] : ts = Float64[]
 
     userfun = UserFunctionAndData(f!, userdata)
@@ -124,9 +125,16 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         end
     end
 
-    save_start && push!(ures, copy(u0))
     utmp = NVector(copy(u0))
     tout = [tspan[1]]
+
+    if save_start
+      push!(ures, copy(u0))
+      if dense
+        f!(tspan[1],u0,utmp)
+        push!(dures,utmp)
+      end
+    end
 
     # The Inner Loops : Style depends on save_everystep
     if save_everystep
@@ -139,6 +147,11 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                                 save_ts[k], utmp, tout, CV_ONE_STEP)
                 push!(ures, copy(utmp))
                 push!(ts, tout...)
+                if dense
+                  flag = @checkflag CVodeGetDky(
+                                          mem, tout[1], Cint(1), utmp)
+                  push!(dures, copy(utmp))
+                end
                 (flag < 0) && break
             end
             (flag < 0) && break
@@ -152,6 +165,11 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                                         mem, save_ts[k], Cint(0), utmp)
                 push!(ures, copy(utmp))
                 push!(ts, save_ts[k]...)
+                if dense
+                  flag = @checkflag CVodeGetDky(
+                                          mem, save_ts[k], Cint(1), utmp)
+                  push!(dures, copy(utmp))
+                end
             end
             (flag < 0) && break
         end
@@ -162,6 +180,11 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                                 save_ts[k], utmp, tout, CV_NORMAL)
             push!(ures,copy(utmp))
             push!(ts, save_ts[k]...)
+            if dense
+              flag = @checkflag CVodeGetDky(
+                                      mem, save_ts[k], Cint(1), utmp)
+              push!(dures, copy(utmp))
+            end
             (flag < 0) && break
         end
     end
@@ -179,9 +202,26 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         end
     end
 
+    if dense
+      du_timeseries = Vector{uType}(0)
+      if typeof(prob.u0)<:Number
+          for i=1:length(ures)
+              push!(du_timeseries, dures[i][1])
+          end
+      else
+          for i=1:length(ures)
+              push!(du_timeseries, reshape(dures[i], sizeu))
+          end
+      end
+    else
+      du_timeseries = dures
+    end
+
     empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
+                      dense = dense,
+                      du = du_timeseries,
                       timeseries_errors = timeseries_errors,
                       retcode = :Success)
 end
@@ -192,7 +232,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
-    dt = nothing,
+    dt = nothing, dense = true,
+    save_start = true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[], maxiter=Int(1e5),
     timeseries_errors=true, save_everystep=isempty(saveat),
@@ -262,6 +303,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     mem = Handle(mem_ptr)
 
     ures = Vector{Vector{Float64}}()
+    dures = Vector{Vector{Float64}}()
     ts   = [t0]
 
     userfun = UserFunctionAndData(f!, userdata)
@@ -301,8 +343,6 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         flag = @checkflag IDASptfqmr(mem, PREC_NONE, alg.krylov_dim)
     end
 
-
-    push!(ures, copy(u0))
     utmp = NVector(copy(u0))
     dutmp = NVector(copy(u0))
     tout = [tspan[1]]
@@ -317,6 +357,13 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[2])
     end
 
+    if save_start
+      push!(ures, copy(u0))
+      if dense
+        push!(dures,du0) # Does this need to update for IDACalcIC?
+      end
+    end
+
     # The Inner Loops : Style depends on save_everystep
     if save_everystep
         for k in 1:length(save_ts)
@@ -329,6 +376,9 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                 (flag < 0) && break
                 push!(ures,copy(utmp))
                 push!(ts, tout...)
+                if dense
+                    push!(dures,copy(dutmp))
+                end
             end
             (flag < 0) && break
             if looped
@@ -340,6 +390,11 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                 flag = @checkflag IDAGetDky(
                                         mem, save_ts[k], Cint(0), utmp)
                 push!(ures, copy(utmp))
+                if dense
+                    flag = @checkflag IDAGetDky(
+                                          mem, save_ts[k], Cint(1), dutmp)
+                    push!(dures,copy(dutmp))
+                end
                 push!(ts, save_ts[k]...)
             end
             (flag < 0) && break
@@ -350,6 +405,9 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                                 save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
             (flag < 0) && break
             push!(ures, copy(utmp))
+            if dense
+                push!(dures,copy(dutmp))
+            end
             push!(ts, save_ts[k]...)
         end
     end
@@ -367,9 +425,27 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         end
     end
 
+    if dense
+      du_timeseries = Vector{uType}(0)
+      if typeof(prob.u0)<:Number
+          for i=1:length(ures)
+              push!(du_timeseries, dures[i][1])
+          end
+      else
+          for i=1:length(ures)
+              push!(du_timeseries, reshape(dures[i], sizeu))
+          end
+      end
+    else
+      du_timeseries = dures
+    end
     empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
+                      dense = dense,
+                      du = du_timeseries,
                       timeseries_errors = timeseries_errors,
                       retcode = :Success)
 end
+
+################## Interpolation
