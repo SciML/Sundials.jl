@@ -5,17 +5,32 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
 
-    verbose=true, dense = true,
+    verbose=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[],
     maxiter=Int(1e5),
     dt = nothing, dtmin = 0.0, dtmax = 0.0,
-    timeseries_errors=true, save_everystep=isempty(saveat),
+    timeseries_errors=true, save_everystep=isempty(saveat), dense = save_everystep,
     save_start = true,
     save_timeseries = nothing,
-    userdata=nothing, kwargs...)
+    userdata=nothing,
+    kwargs...)
 
-    verbose && !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
+    if verbose
+        warned = false
+        !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
+        if !(typeof(prob.f) <: AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
+            if has_tgrad(prob.f)
+                warn("Explicit t-gradient given to this stiff solver is ignored.")
+                warned = true
+            end
+            if has_jac(prob.f)
+                warn("Explicit Jacobian given to this stiff solver is ignored.")
+                warned = true
+            end
+        end
+        warned && warn("See http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
+    end
 
     if save_timeseries != nothing
         warn("save_timeseries is deprecated. Use save_everystep instead")
@@ -166,9 +181,8 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                 push!(ures, copy(utmp))
                 push!(ts, save_ts[k]...)
                 if dense
-                  flag = @checkflag CVodeGetDky(
-                                          mem, save_ts[k], Cint(1), utmp)
-                  push!(dures, copy(utmp))
+                    flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(1), utmp)
+                    push!(dures, copy(utmp))
                 end
             end
             (flag < 0) && break
@@ -180,8 +194,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
             push!(ures,copy(utmp))
             push!(ts, save_ts[k]...)
             if dense
-              flag = @checkflag CVodeGetDky(
-                                      mem, save_ts[k], Cint(1), utmp)
+              flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(1), utmp)
               push!(dures, copy(utmp))
             end
             (flag < 0) && break
@@ -232,16 +245,31 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
 
-    verbose=true, dense=true,
+    verbose=true,
     dt=nothing, dtmax=0.0,
     save_start=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[], maxiter=Int(1e5),
-    timeseries_errors=true, save_everystep=isempty(saveat),
+    timeseries_errors=true, save_everystep=isempty(saveat), dense=save_everystep,
     save_timeseries=nothing,
-    userdata=nothing, kwargs...)
+    userdata=nothing,
+    kwargs...)
 
-    verbose && !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
+    if verbose
+        warned = false
+        !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
+        if !(typeof(prob.f) <: AbstractParameterizedFunction)
+            if has_tgrad(prob.f)
+                warn("Explicit t-gradient given to this stiff solver is ignored.")
+                warned = true
+            end
+            if has_jac(prob.f)
+                warn("Explicit Jacobian given to this stiff solver is ignored.")
+                warned = true
+            end
+        end
+        warned && warn("See http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
+    end
 
     if save_timeseries != nothing
         warn("save_timeseries is deprecated. Use save_everystep instead")
