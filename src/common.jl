@@ -447,5 +447,3 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                       timeseries_errors = timeseries_errors,
                       retcode = :Success)
 end
-
-################## Interpolation
