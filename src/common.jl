@@ -8,7 +8,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[],
     maxiter=Int(1e5),
-    dtmin = 0.0, dtmax = Inf,
+    dtmin = 0.0, dtmax = 0.0,
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_start = true,
     save_timeseries = nothing,
@@ -233,6 +233,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
     dt = nothing, dense = true,
+    dtmax = 0.0,
     save_start = true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[], maxiter=Int(1e5),
@@ -315,6 +316,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                               convert(N_Vector, du0))
     dt != nothing && (flag = @checkflag IDASetInitStep(mem,dt))
     flag = @checkflag IDASetUserData(mem, userfun)
+    flag = @checkflag IDASetMaxStep(mem,dtmax)
     flag = @checkflag IDASStolerances(mem, reltol, abstol)
     flag = @checkflag IDASetMaxNumSteps(mem, maxiter)
     flag = @checkflag IDASetMaxOrd(mem,alg.max_order)
