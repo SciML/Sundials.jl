@@ -6,7 +6,8 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     timeseries=[], ts=[], ks=[];
     dt = nothing,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
-    saveat=Float64[], adaptive=true, maxiter=Int(1e5),
+    saveat=Float64[], tstops=Float64[],
+    maxiter=Int(1e5),
     dtmin = 0.0, dtmax = Inf,
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_start = true,
@@ -43,9 +44,9 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     end
 
     if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
-      save_ts = sort(unique([saveat_vec[2:end];tspan[2]]))
+      save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
     else
-      save_ts = sort(unique([saveat_vec;tspan[2]]))
+      save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
     end
 
     if typeof(prob.u0) <: Number
@@ -130,6 +131,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     # The Inner Loops : Style depends on save_everystep
     if save_everystep
         for k in 1:length(save_ts)
+            save_ts[k] ∈ tstops && CVodeSetStopTime(mem,save_ts[k])
             looped = false
             while tdir*tout[end] < tdir*save_ts[k]
                 looped = true
@@ -155,6 +157,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         end
     else # save_everystep == false, so use CV_NORMAL style
         for k in 1:length(save_ts)
+            save_ts[k] ∈ tstops && CVodeSetStopTime(mem,save_ts[k])
             flag = @checkflag CVode(mem,
                                 save_ts[k], utmp, tout, CV_NORMAL)
             push!(ures,copy(utmp))
@@ -191,7 +194,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     timeseries=[], ts=[], ks=[];
     dt = nothing,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
-    saveat=Float64[], adaptive=true, maxiter=Int(1e5),
+    saveat=Float64[], tstops=Float64[], maxiter=Int(1e5),
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_timeseries = nothing,
     userdata=nothing, kwargs...)
@@ -222,9 +225,9 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     end
 
     if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
-      save_ts = sort(unique([saveat_vec[2:end];tspan[2]]))
+      save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
     else
-      save_ts = sort(unique([saveat_vec;tspan[2]]))
+      save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
     end
 
     if typeof(prob.u0) <: Number
@@ -317,6 +320,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     # The Inner Loops : Style depends on save_everystep
     if save_everystep
         for k in 1:length(save_ts)
+            save_ts[k] ∈ tstops && IDASetStopTime(mem,save_ts[k])
             looped = false
             while tdir*tout[end] < tdir*save_ts[k]
                 looped = true
