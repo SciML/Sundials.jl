@@ -6,6 +6,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     timeseries=[], ts=[], ks=[];
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], adaptive=true, maxiter=Int(1e5),
+    dtmin = 0.0, dtmax = Inf,
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_start = true,
     save_timeseries = nothing,
@@ -92,9 +93,18 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                           (realtype, N_Vector,
                           N_Vector, Ref{typeof(userfun)})),
                           t0, convert(N_Vector, u0nv))
+    flag = @checkflag CVodeSetMinStep(mem,dtmin)
+    flag = @checkflag CVodeSetMaxStep(mem,dtmax)
     flag = @checkflag CVodeSetUserData(mem, userfun)
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
     flag = @checkflag CVodeSetMaxNumSteps(mem, maxiter)
+    flag = @checkflag CVodeSetMaxOrd(mem,alg.max_order)
+    flag = @checkflag CVodeSetMaxHnilWarns(mem,alg.max_hnil_warns)
+    flag = @checkflag CVodeSetStabLimDet(mem,alg.stability_limit_detect)
+    flag = @checkflag CVodeSetMaxErrTestFails(mem,alg.max_error_test_failures)
+    flag = @checkflag CVodeSetMaxNonlinIters(mem,alg.max_nonlinear_iters)
+    flag = @checkflag CVodeSetMaxConvFails(mem,alg.max_convergence_failures)
+
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
             flag = @checkflag CVDense(mem, length(u0))
