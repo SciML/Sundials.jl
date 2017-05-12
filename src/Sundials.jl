@@ -5,6 +5,16 @@ module Sundials
 using Compat, DiffEqBase
 import DiffEqBase: solve
 
+const warnkeywords =
+    (:save_idxs, :d_discontinuities, :isoutofdomain, :unstable_check,
+     :calck, :progress, :timeseries_steps,
+     :internalnorm, :gamma, :beta1, :beta2, :qmax, :qmin, :qoldinit)
+
+function __init__()
+    const global warnlist = Set(warnkeywords)
+    const global warnida  = union(warnlist, Set((:dtmin,)))
+end
+
 const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
 if isfile(depsfile)
     include(depsfile)

@@ -4,6 +4,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
+    verbose=true,
     dt = nothing, dense = true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[],
@@ -13,6 +14,8 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     save_start = true,
     save_timeseries = nothing,
     userdata=nothing, kwargs...)
+
+    verbose && !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
 
     if save_timeseries != nothing
         warn("save_timeseries is deprecated. Use save_everystep instead")
@@ -33,20 +36,20 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     tdir = sign(tspan[2]-tspan[1])
 
     if typeof(saveat) <: Number
-      saveat_vec = convert(Vector{tType},saveat+tspan[1]:saveat:(tspan[end]-saveat))
-      # Exclude the endpoint because of floating point issues
+        saveat_vec = convert(Vector{tType},saveat+tspan[1]:saveat:(tspan[end]-saveat))
+        # Exclude the endpoint because of floating point issues
     else
-      saveat_vec =  convert(Vector{tType},collect(saveat))
+        saveat_vec = convert(Vector{tType}, collect(saveat))
     end
 
     if !isempty(saveat_vec) && saveat_vec[end] == tspan[2]
-      pop!(saveat_vec)
+        pop!(saveat_vec)
     end
 
     if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
-      save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
+        save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
     else
-      save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
+        save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
     end
 
     if typeof(prob.u0) <: Number
@@ -66,7 +69,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         f! = prob.f
     else # Then it's an in-place function on an abstract array
         f! = (t, u, du) -> (prob.f(t, reshape(u, sizeu),reshape(du, sizeu));
-            u = vec(u); du=vec(du); 0)
+                            u = vec(u); du=vec(du); 0)
     end
 
     if typeof(alg) <: CVODE_BDF
@@ -92,22 +95,22 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     userfun = UserFunctionAndData(f!, userdata)
     u0nv = NVector(u0)
     flag = @checkflag CVodeInit(mem,
-                          cfunction(cvodefun, Cint,
-                          (realtype, N_Vector,
-                          N_Vector, Ref{typeof(userfun)})),
-                          t0, convert(N_Vector, u0nv))
-    dt != nothing && (flag = @checkflag CVodeSetInitStep(mem,dt))
-    flag = @checkflag CVodeSetMinStep(mem,dtmin)
-    flag = @checkflag CVodeSetMaxStep(mem,dtmax)
+                                cfunction(cvodefun, Cint,
+                                          (realtype, N_Vector,
+                                           N_Vector, Ref{typeof(userfun)})),
+                                t0, convert(N_Vector, u0nv))
+    dt != nothing && (flag = @checkflag CVodeSetInitStep(mem, dt))
+    flag = @checkflag CVodeSetMinStep(mem, dtmin)
+    flag = @checkflag CVodeSetMaxStep(mem, dtmax)
     flag = @checkflag CVodeSetUserData(mem, userfun)
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol)
     flag = @checkflag CVodeSetMaxNumSteps(mem, maxiter)
-    flag = @checkflag CVodeSetMaxOrd(mem,alg.max_order)
-    flag = @checkflag CVodeSetMaxHnilWarns(mem,alg.max_hnil_warns)
-    flag = @checkflag CVodeSetStabLimDet(mem,alg.stability_limit_detect)
-    flag = @checkflag CVodeSetMaxErrTestFails(mem,alg.max_error_test_failures)
-    flag = @checkflag CVodeSetMaxNonlinIters(mem,alg.max_nonlinear_iters)
-    flag = @checkflag CVodeSetMaxConvFails(mem,alg.max_convergence_failures)
+    flag = @checkflag CVodeSetMaxOrd(mem, alg.max_order)
+    flag = @checkflag CVodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
+    flag = @checkflag CVodeSetStabLimDet(mem, alg.stability_limit_detect)
+    flag = @checkflag CVodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
+    flag = @checkflag CVodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
+    flag = @checkflag CVodeSetMaxConvFails(mem, alg.max_convergence_failures)
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
@@ -143,8 +146,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
             looped = false
             while tdir*tout[end] < tdir*save_ts[k]
                 looped = true
-                flag = @checkflag CVode(mem,
-                                save_ts[k], utmp, tout, CV_ONE_STEP)
+                flag = @checkflag CVode(mem, save_ts[k], utmp, tout, CV_ONE_STEP)
                 push!(ures, copy(utmp))
                 push!(ts, tout...)
                 if dense
@@ -157,12 +159,10 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
             (flag < 0) && break
             if looped
                 # Fix the end
-                flag = @checkflag CVodeGetDky(
-                                        mem, save_ts[k], Cint(0), ures[end])
+                flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), ures[end])
                 ts[end] = save_ts[k]
             else # Just push another value
-                flag = @checkflag CVodeGetDky(
-                                        mem, save_ts[k], Cint(0), utmp)
+                flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), utmp)
                 push!(ures, copy(utmp))
                 push!(ts, save_ts[k]...)
                 if dense
@@ -176,8 +176,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     else # save_everystep == false, so use CV_NORMAL style
         for k in 1:length(save_ts)
             save_ts[k] ∈ tstops && CVodeSetStopTime(mem,save_ts[k])
-            flag = @checkflag CVode(mem,
-                                save_ts[k], utmp, tout, CV_NORMAL)
+            flag = @checkflag CVode(mem, save_ts[k], utmp, tout, CV_NORMAL)
             push!(ures,copy(utmp))
             push!(ts, save_ts[k]...)
             if dense
@@ -220,10 +219,10 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
-                      dense = dense,
-                      du = du_timeseries,
-                      timeseries_errors = timeseries_errors,
-                      retcode = :Success)
+                   dense = dense,
+                   du = du_timeseries,
+                   timeseries_errors = timeseries_errors,
+                   retcode = :Success)
 end
 
 ## Solve for DAEs uses IDA
@@ -232,6 +231,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
+    verbose=true,
     dt = nothing, dense = true,
     dtmax = 0.0,
     save_start = true,
@@ -240,6 +240,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     timeseries_errors=true, save_everystep=isempty(saveat),
     save_timeseries = nothing,
     userdata=nothing, kwargs...)
+
+    verbose && !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
 
     if save_timeseries != nothing
         warn("save_timeseries is deprecated. Use save_everystep instead")
@@ -256,20 +258,20 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     tdir = sign(tspan[2]-tspan[1])
 
     if typeof(saveat) <: Number
-      saveat_vec = convert(Vector{tType},saveat:saveat:(tspan[end]-saveat))
-      # Exclude the endpoint because of floating point issues
+        saveat_vec = convert(Vector{tType},saveat:saveat:(tspan[end]-saveat))
+        # Exclude the endpoint because of floating point issues
     else
-      saveat_vec =  convert(Vector{tType},collect(saveat))
+        saveat_vec = convert(Vector{tType}, collect(saveat))
     end
 
     if !isempty(saveat_vec) && saveat_vec[end] == tspan[2]
-      pop!(saveat_vec)
+        pop!(saveat_vec)
     end
 
     if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
-      save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
+        save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
     else
-      save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
+        save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
     end
 
     if typeof(prob.u0) <: Number
@@ -291,12 +293,13 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
         f! = (t, u, du, out) -> (out[:] = prob.f(t, u, du); 0)
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t, u, du, out) -> (out[:] = vec(prob.f(t, reshape(u, sizeu), reshape(du, sizedu))); 0)
+        f! = (t, u, du, out) -> (out[:] = vec(prob.f(t, reshape(u, sizeu), reshape(du, sizedu)));
+                                 0)
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
         f! = (t, u, du, out) -> (prob.f(t, reshape(u, sizeu), reshape(du, sizedu), out);
-                          u = vec(u); du=vec(du); 0)
+                                 u = vec(u); du=vec(du); 0)
     end
 
     mem_ptr = IDACreate()
@@ -310,11 +313,11 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     userfun = UserFunctionAndData(f!, userdata)
     u0nv = NVector(u0)
     flag = @checkflag IDAInit(mem, cfunction(idasolfun,
-                              Cint, (realtype, N_Vector, N_Vector,
-                              N_Vector, Ref{typeof(userfun)})),
+                                             Cint, (realtype, N_Vector, N_Vector,
+                                                    N_Vector, Ref{typeof(userfun)})),
                               t0, convert(N_Vector, u0),
                               convert(N_Vector, du0))
-    dt != nothing && (flag = @checkflag IDASetInitStep(mem,dt))
+    dt != nothing && (flag = @checkflag IDASetInitStep(mem, dt))
     flag = @checkflag IDASetUserData(mem, userfun)
     flag = @checkflag IDASetMaxStep(mem,dtmax)
     flag = @checkflag IDASStolerances(mem, reltol, abstol)
@@ -373,8 +376,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
             looped = false
             while tdir*tout[end] < tdir*save_ts[k]
                 looped = true
-                flag = @checkflag IDASolve(mem,
-                                save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
+                flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
                 (flag < 0) && break
                 push!(ures,copy(utmp))
                 push!(ts, tout...)
@@ -385,12 +387,10 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
             (flag < 0) && break
             if looped
                 # Fix the end
-                flag = @checkflag IDAGetDky(
-                                        mem, save_ts[k], Cint(0), ures[end])
+                flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), ures[end])
                 ts[end] = save_ts[k]
             else # Just push another value
-                flag = @checkflag IDAGetDky(
-                                        mem, save_ts[k], Cint(0), utmp)
+                flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), utmp)
                 push!(ures, copy(utmp))
                 if dense
                     flag = @checkflag IDAGetDky(
@@ -403,8 +403,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         end
     else # save_everystep == false, so use IDA_NORMAL style
         for k in 1:length(save_ts)
-            flag = @checkflag IDASolve(mem,
-                                save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
+            flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
             (flag < 0) && break
             push!(ures, copy(utmp))
             if dense
@@ -418,11 +417,11 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
 
     timeseries = Vector{uType}(0)
     if typeof(prob.u0)<:Number
-        for i=1:length(ures)
+        for i = 1:length(ures)
             push!(timeseries, ures[i][1])
         end
     else
-        for i=1:length(ures)
+        for i = 1:length(ures)
             push!(timeseries, reshape(ures[i], sizeu))
         end
     end
@@ -444,8 +443,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     empty!(mem);
 
     build_solution(prob, alg, ts, timeseries,
-                      dense = dense,
-                      du = du_timeseries,
-                      timeseries_errors = timeseries_errors,
-                      retcode = :Success)
+                   dense = dense,
+                   du = du_timeseries,
+                   timeseries_errors = timeseries_errors,
+                   retcode = :Success)
 end
