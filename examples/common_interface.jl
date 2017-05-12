@@ -33,6 +33,10 @@ sol = solve(prob,CVODE_Adams(),saveat=saveat,save_everystep=false)
 
 @test sol.t == saveat
 
+sol = solve(prob,CVODE_Adams(),tstops=[0.9])
+
+@test 0.9 ∈ sol.t
+
 # Test the other function conversions
 k = (t,u,du) -> du[1] = u[1]
 prob = ODEProblem(k,[1.0],(0.0,1.0))
@@ -76,6 +80,10 @@ sol = solve(prob,IDA(),saveat=saveat,save_everystep=true)
 
 @test sol.t != saveat
 @test intersect(sol.t,saveat) == saveat
+
+sol = solve(prob,IDA(),tstops=[0.9])
+
+@test 0.9 ∈ sol.t
 
 prob = deepcopy(prob_dae_resrob)
 prob.tspan = (1.0,0.0)
