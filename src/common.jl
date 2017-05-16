@@ -17,8 +17,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     kwargs...)
 
     if verbose
-        warned = false
-        !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
+        warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
             if has_tgrad(prob.f)
                 warn("Explicit t-gradient given to this stiff solver is ignored.")
@@ -29,7 +28,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                 warned = true
             end
         end
-        warned && warn("See http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
+        warned && warn_compat()
     end
 
     if save_timeseries != nothing
@@ -256,8 +255,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     kwargs...)
 
     if verbose
-        warned = false
-        !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
+        warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
         if !(typeof(prob.f) <: AbstractParameterizedFunction)
             if has_tgrad(prob.f)
                 warn("Explicit t-gradient given to this stiff solver is ignored.")
@@ -268,7 +266,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                 warned = true
             end
         end
-        warned && warn("See http://docs.juliadiffeq.org/latest/basics/compatibility_chart.html")
+        warned && warn_compat()
     end
 
     if save_timeseries != nothing
