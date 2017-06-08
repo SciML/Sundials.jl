@@ -2,7 +2,10 @@ __precompile__()
 
 module Sundials
 
-using Compat, DiffEqBase
+using Reexport
+@reexport using DiffEqBase
+
+using Compat
 import DiffEqBase: solve
 
 const warnkeywords =
