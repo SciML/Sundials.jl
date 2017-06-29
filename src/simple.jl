@@ -87,6 +87,35 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun)
     return CV_SUCCESS
 end
 
+type FunJac{F, J}
+    fun::F
+    jac::J
+end
+funjac(f, J) = FunJac(f, J)
+
+function cvodefunjac(t::Float64,
+                     x::N_Vector,
+                     ẋ::N_Vector,
+                     funjac::FunJac)
+    funjac.fun(t, convert(Vector, x), convert(Vector, ẋ))
+    return CV_SUCCESS
+end
+
+function cvodejac(N::Clong,
+                  t::realtype,
+                  x::N_Vector,
+                  ẋ::N_Vector,
+                  J::DlsMat,
+                  userjac::FunJac,
+                  tmp1::N_Vector,
+                  tmp2::N_Vector,
+                  tmp3::N_Vector)
+    userjac.jac(t, convert(Vector, x), convert(Matrix, J))
+    return CV_SUCCESS
+end
+
+
+
 """
 `cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
        integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(mem,t,y)->true)`

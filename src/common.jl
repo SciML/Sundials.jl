@@ -23,10 +23,6 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                 warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
-            if has_jac(prob.f)
-                warn("Explicit Jacobian given to this stiff solver is ignored.")
-                warned = true
-            end
         end
         warned && warn_compat()
     end
@@ -79,9 +75,9 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (t, u, du) -> (du[:] = prob.f(t, u); 0)
+        f! = (t, u, du) -> (du .= prob.f(t, u); 0)
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t, u, du) -> (du[:] = vec(prob.f(t, reshape(u, sizeu))); 0)
+        f! = (t, u, du) -> (du .= vec(prob.f(t, reshape(u, sizeu))); 0)
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
@@ -109,13 +105,30 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     dures = Vector{Vector{Float64}}()
     save_start ? ts = [t0] : ts = Float64[]
 
-    userfun = UserFunctionAndData(f!, userdata)
+    userfun = FunJac(f!,(t,u,J) -> f(Val{:jac},t,u,J))
     u0nv = NVector(u0)
     flag = @checkflag CVodeInit(mem,
-                                cfunction(cvodefun, Cint,
+                                cfunction(cvodefunjac, Cint,
                                           (realtype, N_Vector,
                                            N_Vector, Ref{typeof(userfun)})),
                                 t0, convert(N_Vector, u0nv))
+
+    if has_jac(prob.f)
+      jac = cfunction(cvodejac,
+                      Cint,
+                      (Clong,
+                       realtype,
+                       N_Vector,
+                       N_Vector,
+                       DlsMat,
+                       Ref{typeof(userfun)},
+                       N_Vector,
+                       N_Vector,
+                       N_Vector))
+      flag = @checkflag CVodeSetUserData(mem, userfun)
+      flag = @checkflag CVDlsSetDenseJacFn(mem, jac)
+    end
+
     dt != nothing && (flag = @checkflag CVodeSetInitStep(mem, dt))
     flag = @checkflag CVodeSetMinStep(mem, dtmin)
     flag = @checkflag CVodeSetMaxStep(mem, dtmax)
