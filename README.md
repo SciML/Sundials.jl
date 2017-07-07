@@ -54,7 +54,7 @@ Pkg.test("Sundials")
 ```
 which currently runs some of the examples in the `examples` directory.
 
-API
+Direct API
 ---
 
 This package closely follows the Sundials C API. At a slightly higher
@@ -73,6 +73,27 @@ code, see
 
 Because of Clang.jl, Sundials.jl provides good coverage of the Sundials
 library (the serial version).
+
+Common Interface API
+--------------------
+
+This package is part of the JuliaDiffEq common interface. This is documented in [the DifferentialEquaitons.jl documentation](http://docs.juliadiffeq.org/latest/index.html). Thus [the ODE tutorial](http://docs.juliadiffeq.org/latest/tutorials/ode_example.html) applies. For example, the Lorenz attractor can be solved with `CVODE_Adams` as follows:
+
+```juila
+using Sundials
+function lorenz(t,u,du)
+ du[1] = 10.0(u[2]-u[1])
+ du[2] = u[1]*(28.0-u[3]) - u[2]
+ du[3] = u[1]*u[2] - (8/3)*u[3]
+end
+u0 = [1.0;0.0;0.0]
+tspan = (0.0,100.0)
+prob = ODEProblem(lorenz,u0,tspan)
+sol = solve(prob,CVODE_Adams())
+using Plots; plot(sol,vars=(1,2,3))
+```
+
+Sundials.jl exports the `CVODE_BDF` and `CVODE_Adams` methods for ODEs which are documented [in the ODE Solvers page](http://docs.juliadiffeq.org/latest/solvers/ode_solve.html#Sundials.jl-1), and `IDA` which is documented [in the DAE solvers page](http://docs.juliadiffeq.org/latest/solvers/dae_solve.html).
 
 Simplified Functions
 --------------------
