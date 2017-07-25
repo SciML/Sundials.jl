@@ -44,7 +44,9 @@ function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
     return KIN_SUCCESS
 end
 
-function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
+function kinsol(f, y0::Vector{Float64};
+                userdata::Any = nothing,
+                linear_solver=:Dense, jac_upper=0, jac_lower=0)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -59,7 +61,11 @@ function kinsol(f, y0::Vector{Float64}, userdata::Any = nothing)
     #   see: https://github.com/JuliaLang/julia/issues/2554
     userfun = UserFunctionAndData(f, userdata)
     flag = @checkflag KINInit(kmem, cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{typeof(userfun)})), NVector(y0)) true
-    flag = @checkflag KINDense(kmem, length(y0)) true
+    if linear_solver == :Dense
+        flag = @checkflag KINDense(kmem, length(y0)) true
+    elseif linear_solver == :Band
+        flag = @checkflag KINBand(kmem, length(y0), jac_upper, jac_lower) true
+    end
     flag = @checkflag KINSetUserData(kmem, userfun) true
     ## Solve problem
     scale = ones(length(y0))

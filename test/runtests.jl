@@ -61,6 +61,18 @@ include(joinpath(examples_path, "kinsol_mkinTest.jl"))
 @test abs(minimum(residual)) < 1e-5
 end
 
+println("== start kinsol banded jacobian test")
+let
+function f!(x, resid)
+    for i in eachindex(x)
+       resid[i] = sin(x[i]) + x[i]^3
+    end
+end
+x = ones(5)
+@test Sundials.kinsol(f!, x, linear_solver=:Band, jac_upper=0, jac_lower=0) == Sundials.kinsol(f!, x)
+end
+
+
 println("== handle tests")
 let
 @testset "Handle Tests" begin include("handle_tests.jl") end
