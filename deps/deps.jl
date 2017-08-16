@@ -8,6 +8,7 @@ macro checked_lib(libname, path)
 end
 
 using BinDeps2
+using Compat
 
 const platform = string(BinDeps2.platform_suffix())
 const ext = is_windows() ? "dll" : is_apple() ? "dylib" : "so"
