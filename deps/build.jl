@@ -1,3 +1,8 @@
+try 
+    Pkg.clone("https://github.com/staticfloat/BinDeps2.jl.git")
+end
+
+
 using BinDeps2
 
 const platform = BinDeps2.platform_suffix()
