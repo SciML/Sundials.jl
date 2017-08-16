@@ -1,51 +1,23 @@
-using BinDeps
+using BinDeps2
 
-@BinDeps.setup
+const platform = BinDeps2.platform_suffix()
 
-enable_sensitivities = true
+const prefix = "https://github.com/tshort/Sundials.jl.build/releases/download/v0.0.1"
+lib_downloads = Dict(
+    :win64 =>   ("$prefix/libsundials_win64.tar.gz",
+                 "ef9518d54d55b056f33e64789a14713fa71b88c94dcf7ab0959c311c89c48b8c"),
+    :mac64 =>   ("$prefix/libsundials_mac64.tar.gz",
+                 "a01813d9f98faf6eb6194c0cbe3a15054f10ab49e4d70e5ac9cf0b7afdd8cb48"),
+    :linux64 => ("$prefix/libsundials_linux64.tar.gz",
+                 "1a0b9c951bd43bc61bc12a90d1be7bd72151f9dea0ded5d716f17edf6ed5545d"),
+    :linuxaarch64 => ("$prefix/libsundials_linuxaarch64.tar.gz",
+                 "a746e1856e3b77ddfbfd66e59d6b95f273cce8c0ed13d9c62feb1110ee59d9c1"),
+    :linuxppc64le => ("$prefix/libsundials_linuxppc64le.tar.gz",
+                 "79f57072ed8749c7b231be97b72386a41b168fea3e9ed24f36f4cd7ec9a010d9"),
+    :linuxarmv7l => ("$prefix/libsundials_linuxarmv7l.tar.gz",
+                 "ccdd29115129bde85961c60729bd54749fd1e49a7ff79ab71e22cb6cfa177453"),
+)
 
-if enable_sensitivities
-    cvodes = library_dependency("libsundials_cvodes")
-    idas = library_dependency("libsundials_idas")
-else
-    cvode = library_dependency("libsundials_cvode")
-    ida = library_dependency("libsundials_ida")
-end
-kinsol = library_dependency("libsundials_kinsol")
-nvecserial = library_dependency("libsundials_nvecserial")
-sundialslibs = enable_sensitivities ? [cvodes, idas, kinsol, nvecserial] : [cvode, ida, kinsol, nvecserial]
+url, hash = lib_downloads[platform]
+BinDeps2.install(url, hash; prefix=BinDeps2.Prefix(joinpath(@__DIR__, string(platform))), verbose=true)
 
-sundialsver = "sundials-2.5.0"
-provides(Sources,
-    URI("http://ftp.mcs.anl.gov/pub/petsc/externalpackages/$sundialsver.tar.gz"),
-    SHA="9935760931fa6539edd0741acbcf4986770426fd5ea40e50ad4ebed0fc77b0d3",
-    sundialslibs)
-
-provides(Binaries, URI("https://bintray.com/artifact/download/tkelman/generic/$sundialsver.7z"),
-    SHA="81b168ee98a680e9db80a5de88a5fcc5c05ce81eeb0b211f8352996972a026e6",
-    sundialslibs, unpacked_dir="usr$(Sys.WORD_SIZE)/bin", os = :Windows)
-
-prefix = joinpath(BinDeps.depsdir(sundialslibs[1]),"usr")
-srcdir = joinpath(BinDeps.depsdir(sundialslibs[1]),"src",sundialsver)
-
-provides(SimpleBuild,
-    (@build_steps begin
-        GetSources(sundialslibs[1])
-        @build_steps begin
-            ChangeDirectory(srcdir)
-            `./configure --prefix=$prefix --enable-shared`
-            `make install`
-        end
-    end), sundialslibs)
-
-if enable_sensitivities
-@BinDeps.install Dict(:libsundials_cvodes => :libsundials_cvodes,
-                  :libsundials_idas => :libsundials_idas,
-                  :libsundials_kinsol => :libsundials_kinsol,
-                  :libsundials_nvecserial => :libsundials_nvecserial)
-else
-@BinDeps.install Dict(:libsundials_cvode => :libsundials_cvode,
-                  :libsundials_ida => :libsundials_ida,
-                  :libsundials_kinsol => :libsundials_kinsol,
-                  :libsundials_nvecserial => :libsundials_nvecserial)
-end
