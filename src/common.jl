@@ -479,7 +479,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                    retcode = retcode)
 end # function solve
 
-interpret_sundials_retcode(flag)
+function interpret_sundials_retcode(flag)
   flag == 0 && return :Success
   flag == -1 && return :MaxIters
   (flag == -2 || flag == -3) && return :Unstable
