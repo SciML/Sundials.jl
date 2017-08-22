@@ -229,12 +229,14 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     end
 
     empty!(mem);
+    
+    retcode = interpret_sundials_retcode(flag)
 
     build_solution(prob, alg, ts, timeseries,
                    dense = dense,
                    du = du_timeseries,
                    timeseries_errors = timeseries_errors,
-                   retcode = :Success)
+                   retcode = retcode)
 end # function solve
 
 ## Solve for DAEs uses IDA
@@ -467,10 +469,20 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
       du_timeseries = dures
     end
     empty!(mem);
+    
+    retcode = interpret_sundials_retcode(flag)
 
     build_solution(prob, alg, ts, timeseries,
                    dense = dense,
                    du = du_timeseries,
                    timeseries_errors = timeseries_errors,
-                   retcode = :Success)
+                   retcode = retcode)
 end # function solve
+
+function interpret_sundials_retcode(flag)
+  flag == 0 && return :Success
+  flag == -1 && return :MaxIters
+  (flag == -2 || flag == -3) && return :Unstable
+  flag == -4 && return :ConvergenceFailure
+  return :Failure
+end
