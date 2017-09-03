@@ -7,10 +7,10 @@ macro checked_lib(libname, path)
     quote const $(esc(libname)) = $path end
 end
 
-using BinDeps2
+using BinaryProvider
 using Compat
 
-const platform = string(BinDeps2.platform_suffix())
+const platform = platform_triplet(platform_key())
 const ext = is_windows() ? "dll" : is_apple() ? "dylib" : "so"
 # Load dependencies
 const libsundials_kinsol     = "$(@__DIR__)/$platform/lib/libsundials_kinsol.$ext"
