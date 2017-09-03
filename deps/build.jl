@@ -2,7 +2,7 @@ try
     Pkg.clone("https://github.com/staticfloat/BinaryProvider.jl.git")
 end
 
-
+using Compat
 using BinaryProvider
 
 const platform = platform_triplet(platform_key())
