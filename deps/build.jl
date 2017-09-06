@@ -16,9 +16,13 @@ nvecserial = library_dependency("libsundials_nvecserial")
 sundialslibs = enable_sensitivities ? [cvodes, idas, kinsol, nvecserial] : [cvode, ida, kinsol, nvecserial]
 
 sundialsver = "sundials-2.5.0"
-provides(Sources, URI("http://ftp.mcs.anl.gov/pub/petsc/externalpackages/$sundialsver.tar.gz"), sundialslibs)
+provides(Sources,
+    URI("http://ftp.mcs.anl.gov/pub/petsc/externalpackages/$sundialsver.tar.gz"),
+    SHA="9935760931fa6539edd0741acbcf4986770426fd5ea40e50ad4ebed0fc77b0d3",
+    sundialslibs)
 
 provides(Binaries, URI("https://bintray.com/artifact/download/tkelman/generic/$sundialsver.7z"),
+    SHA="81b168ee98a680e9db80a5de88a5fcc5c05ce81eeb0b211f8352996972a026e6",
     sundialslibs, unpacked_dir="usr$(Sys.WORD_SIZE)/bin", os = :Windows)
 
 prefix = joinpath(BinDeps.depsdir(sundialslibs[1]),"usr")
