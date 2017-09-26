@@ -59,7 +59,7 @@ end
 
 function CVodeQuadInit(cvode_mem,fQ,yQ0)
     __yQ0 = convert(NVector,yQ0)
-    __CVodeQuadInit(convert(CVODEMemPtr,cvode_mem),fQ,convert(N_Vector,__yQ0))
+    __CVodeQuadInit(convert(CVODEMemPtr,cvode_mem),CVQuadRhsFn_wrapper(fQ),convert(N_Vector,__yQ0))
 end
 
 function __CVodeQuadReInit(cvode_mem::CVODEMemPtr,yQ0::N_Vector)
