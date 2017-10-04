@@ -50,8 +50,11 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     tdir = sign(tspan[2]-tspan[1])
 
     if typeof(saveat) <: Number
-        saveat_vec = convert(Vector{tType},saveat+tspan[1]:saveat:(tspan[end]-saveat))
-        # Exclude the endpoint because of floating point issues
+        if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
+          saveat_vec = collect(tType,tspan[1]+saveat:saveat:tspan[end])
+        else
+          saveat_vec = collect(tType,tspan[1]+saveat:saveat:(tspan[end]-saveat))
+        end
     else
         saveat_vec = convert(Vector{tType}, collect(saveat))
     end
