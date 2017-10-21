@@ -66,8 +66,8 @@ sol6 = solve(prob,CVODE_BDF(linear_solver=:TFQMR))
 
 # Backwards
 prob = deepcopy(prob_ode_2Dlinear)
-prob.tspan = (1.0,0.0)
-sol = solve(prob,CVODE_BDF())
+prob2 = ODEProblem(prob.f,prob.u0,(1.0,0.0))
+sol = solve(prob2,CVODE_BDF())
 @test maximum(diff(sol.t)) < 0 # Make sure all go negative
 
 # Test DAE
@@ -89,6 +89,6 @@ sol = solve(prob,IDA(),tstops=[0.9])
 @test 0.9 ∈ sol.t
 
 prob = deepcopy(prob_dae_resrob)
-prob.tspan = (1.0,0.0)
-sol = solve(prob,IDA())
+prob2 = DAEProblem(prob.f,prob.u0,prob.du0,(1.0,0.0))
+sol = solve(prob2,IDA())
 @test maximum(diff(sol.t)) < 0 # Make sure all go negative
