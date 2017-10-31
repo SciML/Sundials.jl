@@ -232,7 +232,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     end
 
     empty!(mem);
-    
+
     retcode = interpret_sundials_retcode(flag)
 
     build_solution(prob, alg, ts, timeseries,
@@ -390,7 +390,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
         end
         flag = @checkflag IDASetId(mem, collect(Float64, prob.differential_vars))
-        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[2])
+        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[1])
     end
 
     if save_start
@@ -472,7 +472,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
       du_timeseries = dures
     end
     empty!(mem);
-    
+
     retcode = interpret_sundials_retcode(flag)
 
     build_solution(prob, alg, ts, timeseries,
