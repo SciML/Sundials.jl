@@ -289,6 +289,10 @@ const CV_FWD_FAIL = Cint(-106)
 const CV_GETY_BADT = Cint(-107)
 
 const CVQuadRhsFn = Ptr{Void}
+
+CVQuadRhsFn_wrapper(fp::CVQuadRhsFn) = fp
+CVQuadRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
+
 const CVSensRhsFn = Ptr{Void}
 const CVSensRhs1Fn = Ptr{Void}
 const CVQuadSensRhsFn = Ptr{Void}
