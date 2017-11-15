@@ -164,11 +164,13 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
             while tdir*tout[end] < tdir*save_ts[k]
                 looped = true
                 flag = @checkflag CVode(mem, save_ts[k], utmp, tout, CV_ONE_STEP)
+                (flag < 0) && break
                 push!(ures, copy(utmp))
                 push!(ts, tout...)
                 if dense
                   flag = @checkflag CVodeGetDky(
                                           mem, tout[1], Cint(1), utmp)
+                  (flag < 0) && break
                   push!(dures, copy(utmp))
                 end
                 (flag < 0) && break
@@ -422,10 +424,12 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                 ts[end] = save_ts[k]
             else # Just push another value
                 flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), utmp)
+                (flag < 0) && break
                 push!(ures, copy(utmp))
                 if dense
                     flag = @checkflag IDAGetDky(
                                           mem, save_ts[k], Cint(1), dutmp)
+                    (flag < 0) && break
                     push!(dures,copy(dutmp))
                 end
                 push!(ts, save_ts[k]...)
