@@ -78,6 +78,8 @@ let
 @testset "Handle Tests" begin include("handle_tests.jl") end
 end
 
+
+jac_called = false
 println("== test common interface")
 let
 @testset "Common Interface" begin include(joinpath(examples_path, "common_interface.jl")) end

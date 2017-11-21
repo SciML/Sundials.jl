@@ -41,7 +41,6 @@ sol = solve(prob,CVODE_Adams(),tstops=[0.9])
 @test 0.9 ∈ sol.t
 
 # Test for Jacobian usage
-jac_called = false
 function Lotka(t,u,du)
   du[1] = u[1] - u[1] * u[2] # REPL[7], line 3:
   du[2] = -3 * u[2] + 1 * u[1] * u[2]
@@ -49,6 +48,7 @@ function Lotka(t,u,du)
 end
 
 function Lotka(::Type{Val{:jac}},t,u,J)
+  println("here!")
   global jac_called
   jac_called = true
   J[1,1] = 1.0 - u[2]
