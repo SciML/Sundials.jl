@@ -395,89 +395,99 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[1])
     end
 
-    if save_start
-      push!(ures, copy(u0))
-      if dense
-        push!(dures,du0) # Does this need to update for IDACalcIC?
-      end
-    end
+    if flag >= 0
+        if save_start
+          push!(ures, copy(u0))
+          if dense
+            push!(dures,du0) # Does this need to update for IDACalcIC?
+          end
+        end
 
-    # The Inner Loops : Style depends on save_everystep
-    if save_everystep
-        for k in 1:length(save_ts)
-            save_ts[k] ∈ tstops && IDASetStopTime(mem,save_ts[k])
-            looped = false
-            while tdir*tout[end] < tdir*save_ts[k]
-                looped = true
-                flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
-                (flag < 0) && break
-                push!(ures,copy(utmp))
-                push!(ts, tout...)
-                if dense
-                    push!(dures,copy(dutmp))
+        # The Inner Loops : Style depends on save_everystep
+        if save_everystep
+            for k in 1:length(save_ts)
+                save_ts[k] ∈ tstops && IDASetStopTime(mem,save_ts[k])
+                looped = false
+                while tdir*tout[end] < tdir*save_ts[k]
+                    looped = true
+                    flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
+                    (flag < 0) && break
+                    push!(ures,copy(utmp))
+                    push!(ts, tout...)
+                    if dense
+                        push!(dures,copy(dutmp))
+                    end
                 end
+                (flag < 0) && break
+                if looped
+                    # Fix the end
+                    flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), ures[end])
+                    ts[end] = save_ts[k]
+                else # Just push another value
+                    flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), utmp)
+                    (flag < 0) && break
+                    push!(ures, copy(utmp))
+                    if dense
+                        flag = @checkflag IDAGetDky(
+                                              mem, save_ts[k], Cint(1), dutmp)
+                        (flag < 0) && break
+                        push!(dures,copy(dutmp))
+                    end
+                    push!(ts, save_ts[k]...)
+                end
+                (flag < 0) && break
             end
-            (flag < 0) && break
-            if looped
-                # Fix the end
-                flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), ures[end])
-                ts[end] = save_ts[k]
-            else # Just push another value
-                flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), utmp)
+        else # save_everystep == false, so use IDA_NORMAL style
+            for k in 1:length(save_ts)
+                flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
                 (flag < 0) && break
                 push!(ures, copy(utmp))
                 if dense
-                    flag = @checkflag IDAGetDky(
-                                          mem, save_ts[k], Cint(1), dutmp)
-                    (flag < 0) && break
                     push!(dures,copy(dutmp))
                 end
                 push!(ts, save_ts[k]...)
             end
-            (flag < 0) && break
         end
-    else # save_everystep == false, so use IDA_NORMAL style
-        for k in 1:length(save_ts)
-            flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
-            (flag < 0) && break
-            push!(ures, copy(utmp))
-            if dense
-                push!(dures,copy(dutmp))
+        retcode = interpret_sundials_retcode(flag)
+
+        timeseries = Vector{uType}(0)
+        if typeof(prob.u0)<:Number
+            for i = 1:length(ures)
+                push!(timeseries, ures[i][1])
             end
-            push!(ts, save_ts[k]...)
+        else
+            for i = 1:length(ures)
+                push!(timeseries, reshape(ures[i], sizeu))
+            end
         end
+
+        if dense
+          du_timeseries = Vector{uType}(0)
+          if typeof(prob.u0)<:Number
+              for i=1:length(ures)
+                  push!(du_timeseries, dures[i][1])
+              end
+          else
+              for i=1:length(ures)
+                  push!(du_timeseries, reshape(dures[i], sizeu))
+              end
+          end
+        else
+          du_timeseries = dures
+        end
+
+    else
+        timeseries = utmp
+        du_timeseries = dutmp
+        ts = Vector{tType}(0)
+        retcode = :InitialFailure
     end
 
     ### Finishing Routine
 
-    timeseries = Vector{uType}(0)
-    if typeof(prob.u0)<:Number
-        for i = 1:length(ures)
-            push!(timeseries, ures[i][1])
-        end
-    else
-        for i = 1:length(ures)
-            push!(timeseries, reshape(ures[i], sizeu))
-        end
-    end
-
-    if dense
-      du_timeseries = Vector{uType}(0)
-      if typeof(prob.u0)<:Number
-          for i=1:length(ures)
-              push!(du_timeseries, dures[i][1])
-          end
-      else
-          for i=1:length(ures)
-              push!(du_timeseries, reshape(dures[i], sizeu))
-          end
-      end
-    else
-      du_timeseries = dures
-    end
     empty!(mem);
 
-    retcode = interpret_sundials_retcode(flag)
+
 
     build_solution(prob, alg, ts, timeseries,
                    dense = dense,

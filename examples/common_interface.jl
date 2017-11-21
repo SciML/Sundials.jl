@@ -126,3 +126,5 @@ f_error2(t,u,du) = u/t-1
 u0 = 1.0; du0 = 1.0
 prob = DAEProblem(f_error2,u0,du0,(0.0,1.0),differential_vars=[1])
 sol = solve(prob,IDA())
+
+@test sol.retcode == :InitialFailure
