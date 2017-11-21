@@ -479,7 +479,6 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     else
         timeseries = utmp
         du_timeseries = dutmp
-        ts = Vector{tType}(0)
         retcode = :InitialFailure
     end
 
