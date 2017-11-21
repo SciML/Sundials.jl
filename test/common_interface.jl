@@ -61,7 +61,7 @@ end
 
 prob = ODEProblem(Lotka,ones(2),(0.0,10.0))
 good_sol = solve(prob,CVODE_BDF())
-@test jac_called == true
+@test_broken jac_called == true
 
 # Test the other function conversions
 k = (t,u,du) -> du[1] = u[1]
