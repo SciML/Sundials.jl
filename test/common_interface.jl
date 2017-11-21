@@ -47,6 +47,7 @@ function Lotka(t,u,du)
   nothing
 end
 
+jac_called = false
 function Lotka(::Type{Val{:jac}},t,u,J)
   println("here!")
   global jac_called
