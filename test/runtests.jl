@@ -1,86 +1,20 @@
 using Sundials
 using Base.Test
 
-examples_path = joinpath(dirname(@__FILE__), "..", "examples")
-
-# run cvode example
-println("== start cvode Roberts example (simplified)")
-let
-include(joinpath(examples_path, "cvode_Roberts_simplified.jl"))
-println("result at t=$(t[end]):")
-println(res[:,end], "\n")
+@testset "CVODE" begin
+    @testset "Roberts CVODE Simplified" begin include("cvode_Roberts_simplified.jl") end
+    @testset "Roberts CVODE Direct" begin include("cvode_Roberts_dns.jl") end
 end
-
-println("== start cvode Roberts example")
-let
-include(joinpath(examples_path, "cvode_Roberts_dns.jl"))
+@testset "IDA" begin
+    @testset "Roberts IDA Simplified" begin include("ida_Roberts_simplified.jl") end
+    @testset "Roberts IDA Direct" begin include("ida_Roberts_dns.jl") end
+    @testset "Heat IDA Direct" begin include("ida_Heat2D.jl") end
+    #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end # requires Grid
 end
-
-# run ida examples
-println("== start ida_Roberts example (simplified)")
-let
-include(joinpath(examples_path, "ida_Roberts_simplified.jl"))
+@testset "Kinsol" begin
+    @testset "Kinsol Simplified" begin include("kinsol_mkin_simplified.jl") end
+    @testset "Kinsol MKin" begin include("kinsol_mkinTest.jl") end
+    @testset "Kinsol Banded" begin include("kinsol_banded.jl") end
 end
-
-println("== start ida_Roberts example")
-let
-include(joinpath(examples_path, "ida_Roberts_dns.jl"))
-println("result at t=$(t[end]):")
-println(yout[:,end], "\n")
-end
-
-println("== start ida_Heat2D example")
-let
-include(joinpath(examples_path, "ida_Heat2D.jl"))
-println("result at t=$(t[end]):")
-println(yout[:,end], "\n")
-end
-
-#= requires Grid package
-println("== start ida_Cable example")
-let
-include(joinpath(examples_path, "ida_Cable.jl"))
-end
-=#
-
-# run kinsol example
-println("== start kinsol example (simplified)")
-let
-include(joinpath(examples_path, "kinsol_mkin_simplified.jl"))
-println("solution:")
-println(res)
-residual = ones(2)
-sysfn(res, residual)
-println("residual:")
-println(residual, "\n")
-end
-
-println("== start kinsol example")
-let
-include(joinpath(examples_path, "kinsol_mkinTest.jl"))
-@test abs(minimum(residual)) < 1e-5
-end
-
-println("== start kinsol banded jacobian test")
-let
-function f!(x, resid)
-    for i in eachindex(x)
-       resid[i] = sin(x[i]) + x[i]^3
-    end
-end
-x = ones(5)
-@test Sundials.kinsol(f!, x, linear_solver=:Band, jac_upper=0, jac_lower=0) == Sundials.kinsol(f!, x)
-end
-
-
-println("== handle tests")
-let
 @testset "Handle Tests" begin include("handle_tests.jl") end
-end
-
-
-jac_called = false
-println("== test common interface")
-let
-@testset "Common Interface" begin include(joinpath(examples_path, "common_interface.jl")) end
-end
+@testset "Common Interface" begin include("common_interface.jl") end

@@ -38,3 +38,5 @@ println("Solution: ", y)
 residual = ones(2)
 sysfn(y, residual, [1, 2])
 println("Residual: ", residual)
+
+@test abs(minimum(residual)) < 1e-5
