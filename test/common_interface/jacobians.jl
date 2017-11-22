@@ -67,4 +67,7 @@ prob4 = DAEProblem((t,u,du,res) -> testjac(t,u,du,res),ones(2),
 sol4 = solve(prob4, IDA())
 
 @test jac_called == false
-@test maximum(sol3-sol4) < 1e-10
+
+println("Jacobian vs no Jacobian difference:")
+println(maximum(sol3-sol4))
+@test maximum(sol3-sol4) < 1e-6
