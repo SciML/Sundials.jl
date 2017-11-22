@@ -1,4 +1,4 @@
-using DiffEqProblemLibrary, DiffEqBase, Sundials, Base.Test
+using DiffEqProblemLibrary, Sundials, Base.Test
 
 prob = prob_ode_linear
 dt = 1//2^(4)
@@ -40,29 +40,6 @@ sol = solve(prob,CVODE_Adams(),tstops=[0.9])
 
 @test 0.9 ∈ sol.t
 
-# Test for Jacobian usage
-function Lotka(t,u,du)
-  du[1] = u[1] - u[1] * u[2] # REPL[7], line 3:
-  du[2] = -3 * u[2] + 1 * u[1] * u[2]
-  nothing
-end
-
-jac_called = false
-function Lotka(::Type{Val{:jac}},t,u,J)
-  println("here!")
-  global jac_called
-  jac_called = true
-  J[1,1] = 1.0 - u[2]
-  J[1,2] = -u[1]
-  J[2,1] = 1 * u[2]
-  J[2,2] = -3 + u[1]
-  nothing
-end
-
-prob = ODEProblem(Lotka,ones(2),(0.0,10.0))
-good_sol = solve(prob,CVODE_BDF())
-@test_broken jac_called == true
-
 # Test the other function conversions
 k = (t,u,du) -> du[1] = u[1]
 prob = ODEProblem(k,[1.0],(0.0,1.0))
@@ -92,62 +69,3 @@ prob = deepcopy(prob_ode_2Dlinear)
 prob2 = ODEProblem(prob.f,prob.u0,(1.0,0.0))
 sol = solve(prob2,CVODE_BDF())
 @test maximum(diff(sol.t)) < 0 # Make sure all go negative
-
-# Test DAE
-prob = prob_dae_resrob
-dt = 1000
-saveat = float(collect(0:dt:100000))
-sol = solve(prob,IDA())
-sol = solve(prob,IDA(),saveat=saveat)
-
-@test sol.t == saveat
-
-sol = solve(prob,IDA(),saveat=saveat,save_everystep=true)
-
-@test sol.t != saveat
-@test intersect(sol.t,saveat) == saveat
-
-sol = solve(prob,IDA(),tstops=[0.9])
-
-@test 0.9 ∈ sol.t
-
-prob = deepcopy(prob_dae_resrob)
-prob2 = DAEProblem(prob.f,prob.u0,prob.du0,(1.0,0.0))
-sol = solve(prob2,IDA())
-@test maximum(diff(sol.t)) < 0 # Make sure all go negative
-
-
-function f!(t, u, du, res)
-    res[1] = du[1]-1.01
-    return
-end
-
-u0 = [0.]
-du0 = [1.01]
-tspan = (0.0, 10.)
-
-println("With consistent initial conditions:")
-
-dae_prob = DAEProblem(f!,u0,du0,tspan, differential_vars=[true])
-sol = solve(dae_prob,IDA())
-
-println("With inconsistent initial conditions:")
-
-du0 = [0.]
-
-dae_prob = DAEProblem(f!,u0,du0,tspan, differential_vars=[true])
-sol = solve(dae_prob,IDA())
-
-
-# Test error handling
-f_error(t,u) = u/t
-u0 = 1.0
-prob = ODEProblem(f_error,u0,(0.0,1.0))
-sol = solve(prob,CVODE_BDF())
-
-f_error2(t,u,du) = u/t-1
-u0 = 1.0; du0 = 1.0
-prob = DAEProblem(f_error2,u0,du0,(0.0,1.0),differential_vars=[1])
-sol = solve(prob,IDA())
-
-@test sol.retcode == :InitialFailure
