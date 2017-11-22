@@ -9,7 +9,6 @@ end
 
 jac_called = false
 function Lotka(::Type{Val{:jac}},t,u,J)
-  println("here!")
   global jac_called
   jac_called = true
   J[1,1] = 1.0 - u[2]
@@ -21,4 +20,4 @@ end
 
 prob = ODEProblem(Lotka,ones(2),(0.0,10.0))
 good_sol = solve(prob,CVODE_BDF())
-@test_broken jac_called == true
+@test jac_called == true

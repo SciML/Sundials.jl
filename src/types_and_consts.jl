@@ -34,7 +34,7 @@ const DlsMat = Ptr{_DlsMat}
 function Base.convert(::Type{Matrix}, J::DlsMat)
     _dlsmat = unsafe_load(J)
     # own is false as memory is allocated by sundials
-    pointer_to_array(_dlsmat.data, (_dlsmat.M, _dlsmat.N), false)
+    unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N), false)
 end
 
 # begin enum ANONYMOUS_1

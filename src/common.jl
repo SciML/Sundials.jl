@@ -105,29 +105,13 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     dures = Vector{Vector{Float64}}()
     save_start ? ts = [t0] : ts = Float64[]
 
-    userfun = FunJac(f!,(t,u,J) -> f(Val{:jac},t,u,J))
+    userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
     u0nv = NVector(u0)
     flag = @checkflag CVodeInit(mem,
                                 cfunction(cvodefunjac, Cint,
                                           (realtype, N_Vector,
                                            N_Vector, Ref{typeof(userfun)})),
                                 t0, convert(N_Vector, u0nv))
-
-    if has_jac(prob.f)
-      jac = cfunction(cvodejac,
-                      Cint,
-                      (Clong,
-                       realtype,
-                       N_Vector,
-                       N_Vector,
-                       DlsMat,
-                       Ref{typeof(userfun)},
-                       N_Vector,
-                       N_Vector,
-                       N_Vector))
-      flag = @checkflag CVodeSetUserData(mem, userfun)
-      flag = @checkflag CVDlsSetDenseJacFn(mem, jac)
-    end
 
     dt != nothing && (flag = @checkflag CVodeSetInitStep(mem, dt))
     flag = @checkflag CVodeSetMinStep(mem, dtmin)
@@ -156,6 +140,22 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         elseif LinearSolver == :TFQMR
             flag = @checkflag CVSptfqmr(mem, PREC_NONE, alg.krylov_dim)
         end
+    end
+
+    if has_jac(prob.f)
+      jac = cfunction(cvodejac,
+                      Cint,
+                      (Clong,
+                       realtype,
+                       N_Vector,
+                       N_Vector,
+                       DlsMat,
+                       Ref{typeof(userfun)},
+                       N_Vector,
+                       N_Vector,
+                       N_Vector))
+      flag = @checkflag CVodeSetUserData(mem, userfun)
+      flag = @checkflag CVDlsSetDenseJacFn(mem, jac)
     end
 
     utmp = NVector(copy(u0))
