@@ -185,6 +185,27 @@ function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun)
     return IDA_SUCCESS
 end
 
+function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::FunJac)
+    userfun.fun(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r))
+    return IDA_SUCCESS
+end
+
+function idajac(N::Clong,
+                t::realtype,
+                cj::realtype,
+                x::N_Vector,
+                dx::N_Vector,
+                res::N_Vector,
+                J::DlsMat,
+                userjac::FunJac,
+                tmp1::N_Vector,
+                tmp2::N_Vector,
+                tmp3::N_Vector)
+    userjac.jac(t, convert(Vector, x), convert(Vector,dx), cj, convert(Matrix, J))
+    return CV_SUCCESS
+end
+
+
 """
 `idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
         reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)`

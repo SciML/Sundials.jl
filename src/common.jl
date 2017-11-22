@@ -281,17 +281,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                 warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
-            if has_jac(prob.f)
-                warn("Explicit Jacobian given to this stiff solver is ignored.")
-                warned = true
-            end
         end
         warned && warn_compat()
-    end
-
-    if save_timeseries != nothing
-        warn("save_timeseries is deprecated. Use save_everystep instead")
-        save_everystep = save_timeseries
     end
 
     if callback != nothing || prob.callback != nothing
@@ -356,7 +347,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     dures = Vector{Vector{Float64}}()
     ts   = [t0]
 
-    userfun = UserFunctionAndData(f!, userdata)
+
+    userfun = FunJac(f!,(t,u,du,gamma,J) -> f!(Val{:jac},t,u,du,gamma,J))
     u0nv = NVector(u0)
     flag = @checkflag IDAInit(mem, cfunction(idasolfun,
                                              Cint, (realtype, N_Vector, N_Vector,
@@ -392,6 +384,24 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         flag = @checkflag IDASpgmr(mem, PREC_NONE, alg.krylov_dim)
     elseif LinearSolver == :TFQMR
         flag = @checkflag IDASptfqmr(mem, PREC_NONE, alg.krylov_dim)
+    end
+
+    if has_jac(prob.f)
+      jac = cfunction(idajac,
+                      Cint,
+                      (Clong,
+                       realtype,
+                       realtype,
+                       N_Vector,
+                       N_Vector,
+                       N_Vector,
+                       DlsMat,
+                       Ref{typeof(userfun)},
+                       N_Vector,
+                       N_Vector,
+                       N_Vector))
+      flag = @checkflag IDASetUserData(mem, userfun)
+      flag = @checkflag IDADlsSetDenseJacFn(mem, jac)
     end
 
     utmp = NVector(copy(u0))
