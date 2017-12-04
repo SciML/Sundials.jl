@@ -11,7 +11,7 @@
 
     See `Handle`.
 """
-@compat abstract type AbstractSundialsObject end
+abstract type AbstractSundialsObject end
 
 immutable CVODEMem <: AbstractSundialsObject end
 const CVODEMemPtr = Ptr{CVODEMem}
@@ -32,7 +32,7 @@ const KINMemPtr = Ptr{KINMem}
 immutable Handle{T <: AbstractSundialsObject}
     ptr_ref::Ref{Ptr{T}} # pointer to a pointer
 
-    @compat function (::Type{Handle}){T <: AbstractSundialsObject}(ptr::Ptr{T})
+    function (::Type{Handle}){T <: AbstractSundialsObject}(ptr::Ptr{T})
         h = new{T}(Ref{Ptr{T}}(ptr))
         finalizer(h.ptr_ref, release_handle)
         return h

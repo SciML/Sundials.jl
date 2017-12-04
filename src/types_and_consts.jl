@@ -1,7 +1,5 @@
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-using Compat
-
 const SUNDIALS_PACKAGE_VERSION = "2.5.0"
 const SUNDIALS_DOUBLE_PRECISION = Cint(1)
 const SUNDIALS_BLAS_LAPACK = Cint(0)

@@ -66,10 +66,10 @@ Base.similar(nv::NVector) = NVector(similar(nv.v))
 
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 # asarray() creates an array pointing to N_Vector data, but does not take the ownership
-@inline asarray(x::N_Vector) = @compat unsafe_wrap(Array, __N_VGetArrayPointer_Serial(x), (nvlength(x),), false)
-@inline asarray(x::N_Vector, dims::Tuple) = @compat unsafe_wrap(Array, __N_VGetArrayPointer_Serial(x), dims, false)
+@inline asarray(x::N_Vector) = unsafe_wrap(Array, __N_VGetArrayPointer_Serial(x), (nvlength(x),), false)
+@inline asarray(x::N_Vector, dims::Tuple) = unsafe_wrap(Array, __N_VGetArrayPointer_Serial(x), dims, false)
 asarray(x::Vector{realtype}) = x
-asarray(x::Ptr{realtype}, dims::Tuple) = @compat unsafe_wrap(Array, x, dims, false)
+asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims, false)
 @inline Base.convert(::Type{Vector{realtype}}, x::N_Vector) = asarray(x)
 @inline Base.convert(::Type{Vector}, x::N_Vector) = asarray(x)
 

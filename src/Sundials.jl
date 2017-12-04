@@ -2,7 +2,6 @@ __precompile__()
 
 module Sundials
 
-using Compat
 using Reexport
 @reexport using DiffEqBase
 import DiffEqBase: solve
