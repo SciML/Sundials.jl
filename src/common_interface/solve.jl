@@ -214,15 +214,10 @@ function DiffEqBase.solve!(integrator)
     end
 
     if integrator.opts.save_end && integrator.sol.t[end] != first(integrator.tout)
-        #flag = @checkflag CVodeGetDky(
-        #                        integrator.mem, first(integrator.tout),
-        #                         Cint(0), #integrator.u)
         save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
         push!(integrator.sol.t, first(integrator.tout))
         if integrator.opts.dense
-          flag = @checkflag CVodeGetDky(
-                                  integrator.mem, first(integrator.tout), Cint(1), integrator.u)
-          (flag < 0) && return
+          integrator(integrator.u,curt,Val{1})
           save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
         end
     end
@@ -238,47 +233,42 @@ end
 
 function DiffEqBase.savevalues!(integrator::SundialsIntegrator)
     uType = eltype(integrator.sol.u)
-    did_saveat = false
-    while !isempty(integrator.opts.saveat) && integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*integrator.tout[end]
-        did_saveat = true
+    while !isempty(integrator.opts.saveat) &&
+        integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
+
         curt = pop!(integrator.opts.saveat)
-        flag = @checkflag CVodeGetDky(
-                                integrator.mem, curt, Cint(0), integrator.u)
-        (flag < 0) && return
-        save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
-        push!(integrator.sol.t, curt)
+        tmp = integrator(curt)
+        save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
+        push!(integrator.sol.t,curt)
         if integrator.opts.dense
-          flag = @checkflag CVodeGetDky(
-                                  integrator.mem, curt, Cint(1), integrator.u)
-          (flag < 0) && return
-          save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
+          tmp = integrator(curt,Val{1})
+          save_value!(integrator.sol.k,tmp,uType,integrator.sizeu,Val{false})
         end
     end
     if integrator.opts.save_everystep
-        if did_saveat
-            flag = @checkflag CVodeGetDky(
-                                    integrator.mem, first(integrator.tout), Cint(0), integrator.u)
-            (flag < 0) && return
-        end
-        save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
+        tmp = integrator(first(integrator.tout))
+        save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
         push!(integrator.sol.t, first(integrator.tout))
         if integrator.opts.dense
-          flag = @checkflag CVodeGetDky(
-                                  integrator.mem, first(integrator.tout), Cint(1), integrator.u)
-          (flag < 0) && return
-          save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
+          tmp = integrator(first(integrator.tout),Val{1})
+          save_value!(integrator.sol.k,tmp,uType,integrator.sizeu)
         end
     end
 end
 
-function save_value!(save_array,val,::Type{T},sizeu) where T <: Number
+function save_value!(save_array,val,::Type{T},sizeu,
+                     make_copy::Type{Val{bool}}=Val{true}) where {T <: Number,bool}
     push!(save_array,first(val))
 end
-function save_value!(save_array,val,::Type{T},sizeu) where T <: Vector
-    push!(save_array,copy(val))
+function save_value!(save_array,val,::Type{T},sizeu,
+                     make_copy::Type{Val{bool}}=Val{true}) where {T <: Vector,bool}
+    bool ? save = copy(val) : save = val
+    push!(save_array,save)
 end
-function save_value!(save_array,val,::Type{T},sizeu) where T <: Array
-    push!(save_array,reshape(copy(val),sizeu))
+function save_value!(save_array,val,::Type{T},sizeu,
+                     make_copy::Type{Val{bool}}=Val{true}) where {T <: Array,bool}
+    bool ? save = copy(val) : save = val
+    push!(save_array,reshape(save,sizeu))
 end
 
 ## Solve for DAEs uses IDA
