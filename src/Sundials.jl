@@ -2,7 +2,7 @@ __precompile__()
 
 module Sundials
 
-using Reexport
+using Reexport, DataStructures, Roots
 @reexport using DiffEqBase
 import DiffEqBase: solve
 
@@ -53,6 +53,9 @@ end
 include("kinsol.jl")
 
 include("simple.jl")
+include("common_interface/integrator_types.jl")
+include("common_interface/integrator_utils.jl")
+include("common_interface/callbacks.jl")
 include("common_interface/algorithms.jl")
 include("common_interface/solve.jl")
 

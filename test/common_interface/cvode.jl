@@ -25,6 +25,9 @@ sol = solve(prob,CVODE_Adams(),saveat=saveat,save_everystep=true,save_start=fals
 
 @test sol.t[1] != 0
 
+sol = solve(prob,CVODE_Adams(),tstops=[0.2,0.5,0.7])
+@test all(t ∈ sol.t for t in [0.2,0.5,0.7])
+
 prob = prob_ode_2Dlinear
 sol = solve(prob,CVODE_BDF())
 sol = solve(prob,CVODE_Adams())

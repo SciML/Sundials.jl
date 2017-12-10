@@ -1,4 +1,7 @@
-# Test error handling
+using Sundials, Base.Test
+
+println("Test error handling")
+
 f_error(t,u) = u/t
 u0 = 1.0
 prob = ODEProblem(f_error,u0,(0.0,1.0))
