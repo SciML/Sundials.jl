@@ -27,11 +27,6 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         warned && warn_compat()
     end
 
-    if save_timeseries != nothing
-        warn("save_timeseries is deprecated. Use save_everystep instead")
-        save_everystep = save_timeseries
-    end
-
     if prob.mass_matrix != I
         error("This solver is not able to use mass matrices.")
     end
@@ -101,8 +96,8 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    ures  = Vector{Vector{Float64}}()
-    dures = Vector{Vector{Float64}}()
+    ures  = Vector{uType}()
+    dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
 
     userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
@@ -162,10 +157,10 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     tout = [tspan[1]]
 
     if save_start
-      push!(ures, copy(u0))
+      save_value!(ures,u0,uType,sizeu)
       if dense
         f!(tspan[1],u0,utmp)
-        push!(dures,utmp)
+        save_value!(dures,utmp,uType,sizeu)
       end
     end
 
@@ -178,28 +173,29 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
                 looped = true
                 flag = @checkflag CVode(mem, save_ts[k], utmp, tout, CV_ONE_STEP)
                 (flag < 0) && break
-                push!(ures, copy(utmp))
+                save_value!(ures,utmp,uType,sizeu)
                 push!(ts, tout...)
                 if dense
                   flag = @checkflag CVodeGetDky(
                                           mem, tout[1], Cint(1), utmp)
                   (flag < 0) && break
-                  push!(dures, copy(utmp))
+                  save_value!(dures,utmp,uType,sizeu)
                 end
                 (flag < 0) && break
             end
             (flag < 0) && break
             if looped
                 # Fix the end
-                flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), ures[end])
+                utmp .= ures[end]
+                flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), utmp)
                 ts[end] = save_ts[k]
             else # Just push another value
                 flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), utmp)
-                push!(ures, copy(utmp))
+                save_value!(ures,utmp,uType,sizeu)
                 push!(ts, save_ts[k]...)
                 if dense
                     flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(1), utmp)
-                    push!(dures, copy(utmp))
+                    save_value!(dures,utmp,uType,sizeu)
                 end
             end
             (flag < 0) && break
@@ -208,7 +204,7 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         for k in 1:length(save_ts)
             save_ts[k] ∈ tstops && CVodeSetStopTime(mem,save_ts[k])
             flag = @checkflag CVode(mem, save_ts[k], utmp, tout, CV_NORMAL)
-            push!(ures,copy(utmp))
+            save_value!(ures,utmp,uType,sizeu)
             push!(ts, save_ts[k]...)
             if dense
               flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(1), utmp)
@@ -218,44 +214,26 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
         end
     end
 
-    ### Finishing Routine
-
-    timeseries = Vector{uType}(0)
-    if typeof(prob.u0)<:Number
-        for i=1:length(ures)
-            push!(timeseries, ures[i][1])
-        end
-    else
-        for i=1:length(ures)
-            push!(timeseries, reshape(ures[i], sizeu))
-        end
-    end
-
-    if dense
-      du_timeseries = Vector{uType}(0)
-      if typeof(prob.u0)<:Number
-          for i=1:length(ures)
-              push!(du_timeseries, dures[i][1])
-          end
-      else
-          for i=1:length(ures)
-              push!(du_timeseries, reshape(dures[i], sizeu))
-          end
-      end
-    else
-      du_timeseries = dures
-    end
-
     empty!(mem);
 
     retcode = interpret_sundials_retcode(flag)
 
-    build_solution(prob, alg, ts, timeseries,
+    build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   du = du_timeseries,
+                   du = dures,
                    timeseries_errors = timeseries_errors,
                    retcode = retcode)
 end # function solve
+
+function save_value!(save_array,val,::Type{T},sizeu) where T <: Number
+    push!(save_array,first(val))
+end
+function save_value!(save_array,val,::Type{T},sizeu) where T <: Vector
+    push!(save_array,copy(val))
+end
+function save_value!(save_array,val,::Type{T},sizeu) where T <: Array
+    push!(save_array,resize(copy(val),sizeu))
+end
 
 ## Solve for DAEs uses IDA
 
