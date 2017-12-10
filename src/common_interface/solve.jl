@@ -281,24 +281,6 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     tstops_internal, saveat_internal =
       tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
 
-
-    if typeof(saveat) <: Number
-        saveat_vec = convert(Vector{tType},saveat+tspan[1]:saveat:(tspan[end]-saveat))
-        # Exclude the endpoint because of floating point issues
-    else
-        saveat_vec = convert(Vector{tType}, collect(saveat))
-    end
-
-    if !isempty(saveat_vec) && saveat_vec[end] == tspan[2]
-        pop!(saveat_vec)
-    end
-
-    if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
-        save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
-    else
-        save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
-    end
-
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
@@ -405,7 +387,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
         end
         flag = @checkflag IDASetId(mem, collect(Float64, prob.differential_vars))
-        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[1])
+        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t0)
     end
 
     if save_start
