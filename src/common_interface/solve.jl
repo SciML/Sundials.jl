@@ -199,13 +199,15 @@ function solve!(integrator)
                 looped = true
                 flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, integrator.tout, CV_ONE_STEP)
                 (flag < 0) && break
-                save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
-                push!(integrator.sol.t, integrator.tout...)
-                if integrator.opts.dense
-                  flag = @checkflag CVodeGetDky(
-                                          integrator.mem, integrator.tout[1], Cint(1), integrator.u)
-                  (flag < 0) && break
-                  save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
+                if integrator.opts.save_everystep
+                    save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
+                    push!(integrator.sol.t, integrator.tout...)
+                    if integrator.opts.dense
+                      flag = @checkflag CVodeGetDky(
+                                              integrator.mem, integrator.tout[1], Cint(1), integrator.u)
+                      (flag < 0) && break
+                      save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
+                    end
                 end
                 (flag < 0) && break
             end
