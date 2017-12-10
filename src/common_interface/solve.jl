@@ -1,6 +1,16 @@
 ## Common Interface Solve Functions
 
-function solve{uType, tType, isinplace, Method, LinearSolver}(
+function DiffEqBase.solve{algType<:SundialsODEAlgorithm,recompile_flag}(
+  prob::AbstractODEProblem,
+  alg::algType,timeseries=[],ts=[],ks=[],
+  recompile::Type{Val{recompile_flag}}=Val{true};
+  kwargs...)
+
+  DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
+
+end
+
+function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
@@ -10,7 +20,9 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     saveat=Float64[], tstops=Float64[],
     maxiter=Int(1e5),
     dt = nothing, dtmin = 0.0, dtmax = 0.0,
-    timeseries_errors=true, save_everystep=isempty(saveat), dense = save_everystep,
+    timeseries_errors=true,
+    dense_errors = false,
+    save_everystep=isempty(saveat), dense = save_everystep,
     save_start = true,
     save_timeseries = nothing,
     userdata=nothing,
@@ -164,6 +176,12 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
       end
     end
 
+    sol = build_solution(prob, alg, ts, ures,
+                   dense = dense,
+                   du = dures,
+                   timeseries_errors = timeseries_errors,
+                   calculate_error = false)
+
     # The Inner Loops : Style depends on save_everystep
     if save_everystep
         for k in 1:length(save_ts)
@@ -225,14 +243,10 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
     end
 
     empty!(mem);
-
-    retcode = interpret_sundials_retcode(flag)
-
-    build_solution(prob, alg, ts, ures,
-                   dense = dense,
-                   du = dures,
-                   timeseries_errors = timeseries_errors,
-                   retcode = retcode)
+    if has_analytic(prob.f)
+        calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
+    end
+    solution_new_retcode(sol,interpret_sundials_retcode(flag))
 end # function solve
 
 function save_value!(save_array,val,::Type{T},sizeu) where T <: Number
