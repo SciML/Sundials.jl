@@ -43,9 +43,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         error("This solver is not able to use mass matrices.")
     end
 
-    if callback != nothing || prob.callback != nothing
-        error("Sundials is not compatible with callbacks.")
-    end
+    callbacks_internal = CallbackSet(callback,prob.callback)
 
     tspan = prob.tspan
     t0 = tspan[1]
@@ -149,6 +147,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     end
 
     utmp = NVector(copy(u0))
+    callback == nothing ? tmp = nothing : tmp = similar(u0)
     tout = [tspan[1]]
 
     if save_start
@@ -164,9 +163,10 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                    k = dures,
                    timeseries_errors = timeseries_errors,
                    calculate_error = false)
-    opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,timeseries_errors,
-                     dense_errors,save_end)
-    SundialsIntegrator(utmp,t0,mem,sol,alg,f!,opts,tout,tdir,sizeu)
+    opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
+                     timeseries_errors,dense_errors,save_end,
+                     callbacks_internal)
+    SundialsIntegrator(utmp,t0,t0,mem,sol,alg,f!,opts,tout,tdir,sizeu,false,tmp)
 end # function solve
 
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
@@ -205,14 +205,15 @@ function DiffEqBase.solve!(integrator)
         tstop = pop!(integrator.opts.tstops)
         CVodeSetStopTime(integrator.mem,tstop)
         while integrator.tdir*integrator.tout[end] < integrator.tdir*tstop
+            integrator.tprev = integrator.t
             flag = @checkflag CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
+            integrator.t = first(integrator.tout)
             (flag < 0) && break
             savevalues!(integrator)
             (flag < 0) && break
         end
         (flag < 0) && break
     end
-
     if integrator.opts.save_end && integrator.sol.t[end] != first(integrator.tout)
         save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
         push!(integrator.sol.t, first(integrator.tout))
@@ -229,46 +230,6 @@ function DiffEqBase.solve!(integrator)
         dense_errors=integrator.opts.dense_errors)
     end
     solution_new_retcode(integrator.sol,interpret_sundials_retcode(flag))
-end
-
-function DiffEqBase.savevalues!(integrator::SundialsIntegrator)
-    uType = eltype(integrator.sol.u)
-    while !isempty(integrator.opts.saveat) &&
-        integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
-
-        curt = pop!(integrator.opts.saveat)
-        tmp = integrator(curt)
-        save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
-        push!(integrator.sol.t,curt)
-        if integrator.opts.dense
-          tmp = integrator(curt,Val{1})
-          save_value!(integrator.sol.k,tmp,uType,integrator.sizeu,Val{false})
-        end
-    end
-    if integrator.opts.save_everystep
-        tmp = integrator(first(integrator.tout))
-        save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
-        push!(integrator.sol.t, first(integrator.tout))
-        if integrator.opts.dense
-          tmp = integrator(first(integrator.tout),Val{1})
-          save_value!(integrator.sol.k,tmp,uType,integrator.sizeu)
-        end
-    end
-end
-
-function save_value!(save_array,val,::Type{T},sizeu,
-                     make_copy::Type{Val{bool}}=Val{true}) where {T <: Number,bool}
-    push!(save_array,first(val))
-end
-function save_value!(save_array,val,::Type{T},sizeu,
-                     make_copy::Type{Val{bool}}=Val{true}) where {T <: Vector,bool}
-    bool ? save = copy(val) : save = val
-    push!(save_array,save)
-end
-function save_value!(save_array,val,::Type{T},sizeu,
-                     make_copy::Type{Val{bool}}=Val{true}) where {T <: Array,bool}
-    bool ? save = copy(val) : save = val
-    push!(save_array,reshape(save,sizeu))
 end
 
 ## Solve for DAEs uses IDA
