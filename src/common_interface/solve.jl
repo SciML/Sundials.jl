@@ -208,8 +208,7 @@ end
 function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     uType = eltype(integrator.sol.u)
     while !isempty(integrator.opts.tstops)
-        tstop = pop!(integrator.opts.tstops)
-        set_stop_time(integrator,tstop)
+        tstop = handle_tstop(integrator)
         while integrator.tdir*integrator.t < integrator.tdir*tstop
             integrator.tprev = integrator.t
             if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
@@ -239,6 +238,12 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         dense_errors=integrator.opts.dense_errors)
     end
     solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
+end
+
+function handle_tstop(integrator::AbstractSundialsIntegrator)
+    tstop = pop!(integrator.opts.tstops)
+    set_stop_time(integrator,tstop)
+    tstop
 end
 
 ## Solve for DAEs uses IDA
@@ -300,12 +305,13 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
         f! = (t, u, du, out) -> (out[:] = prob.f(t, u, du); 0)
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t, u, du, out) -> (out[:] = vec(prob.f(t, reshape(u, sizeu), reshape(du, sizedu)));
-                                 0)
+        f! = (t, u, du, out) -> (out[:] = vec(prob.f(t, reshape(u, sizeu),
+                                 reshape(du, sizedu)));0)
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (t, u, du, out) -> (prob.f(t, reshape(u, sizeu), reshape(du, sizedu), out);
+        f! = (t, u, du, out) -> (prob.f(t, reshape(u, sizeu),
+                                 reshape(du, sizedu), out);
                                  u = vec(u); du=vec(du); 0)
     end
 

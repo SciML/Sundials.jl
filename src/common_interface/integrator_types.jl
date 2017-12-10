@@ -74,3 +74,69 @@ function (integrator::IDAIntegrator)(out,t::Number,
                                           deriv::Type{Val{T}}=Val{0}) where T
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
 end
+
+
+### Iterator interface
+
+function start(integrator::AbstractSundialsIntegrator)
+  0
+end
+
+@inline function next(integrator::AbstractSundialsIntegrator,state)
+  state += 1
+  DiffEqBase.step!(integrator) # Iter updated in the step! header
+  # Next is callbacks -> iterator  -> top
+  integrator,state
+end
+
+@inline function done(integrator::AbstractSundialsIntegrator,state)
+  #=
+  if integrator.opts.unstable_check(integrator.dt,integrator.t,integrator.u)
+    if integrator.opts.verbose
+      warn("Instability detected. Aborting")
+    end
+    postamble!(integrator)
+    return true
+  end
+  =#
+  if isempty(integrator.opts.tstops)
+    postamble!(integrator)
+    return true
+  elseif integrator.just_hit_tstop
+    integrator.just_hit_tstop = false
+    if integrator.opts.stop_at_next_tstop
+      postamble!(integrator)
+      return true
+    end
+  end
+  false
+end
+
+@inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
+  if integrator.opts.advance_to_tstop
+    tstop = handle_tstop!(integrator)
+    @inbounds while integrator.tdir*integrator.t < integrator.tdir*tstop
+        integrator.tprev = integrator.t
+        if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
+            integrator.uprev .= integrator.u
+        end
+        solver_step(integrator,tstop)
+        integrator.t = first(integrator.tout)
+        (integrator.flag < 0) && return
+        handle_callbacks!(integrator)
+        (integrator.flag < 0) && return
+    end
+  else
+      integrator.tprev = integrator.t
+      if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
+          integrator.uprev .= integrator.u
+      end
+      solver_step(integrator,Inf)
+      integrator.t = first(integrator.tout)
+      (integrator.flag < 0) && return
+      handle_callbacks!(integrator)
+      (integrator.flag < 0) && return
+  end
+end
+
+Base.eltype(integrator::AbstractSundialsIntegrator) = typeof(integrator)
