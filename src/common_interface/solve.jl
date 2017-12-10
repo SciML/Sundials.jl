@@ -181,23 +181,24 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                    du = dures,
                    timeseries_errors = timeseries_errors,
                    calculate_error = false)
-    opts = DEOptions(save_ts,tstops,save_everystep,dense)
-    integrator = SundialsIntegrator(utmp,tout,mem,sol,alg,f!,opts)
+    opts = DEOptions(save_ts,tstops,save_everystep,dense,timeseries_errors,
+                     dense_errors)
+    integrator = SundialsIntegrator(utmp,t0,mem,sol,alg,f!,opts,tout,tdir)
 
     # The Inner Loops : Style depends on save_everystep
     if integrator.opts.save_everystep
         for k in 1:length(integrator.opts.saveat)
             integrator.opts.saveat[k] ∈ integrator.opts.tstops && CVodeSetStopTime(integrator.mem,integrator.opts.saveat[k])
             looped = false
-            while tdir*tout[end] < tdir*integrator.opts.saveat[k]
+            while integrator.tdir*integrator.tout[end] < integrator.tdir*integrator.opts.saveat[k]
                 looped = true
-                flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, tout, CV_ONE_STEP)
+                flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, integrator.tout, CV_ONE_STEP)
                 (flag < 0) && break
                 save_value!(integrator.sol.u,integrator.u,uType,sizeu)
-                push!(integrator.sol.t, tout...)
+                push!(integrator.sol.t, integrator.tout...)
                 if integrator.opts.dense
                   flag = @checkflag CVodeGetDky(
-                                          integrator.mem, tout[1], Cint(1), integrator.u)
+                                          integrator.mem, integrator.tout[1], Cint(1), integrator.u)
                   (flag < 0) && break
                   save_value!(integrator.sol.k,integrator.u,uType,sizeu)
                 end
@@ -232,7 +233,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     else # save_everystep == false, so use CV_NORMAL style
         for k in 1:length(integrator.opts.saveat)
             integrator.opts.saveat[k] ∈ integrator.opts.tstops && CVodeSetStopTime(integrator.mem,integrator.opts.saveat[k])
-            flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, tout, CV_NORMAL)
+            flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, integrator.tout, CV_NORMAL)
             save_value!(integrator.sol.u,integrator.u,uType,sizeu)
             push!(integrator.sol.t, integrator.opts.saveat[k]...)
             if integrator.opts.dense
@@ -245,10 +246,12 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     end
 
     empty!(integrator.mem);
-    if has_analytic(prob.f)
-        calculate_solution_errors!(sol;timeseries_errors=timeseries_errors,dense_errors=dense_errors)
+    if has_analytic(integrator.sol.prob.f)
+        calculate_solution_errors!(integrator.sol;
+        timeseries_errors=integrator.opts.timeseries_errors,
+        dense_errors=integrator.opts.dense_errors)
     end
-    solution_new_retcode(sol,interpret_sundials_retcode(flag))
+    solution_new_retcode(integrator.sol,interpret_sundials_retcode(flag))
 end # function solve
 
 function save_value!(save_array,val,::Type{T},sizeu) where T <: Number
