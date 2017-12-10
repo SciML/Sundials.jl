@@ -257,7 +257,9 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     save_start=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[], maxiter=Int(1e5),
-    timeseries_errors=true, save_everystep=isempty(saveat), dense=save_everystep,
+    timeseries_errors=true,
+    dense_errors = false,
+    save_everystep=isempty(saveat), dense=save_everystep,
     save_timeseries=nothing,
     userdata=nothing,
     kwargs...)
@@ -406,14 +408,14 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, save_ts[1])
     end
 
-    if flag >= 0
-        if save_start
-          save_value!(ures,u0,uType,sizeu)
-          if dense
-            save_value!(dures,du0,uType,sizedu) # Does this need to update for IDACalcIC?
-          end
-        end
+    if save_start
+      save_value!(ures,u0,uType,sizeu)
+      if dense
+        save_value!(dures,du0,uType,sizedu) # Does this need to update for IDACalcIC?
+      end
+    end
 
+    if flag >= 0
         # The Inner Loops : Style depends on save_everystep
         if save_everystep
             for k in 1:length(save_ts)
@@ -468,10 +470,11 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
 
     empty!(mem);
 
-    build_solution(prob, alg, ts, utmp,
+    build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   du = dutmp,
+                   du = dures,
                    timeseries_errors = timeseries_errors,
+                   dense_errors = dense_errors,
                    retcode = retcode)
 end # function solve
 
