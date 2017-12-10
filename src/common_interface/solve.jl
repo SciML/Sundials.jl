@@ -144,6 +144,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                        N_Vector))
       flag = @checkflag CVodeSetUserData(mem, userfun)
       flag = @checkflag CVDlsSetDenseJacFn(mem, jac)
+    else
+        jac = nothing
     end
 
     utmp = NVector(copy(u0))
@@ -169,7 +171,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal)
-    SundialsIntegrator(utmp,t0,t0,mem,sol,alg,f!,opts,
+    SundialsIntegrator(utmp,t0,t0,mem,sol,alg,f!,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev)
 end # function solve
 

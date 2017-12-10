@@ -9,7 +9,7 @@ mutable struct DEOptions{SType,TstopType,CType}
     callback::CType
 end
 
-mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,oType,toutType,sizeType,tmpType} <: AbstractODEIntegrator
+mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,JType,oType,toutType,sizeType,tmpType} <: AbstractODEIntegrator
     u::uType
     t::Float64
     tprev::Float64
@@ -17,6 +17,7 @@ mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,oType,tout
     sol::solType
     alg::algType
     f::fType
+    jac::JType
     opts::oType
     tout::toutType
     tdir::Float64
