@@ -1,3 +1,5 @@
+using Sundials, Base.Test
+
 println("Test error handling")
 
 f_error(t,u) = u/t

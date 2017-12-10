@@ -1,13 +1,15 @@
 ## Common Interface Solve Functions
 
-function DiffEqBase.solve{algType<:SundialsODEAlgorithm,recompile_flag}(
-  prob::AbstractODEProblem,
+function DiffEqBase.solve{algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorithm},
+                          recompile_flag}(
+  prob::Union{AbstractODEProblem,AbstractDAEProblem},
   alg::algType,timeseries=[],ts=[],ks=[],
   recompile::Type{Val{recompile_flag}}=Val{true};
   kwargs...)
 
   integrator = DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
-  solve!(integrator)
+  integrator.flag >=0 && solve!(integrator)
+  integrator.sol
 end
 
 function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
@@ -171,8 +173,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal)
-    CVODEIntegrator(utmp,t0,t0,mem,sol,alg,f!,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev)
+    CVODEIntegrator(utmp,t0,t0,mem,sol,alg,f!,userfun,jac,opts,
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag))
 end # function solve
 
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
@@ -203,25 +205,23 @@ function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
   tstops_internal,saveat_internal
 end
 
-function DiffEqBase.solve!(integrator)
+function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     uType = eltype(integrator.sol.u)
-    flag = 0
-
     while !isempty(integrator.opts.tstops)
         tstop = pop!(integrator.opts.tstops)
-        CVodeSetStopTime(integrator.mem,tstop)
+        set_stop_time(integrator,tstop)
         while integrator.tdir*integrator.t < integrator.tdir*tstop
             integrator.tprev = integrator.t
             if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
                 integrator.uprev .= integrator.u
             end
-            flag = @checkflag CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
+            solver_step(integrator,tstop)
             integrator.t = first(integrator.tout)
-            (flag < 0) && break
+            (integrator.flag < 0) && break
             handle_callbacks!(integrator)
-            (flag < 0) && break
+            (integrator.flag < 0) && break
         end
-        (flag < 0) && break
+        (integrator.flag < 0) && break
     end
     if integrator.opts.save_end && integrator.sol.t[end] != integrator.t
         save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
@@ -238,12 +238,12 @@ function DiffEqBase.solve!(integrator)
         timeseries_errors=integrator.opts.timeseries_errors,
         dense_errors=integrator.opts.dense_errors)
     end
-    solution_new_retcode(integrator.sol,interpret_sundials_retcode(flag))
+    solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
 end
 
 ## Solve for DAEs uses IDA
 
-function solve{uType, duType, tType, isinplace, LinearSolver}(
+function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
@@ -256,7 +256,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     timeseries_errors=true,
     dense_errors = false,
     save_everystep=isempty(saveat), dense=save_everystep,
-    save_timeseries=nothing,
+    save_timeseries=nothing, save_end = true,
     userdata=nothing,
     kwargs...)
 
@@ -271,14 +271,16 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         warned && warn_compat()
     end
 
-    if callback != nothing || prob.callback != nothing
-        error("Sundials is not compatible with callbacks.")
-    end
+    callbacks_internal = CallbackSet(callback,prob.callback)
 
     tspan = prob.tspan
     t0 = tspan[1]
 
     tdir = sign(tspan[2]-tspan[1])
+
+    tstops_internal, saveat_internal =
+      tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
+
 
     if typeof(saveat) <: Number
         saveat_vec = convert(Vector{tType},saveat+tspan[1]:saveat:(tspan[end]-saveat))
@@ -413,68 +415,34 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
       end
     end
 
-    sol = build_solution(prob, alg, ts, ures,
-                   dense = dense,
-                   du = dures,
-                   timeseries_errors = timeseries_errors,
-                   dense_errors = dense_errors)
+    callback == nothing ? tmp = nothing : tmp = similar(u0)
+    callback == nothing ? uprev = nothing : uprev = similar(u0)
 
     if flag >= 0
-        # The Inner Loops : Style depends on save_everystep
-        if save_everystep
-            for k in 1:length(save_ts)
-                save_ts[k] ∈ tstops && IDASetStopTime(mem,save_ts[k])
-                looped = false
-                while tdir*tout[end] < tdir*save_ts[k]
-                    looped = true
-                    flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
-                    (flag < 0) && break
-                    save_value!(ures,utmp,uType,sizeu)
-                    push!(ts, tout...)
-                    if dense
-                        save_value!(dures,dutmp,uType,sizedu)
-                    end
-                end
-                (flag < 0) && break
-                if looped
-                    # Fix the end
-                    flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), ures[end])
-                    ts[end] = save_ts[k]
-                else # Just push another value
-                    flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), utmp)
-                    (flag < 0) && break
-                    save_value!(ures,utmp,uType,sizeu)
-                    if dense
-                        flag = @checkflag IDAGetDky(
-                                              mem, save_ts[k], Cint(1), dutmp)
-                        (flag < 0) && break
-                        save_value!(dures,dutmp,uType,sizedu)
-                    end
-                    push!(ts, save_ts[k]...)
-                end
-                (flag < 0) && break
-            end
-        else # save_everystep == false, so use IDA_NORMAL style
-            for k in 1:length(save_ts)
-                flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
-                (flag < 0) && break
-                save_value!(ures,utmp,uType,sizeu)
-                if dense
-                    save_value!(dures,dutmp,uType,sizedu)
-                end
-                push!(ts, save_ts[k]...)
-            end
-        end
-        retcode = interpret_sundials_retcode(flag)
+        retcode = :Default
     else
         retcode = :InitialFailure
     end
 
-    ### Finishing Routine
+    sol = build_solution(prob, alg, ts, ures,
+                   dense = dense,
+                   du = dures,
+                   interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
+                                    DiffEqBase.LinearInterpolation(ts,ures),
+                   calculate_error = false,
+                   timeseries_errors = timeseries_errors,
+                   retcode = retcode,
+                   dense_errors = dense_errors)
 
-    empty!(mem);
-    solution_new_retcode(sol,retcode)
+    opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
+                    timeseries_errors,dense_errors,save_end,
+                    callbacks_internal)
+
+    IDAIntegrator(utmp,dutmp,t0,t0,mem,sol,alg,f!,userfun,jac,opts,
+                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag))
 end # function solve
+
+## Common calls
 
 function interpret_sundials_retcode(flag)
   flag == 0 && return :Success
@@ -482,4 +450,17 @@ function interpret_sundials_retcode(flag)
   (flag == -2 || flag == -3) && return :Unstable
   flag == -4 && return :ConvergenceFailure
   return :Failure
+end
+
+function solver_step(integrator::CVODEIntegrator,tstop)
+    integrator.flag = @checkflag CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
+end
+function solver_step(integrator::IDAIntegrator,tstop)
+    flag = @checkflag IDASolve(integrator.mem, tstop, integrator.tout, integrator.u, integrator.du, IDA_ONE_STEP)
+end
+function set_stop_time(integrator::CVODEIntegrator,tstop)
+    CVodeSetStopTime(integrator.mem,tstop)
+end
+function set_stop_time(integrator::IDAIntegrator,tstop)
+    IDASetStopTime(integrator.mem,tstop)
 end
