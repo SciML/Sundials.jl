@@ -6,8 +6,8 @@ function DiffEqBase.solve{algType<:SundialsODEAlgorithm,recompile_flag}(
   recompile::Type{Val{recompile_flag}}=Val{true};
   kwargs...)
 
-  DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
-
+  integrator = DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
+  solve!(integrator)
 end
 
 function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
@@ -183,7 +183,12 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                    calculate_error = false)
     opts = DEOptions(save_ts,tstops,save_everystep,dense,timeseries_errors,
                      dense_errors)
-    integrator = SundialsIntegrator(utmp,t0,mem,sol,alg,f!,opts,tout,tdir)
+    SundialsIntegrator(utmp,t0,mem,sol,alg,f!,opts,tout,tdir,sizeu)
+end # function solve
+
+function solve!(integrator)
+    uType = eltype(integrator.sol.u)
+    flag = 0
 
     # The Inner Loops : Style depends on save_everystep
     if integrator.opts.save_everystep
@@ -194,13 +199,13 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                 looped = true
                 flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, integrator.tout, CV_ONE_STEP)
                 (flag < 0) && break
-                save_value!(integrator.sol.u,integrator.u,uType,sizeu)
+                save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
                 push!(integrator.sol.t, integrator.tout...)
                 if integrator.opts.dense
                   flag = @checkflag CVodeGetDky(
                                           integrator.mem, integrator.tout[1], Cint(1), integrator.u)
                   (flag < 0) && break
-                  save_value!(integrator.sol.k,integrator.u,uType,sizeu)
+                  save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
                 end
                 (flag < 0) && break
             end
@@ -221,11 +226,11 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                 integrator.sol.t[end] = integrator.opts.saveat[k]
             else # Just push another value
                 flag = @checkflag CVodeGetDky(integrator.mem, integrator.opts.saveat[k], Cint(0), integrator.u)
-                save_value!(integrator.sol.u,integrator.u,uType,sizeu)
+                save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
                 push!(integrator.sol.t, integrator.opts.saveat[k]...)
                 if integrator.opts.dense
                     flag = @checkflag CVodeGetDky(integrator.mem, integrator.opts.saveat[k], Cint(1), integrator.u)
-                    save_value!(integrator.sol.k,integrator.u,uType,sizeu)
+                    save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
                 end
             end
             (flag < 0) && break
@@ -234,11 +239,11 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         for k in 1:length(integrator.opts.saveat)
             integrator.opts.saveat[k] ∈ integrator.opts.tstops && CVodeSetStopTime(integrator.mem,integrator.opts.saveat[k])
             flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, integrator.tout, CV_NORMAL)
-            save_value!(integrator.sol.u,integrator.u,uType,sizeu)
+            save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
             push!(integrator.sol.t, integrator.opts.saveat[k]...)
             if integrator.opts.dense
               flag = @checkflag CVodeGetDky(integrator.mem, integrator.opts.saveat[k], Cint(1), integrator.u)
-              save_value!(integrator.sol.k,integrator.u,uType,sizeu)
+              save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
               push!(integrator.sol.k, integrator.u)
             end
             (flag < 0) && break
@@ -252,7 +257,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         dense_errors=integrator.opts.dense_errors)
     end
     solution_new_retcode(integrator.sol,interpret_sundials_retcode(flag))
-end # function solve
+end
 
 function save_value!(save_array,val,::Type{T},sizeu) where T <: Number
     push!(save_array,first(val))

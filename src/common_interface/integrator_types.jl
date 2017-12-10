@@ -1,4 +1,4 @@
-mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,oType,toutType} <: AbstractODEIntegrator
+mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,oType,toutType,sizeType} <: AbstractODEIntegrator
     u::uType
     t::Float64
     mem::memType
@@ -8,6 +8,7 @@ mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,oType,tout
     opts::oType
     tout::toutType
     tdir::Float64
+    sizeu::sizeType
 end
 
 mutable struct DEOptions{SType,TstopType}
