@@ -148,6 +148,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     utmp = NVector(copy(u0))
     callback == nothing ? tmp = nothing : tmp = similar(u0)
+    callback == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
 
     if save_start
@@ -160,13 +161,16 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     sol = build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   k = dures,
+                   du = dures,
+                   interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
+                                    DiffEqBase.LinearInterpolation(ts,ures),
                    timeseries_errors = timeseries_errors,
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal)
-    SundialsIntegrator(utmp,t0,t0,mem,sol,alg,f!,opts,tout,tdir,sizeu,false,tmp)
+    SundialsIntegrator(utmp,t0,t0,mem,sol,alg,f!,opts,
+                       tout,tdir,sizeu,false,tmp,uprev)
 end # function solve
 
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
@@ -204,22 +208,25 @@ function DiffEqBase.solve!(integrator)
     while !isempty(integrator.opts.tstops)
         tstop = pop!(integrator.opts.tstops)
         CVodeSetStopTime(integrator.mem,tstop)
-        while integrator.tdir*integrator.tout[end] < integrator.tdir*tstop
+        while integrator.tdir*integrator.t < integrator.tdir*tstop
             integrator.tprev = integrator.t
+            if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
+                integrator.uprev .= integrator.u
+            end
             flag = @checkflag CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
             integrator.t = first(integrator.tout)
             (flag < 0) && break
-            savevalues!(integrator)
+            handle_callbacks!(integrator)
             (flag < 0) && break
         end
         (flag < 0) && break
     end
-    if integrator.opts.save_end && integrator.sol.t[end] != first(integrator.tout)
+    if integrator.opts.save_end && integrator.sol.t[end] != integrator.t
         save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
-        push!(integrator.sol.t, first(integrator.tout))
+        push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
-          integrator(integrator.u,curt,Val{1})
-          save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
+          integrator(integrator.u,integrator.t,Val{1})
+          save_value!(integrator.sol.interp.du,integrator.u,uType,integrator.sizeu)
         end
     end
 

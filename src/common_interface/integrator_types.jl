@@ -6,7 +6,7 @@ mutable struct DEOptions{SType,TstopType,CType}
     timeseries_errors::Bool
     dense_errors::Bool
     save_end::Bool
-    callbacks::CType
+    callback::CType
 end
 
 mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,oType,toutType,sizeType,tmpType} <: AbstractODEIntegrator
@@ -23,6 +23,7 @@ mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,oType,tout
     sizeu::sizeType
     u_modified::Bool
     tmp::tmpType
+    uprev::tmpType
 end
 
 function (integrator::SundialsIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T

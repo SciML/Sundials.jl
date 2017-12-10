@@ -27,11 +27,9 @@ end
 
 @inline function determine_event_occurance(integrator,callback)
   event_occurred = false
-  if callback.interp_points!=0
-    ode_addsteps!(integrator)
-  end
   Θs = linspace(typeof(integrator.t)(0),typeof(integrator.t)(1),callback.interp_points)
   interp_index = 0
+  dt = integrator.t - integrator.tprev
   # Check if the event occured
   if typeof(callback.idxs) <: Void
     previous_condition = callback.condition(integrator.tprev,integrator.uprev,integrator)
@@ -56,16 +54,16 @@ end
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Void)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Void))) && prev_sign*next_sign<=0
     event_occurred = true
     interp_index = callback.interp_points
-  elseif callback.interp_points!=0  && !(typeof(integrator.alg) <: Discrete)# Use the interpolants for safety checking
+  elseif callback.interp_points!=0  # Use the interpolants for safety checking
     tmp = integrator.tmp
     for i in 2:length(Θs)-1
       if !(typeof(callback.idxs) <: Number)
-        integrator(tmp,integrator.tprev+Θs[i])
-        _tmp = @view tmp[callback.idxs]
+        integrator(tmp,integrator.tprev+dt*Θs[i])
+        callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
       else
-        _tmp = integrator(integrator.tprev+Θs[i])[callback.idxs]
+        _tmp = integrator(integrator.tprev+dt*Θs[i])[callback.idxs]
       end
-      new_sign = callback.condition(integrator.tprev+integrator.dt*Θs[i],_tmp,integrator)
+      new_sign = callback.condition(integrator.tprev+dt*Θs[i],_tmp,integrator)
       if prev_sign == 0
         prev_sign = new_sign
         prev_sign_index = i
@@ -82,39 +80,43 @@ end
 
 function find_callback_time(integrator,callback)
   event_occurred,interp_index,Θs,prev_sign,prev_sign_index = determine_event_occurance(integrator,callback)
+  dt = integrator.t - integrator.tprev
   if event_occurred
     if typeof(callback.condition) <: Void
       new_t = zero(typeof(integrator.t))
     else
       if callback.interp_points!=0
         top_Θ = Θs[interp_index] # Top at the smallest
+        bottom_θ = Θs[prev_sign_index]
       else
         top_Θ = typeof(integrator.t)(1)
+        bottom_θ = typeof(integrator.t)(0)
       end
-      if callback.rootfind && !(typeof(integrator.alg) <: Discrete)
+      if callback.rootfind
         tmp = integrator.tmp
         find_zero = (Θ) -> begin
           if !(typeof(callback.idxs) <: Number)
-            integrator(tmp,integrator.tprev+θ)
-            _tmp = @view tmp[callback.idxs]
+            integrator(tmp,integrator.tprev+Θ*dt)
+            callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
           else
-            _tmp = integrator(integrator.tprev+Θ)[callback.idxs]
+            _tmp = integrator(integrator.tprev+Θ*dt)[callback.idxs]
           end
-          callback.condition(integrator.tprev+Θ*integrator.dt,tmp,integrator)
+          out = callback.condition(integrator.tprev+Θ*dt,tmp,integrator)
+          out
         end
-        Θ = prevfloat(prevfloat(fzero(find_zero,Θs[prev_sign_index],top_Θ)))
+        Θ = prevfloat(prevfloat(fzero(find_zero,bottom_θ,top_Θ)))
         # 2 prevfloat guerentees that the new time is either 1 or 2 floating point
         # numbers just before the event, but not after. If there's a barrier
         # which is never supposed to be crossed, then this will ensure that
         # The item never leaves the domain. Otherwise Roots.jl can return
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
-        new_t = integrator.dt*Θ
-      elseif interp_index != callback.interp_points && !(typeof(integrator.alg) <: Discrete)
-        new_t = integrator.dt*Θs[interp_index]
+        new_t = dt*Θ
+      elseif interp_index != callback.interp_points
+        new_t = dt*Θs[interp_index]
       else
         # If no solve and no interpolants, just use endpoint
-        new_t = integrator.dt
+        new_t = dt
       end
     end
   else
@@ -158,6 +160,7 @@ function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_si
     end
     return true,saved_in_cb
   end
+
   false,saved_in_cb
 end
 

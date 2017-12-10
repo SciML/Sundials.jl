@@ -2,7 +2,7 @@ __precompile__()
 
 module Sundials
 
-using Reexport, DataStructures
+using Reexport, DataStructures, Roots
 @reexport using DiffEqBase
 import DiffEqBase: solve
 

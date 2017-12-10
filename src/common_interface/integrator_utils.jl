@@ -26,7 +26,7 @@ function handle_callbacks!(integrator)
   integrator.u_modified = false
 end
 
-function DiffEqBase.savevalues!(integrator::SundialsIntegrator)
+function DiffEqBase.savevalues!(integrator::SundialsIntegrator,force_save=false)
     uType = eltype(integrator.sol.u)
     while !isempty(integrator.opts.saveat) &&
         integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
@@ -37,16 +37,16 @@ function DiffEqBase.savevalues!(integrator::SundialsIntegrator)
         push!(integrator.sol.t,curt)
         if integrator.opts.dense
           tmp = integrator(curt,Val{1})
-          save_value!(integrator.sol.k,tmp,uType,integrator.sizeu,Val{false})
+          save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu,Val{false})
         end
     end
-    if integrator.opts.save_everystep
-        tmp = integrator(first(integrator.tout))
-        save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
-        push!(integrator.sol.t, first(integrator.tout))
+
+    if integrator.opts.save_everystep || force_save
+        save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
+        push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
-          tmp = integrator(first(integrator.tout),Val{1})
-          save_value!(integrator.sol.k,tmp,uType,integrator.sizeu)
+          tmp = integrator(integrator.t,Val{1})
+          save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu)
         end
     end
 end
