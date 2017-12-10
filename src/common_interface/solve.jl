@@ -186,8 +186,17 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
             (flag < 0) && break
             if looped
                 # Fix the end
-                utmp .= ures[end]
-                flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), utmp)
+                if uType <: Number
+                    utmp[1] = ures[end]
+                    flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), utmp)
+                    ures[end] = first(utmp)
+                elseif uType <: Vector
+                    flag = @checkflag CVodeGetDky(mem,
+                                                 save_ts[k], Cint(0), ures[end])
+                else # Array
+                    flag = @checkflag CVodeGetDky(mem,
+                                            save_ts[k], Cint(0), vec(ures[end]))
+                end
                 ts[end] = save_ts[k]
             else # Just push another value
                 flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(0), utmp)
@@ -208,7 +217,8 @@ function solve{uType, tType, isinplace, Method, LinearSolver}(
             push!(ts, save_ts[k]...)
             if dense
               flag = @checkflag CVodeGetDky(mem, save_ts[k], Cint(1), utmp)
-              push!(dures, copy(utmp))
+              save_value!(dures,utmp,uType,sizeu)
+              push!(dures, utmp)
             end
             (flag < 0) && break
         end
@@ -232,7 +242,7 @@ function save_value!(save_array,val,::Type{T},sizeu) where T <: Vector
     push!(save_array,copy(val))
 end
 function save_value!(save_array,val,::Type{T},sizeu) where T <: Array
-    push!(save_array,resize(copy(val),sizeu))
+    push!(save_array,reshape(copy(val),sizeu))
 end
 
 ## Solve for DAEs uses IDA
@@ -321,8 +331,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-    ures = Vector{Vector{Float64}}()
-    dures = Vector{Vector{Float64}}()
+    ures = Vector{uType}()
+    dures = Vector{uType}()
     ts   = [t0]
 
 
@@ -398,9 +408,9 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
 
     if flag >= 0
         if save_start
-          push!(ures, copy(u0))
+          save_value!(ures,u0,uType,sizeu)
           if dense
-            push!(dures,du0) # Does this need to update for IDACalcIC?
+            save_value!(dures,du0,uType,sizedu) # Does this need to update for IDACalcIC?
           end
         end
 
@@ -413,10 +423,10 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                     looped = true
                     flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_ONE_STEP)
                     (flag < 0) && break
-                    push!(ures,copy(utmp))
+                    save_value!(ures,utmp,uType,sizeu)
                     push!(ts, tout...)
                     if dense
-                        push!(dures,copy(dutmp))
+                        save_value!(dures,dutmp,uType,sizedu)
                     end
                 end
                 (flag < 0) && break
@@ -427,12 +437,12 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                 else # Just push another value
                     flag = @checkflag IDAGetDky(mem, save_ts[k], Cint(0), utmp)
                     (flag < 0) && break
-                    push!(ures, copy(utmp))
+                    save_value!(ures,utmp,uType,sizeu)
                     if dense
                         flag = @checkflag IDAGetDky(
                                               mem, save_ts[k], Cint(1), dutmp)
                         (flag < 0) && break
-                        push!(dures,copy(dutmp))
+                        save_value!(dures,dutmp,uType,sizedu)
                     end
                     push!(ts, save_ts[k]...)
                 end
@@ -442,44 +452,15 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
             for k in 1:length(save_ts)
                 flag = @checkflag IDASolve(mem, save_ts[k], tout, utmp, dutmp, IDA_NORMAL)
                 (flag < 0) && break
-                push!(ures, copy(utmp))
+                save_value!(ures,utmp,uType,sizeu)
                 if dense
-                    push!(dures,copy(dutmp))
+                    save_value!(dures,dutmp,uType,sizedu)
                 end
                 push!(ts, save_ts[k]...)
             end
         end
         retcode = interpret_sundials_retcode(flag)
-
-        timeseries = Vector{uType}(0)
-        if typeof(prob.u0)<:Number
-            for i = 1:length(ures)
-                push!(timeseries, ures[i][1])
-            end
-        else
-            for i = 1:length(ures)
-                push!(timeseries, reshape(ures[i], sizeu))
-            end
-        end
-
-        if dense
-          du_timeseries = Vector{uType}(0)
-          if typeof(prob.u0)<:Number
-              for i=1:length(ures)
-                  push!(du_timeseries, dures[i][1])
-              end
-          else
-              for i=1:length(ures)
-                  push!(du_timeseries, reshape(dures[i], sizeu))
-              end
-          end
-        else
-          du_timeseries = dures
-        end
-
     else
-        timeseries = utmp
-        du_timeseries = dutmp
         retcode = :InitialFailure
     end
 
@@ -487,11 +468,9 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
 
     empty!(mem);
 
-
-
-    build_solution(prob, alg, ts, timeseries,
+    build_solution(prob, alg, ts, utmp,
                    dense = dense,
-                   du = du_timeseries,
+                   du = dutmp,
                    timeseries_errors = timeseries_errors,
                    retcode = retcode)
 end # function solve
