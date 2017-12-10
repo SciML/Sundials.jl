@@ -9,7 +9,9 @@ mutable struct DEOptions{SType,TstopType,CType}
     callback::CType
 end
 
-mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,JType,oType,toutType,sizeType,tmpType} <: AbstractODEIntegrator
+abstract type AbstractSundialsIntegrator <: AbstractODEIntegrator end
+
+mutable struct CVODEIntegrator{uType,memType,solType,algType,fType,JType,oType,toutType,sizeType,tmpType} <: AbstractSundialsIntegrator
     u::uType
     t::Float64
     tprev::Float64
@@ -27,13 +29,13 @@ mutable struct SundialsIntegrator{uType,memType,solType,algType,fType,JType,oTyp
     uprev::tmpType
 end
 
-function (integrator::SundialsIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
+function (integrator::CVODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
     out = similar(integrator.u)
     CVodeGetDky(integrator.mem, t, Cint(T), out)
     out
 end
 
-function (integrator::SundialsIntegrator)(out,t::Number,
+function (integrator::CVODEIntegrator)(out,t::Number,
                                           deriv::Type{Val{T}}=Val{0}) where T
     CVodeGetDky(integrator.mem, t, Cint(T), out)
 end

@@ -26,7 +26,7 @@ function handle_callbacks!(integrator)
   integrator.u_modified = false
 end
 
-function DiffEqBase.savevalues!(integrator::SundialsIntegrator,force_save=false)
+function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_save=false)
     uType = eltype(integrator.sol.u)
     while !isempty(integrator.opts.saveat) &&
         integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
@@ -66,6 +66,6 @@ function save_value!(save_array,val,::Type{T},sizeu,
     push!(save_array,reshape(save,sizeu))
 end
 
-function handle_callback_modifiers!(integrator)
+function handle_callback_modifiers!(integrator::CVODEIntegrator)
   CVodeReInit(integrator.mem,integrator.t,integrator.u)
 end

@@ -171,7 +171,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal)
-    SundialsIntegrator(utmp,t0,t0,mem,sol,alg,f!,jac,opts,
+    CVODEIntegrator(utmp,t0,t0,mem,sol,alg,f!,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev)
 end # function solve
 
@@ -388,6 +388,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
                        N_Vector))
       flag = @checkflag IDASetUserData(mem, userfun)
       flag = @checkflag IDADlsSetDenseJacFn(mem, jac)
+    else
+      jac = nothing
     end
 
     utmp = NVector(copy(u0))
@@ -410,6 +412,12 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
         save_value!(dures,du0,uType,sizedu) # Does this need to update for IDACalcIC?
       end
     end
+
+    sol = build_solution(prob, alg, ts, ures,
+                   dense = dense,
+                   du = dures,
+                   timeseries_errors = timeseries_errors,
+                   dense_errors = dense_errors)
 
     if flag >= 0
         # The Inner Loops : Style depends on save_everystep
@@ -464,14 +472,8 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
 
     ### Finishing Routine
 
-    #empty!(mem);
-
-    build_solution(prob, alg, ts, ures,
-                   dense = dense,
-                   du = dures,
-                   timeseries_errors = timeseries_errors,
-                   dense_errors = dense_errors,
-                   retcode = retcode)
+    empty!(mem);
+    solution_new_retcode(sol,retcode)
 end # function solve
 
 function interpret_sundials_retcode(flag)
