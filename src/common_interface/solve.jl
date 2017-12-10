@@ -462,7 +462,7 @@ function solve{uType, duType, tType, isinplace, LinearSolver}(
 
     ### Finishing Routine
 
-    empty!(mem);
+    #empty!(mem);
 
     build_solution(prob, alg, ts, ures,
                    dense = dense,
