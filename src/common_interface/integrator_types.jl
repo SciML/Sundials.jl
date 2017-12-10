@@ -18,4 +18,5 @@ mutable struct DEOptions{SType,TstopType}
     dense::Bool
     timeseries_errors::Bool
     dense_errors::Bool
+    save_end::Bool
 end

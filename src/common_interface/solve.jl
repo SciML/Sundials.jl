@@ -23,7 +23,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     timeseries_errors=true,
     dense_errors = false,
     save_everystep=isempty(saveat), dense = save_everystep,
-    save_start = true,
+    save_start = true, save_end = true,
     save_timeseries = nothing,
     userdata=nothing,
     kwargs...)
@@ -52,25 +52,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     tdir = sign(tspan[2]-tspan[1])
 
-    if typeof(saveat) <: Number
-        if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
-          saveat_vec = collect(tType,tspan[1]+saveat:saveat:tspan[end])
-        else
-          saveat_vec = collect(tType,tspan[1]+saveat:saveat:(tspan[end]-saveat))
-        end
-    else
-        saveat_vec = convert(Vector{tType}, collect(saveat))
-    end
-
-    if !isempty(saveat_vec) && saveat_vec[end] == tspan[2]
-        pop!(saveat_vec)
-    end
-
-    if !isempty(saveat_vec) && saveat_vec[1] == tspan[1]
-        save_ts = sort(unique([saveat_vec[2:end];tspan[2];tstops]))
-    else
-        save_ts = sort(unique([saveat_vec;tspan[2];tstops]))
-    end
+    tstops_internal, saveat_internal =
+      tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
 
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
@@ -178,77 +161,69 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     sol = build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   du = dures,
+                   k = dures,
                    timeseries_errors = timeseries_errors,
                    calculate_error = false)
-    opts = DEOptions(save_ts,tstops,save_everystep,dense,timeseries_errors,
-                     dense_errors)
+    opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,timeseries_errors,
+                     dense_errors,save_end)
     SundialsIntegrator(utmp,t0,mem,sol,alg,f!,opts,tout,tdir,sizeu)
 end # function solve
 
-function solve!(integrator)
+function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
+  tstops_vec = vec(collect(tType,Iterators.filter(x->tdir*tspan[1]<tdir*x≤tdir*tspan[end],Iterators.flatten((tstops,tspan[end])))))
+
+  if tdir>0
+    tstops_internal = binary_minheap(tstops_vec)
+  else
+    tstops_internal = binary_maxheap(tstops_vec)
+  end
+
+  if typeof(saveat) <: Number
+    if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
+      saveat_vec = convert(Vector{tType},collect(tType,tspan[1]+saveat:saveat:tspan[end]))
+    else
+      saveat_vec = convert(Vector{tType},collect(tType,tspan[1]+saveat:saveat:(tspan[end]-saveat)))
+    end
+  else
+    saveat_vec = vec(collect(tType,Iterators.filter(x->tdir*tspan[1]<tdir*x<tdir*tspan[end],saveat)))
+  end
+
+  if tdir>0
+    saveat_internal = binary_minheap(saveat_vec)
+  else
+    saveat_internal = binary_maxheap(saveat_vec)
+  end
+
+  tstops_internal,saveat_internal
+end
+
+function DiffEqBase.solve!(integrator)
     uType = eltype(integrator.sol.u)
     flag = 0
 
-    # The Inner Loops : Style depends on save_everystep
-    if integrator.opts.save_everystep
-        for k in 1:length(integrator.opts.saveat)
-            integrator.opts.saveat[k] ∈ integrator.opts.tstops && CVodeSetStopTime(integrator.mem,integrator.opts.saveat[k])
-            looped = false
-            while integrator.tdir*integrator.tout[end] < integrator.tdir*integrator.opts.saveat[k]
-                looped = true
-                flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, integrator.tout, CV_ONE_STEP)
-                (flag < 0) && break
-                if integrator.opts.save_everystep
-                    save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
-                    push!(integrator.sol.t, integrator.tout...)
-                    if integrator.opts.dense
-                      flag = @checkflag CVodeGetDky(
-                                              integrator.mem, integrator.tout[1], Cint(1), integrator.u)
-                      (flag < 0) && break
-                      save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
-                    end
-                end
-                (flag < 0) && break
-            end
+    while !isempty(integrator.opts.tstops)
+        tstop = pop!(integrator.opts.tstops)
+        CVodeSetStopTime(integrator.mem,tstop)
+        while integrator.tdir*integrator.tout[end] < integrator.tdir*tstop
+            flag = @checkflag CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
             (flag < 0) && break
-            if looped
-                # Fix the end
-                if uType <: Number
-                    integrator.u[1] = integrator.sol.u[end]
-                    flag = @checkflag CVodeGetDky(integrator.mem, integrator.opts.saveat[k], Cint(0), integrator.u)
-                    integrator.sol.u[end] = first(integrator.u)
-                elseif uType <: Vector
-                    flag = @checkflag CVodeGetDky(integrator.mem,
-                                                 integrator.opts.saveat[k], Cint(0), integrator.sol.u[end])
-                else # Array
-                    flag = @checkflag CVodeGetDky(integrator.mem,
-                                            integrator.opts.saveat[k], Cint(0), vec(integrator.sol.u[end]))
-                end
-                integrator.sol.t[end] = integrator.opts.saveat[k]
-            else # Just push another value
-                flag = @checkflag CVodeGetDky(integrator.mem, integrator.opts.saveat[k], Cint(0), integrator.u)
-                save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
-                push!(integrator.sol.t, integrator.opts.saveat[k]...)
-                if integrator.opts.dense
-                    flag = @checkflag CVodeGetDky(integrator.mem, integrator.opts.saveat[k], Cint(1), integrator.u)
-                    save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
-                end
-            end
+            savevalues!(integrator)
             (flag < 0) && break
         end
-    else # save_everystep == false, so use CV_NORMAL style
-        for k in 1:length(integrator.opts.saveat)
-            integrator.opts.saveat[k] ∈ integrator.opts.tstops && CVodeSetStopTime(integrator.mem,integrator.opts.saveat[k])
-            flag = @checkflag CVode(integrator.mem, integrator.opts.saveat[k], integrator.u, integrator.tout, CV_NORMAL)
-            save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
-            push!(integrator.sol.t, integrator.opts.saveat[k]...)
-            if integrator.opts.dense
-              flag = @checkflag CVodeGetDky(integrator.mem, integrator.opts.saveat[k], Cint(1), integrator.u)
-              save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
-              push!(integrator.sol.k, integrator.u)
-            end
-            (flag < 0) && break
+        (flag < 0) && break
+    end
+
+    if integrator.opts.save_end && integrator.sol.t[end] != first(integrator.tout)
+        #flag = @checkflag CVodeGetDky(
+        #                        integrator.mem, first(integrator.tout),
+        #                         Cint(0), #integrator.u)
+        save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
+        push!(integrator.sol.t, first(integrator.tout))
+        if integrator.opts.dense
+          flag = @checkflag CVodeGetDky(
+                                  integrator.mem, first(integrator.tout), Cint(1), integrator.u)
+          (flag < 0) && return
+          save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
         end
     end
 
@@ -259,6 +234,41 @@ function solve!(integrator)
         dense_errors=integrator.opts.dense_errors)
     end
     solution_new_retcode(integrator.sol,interpret_sundials_retcode(flag))
+end
+
+function DiffEqBase.savevalues!(integrator::SundialsIntegrator)
+    uType = eltype(integrator.sol.u)
+    did_saveat = false
+    while !isempty(integrator.opts.saveat) && integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*integrator.tout[end]
+        did_saveat = true
+        curt = pop!(integrator.opts.saveat)
+        flag = @checkflag CVodeGetDky(
+                                integrator.mem, curt, Cint(0), integrator.u)
+        (flag < 0) && return
+        save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
+        push!(integrator.sol.t, curt)
+        if integrator.opts.dense
+          flag = @checkflag CVodeGetDky(
+                                  integrator.mem, curt, Cint(1), integrator.u)
+          (flag < 0) && return
+          save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
+        end
+    end
+    if integrator.opts.save_everystep
+        if did_saveat
+            flag = @checkflag CVodeGetDky(
+                                    integrator.mem, first(integrator.tout), Cint(0), integrator.u)
+            (flag < 0) && return
+        end
+        save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
+        push!(integrator.sol.t, first(integrator.tout))
+        if integrator.opts.dense
+          flag = @checkflag CVodeGetDky(
+                                  integrator.mem, first(integrator.tout), Cint(1), integrator.u)
+          (flag < 0) && return
+          save_value!(integrator.sol.k,integrator.u,uType,integrator.sizeu)
+        end
+    end
 end
 
 function save_value!(save_array,val,::Type{T},sizeu) where T <: Number
