@@ -104,6 +104,10 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
+    verbose && CVodeSetErrHandlerFn(mem,cfunction(null_error_handler, Void,
+                                    (CInt, Char,
+                                    Char, Ptr{Void})),Ref(nothing))
+
     ures  = Vector{uType}()
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
