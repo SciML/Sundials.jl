@@ -14,6 +14,11 @@ function IDASetErrHandlerFn(ida_mem,ehfun,eh_data)
     __IDASetErrHandlerFn(convert(IDAMemPtr,ida_mem),ehfun,pointer(eh_data))
 end
 
+# Added method for verbosity handling with C_NULL
+function IDASetErrHandlerFn(ida_mem,ehfun,eh_data::Ptr{Void})
+    __IDASetErrHandlerFn(convert(IDAMemPtr,ida_mem),ehfun,eh_data)
+end
+
 function __IDASetErrFile(ida_mem::IDAMemPtr,errfp::Ptr{FILE})
     ccall((:IDASetErrFile,libsundials_idas),Cint,(IDAMemPtr,Ptr{FILE}),ida_mem,errfp)
 end

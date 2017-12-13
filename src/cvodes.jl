@@ -220,6 +220,11 @@ function CVodeSetErrHandlerFn(cvode_mem,ehfun,eh_data)
     __CVodeSetErrHandlerFn(convert(CVODEMemPtr,cvode_mem),ehfun,pointer(eh_data))
 end
 
+# Added method for verbosity handling with C_NULL
+function CVodeSetErrHandlerFn(cvode_mem,ehfun,eh_data::Ptr{Void})
+    __CVodeSetErrHandlerFn(convert(CVODEMemPtr,cvode_mem),ehfun,eh_data)
+end
+
 function __CVodeSetErrFile(cvode_mem::CVODEMemPtr,errfp::Ptr{FILE})
     ccall((:CVodeSetErrFile,libsundials_cvodes),Cint,(CVODEMemPtr,Ptr{FILE}),cvode_mem,errfp)
 end

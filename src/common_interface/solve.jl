@@ -104,9 +104,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    verbose && CVodeSetErrHandlerFn(mem,cfunction(null_error_handler, Void,
-                                    (CInt, Char,
-                                    Char, Ptr{Void})),Ref(nothing))
+    !verbose && CVodeSetErrHandlerFn(mem,cfunction(null_error_handler, Void,
+                                    (Cint, Char,
+                                    Char, Ptr{Void})),C_NULL)
 
     ures  = Vector{uType}()
     dures = Vector{uType}()
@@ -344,6 +344,10 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     mem_ptr = IDACreate()
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
+
+    !verbose && IDASetErrHandlerFn(mem,cfunction(null_error_handler, Void,
+                                    (Cint, Char,
+                                    Char, Ptr{Void})),C_NULL)
 
     ures = Vector{uType}()
     dures = Vector{uType}()

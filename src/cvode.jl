@@ -14,6 +14,11 @@ function __CVodeSetErrHandlerFn(cvode_mem::CVODEMemPtr,ehfun::CVErrHandlerFn,eh_
     ccall((:CVodeSetErrHandlerFn,libsundials_cvode),Cint,(CVODEMemPtr,CVErrHandlerFn,Ptr{Void}),cvode_mem,ehfun,eh_data)
 end
 
+# Added method for verbosity handling with C_NULL
+function CVodeSetErrHandlerFn(cvode_mem,ehfun,eh_data::Ptr{Void})
+    __CVodeSetErrHandlerFn(convert(CVODEMemPtr,cvode_mem),ehfun,eh_data)
+end
+
 function CVodeSetErrHandlerFn(cvode_mem,ehfun,eh_data)
     __CVodeSetErrHandlerFn(convert(CVODEMemPtr,cvode_mem),ehfun,pointer(eh_data))
 end

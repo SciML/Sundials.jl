@@ -53,6 +53,7 @@ end
 include("kinsol.jl")
 
 include("simple.jl")
+include("common_interface/verbosity.jl")
 include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
 include("common_interface/callbacks.jl")

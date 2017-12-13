@@ -1,7 +1,6 @@
-function null_error_handler(error_code::CInt,
+function null_error_handler(error_code::Cint,
                   mod::Char,
                   func::Char,
-                  msg::Char,
                   eh_data::Ptr{Void})
   nothing
 end
