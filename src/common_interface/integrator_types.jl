@@ -7,6 +7,7 @@ mutable struct DEOptions{SType,TstopType,CType}
     dense_errors::Bool
     save_end::Bool
     callback::CType
+    verbose::Bool
 end
 
 abstract type AbstractSundialsIntegrator <: AbstractODEIntegrator end
