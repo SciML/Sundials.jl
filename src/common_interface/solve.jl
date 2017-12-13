@@ -8,8 +8,7 @@ function DiffEqBase.solve{algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorit
   kwargs...)
 
   integrator = DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
-  integrator.flag >=0 && solve!(integrator)
-  integrator.sol
+  solve!(integrator)
 end
 
 function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
