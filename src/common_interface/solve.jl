@@ -1,15 +1,3 @@
-macro c_checkflag(ex,verbose=false)
-    @assert Base.Meta.isexpr(ex, :call)
-    fname = ex.args[1]
-    quote
-        flag = $(esc(ex))
-        if flag < 0 && $(esc(verbose))
-            warn($(string(fname, " failed with error code = ")), flag)
-        end
-        flag
-    end
-end
-
 ## Common Interface Solve Functions
 
 function DiffEqBase.solve{algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorithm},
@@ -114,38 +102,38 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
     u0nv = NVector(u0)
-    flag = @c_checkflag CVodeInit(mem,
-                                cfunction(cvodefunjac, Cint,
-                                          (realtype, N_Vector,
-                                           N_Vector, Ref{typeof(userfun)})),
-                                t0, convert(N_Vector, u0nv)) verbose
+    flag = CVodeInit(mem,
+                    cfunction(cvodefunjac, Cint,
+                              (realtype, N_Vector,
+                               N_Vector, Ref{typeof(userfun)})),
+                    t0, convert(N_Vector, u0nv))
 
-    dt != nothing && (flag = @c_checkflag(CVodeSetInitStep(mem, dt),verbose))
-    flag = @c_checkflag CVodeSetMinStep(mem, dtmin) verbose
-    flag = @c_checkflag CVodeSetMaxStep(mem, dtmax) verbose
-    flag = @c_checkflag CVodeSetUserData(mem, userfun) verbose
-    flag = @c_checkflag CVodeSStolerances(mem, reltol, abstol) verbose
-    flag = @c_checkflag CVodeSetMaxNumSteps(mem, maxiter) verbose
-    flag = @c_checkflag CVodeSetMaxOrd(mem, alg.max_order) verbose
-    flag = @c_checkflag CVodeSetMaxHnilWarns(mem, alg.max_hnil_warns) verbose
-    flag = @c_checkflag CVodeSetStabLimDet(mem, alg.stability_limit_detect) verbose
-    flag = @c_checkflag CVodeSetMaxErrTestFails(mem, alg.max_error_test_failures) verbose
-    flag = @c_checkflag CVodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters) verbose
-    flag = @c_checkflag CVodeSetMaxConvFails(mem, alg.max_convergence_failures) verbose
+    dt != nothing && (flag = CVodeSetInitStep(mem, dt))
+    flag = CVodeSetMinStep(mem, dtmin)
+    flag = CVodeSetMaxStep(mem, dtmax)
+    flag = CVodeSetUserData(mem, userfun)
+    flag = CVodeSStolerances(mem, reltol, abstol)
+    flag = CVodeSetMaxNumSteps(mem, maxiter)
+    flag = CVodeSetMaxOrd(mem, alg.max_order)
+    flag = CVodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
+    flag = CVodeSetStabLimDet(mem, alg.stability_limit_detect)
+    flag = CVodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
+    flag = CVodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
+    flag = CVodeSetMaxConvFails(mem, alg.max_convergence_failures)
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
-            flag = @c_checkflag CVDense(mem, length(u0)) verbose
+            flag = CVDense(mem, length(u0))
         elseif LinearSolver == :Banded
-            flag = @c_checkflag CVBand(mem,length(u0), alg.jac_upper, alg.jac_lower) verbose
+            flag = CVBand(mem,length(u0), alg.jac_upper, alg.jac_lower)
         elseif LinearSolver == :Diagonal
-            flag = @c_checkflag CVDiag(mem) verbose
+            flag = CVDiag(mem)
         elseif LinearSolver == :GMRES
-            flag = @c_checkflag CVSpgmr(mem, PREC_NONE, alg.krylov_dim) verbose
+            flag = CVSpgmr(mem, PREC_NONE, alg.krylov_dim)
         elseif LinearSolver == :BCG
-            flag = @c_checkflag CVSpgmr(mem, PREC_NONE, alg.krylov_dim) verbose
+            flag = CVSpgmr(mem, PREC_NONE, alg.krylov_dim)
         elseif LinearSolver == :TFQMR
-            flag = @c_checkflag CVSptfqmr(mem, PREC_NONE, alg.krylov_dim) verbose
+            flag = CVSptfqmr(mem, PREC_NONE, alg.krylov_dim)
         end
     end
 
@@ -161,8 +149,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                        N_Vector,
                        N_Vector,
                        N_Vector))
-      flag = @c_checkflag CVodeSetUserData(mem, userfun) verbose
-      flag = @c_checkflag CVDlsSetDenseJacFn(mem, jac) verbose
+      flag = CVodeSetUserData(mem, userfun)
+      flag = CVDlsSetDenseJacFn(mem, jac)
     else
         jac = nothing
     end
@@ -233,15 +221,9 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
             end
             solver_step(integrator,tstop)
             integrator.t = first(integrator.tout)
-            if integrator.flag < 0
-                integrator.opts.verbose && warn("Integration step exited early due to flag $(integrator.flag)")
-                break
-            end
+            integrator.flag < 0 && break
             handle_callbacks!(integrator)
-            if integrator.flag < 0
-                integrator.opts.verbose && warn("Integration step exited early at interpolation due to flag $(integrator.flag)")
-                break
-            end
+            integrator.flag < 0 && break
         end
         (integrator.flag < 0) && break
     end
@@ -356,40 +338,40 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
 
     userfun = FunJac(f!,(t,u,du,gamma,J) -> f!(Val{:jac},t,u,du,gamma,J))
     u0nv = NVector(u0)
-    flag = @c_checkflag IDAInit(mem, cfunction(idasolfun,
-                                             Cint, (realtype, N_Vector, N_Vector,
-                                                    N_Vector, Ref{typeof(userfun)})),
+    flag = IDAInit(mem, cfunction(idasolfun,
+                     Cint, (realtype, N_Vector, N_Vector,
+                            N_Vector, Ref{typeof(userfun)})),
                               t0, convert(N_Vector, u0),
-                              convert(N_Vector, du0)) verbose
-    dt != nothing && (flag = @c_checkflag(IDASetInitStep(mem, dt),verbose))
-    flag = @c_checkflag IDASetUserData(mem, userfun) verbose
-    flag = @c_checkflag IDASetMaxStep(mem, dtmax) verbose
-    flag = @c_checkflag IDASStolerances(mem, reltol, abstol) verbose
-    flag = @c_checkflag IDASetMaxNumSteps(mem, maxiter) verbose
-    flag = @c_checkflag IDASetMaxOrd(mem,alg.max_order) verbose
-    flag = @c_checkflag IDASetMaxErrTestFails(mem,alg.max_error_test_failures) verbose
-    flag = @c_checkflag IDASetNonlinConvCoef(mem,alg.nonlinear_convergence_coefficient) verbose
-    flag = @c_checkflag IDASetMaxNonlinIters(mem,alg.max_nonlinear_iters) verbose
-    flag = @c_checkflag IDASetMaxConvFails(mem,alg.max_convergence_failures) verbose
-    flag = @c_checkflag IDASetNonlinConvCoefIC(mem,alg.nonlinear_convergence_coefficient_ic) verbose
-    flag = @c_checkflag IDASetMaxNumStepsIC(mem,alg.max_num_steps_ic) verbose
-    flag = @c_checkflag IDASetMaxNumJacsIC(mem,alg.max_num_jacs_ic) verbose
-    flag = @c_checkflag IDASetMaxNumItersIC(mem,alg.max_num_iters_ic) verbose
-    #flag = @c_checkflag IDASetMaxBacksIC(mem,alg.max_num_backs_ic) verbose # Needs newer version?
-    flag = @c_checkflag IDASetLineSearchOffIC(mem,alg.use_linesearch_ic) verbose
+                              convert(N_Vector, du0))
+    dt != nothing && (flag = IDASetInitStep(mem, dt))
+    flag = IDASetUserData(mem, userfun)
+    flag = IDASetMaxStep(mem, dtmax)
+    flag = IDASStolerances(mem, reltol, abstol)
+    flag = IDASetMaxNumSteps(mem, maxiter)
+    flag = IDASetMaxOrd(mem,alg.max_order)
+    flag = IDASetMaxErrTestFails(mem,alg.max_error_test_failures)
+    flag = IDASetNonlinConvCoef(mem,alg.nonlinear_convergence_coefficient)
+    flag = IDASetMaxNonlinIters(mem,alg.max_nonlinear_iters)
+    flag = IDASetMaxConvFails(mem,alg.max_convergence_failures)
+    flag = IDASetNonlinConvCoefIC(mem,alg.nonlinear_convergence_coefficient_ic)
+    flag = IDASetMaxNumStepsIC(mem,alg.max_num_steps_ic)
+    flag = IDASetMaxNumJacsIC(mem,alg.max_num_jacs_ic)
+    flag = IDASetMaxNumItersIC(mem,alg.max_num_iters_ic)
+    #flag = IDASetMaxBacksIC(mem,alg.max_num_backs_ic) # Needs newer version?
+    flag = IDASetLineSearchOffIC(mem,alg.use_linesearch_ic)
 
     if LinearSolver == :Dense
-        flag = @c_checkflag IDADense(mem, length(u0)) verbose
+        flag = IDADense(mem, length(u0))
     elseif LinearSolver == :Band
-        flag = @c_checkflag IDABand(mem, length(u0), alg.jac_upper, alg.jac_lower) verbose
+        flag = IDABand(mem, length(u0), alg.jac_upper, alg.jac_lower)
     elseif LinearSolver == :Diagonal
-        flag = @c_checkflag IDADiag(mem) verbose
+        flag = IDADiag(mem)
     elseif LinearSolver == :GMRES
-        flag = @c_checkflag IDASpgmr(mem, PREC_NONE, alg.krylov_dim) verbose
+        flag = IDASpgmr(mem, PREC_NONE, alg.krylov_dim)
     elseif LinearSolver == :BCG
-        flag = @c_checkflag IDASpgmr(mem, PREC_NONE, alg.krylov_dim) verbose
+        flag = IDASpgmr(mem, PREC_NONE, alg.krylov_dim)
     elseif LinearSolver == :TFQMR
-        flag = @c_checkflag IDASptfqmr(mem, PREC_NONE, alg.krylov_dim) verbose
+        flag = IDASptfqmr(mem, PREC_NONE, alg.krylov_dim)
     end
 
     if has_jac(prob.f)
@@ -406,8 +388,8 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
                        N_Vector,
                        N_Vector,
                        N_Vector))
-      flag = @c_checkflag IDASetUserData(mem, userfun) verbose
-      flag = @c_checkflag IDADlsSetDenseJacFn(mem, jac) verbose
+      flag = IDASetUserData(mem, userfun)
+      flag = IDADlsSetDenseJacFn(mem, jac)
     else
       jac = nothing
     end
@@ -422,8 +404,8 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
         if prob.differential_vars === nothing
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
         end
-        flag = @c_checkflag IDASetId(mem, collect(Float64, prob.differential_vars)) verbose
-        flag = @c_checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t0) verbose
+        flag = IDASetId(mem, collect(Float64, prob.differential_vars))
+        flag = IDACalcIC(mem, IDA_YA_YDP_INIT, t0)
     end
 
     if save_start
