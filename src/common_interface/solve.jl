@@ -1,3 +1,15 @@
+macro c_checkflag(ex,verbose=false)
+    @assert Base.Meta.isexpr(ex, :call)
+    fname = ex.args[1]
+    quote
+        flag = $(esc(ex))
+        if flag < 0 && $(esc(verbose))
+            warn($(string(fname, " failed with error code = ")), flag)
+        end
+        flag
+    end
+end
+
 ## Common Interface Solve Functions
 
 function DiffEqBase.solve{algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorithm},
@@ -98,7 +110,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
     u0nv = NVector(u0)
-    flag = @checkflag CVodeInit(mem,
+    flag = @c_checkflag CVodeInit(mem,
                                 cfunction(cvodefunjac, Cint,
                                           (realtype, N_Vector,
                                            N_Vector, Ref{typeof(userfun)})),
@@ -173,7 +185,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
-                     callbacks_internal)
+                     callbacks_internal,verbose)
     CVODEIntegrator(utmp,t0,t0,mem,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag))
 end # function solve
@@ -336,11 +348,11 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
 
     userfun = FunJac(f!,(t,u,du,gamma,J) -> f!(Val{:jac},t,u,du,gamma,J))
     u0nv = NVector(u0)
-    flag = @checkflag IDAInit(mem, cfunction(idasolfun,
+    flag = @c_checkflag IDAInit(mem, cfunction(idasolfun,
                                              Cint, (realtype, N_Vector, N_Vector,
                                                     N_Vector, Ref{typeof(userfun)})),
                               t0, convert(N_Vector, u0),
-                              convert(N_Vector, du0))
+                              convert(N_Vector, du0)) verbose
     dt != nothing && (flag = @c_checkflag(IDASetInitStep(mem, dt),verbose))
     flag = @c_checkflag IDASetUserData(mem, userfun) verbose
     flag = @c_checkflag IDASetMaxStep(mem, dtmax) verbose
@@ -434,7 +446,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
 
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                     timeseries_errors,dense_errors,save_end,
-                    callbacks_internal)
+                    callbacks_internal,verbose)
 
     IDAIntegrator(utmp,dutmp,t0,t0,mem,sol,alg,f!,userfun,jac,opts,
                    tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag))
@@ -451,26 +463,14 @@ function interpret_sundials_retcode(flag)
 end
 
 function solver_step(integrator::CVODEIntegrator,tstop)
-    integrator.flag = @c_checkflag CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP) verbose
+    integrator.flag = CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
 end
 function solver_step(integrator::IDAIntegrator,tstop)
-    flag = @c_checkflag IDASolve(integrator.mem, tstop, integrator.tout, integrator.u, integrator.du, IDA_ONE_STEP) verbose
+    flag = IDASolve(integrator.mem, tstop, integrator.tout, integrator.u, integrator.du, IDA_ONE_STEP)
 end
 function set_stop_time(integrator::CVODEIntegrator,tstop)
     CVodeSetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::IDAIntegrator,tstop)
     IDASetStopTime(integrator.mem,tstop)
-end
-
-macro c_checkflag(ex,verbose)
-    @assert Base.Meta.isexpr(ex, :call)
-    fname = ex.args[1]
-    quote
-        flag = $(esc(ex))
-        if flag < 0 && verbose
-            warn($(string(fname, " failed with error code = ")), flag)
-        end
-        flag
-    end
 end
