@@ -94,7 +94,7 @@ function find_callback_time(integrator,callback)
       end
       if callback.rootfind
         tmp = integrator.tmp
-        find_zero = (Θ) -> begin
+        zero_func = (Θ) -> begin
           if !(typeof(callback.idxs) <: Number)
             integrator(tmp,integrator.tprev+Θ*dt)
             callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
@@ -104,7 +104,7 @@ function find_callback_time(integrator,callback)
           out = callback.condition(integrator.tprev+Θ*dt,tmp,integrator)
           out
         end
-        Θ = prevfloat(prevfloat(fzero(find_zero,bottom_θ,top_Θ)))
+        Θ = prevfloat(prevfloat(find_zero(zero_func,(bottom_θ,top_Θ),FalsePosition(),abstol = callback.abstol/10)))
         # 2 prevfloat guerentees that the new time is either 1 or 2 floating point
         # numbers just before the event, but not after. If there's a barrier
         # which is never supposed to be crossed, then this will ensure that
