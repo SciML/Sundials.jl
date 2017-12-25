@@ -21,6 +21,6 @@ end
     @testset "CVODE" begin include("common_interface/cvode.jl") end
     @testset "IDA" begin include("common_interface/ida.jl") end
     @testset "Jacobians" begin include("common_interface/jacobians.jl") end
-    @testset "Errors" begin include("common_interface/errors.jl") end
     @testset "Callbacks" begin include("common_interface/callbacks.jl") end
+    @testset "Errors" begin include("common_interface/errors.jl") end
 end

@@ -405,7 +405,12 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
         end
         flag = IDASetId(mem, collect(Float64, prob.differential_vars))
-        flag = IDACalcIC(mem, IDA_YA_YDP_INIT, t0)
+        if dt != nothing
+            _t = float(dt)
+        else
+            _t = float(tspan[2])
+        end
+        flag = IDACalcIC(mem, IDA_YA_YDP_INIT, _t)
     end
 
     if save_start
