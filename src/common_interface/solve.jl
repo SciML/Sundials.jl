@@ -131,7 +131,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         elseif LinearSolver == :GMRES
             flag = CVSpgmr(mem, PREC_NONE, alg.krylov_dim)
         elseif LinearSolver == :BCG
-            flag = CVSpgmr(mem, PREC_NONE, alg.krylov_dim)
+            flag = CVSpbcg(mem, PREC_NONE, alg.krylov_dim)
         elseif LinearSolver == :TFQMR
             flag = CVSptfqmr(mem, PREC_NONE, alg.krylov_dim)
         end
@@ -362,16 +362,14 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
 
     if LinearSolver == :Dense
         flag = IDADense(mem, length(u0))
-    elseif LinearSolver == :Band
+    elseif LinearSolver == :Banded
         flag = IDABand(mem, length(u0), alg.jac_upper, alg.jac_lower)
-    elseif LinearSolver == :Diagonal
-        flag = IDADiag(mem)
     elseif LinearSolver == :GMRES
-        flag = IDASpgmr(mem, PREC_NONE, alg.krylov_dim)
+        flag = IDASpgmr(mem, alg.krylov_dim)
     elseif LinearSolver == :BCG
-        flag = IDASpgmr(mem, PREC_NONE, alg.krylov_dim)
+        flag = IDASpbcg(mem, alg.krylov_dim)
     elseif LinearSolver == :TFQMR
-        flag = IDASptfqmr(mem, PREC_NONE, alg.krylov_dim)
+        flag = IDASptfqmr(mem, alg.krylov_dim)
     end
 
     if has_jac(prob.f)
