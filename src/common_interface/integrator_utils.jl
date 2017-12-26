@@ -69,3 +69,7 @@ end
 function handle_callback_modifiers!(integrator::CVODEIntegrator)
   CVodeReInit(integrator.mem,integrator.t,integrator.u)
 end
+
+function handle_callback_modifiers!(integrator::IDAIntegrator)
+  IDAReInit(integrator.mem,integrator.t,integrator.u,integrator.du)
+end
