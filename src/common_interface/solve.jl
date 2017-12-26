@@ -275,8 +275,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
         f! = prob.f
     else # Then it's an in-place function on an abstract array
         f! = (t, u, du, out) -> (prob.f(t, reshape(u, sizeu),
-                                 reshape(du, sizedu), out);
-                                 u = vec(u); du=vec(du); 0)
+                                 reshape(du, sizedu), reshape(out, sizeu)); 0)
     end
 
     mem_ptr = IDACreate()
