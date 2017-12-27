@@ -55,7 +55,7 @@ sol = solve(prob,CVODE_BDF())
 
 # Test Algorithm Choices
 sol1 = solve(prob,CVODE_BDF(method=:Functional))
-sol2 = solve(prob,CVODE_BDF(linear_solver=:Banded,jac_upper=3,jac_lower=3))
+sol2 = solve(prob,CVODE_BDF(linear_solver=:Band,jac_upper=3,jac_lower=3))
 sol3 = solve(prob,CVODE_BDF(linear_solver=:Diagonal))
 sol4 = solve(prob,CVODE_BDF(linear_solver=:GMRES))
 sol5 = solve(prob,CVODE_BDF(linear_solver=:BCG))

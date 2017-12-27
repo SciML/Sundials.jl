@@ -24,8 +24,11 @@ Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
                     max_error_test_failures = 7,
                     max_nonlinear_iters = 3,
                     max_convergence_failures = 10)
-    if linear_solver == :Banded && (jac_upper==0 || jac_lower==0)
+    if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
+    end
+    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :TFQMR
+        error("Linear solver choice not accepted.")
     end
     CVODE_BDF{method,linear_solver}(jac_upper,jac_lower,krylov_dim,
                                     stability_limit_detect,
@@ -55,8 +58,11 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                       max_error_test_failures = 7,
                       max_nonlinear_iters = 3,
                       max_convergence_failures = 10)
-    if linear_solver == :Banded && (jac_upper==0 || jac_lower==0)
+    if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
+    end
+    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :TFQMR
+        error("Linear solver choice not accepted.")
     end
     CVODE_Adams{method,linear_solver}(jac_upper,jac_lower,krylov_dim,
                                       stability_limit_detect,
@@ -96,8 +102,11 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim
                         max_num_backs_ic = 100,
                         use_linesearch_ic = true,
                         max_convergence_failures = 10)
-  if linear_solver == :Banded && (jac_upper==0 || jac_lower==0)
+  if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
       error("Banded solver must set the jac_upper and jac_lower")
+  end
+  if linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :TFQMR
+      error("Linear solver choice not accepted.")
   end
   IDA{linear_solver}(jac_upper,jac_lower,krylov_dim,
                       max_order,

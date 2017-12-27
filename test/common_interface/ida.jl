@@ -5,7 +5,7 @@ prob = prob_dae_resrob
 dt = 1000
 saveat = float(collect(0:dt:100000))
 sol = solve(prob,IDA())
-sol2 = solve(prob,IDA(linear_solver=:Banded,jac_upper=2,jac_lower=2))
+sol2 = solve(prob,IDA(linear_solver=:Band,jac_upper=2,jac_lower=2))
 sol3 = solve(prob,IDA(linear_solver=:GMRES))
 sol4 = solve(prob,IDA(linear_solver=:BCG))
 sol5 = solve(prob,IDA(linear_solver=:TFQMR,krylov_dim=15))

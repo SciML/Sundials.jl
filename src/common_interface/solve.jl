@@ -124,7 +124,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
             flag = CVDense(mem, length(u0))
-        elseif LinearSolver == :Banded
+        elseif LinearSolver == :Band
             flag = CVBand(mem,length(u0), alg.jac_upper, alg.jac_lower)
         elseif LinearSolver == :Diagonal
             flag = CVDiag(mem)
@@ -317,7 +317,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
 
     if LinearSolver == :Dense
         flag = IDADense(mem, length(u0))
-    elseif LinearSolver == :Banded
+    elseif LinearSolver == :Band
         flag = IDABand(mem, length(u0), alg.jac_upper, alg.jac_lower)
     elseif LinearSolver == :GMRES
         flag = IDASpgmr(mem, alg.krylov_dim)
