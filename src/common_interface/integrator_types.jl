@@ -115,8 +115,9 @@ end
 
 @inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
   if integrator.opts.advance_to_tstop
-    tstop = handle_tstop!(integrator)
-    @inbounds while integrator.tdir*integrator.t < integrator.tdir*tstop
+    while integrator.tdir*(integrator.t-top(integrator.opts.tstops)) < -1e6eps()
+        tstop = top(integrator.opts.tstops)
+        set_stop_time(integrator,tstop)
         integrator.tprev = integrator.t
         if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
             integrator.uprev .= integrator.u
@@ -127,6 +128,7 @@ end
         handle_callbacks!(integrator)
         (integrator.flag < 0) && return
     end
+    handle_tstop!(integrator)
   else
       integrator.tprev = integrator.t
       if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})

@@ -24,3 +24,23 @@ sol = solve(prob,CVODE_Adams(),callback=callback)
 @test sol(4.0)[1] > 0
 sol = solve(prob,CVODE_BDF(),callback=callback)
 @test sol(4.0)[1] > 0
+
+u0 = [1.,0.]
+function fun2(t,u,du)
+   du[2] = -u[1]
+   du[1] = u[2]
+end
+tspan = (0.0,10.0)
+prob = ODEProblem(fun2,u0,tspan)
+
+condition2(t,u,integrator) = u[2]>0
+affect2!(integrator) = terminate!(integrator)
+cb = DiscreteCallback(condition2,affect2!)
+sol = solve(prob,CVODE_BDF(),callback=cb)
+@test sol.t[end] < 3.2
+
+condition3(t,u,integrator) = u[2]
+affect3!(integrator) = terminate!(integrator)
+cb = ContinuousCallback(condition3,affect3!)
+sol = solve(prob,CVODE_BDF(),callback=cb,abstol=1e-12,reltol=1e-12)
+@test sol.t[end] ≈ pi

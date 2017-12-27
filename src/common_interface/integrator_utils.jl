@@ -73,3 +73,16 @@ end
 function handle_callback_modifiers!(integrator::IDAIntegrator)
   IDAReInit(integrator.mem,integrator.t,integrator.u,integrator.du)
 end
+
+@inline function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator,t)
+  t < integrator.t && error("Tried to add a tstop that is behind the current time. This is strictly forbidden")
+  push!(integrator.opts.tstops,t)
+end
+
+@inline function DiffEqBase.u_modified!(integrator::AbstractSundialsIntegrator,bool::Bool)
+  integrator.u_modified = bool
+end
+
+@inline function DiffEqBase.terminate!(integrator::AbstractSundialsIntegrator)
+  integrator.opts.tstops.valtree = typeof(integrator.opts.tstops.valtree)()
+end

@@ -426,10 +426,11 @@ end
 function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     uType = eltype(integrator.sol.u)
     while !isempty(integrator.opts.tstops)
-        tstop = handle_tstop(integrator)
         # Sundials can have floating point issues approaching a tstop if
         # there is a modifying event each
-        while integrator.tdir*(integrator.t-tstop) < -1e6eps()
+        while integrator.tdir*(integrator.t-top(integrator.opts.tstops)) < -1e6eps()
+            tstop = top(integrator.opts.tstops)
+            set_stop_time(integrator,tstop)
             integrator.tprev = integrator.t
             if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
                 integrator.uprev .= integrator.u
@@ -439,11 +440,13 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
             integrator.flag < 0 && break
             handle_callbacks!(integrator)
             integrator.flag < 0 && break
+            if isempty(integrator.opts.tstops)
+              break
+            end
         end
         (integrator.flag < 0) && break
+        handle_tstop!(integrator)
     end
-
-
 
     if integrator.opts.save_end && integrator.sol.t[end] != integrator.t
         save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
@@ -461,6 +464,14 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         dense_errors=integrator.opts.dense_errors)
     end
     solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
+end
+
+function handle_tstop!(integrator)
+  tstops = integrator.opts.tstops
+  if !isempty(tstops)
+    pop!(tstops)
+    t = integrator.t
+  end
 end
 
 function handle_tstop(integrator::AbstractSundialsIntegrator)
