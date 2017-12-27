@@ -466,16 +466,10 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
 end
 
-function handle_tstop!(integrator)
-  tstops = integrator.opts.tstops
-  if !isempty(tstops)
-    pop!(tstops)
-    t = integrator.t
-  end
-end
-
 function handle_tstop(integrator::AbstractSundialsIntegrator)
-    tstop = pop!(integrator.opts.tstops)
-    set_stop_time(integrator,tstop)
-    tstop
+    tstops = integrator.opts.tstops
+    if !isempty(tstops)
+      pop!(tstops)
+      t = integrator.t
+    end
 end
