@@ -79,6 +79,11 @@ end
   push!(integrator.opts.tstops,t)
 end
 
+function DiffEqBase.add_saveat!(integrator::AbstractSundialsIntegrator,t)
+  integrator.tdir * (t - integrator.t) < 0 && error("Tried to add a saveat that is behind the current time. This is strictly forbidden")
+  push!(integrator.opts.saveat,t)
+end
+
 @inline function DiffEqBase.u_modified!(integrator::AbstractSundialsIntegrator,bool::Bool)
   integrator.u_modified = bool
 end
