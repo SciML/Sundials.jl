@@ -33,14 +33,16 @@ end
 tspan = (0.0,10.0)
 prob = ODEProblem(fun2,u0,tspan)
 
-condition2(t,u,integrator) = u[2]>0
+function condition2(t,u,integrator)
+  get_du(integrator)[1]>0
+end
 affect2!(integrator) = terminate!(integrator)
 cb = DiscreteCallback(condition2,affect2!)
 sol = solve(prob,CVODE_BDF(),callback=cb)
-@test sol.t[end] < 3.2
+@test sol.t[end] < 3.5
 
 condition3(t,u,integrator) = u[2]
 affect3!(integrator) = terminate!(integrator)
 cb = ContinuousCallback(condition3,affect3!)
-sol = solve(prob,CVODE_BDF(),callback=cb,abstol=1e-12,reltol=1e-12)
+sol = solve(prob,CVODE_Adams(),callback=cb,abstol=1e-12,reltol=1e-12)
 @test sol.t[end] ≈ pi

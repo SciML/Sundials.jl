@@ -466,7 +466,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
 end
 
-function handle_tstop(integrator::AbstractSundialsIntegrator)
+function handle_tstop!(integrator::AbstractSundialsIntegrator)
     tstops = integrator.opts.tstops
     if !isempty(tstops)
       pop!(tstops)
