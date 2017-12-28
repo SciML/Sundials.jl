@@ -8,6 +8,8 @@ mutable struct DEOptions{SType,TstopType,CType}
     save_end::Bool
     callback::CType
     verbose::Bool
+    advance_to_tstop::Bool
+    stop_at_next_tstop::Bool
 end
 
 abstract type AbstractSundialsIntegrator <: AbstractODEIntegrator end
@@ -30,6 +32,7 @@ mutable struct CVODEIntegrator{uType,memType,solType,algType,fType,UFType,JType,
     tmp::tmpType
     uprev::tmpType
     flag::Cint
+    just_hit_tstop::Bool
 end
 
 function (integrator::CVODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
@@ -63,6 +66,7 @@ mutable struct IDAIntegrator{uType,duType,memType,solType,algType,fType,UFType,J
     tmp::tmpType
     uprev::tmpType
     flag::Cint
+    just_hit_tstop::Bool
 end
 
 function (integrator::IDAIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
@@ -79,18 +83,18 @@ end
 
 ### Iterator interface
 
-function start(integrator::AbstractSundialsIntegrator)
+function Base.start(integrator::AbstractSundialsIntegrator)
   0
 end
 
-@inline function next(integrator::AbstractSundialsIntegrator,state)
+@inline function Base.next(integrator::AbstractSundialsIntegrator,state)
   state += 1
   DiffEqBase.step!(integrator) # Iter updated in the step! header
   # Next is callbacks -> iterator  -> top
   integrator,state
 end
 
-@inline function done(integrator::AbstractSundialsIntegrator,state)
+@inline function Base.done(integrator::AbstractSundialsIntegrator,state)
   #=
   if integrator.opts.unstable_check(integrator.dt,integrator.t,integrator.u)
     if integrator.opts.verbose
@@ -101,12 +105,10 @@ end
   end
   =#
   if isempty(integrator.opts.tstops)
-    postamble!(integrator)
     return true
   elseif integrator.just_hit_tstop
     integrator.just_hit_tstop = false
     if integrator.opts.stop_at_next_tstop
-      postamble!(integrator)
       return true
     end
   end
@@ -128,18 +130,25 @@ end
         handle_callbacks!(integrator)
         (integrator.flag < 0) && return
     end
-    handle_tstop!(integrator)
-  else
+ else
       integrator.tprev = integrator.t
       if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
           integrator.uprev .= integrator.u
       end
-      solver_step(integrator,Inf)
+      if !isempty(integrator.opts.tstops)
+          tstop = top(integrator.opts.tstops)
+          set_stop_time(integrator,tstop)
+          solver_step(integrator,tstop)
+      else
+          solver_step(integrator,1.0) # fake tstop
+      end
       integrator.t = first(integrator.tout)
       (integrator.flag < 0) && return
       handle_callbacks!(integrator)
       (integrator.flag < 0) && return
   end
+  handle_tstop!(integrator)
+  nothing
 end
 
 Base.eltype(integrator::AbstractSundialsIntegrator) = typeof(integrator)

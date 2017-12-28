@@ -22,5 +22,6 @@ end
     @testset "IDA" begin include("common_interface/ida.jl") end
     @testset "Jacobians" begin include("common_interface/jacobians.jl") end
     @testset "Callbacks" begin include("common_interface/callbacks.jl") end
+    @testset "Iterator" begin include("common_interface/iterators.jl") end
     @testset "Errors" begin include("common_interface/errors.jl") end
 end

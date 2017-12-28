@@ -28,6 +28,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     save_everystep=isempty(saveat), dense = save_everystep,
     save_start = true, save_end = true,
     save_timeseries = nothing,
+    advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
     kwargs...)
 
@@ -177,9 +178,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
-                     callbacks_internal,verbose)
+                     callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
     CVODEIntegrator(utmp,t0,t0,mem,sol,alg,f!,userfun,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag))
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false)
 end # function solve
 
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
@@ -226,6 +227,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     dense_errors = false,
     save_everystep=isempty(saveat), dense=save_everystep,
     save_timeseries=nothing, save_end = true,
+    advance_to_tstop = false, stop_at_next_tstop = false,
     userdata=nothing,
     kwargs...)
 
@@ -394,10 +396,10 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
 
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                     timeseries_errors,dense_errors,save_end,
-                    callbacks_internal,verbose)
+                    callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
 
     IDAIntegrator(utmp,dutmp,t0,t0,mem,sol,alg,f!,userfun,jac,opts,
-                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag))
+                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false)
 end # function solve
 
 ## Common calls
@@ -469,7 +471,10 @@ end
 function handle_tstop!(integrator::AbstractSundialsIntegrator)
     tstops = integrator.opts.tstops
     if !isempty(tstops)
-      pop!(tstops)
-      t = integrator.t
+      if integrator.tdir*(integrator.t-top(integrator.opts.tstops)) > -1e6eps()
+          pop!(tstops)
+          t = integrator.t
+          integrator.just_hit_tstop = true
+      end
     end
 end
