@@ -91,3 +91,19 @@ end
 @inline function DiffEqBase.terminate!(integrator::AbstractSundialsIntegrator)
   integrator.opts.tstops.valtree = typeof(integrator.opts.tstops.valtree)()
 end
+
+@inline function DiffEqBase.get_du(integrator::CVODEIntegrator)
+  integrator(integrator.t,Val{1})
+end
+
+@inline function DiffEqBase.get_du!(out,integrator::CVODEIntegrator)
+  integrator(out,integrator.t,Val{1})
+end
+
+@inline function DiffEqBase.get_du(integrator::IDAIntegrator)
+  reshape(integrator.du,integrator.sizedu)
+end
+
+@inline function DiffEqBase.get_du!(out,integrator::IDAIntegrator)
+  out .= reshape(integrator.du,integrator.sizedu)
+end
