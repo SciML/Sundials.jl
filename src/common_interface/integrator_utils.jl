@@ -84,7 +84,7 @@ function DiffEqBase.add_saveat!(integrator::AbstractSundialsIntegrator,t)
   push!(integrator.opts.saveat,t)
 end
 
-@inline DiffEqBase.get_tmp_cache(i::AbstractSundialsIntegrator) = (integrator.cache.tmp,)
+@inline DiffEqBase.get_tmp_cache(i::AbstractSundialsIntegrator) = (integrator.tmp,)
 
 @inline function DiffEqBase.u_modified!(integrator::AbstractSundialsIntegrator,bool::Bool)
   integrator.u_modified = bool
