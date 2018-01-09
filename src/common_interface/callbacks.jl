@@ -104,10 +104,12 @@ function find_callback_time(integrator,callback)
           out = callback.condition(integrator.tprev+Θ*dt,tmp,integrator)
           out
         end
-        Θ = prevfloat(prevfloat(find_zero(zero_func,(bottom_θ,top_Θ),FalsePosition(),abstol = callback.abstol/10)))
-        # 2 prevfloat guerentees that the new time is either 1 or 2 floating point
-        # numbers just before the event, but not after. If there's a barrier
-        # which is never supposed to be crossed, then this will ensure that
+        Θ = prevfloat(find_zero(zero_func,(bottom_θ,top_Θ),FalsePosition(),abstol = callback.abstol/10))
+        #Θ = prevfloat(...)
+        # prevfloat guerentees that the new time is either 1 floating point
+        # numbers just before the event or directly at zero, but not after.
+        # If there's a barrier which is never supposed to be crossed,
+        # then this will ensure that
         # The item never leaves the domain. Otherwise Roots.jl can return
         # a float which is slightly after, making it out of the domain, causing
         # havoc.
