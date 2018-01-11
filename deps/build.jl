@@ -3,30 +3,39 @@ using BinaryProvider
 # This is where all binaries will get installed
 const prefix = Prefix(!isempty(ARGS) ? ARGS[1] : joinpath(@__DIR__,"usr"))
 
-products = [
-LibraryProduct(prefix, String["libsundials_sunlinsolspfgmr"]),
-LibraryProduct(prefix, String["libsundials_ida"]),
-LibraryProduct(prefix, String["libsundials_cvode"]),
-LibraryProduct(prefix, String["libsundials_cvodes"]),
-LibraryProduct(prefix, String["libsundials_sunmatrixdense"]),
-LibraryProduct(prefix, String["libsundials_sunlinsolspbcgs"]),
-LibraryProduct(prefix, String["libsundials_idas"]),
-LibraryProduct(prefix, String["libsundials_nvecserial"]),
-LibraryProduct(prefix, String["libsundials_sunlinsoldense"]),
-LibraryProduct(prefix, String["libsundials_sunlinsolspgmr"]),
-LibraryProduct(prefix, String["libsundials_sunlinsolpcg"]),
-LibraryProduct(prefix, String["libsundials_sunlinsolsptfqmr"]),
-LibraryProduct(prefix, String["libsundials_sunmatrixsparse"]),
-LibraryProduct(prefix, String["libsundials_sunlinsolband"]),
-LibraryProduct(prefix, String["libsundials_sunmatrixband"]),
-LibraryProduct(prefix, String["libsundials_kinsol"]),
-LibraryProduct(prefix, String["libsundials_arkode"])
-]
+libsundials_nvecserial       = LibraryProduct(prefix, String["libsundials_nvecserial"])
+libsundials_kinsol           = LibraryProduct(prefix, String["libsundials_kinsol"])
+libsundials_cvodes           = LibraryProduct(prefix, String["libsundials_cvodes"])
+libsundials_idas             = LibraryProduct(prefix, String["libsundials_idas"])
+libsundials_sunlinsolspfgmr  = LibraryProduct(prefix, String["libsundials_sunlinsolspfgmr"])
+libsundials_sunmatrixdense   = LibraryProduct(prefix, String["libsundials_sunmatrixdense"])
+libsundials_sunlinsolspbcgs  = LibraryProduct(prefix, String["libsundials_sunlinsolspbcgs"])
+libsundials_sunlinsoldense   = LibraryProduct(prefix, String["libsundials_sunlinsoldense"])
+libsundials_sunlinsolspgmr   = LibraryProduct(prefix, String["libsundials_sunlinsolspgmr"])
+libsundials_sunlinsolpcg     = LibraryProduct(prefix, String["libsundials_sunlinsolpcg"])
+libsundials_sunlinsolsptfqmr = LibraryProduct(prefix, String["libsundials_sunlinsolsptfqmr"])
+libsundials_sunmatrixsparse  = LibraryProduct(prefix, String["libsundials_sunmatrixsparse"])
+libsundials_sunlinsolband    = LibraryProduct(prefix, String["libsundials_sunlinsolband"])
+libsundials_sunmatrixband    = LibraryProduct(prefix, String["libsundials_sunmatrixband"])
+libsundials_arkode           = LibraryProduct(prefix, String["libsundials_arkode"])
 
-libsundials_nvecserial = LibraryProduct(prefix, String["libsundials_nvecserial"])
-libsundials_kinsol     = LibraryProduct(prefix, String["libsundials_kinsol"])
-libsundials_cvodes     = LibraryProduct(prefix, String["libsundials_cvodes"])
-libsundials_idas       = LibraryProduct(prefix, String["libsundials_idas"])
+products = [
+libsundials_nvecserial,
+libsundials_kinsol,
+libsundials_cvodes,
+libsundials_idas,
+libsundials_sunlinsolspfgmr,
+libsundials_sunmatrixdense,
+libsundials_sunlinsolspbcgs,
+libsundials_sunlinsoldense,
+libsundials_sunlinsolspgmr,
+libsundials_sunlinsolpcg,
+libsundials_sunlinsolsptfqmr,
+libsundials_sunmatrixsparse,
+libsundials_sunlinsolband,
+libsundials_sunmatrixband,
+libsundials_arkode,
+]
 
 # Download binaries from hosted location
 bin_prefix = "https://github.com/JuliaDiffEq/SundialsBuilder/releases/download/sundials-3.1.0-1"
@@ -55,8 +64,7 @@ if platform_key() in keys(download_info)
     # Finally, write out a deps.jl file that will contain mappings for each
     # named product here: (there will be a "libfoo" variable and a "fooifier"
     # variable, etc...)
-    @write_deps_file libsundials_kinsol libsundials_idas libsundials_nvecserial libsundials_cvodes
+    @write_deps_file libsundials_kinsol libsundials_idas libsundials_nvecserial libsundials_cvodes libsundials_sunlinsolspfgmr  libsundials_sunmatrixdense libsundials_sunlinsolspbcgs libsundials_sunlinsoldense libsundials_sunlinsolspgmr  libsundials_sunlinsolpcg libsundials_sunlinsolsptfqmr libsundials_sunmatrixsparse libsundials_sunlinsolband libsundials_sunmatrixband libsundials_arkode
 else
     error("Your platform $(Sys.MACHINE) is not supported by this package!")
 end
-

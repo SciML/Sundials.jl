@@ -86,7 +86,7 @@ end
 
 
 function SUNDenseMatrix(M::sunindextype, N::sunindextype)
-    ccall((:SUNDenseMatrix, libsundials_sunmatrix), SUNMatrix, (sunindextype, sunindextype), M, N)
+    ccall((:SUNDenseMatrix, libsundials_sunmatrixdense), SUNMatrix, (sunindextype, sunindextype), M, N)
 end
 
 function SUNDenseMatrix_Print(A::SUNMatrix, outfile)

@@ -41,6 +41,8 @@ include("nvector_wrapper.jl")
 
 include("nvector.jl")
 include("libsundials.jl")
+include("sunmatrix.jl")
+include("sunlinsol.jl")
 if isdefined(:libsundials_cvodes)
     include("cvodes.jl")
 else

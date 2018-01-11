@@ -38,7 +38,7 @@ end
 
 
 function SUNDenseLinearSolver(y::N_Vector, A::SUNMatrix)
-    ccall((:SUNDenseLinearSolver, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, SUNMatrix), y, A)
+    ccall((:SUNDenseLinearSolver, libsundials_sunlinsoldense), SUNLinearSolver, (N_Vector, SUNMatrix), y, A)
 end
 
 function SUNLinSolGetType_Dense(S::SUNLinearSolver)

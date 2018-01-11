@@ -54,7 +54,9 @@ cvode_mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, f, t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g)
-Sundials.@checkflag Sundials.CVDense(cvode_mem, neq)
+A = Sundials.SUNDenseMatrix(neq,neq)
+LS = Sundials.SUNDenseLinearSolver(convert(Sundials.N_Vector,y0),A)
+Sundials.@checkflag Sundials.CVDlsSetLinearSolver(cvode_mem, LS, A)
 #Sundials.@checkflag Sundials.CVDlsSetDenseJacFn(cvode_mem, Jac)
 
 iout = 0
