@@ -131,7 +131,7 @@ function wrap_sundials_api(expr::Expr)
                 @show "1",expr.args[2].args[1]
 		        # No assertion... will this work?
 		        #@assert expr.args[2].args[1].args[2] == :(Ptr{Void})
-                expr.args[2].args[1].args[2] = ctor_return_type[func_name]
+                expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
                 if typeof(expr.args[1].args[2]) <: Symbol
 			        arg1_name = expr.args[1].args[2]
