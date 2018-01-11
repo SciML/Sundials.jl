@@ -3,7 +3,7 @@
 
 
 function ARKodeCreate()
-    ccall(ARKODEMemPtr, Ptr{Void}, ())
+    ccall((:ARKodeCreate,libsundials_arkode),ARKODEMemPtr, ())
 end
 
 function ARKodeSetDefaults(arkode_mem)
@@ -733,4 +733,3 @@ function ARKDlsGetReturnFlagName(flag)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode_impl.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
-

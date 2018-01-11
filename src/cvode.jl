@@ -3,7 +3,7 @@
 
 
 function __CVodeCreate(lmm::Cint, iter::Cint)
-    ccall(CVODEMemPtr, Ptr{Void}, (Cint, Cint), lmm, iter)
+    ccall((:CVodeCreate,libsundials_cvode),CVODEMemPtr, (Cint, Cint), lmm, iter)
 end
 
 function CVodeCreate(lmm, iter)

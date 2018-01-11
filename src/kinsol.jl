@@ -3,7 +3,7 @@
 
 
 function KINCreate()
-    ccall(KINMemPtr, Ptr{Void}, ())
+    ccall((:KINCreate,libsundials_kinsol),KINMemPtr, ())
 end
 
 function KINSetErrHandlerFn(kinmem, ehfun::KINErrHandlerFn, eh_data)
