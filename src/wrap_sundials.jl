@@ -124,14 +124,22 @@ function wrap_sundials_api(expr::Expr)
         func_name = string(expr.args[1].args[1])
         convert_required = false
         if ismatch(r"^(ARK|CV|KIN|IDA|N_V)", func_name)
+	    @show func_name
             if ismatch(r"Create$", func_name)
                 # create functions return typed pointers
-                @assert expr.args[2].args[1].args[2] == :(Ptr{Void})
+                @show expr.args[2].args[1].args[2]
+		# No assertion... will this work?
+		#@assert expr.args[2].args[1].args[2] == :(Ptr{Void})
                 expr.args[2].args[1].args[2] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
-                arg1_name = expr.args[1].args[2].args[1]
-                arg1_type = expr.args[1].args[2].args[2]
-                if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
+                if typeof(expr.args[1].args[2]) <: Symbol
+			arg1_name = expr.args[1].args[2]
+			arg1_type = Any
+		else
+			arg1_name = expr.args[1].args[2].args[1]
+                	arg1_type = expr.args[1].args[2].args[2]
+                end
+		if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
                     # also check in the ccall list of arg types
                     @assert expr.args[2].args[1].args[3].args[1] == arg1_type
                     arg1_newtype = arg1_name2type[arg1_name]
@@ -147,7 +155,8 @@ function wrap_sundials_api(expr::Expr)
             if ismatch(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[1].args)
-                    if i > 1 && ismatch(r"^user_dataB?$", string(arg_expr.args[1]))
+                   typeof(arg_expr) <: Symbol && break 
+		   if i > 1 && ismatch(r"^user_dataB?$", string(arg_expr.args[1]))
                         @assert arg_expr.head == :(::) && arg_expr.args[2] == :(Ptr{Void})
                         expr.args[1].args[i].args[2] = :(Any)
                         # replace in ccall list
@@ -160,15 +169,20 @@ function wrap_sundials_api(expr::Expr)
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
             # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
             # create wrapers for all arguments that need wrapping
-            args_wrap_exprs = map(drop(expr.args[1].args, 1)) do expr
+            args_wrap_exprs = map(Base.Iterators.drop(expr.args[1].args, 1)) do expr
                 # process each argument
                 # return a tuple:
                 #   1) high-level wrapper arg name expr
                 #   2) expr for local var definition, nothing if not required
                 #   3) expr for low-level wrapper call
                 # if 1)==3), then no wrapping is required
-                arg_name_expr = expr.args[1]
-                arg_type_expr = expr.args[2]
+                if typeof(expr) <: Symbol
+			arg_name_expr = expr
+			arg_type_expr = Any
+		else
+			arg_name_expr = expr.args[1]
+                	arg_type_expr = expr.args[2]
+		end
                 if arg_type_expr == :N_Vector
                     # first convert argument to NVector() and store in local var,
                     # this guarantees that the wrapper and associated Sundials object (e.g. N_Vector)
