@@ -125,19 +125,19 @@ function wrap_sundials_api(expr::Expr)
         func_name = string(expr.args[1].args[1])
         convert_required = false
         if ismatch(r"^(ARK|CV|KIN|IDA|N_V)", func_name)
-	    @show func_name
+	        @show func_name
             if ismatch(r"Create$", func_name)
                 # create functions return typed pointers
                 @show expr.args[2].args[1].args[2]
-		# No assertion... will this work?
-		#@assert expr.args[2].args[1].args[2] == :(Ptr{Void})
+		        # No assertion... will this work?
+		        #@assert expr.args[2].args[1].args[2] == :(Ptr{Void})
                 expr.args[2].args[1].args[2] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
                 if typeof(expr.args[1].args[2]) <: Symbol
-			arg1_name = expr.args[1].args[2]
-			arg1_type = Any
-		else
-			arg1_name = expr.args[1].args[2].args[1]
+			        arg1_name = expr.args[1].args[2]
+			        arg1_type = Any
+	         	else
+			        arg1_name = expr.args[1].args[2].args[1]
                 	arg1_type = expr.args[1].args[2].args[2]
                 end
 		if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
@@ -156,7 +156,7 @@ function wrap_sundials_api(expr::Expr)
             if ismatch(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[1].args)
-                   typeof(arg_expr) <: Symbol && break 
+                   typeof(arg_expr) <: Symbol && break
 		   if i > 1 && ismatch(r"^user_dataB?$", string(arg_expr.args[1]))
                         @assert arg_expr.head == :(::) && arg_expr.args[2] == :(Ptr{Void})
                         expr.args[1].args[i].args[2] = :(Any)
