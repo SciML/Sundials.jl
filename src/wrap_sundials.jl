@@ -128,9 +128,7 @@ function wrap_sundials_api(expr::Expr)
 	        @show func_name
             if ismatch(r"Create$", func_name)
                 # create functions return typed pointers
-                @show "1",expr.args[2].args[1]
-		        # No assertion... will this work?
-		        #@assert expr.args[2].args[1].args[2] == :(Ptr{Void})
+		        @assert expr.args[2].args[1].args[3] == :(Ptr{Void})
                 expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
                 if typeof(expr.args[1].args[2]) <: Symbol
@@ -166,6 +164,9 @@ function wrap_sundials_api(expr::Expr)
                         break
                     end
                 end
+            end
+            if !(typeof(expr)<:Symbol) && (ex.args[2].args[2] == :libsundials_sunlinsol || ex.args[2].args[2] == :libsundials_sunmatrix)
+                @show expr
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
             # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
