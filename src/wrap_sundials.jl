@@ -22,7 +22,8 @@ end
 info("Scanning Sundials headers in $incpath...")
 const sundials_folders = filter!(isdir, map!(folder -> joinpath(incpath, folder),
                                  ["nvector", "sundials", "cvode", "cvodes",
-                                  "ida", "idas", "kinsol", "arkode"]))
+                                  "ida", "idas", "kinsol", "arkode",
+                                  "sunlinsol","sunmatrix"]))
 const sundials_headers = similar(sundials_folders, 0)
 for folder in sundials_folders
     info("Processing $folder...")
@@ -47,7 +48,7 @@ end
 function wrap_cursor(name::AbstractString, cursor)
     if typeof(cursor) == Clang.cindex.FunctionDecl
         # only wrap API functions
-        return ismatch(r"^(CV|KIN|IDA|ARK|N_V)", name)
+        return ismatch(r"^(CV|KIN|IDA|ARK|N_V|SUN)", name)
     else
         # skip problematic definitions
         return !ismatch(r"^(ABS|SQRT|EXP)$", name)
