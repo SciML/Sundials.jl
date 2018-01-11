@@ -165,7 +165,7 @@ function wrap_sundials_api(expr::Expr)
                     end
                 end
             end
-            if !(typeof(expr)<:Symbol) && (ex.args[2].args[2] == :libsundials_sunlinsol || ex.args[2].args[2] == :libsundials_sunmatrix)
+            if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix)
                 @show expr
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
