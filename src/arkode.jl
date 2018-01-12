@@ -23,7 +23,7 @@ function ARKodeSetErrFile(arkode_mem, errfp)
 end
 
 function ARKodeSetUserData(arkode_mem, user_data)
-    ccall((:ARKodeSetUserData, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Void}), arkode_mem, user_data)
+    ccall((:ARKodeSetUserData, libsundials_arkode), Cint, (ARKODEMemPtr, Any), arkode_mem, user_data)
 end
 
 function ARKodeSetDiagnostics(arkode_mem, diagfp)

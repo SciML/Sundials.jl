@@ -165,7 +165,7 @@ function CVodeSetErrFile(cvode_mem, errfp)
 end
 
 function CVodeSetUserData(cvode_mem, user_data)
-    ccall((:CVodeSetUserData, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Void}), cvode_mem, user_data)
+    ccall((:CVodeSetUserData, libsundials_cvodes), Cint, (CVODEMemPtr, Any), cvode_mem, user_data)
 end
 
 function __CVodeSetMaxOrd(cvode_mem, maxord::Cint)
@@ -729,7 +729,7 @@ function CVodeSetIterTypeB(cvode_mem, which, iterB)
 end
 
 function __CVodeSetUserDataB(cvode_mem, which::Cint, user_dataB)
-    ccall((:CVodeSetUserDataB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{Void}), cvode_mem, which, user_dataB)
+    ccall((:CVodeSetUserDataB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Any), cvode_mem, which, user_dataB)
 end
 
 function CVodeSetUserDataB(cvode_mem, which, user_dataB)

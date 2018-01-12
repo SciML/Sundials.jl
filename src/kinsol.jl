@@ -23,7 +23,7 @@ function KINSetInfoFile(kinmem, infofp)
 end
 
 function KINSetUserData(kinmem, user_data)
-    ccall((:KINSetUserData, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Void}), kinmem, user_data)
+    ccall((:KINSetUserData, libsundials_kinsol), Cint, (KINMemPtr, Any), kinmem, user_data)
 end
 
 function __KINSetPrintLevel(kinmemm, printfl::Cint)

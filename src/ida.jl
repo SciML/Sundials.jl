@@ -15,7 +15,7 @@ function IDASetErrFile(ida_mem, errfp)
 end
 
 function IDASetUserData(ida_mem, user_data)
-    ccall((:IDASetUserData, libsundials_ida), Cint, (IDAMemPtr, Ptr{Void}), ida_mem, user_data)
+    ccall((:IDASetUserData, libsundials_ida), Cint, (IDAMemPtr, Any), ida_mem, user_data)
 end
 
 function __IDASetMaxOrd(ida_mem, maxord::Cint)

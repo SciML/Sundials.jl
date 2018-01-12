@@ -15,7 +15,7 @@ function IDASetErrFile(ida_mem, errfp)
 end
 
 function IDASetUserData(ida_mem, user_data)
-    ccall((:IDASetUserData, libsundials_idas), Cint, (IDAMemPtr, Ptr{Void}), ida_mem, user_data)
+    ccall((:IDASetUserData, libsundials_idas), Cint, (IDAMemPtr, Any), ida_mem, user_data)
 end
 
 function __IDASetMaxOrd(ida_mem, maxord::Cint)
@@ -792,7 +792,7 @@ function IDAAdjSetNoSensi(ida_mem)
 end
 
 function __IDASetUserDataB(ida_mem, which::Cint, user_dataB)
-    ccall((:IDASetUserDataB, libsundials_idas), Cint, (IDAMemPtr, Cint, Ptr{Void}), ida_mem, which, user_dataB)
+    ccall((:IDASetUserDataB, libsundials_idas), Cint, (IDAMemPtr, Cint, Any), ida_mem, which, user_dataB)
 end
 
 function IDASetUserDataB(ida_mem, which, user_dataB)
