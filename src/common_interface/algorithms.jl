@@ -8,6 +8,7 @@ abstract type SundialsDAEAlgorithm{LinearSolver} <: AbstractDAEAlgorithm end
 immutable CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver}
     jac_upper::Int
     jac_lower::Int
+    stored_upper::Int
     krylov_dim::Int
     stability_limit_detect::Bool
     max_hnil_warns::Int
@@ -17,7 +18,7 @@ immutable CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSo
     max_convergence_failures::Int
 end
 Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
-                    jac_upper=0,jac_lower=0,non_zero=0,krylov_dim=0,
+                    jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower, non_zero=0,krylov_dim=0,
                     stability_limit_detect=false,
                     max_hnil_warns = 10,
                     max_order = 5,
@@ -27,10 +28,10 @@ Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :TFQMR
+    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
         error("Linear solver choice not accepted.")
     end
-    CVODE_BDF{method,linear_solver}(jac_upper,jac_lower,krylov_dim,
+    CVODE_BDF{method,linear_solver}(jac_upper,jac_lower,stored_upper,krylov_dim,
                                     stability_limit_detect,
                                     max_hnil_warns,
                                     max_order,
@@ -42,6 +43,7 @@ end
 immutable CVODE_Adams{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver}
     jac_upper::Int
     jac_lower::Int
+    stored_upper::Int
     krylov_dim::Int
     stability_limit_detect::Bool
     max_hnil_warns::Int
@@ -51,7 +53,9 @@ immutable CVODE_Adams{Method,LinearSolver} <: SundialsODEAlgorithm{Method,Linear
     max_convergence_failures::Int
 end
 Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
-                      jac_upper=0,jac_lower=0,krylov_dim=0,
+                      jac_upper=0,jac_lower=0,
+                      stored_upper = jac_upper+jac_lower,
+                      krylov_dim=0,
                       stability_limit_detect=false,
                       max_hnil_warns = 10,
                       max_order = 12,
@@ -61,10 +65,10 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :TFQMR
+    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
         error("Linear solver choice not accepted.")
     end
-    CVODE_Adams{method,linear_solver}(jac_upper,jac_lower,krylov_dim,
+    CVODE_Adams{method,linear_solver}(jac_upper,jac_lower,stored_upper,krylov_dim,
                                       stability_limit_detect,
                                       max_hnil_warns,
                                       max_order,
@@ -77,6 +81,7 @@ end
 immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver}
   jac_upper::Int
   jac_lower::Int
+  stored_upper::Int
   krylov_dim::Int
   max_order::Int
   max_error_test_failures::Int
@@ -90,7 +95,9 @@ immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver}
   max_num_backs_ic::Int
   use_linesearch_ic::Bool
 end
-Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0,
+Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
+                        stored_upper = jac_upper+jac_lower,
+                        krylov_dim=0,
                         max_order = 5,
                         max_error_test_failures = 7,
                         max_nonlinear_iters = 3,
@@ -105,10 +112,10 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim
   if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
       error("Banded solver must set the jac_upper and jac_lower")
   end
-  if linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :TFQMR
+  if linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
       error("Linear solver choice not accepted.")
   end
-  IDA{linear_solver}(jac_upper,jac_lower,krylov_dim,
+  IDA{linear_solver}(jac_upper,jac_lower,stored_upper,krylov_dim,
                       max_order,
                       max_error_test_failures,
                       nonlinear_convergence_coefficient,

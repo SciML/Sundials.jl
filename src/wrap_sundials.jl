@@ -103,8 +103,8 @@ const linear_solvers_and_matrices = [
     "dense",
     "band",
     "pcg",
-    "pbcgs",
-    "pfgmr",
+    "spbcgs",
+    "spfgmr",
     "spgmr",
     "sptfqmr",
     "sparse"

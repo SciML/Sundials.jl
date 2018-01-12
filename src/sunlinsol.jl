@@ -187,7 +187,7 @@ end
 
 
 function __SUNSPBCGS(y::N_Vector, pretype::Cint, maxl::Cint)
-    ccall((:SUNSPBCGS, libsundials_sunlinsolpbcgs), SUNLinearSolver, (N_Vector, Cint, Cint), y, pretype, maxl)
+    ccall((:SUNSPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver, (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
 function SUNSPBCGS(y, pretype, maxl)
@@ -196,7 +196,7 @@ function SUNSPBCGS(y, pretype, maxl)
 end
 
 function __SUNSPBCGSSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNSPBCGSSetPrecType, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, Cint), S, pretype)
+    ccall((:SUNSPBCGSSetPrecType, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Cint), S, pretype)
 end
 
 function SUNSPBCGSSetPrecType(S, pretype)
@@ -204,7 +204,7 @@ function SUNSPBCGSSetPrecType(S, pretype)
 end
 
 function __SUNSPBCGSSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNSPBCGSSetMaxl, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, Cint), S, maxl)
+    ccall((:SUNSPBCGSSetMaxl, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Cint), S, maxl)
 end
 
 function SUNSPBCGSSetMaxl(S, maxl)
@@ -212,23 +212,23 @@ function SUNSPBCGSSetMaxl(S, maxl)
 end
 
 function SUNLinSolGetType_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_SPBCGS, libsundials_sunlinsolpbcgs), SUNLinearSolver_Type, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolGetType_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver_Type, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolInitialize_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolInitialize_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSetATimes_SPBCGS(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, Ptr{Void}, ATimesFn), S, A_data, ATimes)
+    ccall((:SUNLinSolSetATimes_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Ptr{Void}, ATimesFn), S, A_data, ATimes)
 end
 
 function SUNLinSolSetPreconditioner_SPBCGS(S::SUNLinearSolver, P_data, Pset::PSetupFn, Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, Ptr{Void}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+    ccall((:SUNLinSolSetPreconditioner_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Ptr{Void}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
 function __SUNLinSolSetScalingVectors_SPBCGS(S::SUNLinearSolver, s1::N_Vector, s2::N_Vector)
-    ccall((:SUNLinSolSetScalingVectors_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+    ccall((:SUNLinSolSetScalingVectors_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
 function SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2)
@@ -238,11 +238,11 @@ function SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPBCGS(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, SUNMatrix), S, A)
+    ccall((:SUNLinSolSetup_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, SUNMatrix), S, A)
 end
 
 function __SUNLinSolSolve_SPBCGS(S::SUNLinearSolver, A::SUNMatrix, x::N_Vector, b::N_Vector, tol::realtype)
-    ccall((:SUNLinSolSolve_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+    ccall((:SUNLinSolSolve_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
 function SUNLinSolSolve_SPBCGS(S, A, x, b, tol)
@@ -252,34 +252,34 @@ function SUNLinSolSolve_SPBCGS(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolNumIters_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolResNorm_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm_SPBCGS, libsundials_sunlinsolpbcgs), realtype, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolResNorm_SPBCGS, libsundials_sunlinsolspbcgs), realtype, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolResid_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolResid_SPBCGS, libsundials_sunlinsolpbcgs), N_Vector, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolResid_SPBCGS, libsundials_sunlinsolspbcgs), N_Vector, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolLastFlag_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_SPBCGS, libsundials_sunlinsolpbcgs), Clong, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolLastFlag_SPBCGS, libsundials_sunlinsolspbcgs), Clong, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSpace_SPBCGS(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    ccall((:SUNLinSolSpace_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
 end
 
 function SUNLinSolFree_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_SPBCGS, libsundials_sunlinsolpbcgs), Cint, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolFree_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver,), S)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/sunlinsol/sunlinsol_spfgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
 function __SUNSPFGMR(y::N_Vector, pretype::Cint, maxl::Cint)
-    ccall((:SUNSPFGMR, libsundials_sunlinsolpfgmr), SUNLinearSolver, (N_Vector, Cint, Cint), y, pretype, maxl)
+    ccall((:SUNSPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver, (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
 function SUNSPFGMR(y, pretype, maxl)
@@ -288,7 +288,7 @@ function SUNSPFGMR(y, pretype, maxl)
 end
 
 function __SUNSPFGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNSPFGMRSetPrecType, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, Cint), S, pretype)
+    ccall((:SUNSPFGMRSetPrecType, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint), S, pretype)
 end
 
 function SUNSPFGMRSetPrecType(S, pretype)
@@ -296,7 +296,7 @@ function SUNSPFGMRSetPrecType(S, pretype)
 end
 
 function __SUNSPFGMRSetGSType(S::SUNLinearSolver, gstype::Cint)
-    ccall((:SUNSPFGMRSetGSType, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, Cint), S, gstype)
+    ccall((:SUNSPFGMRSetGSType, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint), S, gstype)
 end
 
 function SUNSPFGMRSetGSType(S, gstype)
@@ -304,7 +304,7 @@ function SUNSPFGMRSetGSType(S, gstype)
 end
 
 function __SUNSPFGMRSetMaxRestarts(S::SUNLinearSolver, maxrs::Cint)
-    ccall((:SUNSPFGMRSetMaxRestarts, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, Cint), S, maxrs)
+    ccall((:SUNSPFGMRSetMaxRestarts, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint), S, maxrs)
 end
 
 function SUNSPFGMRSetMaxRestarts(S, maxrs)
@@ -312,23 +312,23 @@ function SUNSPFGMRSetMaxRestarts(S, maxrs)
 end
 
 function SUNLinSolGetType_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_SPFGMR, libsundials_sunlinsolpfgmr), SUNLinearSolver_Type, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolGetType_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver_Type, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolInitialize_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolInitialize_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSetATimes_SPFGMR(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, Ptr{Void}, ATimesFn), S, A_data, ATimes)
+    ccall((:SUNLinSolSetATimes_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Ptr{Void}, ATimesFn), S, A_data, ATimes)
 end
 
 function SUNLinSolSetPreconditioner_SPFGMR(S::SUNLinearSolver, P_data, Pset::PSetupFn, Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, Ptr{Void}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+    ccall((:SUNLinSolSetPreconditioner_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Ptr{Void}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
 function __SUNLinSolSetScalingVectors_SPFGMR(S::SUNLinearSolver, s1::N_Vector, s2::N_Vector)
-    ccall((:SUNLinSolSetScalingVectors_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+    ccall((:SUNLinSolSetScalingVectors_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
 function SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2)
@@ -338,11 +338,11 @@ function SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPFGMR(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, SUNMatrix), S, A)
+    ccall((:SUNLinSolSetup_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, SUNMatrix), S, A)
 end
 
 function __SUNLinSolSolve_SPFGMR(S::SUNLinearSolver, A::SUNMatrix, x::N_Vector, b::N_Vector, tol::realtype)
-    ccall((:SUNLinSolSolve_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+    ccall((:SUNLinSolSolve_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
 function SUNLinSolSolve_SPFGMR(S, A, x, b, tol)
@@ -352,27 +352,27 @@ function SUNLinSolSolve_SPFGMR(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolNumIters_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolResNorm_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm_SPFGMR, libsundials_sunlinsolpfgmr), realtype, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolResNorm_SPFGMR, libsundials_sunlinsolspfgmr), realtype, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolResid_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolResid_SPFGMR, libsundials_sunlinsolpfgmr), N_Vector, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolResid_SPFGMR, libsundials_sunlinsolspfgmr), N_Vector, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolLastFlag_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_SPFGMR, libsundials_sunlinsolpfgmr), Clong, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolLastFlag_SPFGMR, libsundials_sunlinsolspfgmr), Clong, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSpace_SPFGMR(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    ccall((:SUNLinSolSpace_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
 end
 
 function SUNLinSolFree_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_SPFGMR, libsundials_sunlinsolpfgmr), Cint, (SUNLinearSolver,), S)
+    ccall((:SUNLinSolFree_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver,), S)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/sunlinsol/sunlinsol_spgmr.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
