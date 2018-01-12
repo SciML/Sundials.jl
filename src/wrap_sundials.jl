@@ -162,7 +162,9 @@ function wrap_sundials_api(expr::Expr)
                     convert_required = true
                 end
             end
+            @show func_name
             if ismatch(r"UserDataB?$", func_name)
+                @show "Match"
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[1].args)
                    typeof(arg_expr) <: Symbol && break
