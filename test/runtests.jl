@@ -2,7 +2,6 @@ using Sundials
 using Base.Test
 
 @testset "CVODE" begin
-    @testset "Lorenz CVODE Direct No Linear" begin include("cvode_lorenz_nolinearsolve.jl") end
     @testset "Roberts CVODE Simplified" begin include("cvode_Roberts_simplified.jl") end
     @testset "Roberts CVODE Direct" begin include("cvode_Roberts_dns.jl") end
 end

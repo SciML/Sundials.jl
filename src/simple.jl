@@ -46,7 +46,8 @@ end
 
 function kinsol(f, y0::Vector{Float64};
                 userdata::Any = nothing,
-                linear_solver=:Dense, jac_upper=0, jac_lower=0)
+                linear_solver=:Dense, jac_upper=0, jac_lower=0,
+                stored_upper = jac_upper + jac_lower)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -62,10 +63,14 @@ function kinsol(f, y0::Vector{Float64};
     userfun = UserFunctionAndData(f, userdata)
     flag = @checkflag KINInit(kmem, cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{typeof(userfun)})), NVector(y0)) true
     if linear_solver == :Dense
-        flag = @checkflag KINDense(kmem, length(y0)) true
+        A = Sundials.SUNDenseMatrix(length(y0),length(y0))
+        LS = Sundials.SUNDenseLinearSolver(y0,A)
     elseif linear_solver == :Band
-        flag = @checkflag KINBand(kmem, length(y0), jac_upper, jac_lower) true
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower,
+                                   stored_upper)
+        LS = Sundials.SUNBandLinearSolver(y0,A)
     end
+    flag = @checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
     ## Solve problem
     scale = ones(length(y0))
@@ -162,7 +167,7 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
     A = Sundials.SUNDenseMatrix(length(y0),length(y0))
     LS = Sundials.SUNDenseLinearSolver(y0,A)
-    Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
+    flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
     yres[1,:] = y0
     ynv = NVector(copy(y0))
@@ -245,7 +250,11 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
                               t[1], y0, yp0) true
     flag = @checkflag IDASetUserData(mem, userfun) true
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
-    flag = @checkflag IDADense(mem, length(y0)) true
+
+    A = Sundials.SUNDenseMatrix(length(y0),length(y0))
+    LS = Sundials.SUNDenseLinearSolver(y0,A)
+    flag = Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A) true
+
     rtest = zeros(length(y0))
     f(t[1], y0, yp0, rtest)
     if any(abs.(rtest) .>= reltol)
@@ -267,6 +276,8 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
     end
 
     empty!(mem)
+    Sundials.SUNLinSolFree_Dense(LS)
+    Sundials.SUNMatDestroy_Dense(A)
 
     return yres, ypres
 end

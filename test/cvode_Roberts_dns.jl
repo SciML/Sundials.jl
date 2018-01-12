@@ -40,15 +40,15 @@ function Jac(N, t, ny, fy, Jptr, user_data, tmp1, tmp2, tmp3)
     return Sundials.CV_SUCCESS
 end
 
-const neq = 3
+neq = 3
 
-const t0 = 0.0
-const t1 = 0.4
-const tmult = 10.0
-const nout = 12
-const y0 = [1.0, 0.0, 0.0]
-const reltol = 1e-4
-const abstol = [1e-8, 1e-14, 1e-6]
+t0 = 0.0
+t1 = 0.4
+tmult = 10.0
+nout = 12
+y0 = [1.0, 0.0, 0.0]
+reltol = 1e-4
+abstol = [1e-8, 1e-14, 1e-6]
 userdata = nothing
 mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
 cvode_mem = Sundials.Handle(mem_ptr)
@@ -69,7 +69,7 @@ Sundials.@checkflag Sundials.CVDlsSetLinearSolver(cvode_mem, LS, A)
 
 iout = 0
 tout = t1
-const t = [t0]
+t = [t0]
 
 while iout < nout
     y = similar(y0)
@@ -85,5 +85,6 @@ while iout < nout
     end
 end
 
+Sundials.CVodeFree(mem_ptr)
 Sundials.SUNLinSolFree_Dense(LS)
 Sundials.SUNMatDestroy_Dense(A)
