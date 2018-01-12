@@ -142,23 +142,15 @@ function wrap_sundials_api(expr::Expr)
 		        @assert expr.args[2].args[1].args[3] == :(Ptr{Void})
                 expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
-                if typeof(expr.args[1].args[2]) <: Symbol
-			        arg1_name = expr.args[1].args[2]
-			        arg1_type = Any
-	         	else
-			        arg1_name = expr.args[1].args[2].args[1]
-                	arg1_type = expr.args[1].args[2].args[2]
-                end
-		    if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
-                    # also check in the ccall list of arg types
-                    @assert expr.args[2].args[1].args[3].args[1] == arg1_type
+		arg1_type = expr.args[2].args[1].args[4].args[1]
+                if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
+		    arg1_name = expr.args[1].args[2]
                     arg1_newtype = arg1_name2type[arg1_name]
                     if arg1_type == :(Ptr{Ptr{Void}})
                         # adjust for void** type (for CVodeFree()-like funcs)
                         arg1_newtype = Expr(:curly, :Ref, arg1_newtype)
                     end
-                    expr.args[1].args[2].args[2] = arg1_newtype
-                    expr.args[2].args[1].args[3].args[1] = arg1_newtype
+		    expr.args[2].args[1].args[4].args[1] = arg1_newtype
                     convert_required = true
                 end
             end
