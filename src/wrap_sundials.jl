@@ -142,28 +142,28 @@ function wrap_sundials_api(expr::Expr)
 		        @assert expr.args[2].args[1].args[3] == :(Ptr{Void})
                 expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
-		arg1_type = expr.args[2].args[1].args[4].args[1]
+		        arg1_type = expr.args[2].args[1].args[4].args[1]
                 if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
-		    arg1_name = expr.args[1].args[2]
+		            arg1_name = expr.args[1].args[2]
                     arg1_newtype = arg1_name2type[arg1_name]
                     if arg1_type == :(Ptr{Ptr{Void}})
                         # adjust for void** type (for CVodeFree()-like funcs)
                         arg1_newtype = Expr(:curly, :Ref, arg1_newtype)
                     end
-		    expr.args[2].args[1].args[4].args[1] = arg1_newtype
+		             expr.args[2].args[1].args[4].args[1] = arg1_newtype
                     convert_required = true
                 end
             end
             if ismatch(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[2].args[1].args)
-         	        if !(typeof(arg_expr)<:Symbol) && arg_expr.args[1] in values(ctor_return_type) 
-			    if arg_expr.args[2] == :(Ptr{Void})
-		                arg_expr.args[2] = Any
-		            elseif arg_expr.args[3] == :(Ptr{Void})
-		    	        arg_expr.args[3] = Any
-		            end
-			end
+         	        if !(typeof(arg_expr)<:Symbol) && arg_expr.args[1] in values(ctor_return_type)
+			            if arg_expr.args[2] == :(Ptr{Void})
+		                    arg_expr.args[2] = Any
+		                elseif arg_expr.args[3] == :(Ptr{Void})
+		    	            arg_expr.args[3] = Any
+		                end
+			        end
                 end
             end
             if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix)
