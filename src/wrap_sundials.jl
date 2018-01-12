@@ -165,12 +165,12 @@ function wrap_sundials_api(expr::Expr)
             if ismatch(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[2].args[1].args)
-         	    if arg_expr == :((Ptr{Void}, Ptr{Void}))
-		    	arg_expr.args[2] = Any
-		    end
-         	    if arg_expr == :((Ptr{Void}, Cint, Ptr{Void}))
-		    	arg_expr.args[3] = Any
-		    end
+         	        if arg_expr == :((Ptr{Void}, Ptr{Void}))
+		                arg_expr.args[2] = Any
+		            end
+         	        if arg_expr == :((Ptr{Void}, Cint, Ptr{Void}))
+		    	        arg_expr.args[3] = Any
+		            end
                 end
             end
             if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix)
