@@ -17,20 +17,20 @@ const SUNDIALS_BAND = Cint(2)
 # * -----------------------------------------------------------------
 # * BAND_COL, BAND_COL_ELEM, and BAND_ELEM
 # * -----------------------------------------------------------------
-# *  
-# * BAND_COL(A,j) references the diagonal element of the jth column 
-# * of the N by N band matrix A, 0 <= j <= N-1. The type of the 
-# * expression BAND_COL(A,j) is realtype *. The pointer returned by 
-# * the call BAND_COL(A,j) can be treated as an array which is 
+# *
+# * BAND_COL(A,j) references the diagonal element of the jth column
+# * of the N by N band matrix A, 0 <= j <= N-1. The type of the
+# * expression BAND_COL(A,j) is realtype *. The pointer returned by
+# * the call BAND_COL(A,j) can be treated as an array which is
 # * indexed from -(A->mu) to (A->ml).
-# * 
-# * BAND_COL_ELEM references the (i,j)th entry of the band matrix A 
-# * when used in conjunction with BAND_COL. The index (i,j) should 
+# *
+# * BAND_COL_ELEM references the (i,j)th entry of the band matrix A
+# * when used in conjunction with BAND_COL. The index (i,j) should
 # * satisfy j-(A->mu) <= i <= j+(A->ml).
 # *
-# * BAND_ELEM(A,i,j) references the (i,j)th element of the M-by-N 
-# * band matrix A, where 0 <= i,j <= N-1. The location (i,j) should 
-# * further satisfy j-(A->mu) <= i <= j+(A->ml). 
+# * BAND_ELEM(A,i,j) references the (i,j)th element of the M-by-N
+# * band matrix A, where 0 <= i,j <= N-1. The location (i,j) should
+# * further satisfy j-(A->mu) <= i <= j+(A->ml).
 # *
 # * -----------------------------------------------------------------
 # */
@@ -689,8 +689,8 @@ const ARKSPILS_MSBPRE = Cint(50)
 
 # Skipping MacroDefinition: ARKSPILS_DGMAX RCONST ( 0.2 ) /* -- TURN INTO A PARAMETER, MAKE THIS THE DEFAULT */
 # Skipping MacroDefinition: ARKSPILS_EPLIN RCONST ( 0.05 ) /*===============================================================#
- ARKSPILS user-supplied function prototypes#
-===============================================================*/
+# ARKSPILS user-supplied function prototypes#
+# ===============================================================*/
 
 const ARKSpilsPrecSetupFn = Ptr{Void}
 const ARKSpilsPrecSolveFn = Ptr{Void}
@@ -716,7 +716,7 @@ const ARKSpilsMassPrecSolveFn = Ptr{Void}
 # Skipping MacroDefinition: SM_ELEMENT_B ( A , i , j ) ( ( SM_CONTENT_B ( A ) -> cols ) [ j ] [ ( i ) - ( j ) + SM_SUBAND_B ( A ) ] ) /*
 # * -----------------------------------------------------------------
 # * PART III: functions exported by sunmatrix_band
-# * 
+# *
 # * CONSTRUCTORS:
 # *    SUNBandMatrix
 # * OTHER:
@@ -757,7 +757,7 @@ const SUNMatrixContent_Band = Ptr{_SUNMatrixContent_Band}
 # Skipping MacroDefinition: SM_ELEMENT_D ( A , i , j ) ( ( SM_CONTENT_D ( A ) -> cols ) [ j ] [ i ] ) /*
 # * -----------------------------------------------------------------
 # * PART III: functions exported by sunmatrix_dense
-# * 
+# *
 # * CONSTRUCTORS:
 # *    SUNDenseMatrix
 # * OTHER:
@@ -765,7 +765,7 @@ const SUNMatrixContent_Band = Ptr{_SUNMatrixContent_Band}
 # *    SUNDenseMatrix_Rows
 # *    SUNDenseMatrix_Columns
 # *    SUNDenseMatrix_LData
-# *    SUNDenseMatrix_Data 
+# *    SUNDenseMatrix_Data
 # *    SUNDenseMatrix_Cols
 # *    SUNDenseMatrix_Column
 # * -----------------------------------------------------------------
@@ -788,7 +788,7 @@ const SUNMatrixContent_Dense = Ptr{_SUNMatrixContent_Dense}
 # Skipping MacroDefinition: NV_Ith_S ( v , i ) ( NV_DATA_S ( v ) [ i ] ) /*
 # * -----------------------------------------------------------------
 # * PART III: functions exported by nvector_serial
-# * 
+# *
 # * CONSTRUCTORS:
 # *    N_VNew_Serial
 # *    N_VNewEmpty_Serial
@@ -870,8 +870,8 @@ const CVSPILS_MSBPRE = Cint(50)
 
 # Skipping MacroDefinition: CVSPILS_DGMAX RCONST ( 0.2 ) #
 # Skipping MacroDefinition: CVSPILS_EPLIN RCONST ( 0.05 ) /*===============================================================#
-  CVSPILS user-supplied function prototypes#
-  ===============================================================*/
+#  CVSPILS user-supplied function prototypes#
+#  ===============================================================*/
 
 const CVSpilsPrecSetupFn = Ptr{Void}
 const CVSpilsPrecSolveFn = Ptr{Void}
@@ -888,8 +888,8 @@ const CVSPILS_NO_ADJ = Cint(-101)
 const CVSPILS_LMEMB_NULL = Cint(-102)
 
 # Skipping MacroDefinition: CVSPILS_EPLIN RCONST ( 0.05 ) /*-----------------------------------------------------------------#
-  PART I - forward problems#
-  -----------------------------------------------------------------*/
+#  PART I - forward problems#
+#  -----------------------------------------------------------------*/
 
 const CVSpilsPrecSetupFnB = Ptr{Void}
 const CVSpilsPrecSetupFnBS = Ptr{Void}
@@ -1134,7 +1134,7 @@ const SUNLinearSolverContent_SPTFQMR = Ptr{_SUNLinearSolverContent_SPTFQMR}
 # Skipping MacroDefinition: SM_INDEXPTRS_S ( A ) ( SM_CONTENT_S ( A ) -> indexptrs ) /*
 # * -----------------------------------------------------------------
 # * PART III: functions exported by sunmatrix_sparse
-# * 
+# *
 # * CONSTRUCTORS:
 # *    SUNSparseMatrix
 # *    SUNSparseFromDenseMatrix
@@ -1143,11 +1143,11 @@ const SUNLinearSolverContent_SPTFQMR = Ptr{_SUNLinearSolverContent_SPTFQMR}
 # *    SUNSparseMatrix_Print
 # *    SUNSparseMatrix_Realloc
 # *    SUNSparseMatrix_Rows
-# *    SUNSparseMatrix_Columns 
+# *    SUNSparseMatrix_Columns
 # *    SUNSparseMatrix_NNZ
 # *    SUNSparseMatrix_NP
 # *    SUNSparseMatrix_SparseType
-# *    SUNSparseMatrix_Data 
+# *    SUNSparseMatrix_Data
 # *    SUNSparseMatrix_IndexValues
 # *    SUNSparseMatrix_IndexPointers
 # * -----------------------------------------------------------------
