@@ -7,10 +7,10 @@ saveat = float(collect(0:dt:100000))
 sol = solve(prob,IDA())
 sol2 = solve(prob,IDA(linear_solver=:Band,jac_upper=2,jac_lower=2))
 sol3 = solve(prob,IDA(linear_solver=:GMRES))
-sol4 = solve(prob,IDA(linear_solver=:BCG)) 
-sol5 = solve(prob,IDA(linear_solver=:TFQMR,krylov_dim=15))
+#sol4 = solve(prob,IDA(linear_solver=:BCG)) # Fails but doesn't throw an error?
+sol5 = solve(prob,IDA(linear_solver=:TFQMR))
 sol6 = solve(prob,IDA(linear_solver=:FGMRES))
-#sol7 = solve(prob,IDA(linear_solver=:PCG)) # Requires symmetric linear
+sol7 = solve(prob,IDA(linear_solver=:PCG)) # Requires symmetric linear
 
 sol = solve(prob,IDA(),saveat=saveat)
 

@@ -165,17 +165,16 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if has_jac(prob.f)
       jac = cfunction(cvodejac,
                       Cint,
-                      (Clong,
-                       realtype,
+                      (realtype,
                        N_Vector,
                        N_Vector,
-                       DlsMat,
+                       SUNMatrix,
                        Ref{typeof(userfun)},
                        N_Vector,
                        N_Vector,
                        N_Vector))
       flag = CVodeSetUserData(mem, userfun)
-      flag = CVDlsSetDenseJacFn(mem, jac)
+      flag = CVDlsSetJacFn(mem, jac)
     else
         jac = nothing
     end
@@ -359,7 +358,6 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
         flag = Sundials.IDASpilsSetLinearSolver(mem, LS)
         A = nothing
     elseif LinearSolver == :BCG
-        @show "here"
         LS = SUNSPBCGS(u0, PREC_NONE, alg.krylov_dim)
         flag = Sundials.IDASpilsSetLinearSolver(mem, LS)
         A = nothing
@@ -376,19 +374,18 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     if has_jac(prob.f)
       jac = cfunction(idajac,
                       Cint,
-                      (Clong,
+                      (realtype,
                        realtype,
-                       realtype,
                        N_Vector,
                        N_Vector,
                        N_Vector,
-                       DlsMat,
+                       SUNMatrix,
                        Ref{typeof(userfun)},
                        N_Vector,
                        N_Vector,
                        N_Vector))
       flag = IDASetUserData(mem, userfun)
-      flag = IDADlsSetDenseJacFn(mem, jac)
+      flag = IDADlsSetJacFn(mem, jac)
     else
       jac = nothing
     end
@@ -460,7 +457,7 @@ function solver_step(integrator::CVODEIntegrator,tstop)
     integrator.flag = CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
 end
 function solver_step(integrator::IDAIntegrator,tstop)
-    flag = IDASolve(integrator.mem, tstop, integrator.tout, integrator.u, integrator.du, IDA_ONE_STEP)
+    integrator.flag = IDASolve(integrator.mem, tstop, integrator.tout, integrator.u, integrator.du, IDA_ONE_STEP)
 end
 function set_stop_time(integrator::CVODEIntegrator,tstop)
     CVodeSetStopTime(integrator.mem,tstop)

@@ -106,11 +106,10 @@ function cvodefunjac(t::Float64,
     return CV_SUCCESS
 end
 
-function cvodejac(N::Clong,
-                  t::realtype,
+function cvodejac(t::realtype,
                   x::N_Vector,
                   ẋ::N_Vector,
-                  J::DlsMat,
+                  J::SUNMatrix,
                   userjac::FunJac,
                   tmp1::N_Vector,
                   tmp2::N_Vector,
@@ -203,13 +202,12 @@ function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::
     return IDA_SUCCESS
 end
 
-function idajac(N::Clong,
-                t::realtype,
+function idajac(t::realtype,
                 cj::realtype,
                 x::N_Vector,
                 dx::N_Vector,
                 res::N_Vector,
-                J::DlsMat,
+                J::SUNMatrix,
                 userjac::FunJac,
                 tmp1::N_Vector,
                 tmp2::N_Vector,

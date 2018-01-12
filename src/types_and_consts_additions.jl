@@ -23,3 +23,11 @@ IDARootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{realtype
 
 KINSysFn_wrapper(fp::KINSysFn) = fp
 KINSysFn_wrapper(f) = cfunction(f,Cint,(N_Vector,N_Vector,Ptr{Void}))
+
+function Base.convert(::Type{Matrix}, J::SUNMatrix)
+    _sunmat = unsafe_load(J)
+    _mat = convert(SUNMatrixContent_Dense, _sunmat.content)
+    mat = unsafe_load(_mat)
+    # own is false as memory is allocated by sundials
+    unsafe_wrap(Array, mat.data, (mat.M, mat.N), false)
+end
