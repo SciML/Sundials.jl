@@ -99,6 +99,17 @@ const arg1_name2type = Dict(
     :idaadj_mem => :(IDAMemPtr), # Sundials typo?
 )
 
+const linear_solvers_and_matrices = [
+    "dense",
+    "band",
+    "pcg",
+    "pbcgs",
+    "pfgmr",
+    "spgmr",
+    "sptfqmr",
+    "sparse"
+    ]
+
 # substitute Ptr{Void} with the typed pointer
 const ctor_return_type = Dict(
     "ARKodeCreate" => :(ARKODEMemPtr),
@@ -166,7 +177,16 @@ function wrap_sundials_api(expr::Expr)
                 end
             end
             if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix)
-                expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2])*lowercase(split(func_name,"_")[end]))
+                if func_name[1:6] == "SUNMAT"
+                    expr.args[2].args[1].args[2].args[2] =
+                    Symbol(string(expr.args[2].args[1].args[2].args[2])*
+                    lowercase(split(func_name,"_")[end]))
+                else
+                    name_i = findfirst(lsmn -> contains(lowercase(func_name),lsmn),linear_solvers_and_matrices)
+                    @assert name_i > 0
+                    name = linear_solvers_and_matrices[name_i]
+                    Symbol(string(expr.args[2].args[1].args[2].args[2])*name
+                end
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
             # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
