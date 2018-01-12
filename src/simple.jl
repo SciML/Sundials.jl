@@ -177,6 +177,9 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     end
 
     empty!(mem)
+    Sundials.SUNLinSolFree_Dense(LS)
+    Sundials.SUNMatDestroy_Dense(A)
+
     return yres[1:c,:]
 end
 

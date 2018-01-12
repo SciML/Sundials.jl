@@ -49,8 +49,16 @@ const nout = 12
 const y0 = [1.0, 0.0, 0.0]
 const reltol = 1e-4
 const abstol = [1e-8, 1e-14, 1e-6]
+userdata = nothing
+mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
+cvode_mem = Sundials.Handle(mem_ptr)
+userfun = Sundials.UserFunctionAndData(f, userdata)
+Sundials.CVodeSetUserData(cvode_mem, userfun)
 
-cvode_mem = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
+Sundials.CVodeInit(cvode_mem, cfunction(Sundials.cvodefun,
+                    Cint, (Sundials.realtype, Sundials.N_Vector,
+                    Sundials.N_Vector, Ref{typeof(userfun)})), t1,
+                    convert(Sundials.N_Vector, y0))
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, f, t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g)
@@ -76,3 +84,6 @@ while iout < nout
       tout *= tmult
     end
 end
+
+Sundials.SUNLinSolFree_Dense(LS)
+Sundials.SUNMatDestroy_Dense(A)
