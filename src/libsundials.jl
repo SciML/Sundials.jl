@@ -29,8 +29,14 @@ function SUNLinSolSetPreconditioner(S::SUNLinearSolver, P_data, Pset::PSetupFn, 
     ccall((:SUNLinSolSetPreconditioner, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Void}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
-function SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::N_Vector, s2::N_Vector)
+function __SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::N_Vector, s2::N_Vector)
     ccall((:SUNLinSolSetScalingVectors, libsundials_sundials), Cint, (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+end
+
+function SUNLinSolSetScalingVectors(S, s1, s2)
+    __s1 = convert(NVector, s1)
+    __s2 = convert(NVector, s2)
+    __SUNLinSolSetScalingVectors(S, convert(N_Vector, __s1), convert(N_Vector, __s2))
 end
 
 function SUNLinSolInitialize(S::SUNLinearSolver)
@@ -41,8 +47,14 @@ function SUNLinSolSetup(S::SUNLinearSolver, A::SUNMatrix)
     ccall((:SUNLinSolSetup, libsundials_sundials), Cint, (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::N_Vector, b::N_Vector, tol::realtype)
+function __SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::N_Vector, b::N_Vector, tol::realtype)
     ccall((:SUNLinSolSolve, libsundials_sundials), Cint, (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+end
+
+function SUNLinSolSolve(S, A, x, b, tol)
+    __x = convert(NVector, x)
+    __b = convert(NVector, b)
+    __SUNLinSolSolve(S, A, convert(N_Vector, __x), convert(N_Vector, __b), tol)
 end
 
 function SUNLinSolNumIters(S::SUNLinearSolver)
@@ -100,8 +112,14 @@ function SUNMatScaleAddI(c::realtype, A::SUNMatrix)
     ccall((:SUNMatScaleAddI, libsundials_sundials), Cint, (realtype, SUNMatrix), c, A)
 end
 
-function SUNMatMatvec(A::SUNMatrix, x::N_Vector, y::N_Vector)
+function __SUNMatMatvec(A::SUNMatrix, x::N_Vector, y::N_Vector)
     ccall((:SUNMatMatvec, libsundials_sundials), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
+end
+
+function SUNMatMatvec(A, x, y)
+    __x = convert(NVector, x)
+    __y = convert(NVector, y)
+    __SUNMatMatvec(A, convert(N_Vector, __x), convert(N_Vector, __y))
 end
 
 function SUNMatSpace(A::SUNMatrix, lenrw, leniw)
@@ -418,8 +436,12 @@ end
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function SUNRpowerI(base::realtype, exponent::Cint)
+function __SUNRpowerI(base::realtype, exponent::Cint)
     ccall((:SUNRpowerI, libsundials_sundials), realtype, (realtype, Cint), base, exponent)
+end
+
+function SUNRpowerI(base, exponent)
+    __SUNRpowerI(base, convert(Cint, exponent))
 end
 
 function SUNRpowerR(base::realtype, exponent::realtype)
@@ -444,10 +466,18 @@ end
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
 
-function SUNDIALSGetVersion(version, len::Cint)
+function __SUNDIALSGetVersion(version, len::Cint)
     ccall((:SUNDIALSGetVersion, libsundials_sundials), Cint, (Cstring, Cint), version, len)
 end
 
-function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Cint)
+function SUNDIALSGetVersion(version, len)
+    __SUNDIALSGetVersion(version, convert(Cint, len))
+end
+
+function __SUNDIALSGetVersionNumber(major, minor, patch, label, len::Cint)
     ccall((:SUNDIALSGetVersionNumber, libsundials_sundials), Cint, (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cstring, Cint), major, minor, patch, label, len)
+end
+
+function SUNDIALSGetVersionNumber(major, minor, patch, label, len)
+    __SUNDIALSGetVersionNumber(major, minor, patch, label, convert(Cint, len))
 end

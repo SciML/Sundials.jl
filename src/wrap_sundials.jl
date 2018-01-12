@@ -185,7 +185,7 @@ function wrap_sundials_api(expr::Expr)
                     name_i = findfirst(lsmn -> contains(lowercase(func_name),lsmn),linear_solvers_and_matrices)
                     @assert name_i > 0
                     name = linear_solvers_and_matrices[name_i]
-                    Symbol(string(expr.args[2].args[1].args[2].args[2])*name
+                    expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2])*name)
                 end
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr

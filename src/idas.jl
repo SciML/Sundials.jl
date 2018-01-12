@@ -3,7 +3,7 @@
 
 
 function IDACreate()
-    ccall((:IDACreate,libsundials_idas),IDAMemPtr, ())
+    ccall((:IDACreate, libsundials_idas), IDAMemPtr, ())
 end
 
 function IDASetErrHandlerFn(ida_mem, ehfun::IDAErrHandlerFn, eh_data)
