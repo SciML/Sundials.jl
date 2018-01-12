@@ -121,3 +121,8 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim
                       max_num_backs_ic,
                       use_linesearch_ic)
 end
+
+method_choice(alg::SundialsODEAlgorithm{Method}) where Method = Method
+method_choice(alg::SundialsDAEAlgorithm) = :Newton
+linear_solver(alg::SundialsODEAlgorithm{Method,LinearSolver}) where {Method,LinearSolver}= LinearSolver
+linear_solver(alg::SundialsDAEAlgorithm{LinearSolver}) where LinearSolver = LinearSolver

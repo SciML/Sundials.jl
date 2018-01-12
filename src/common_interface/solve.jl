@@ -124,7 +124,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
-            flag = CVDense(mem, length(u0))
+            A = Sundials.SUNDenseMatrix(length(u0),length(u0))
+            LS = Sundials.SUNDenseLinearSolver(u0,A)
         elseif LinearSolver == :Band
             flag = CVBand(mem,length(u0), alg.jac_upper, alg.jac_lower)
         elseif LinearSolver == :Diagonal
@@ -136,6 +137,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         elseif LinearSolver == :TFQMR
             flag = CVSptfqmr(mem, PREC_NONE, alg.krylov_dim)
         end
+    else
+        A = nothing
+        LS = nothing
     end
 
     if has_jac(prob.f)
@@ -179,7 +183,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
-    CVODEIntegrator(utmp,t0,t0,mem,sol,alg,f!,userfun,jac,opts,
+    CVODEIntegrator(utmp,t0,t0,mem,LS,A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false)
 end # function solve
 
@@ -459,7 +463,16 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         end
     end
 
-    empty!(integrator.mem);
+    empty!(integrator.mem)
+    if method_choice(integrator.alg) == :Newton
+        if linear_solver(integrator.alg) == :Dense
+            Sundials.SUNLinSolFree_Dense(integrator.LS)
+            Sundials.SUNMatDestroy_Dense(integrator.A)
+        else
+            error("Linear solver doesn't free memory!")
+        end
+    end
+
     if has_analytic(integrator.sol.prob.f)
         calculate_solution_errors!(integrator.sol;
         timeseries_errors=integrator.opts.timeseries_errors,
