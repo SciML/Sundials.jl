@@ -141,11 +141,13 @@ return: a solution matrix with time steps in `t` along rows and
 """
 function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
+
     if integrator==:BDF
         mem_ptr = CVodeCreate(CV_BDF, CV_NEWTON)
     elseif integrator==:Adams
         mem_ptr = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
     end
+
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
@@ -155,9 +157,13 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     userfun = UserFunctionAndData(f, userdata)
     y0nv = NVector(y0)
     flag = @checkflag CVodeInit(mem, cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{typeof(userfun)})), t[1], convert(N_Vector, y0nv)) true
+
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
-    flag = @checkflag CVDense(mem, length(y0)) true
+    A = Sundials.SUNDenseMatrix(length(y0),length(y0))
+    LS = Sundials.SUNDenseLinearSolver(y0,A)
+    Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
+
     yres[1,:] = y0
     ynv = NVector(copy(y0))
     tout = [0.0]
@@ -171,7 +177,6 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     end
 
     empty!(mem)
-
     return yres[1:c,:]
 end
 

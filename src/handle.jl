@@ -39,8 +39,8 @@ immutable Handle{T <: AbstractSundialsObject}
     end
 end
 
-Base.unsafe_convert{T}(::Type{Ptr{Void}}, h::Handle{T}) = h.ptr_ref[]
-Base.convert{T}(::Type{Ptr{T}}, h::Handle{T}) = h.ptr_ref[]
+Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) where T = h.ptr_ref[]
+Base.convert(::Type{Ptr{T}}, h::Handle{T}) where T = h.ptr_ref[]
 Base.convert{T}(::Type{Ptr{Ptr{T}}}, h::Handle{T}) = convert(Ptr{Ptr{T}}, h.ptr_ref[])
 
 release_handle{T}(ptr_ref::Ref{Ptr{T}}) = throw(MethodError("Freeing objects of type $T not supported"))
