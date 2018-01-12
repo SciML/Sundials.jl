@@ -166,7 +166,7 @@ function wrap_sundials_api(expr::Expr)
                 end
             end
             if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix)
-                expr.args[2].args[2] = Symbol(string(expr.args[2].args[2])*lowercase(split(func_name,"_")[end]))
+                expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2])*lowercase(split(func_name,"_")[end]))
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
             # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
