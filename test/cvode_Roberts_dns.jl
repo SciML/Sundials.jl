@@ -85,6 +85,6 @@ while iout < nout
     end
 end
 
-Sundials.CVodeFree(mem_ptr)
-Sundials.SUNLinSolFree_Dense(LS)
-Sundials.SUNMatDestroy_Dense(A)
+#Sundials.CVodeFree(mem_ptr)
+#Sundials.SUNLinSolFree_Dense(LS)
+#Sundials.SUNMatDestroy_Dense(A)
