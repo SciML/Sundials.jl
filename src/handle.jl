@@ -69,10 +69,10 @@ Base.convert(::Type{Ptr{T}}, h::Handle{T}) where T = h.ptr_ref[]
 Base.convert{T}(::Type{Ptr{Ptr{T}}}, h::Handle{T}) = convert(Ptr{Ptr{T}}, h.ptr_ref[])
 
 release_handle{T}(ptr_ref::Ref{Ptr{T}}) = throw(MethodError("Freeing objects of type $T not supported"))
-release_handle(ptr_ref::Ref{Ptr{KINMem}}) = (ptr_ref[] != C_NULL) && KINFree(ptr_ref)
-release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = (ptr_ref[] != C_NULL) && CVodeFree(ptr_ref)
-release_handle(ptr_ref::Ref{Ptr{ARKODEMem}}) = (ptr_ref[] != C_NULL) && ARKodeFree(ptr_ref)
-release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = (ptr_ref[] != C_NULL) && IDAFree(ptr_ref)
+release_handle(ptr_ref::Ref{Ptr{KINMem}}) = ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{ARKODEMem}}) = ((ptr_ref[] != C_NULL) && ARKodeFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)
 
 function release_handle(h::MatrixHandle{DenseMatrix})
     if !isempty(h)

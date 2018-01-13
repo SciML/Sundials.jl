@@ -60,7 +60,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
-        u0 = vec(deepcopy(prob.u0))
+        u0 = vec(copy(prob.u0))
     end
 
     sizeu = size(prob.u0)
@@ -262,7 +262,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
-        u0 = vec(deepcopy(prob.u0))
+        u0 = vec(copy(prob.u0))
     end
 
     sizeu = size(prob.u0)
@@ -485,13 +485,13 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
-        u0 = vec(deepcopy(prob.u0))
+        u0 = vec(copy(prob.u0))
     end
 
     if typeof(prob.du0) <: Number
         du0 = [prob.du0]
     else
-        du0 = vec(deepcopy(prob.du0))
+        du0 = vec(copy(prob.du0))
     end
 
     sizeu = size(prob.u0)
