@@ -127,11 +127,13 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
             A = Sundials.SUNDenseMatrix(length(u0),length(u0))
             LS = Sundials.SUNDenseLinearSolver(u0,A)
             flag = Sundials.CVDlsSetLinearSolver(mem, LS, A)
+            _A = MatrixHandle(A,Dense())
         elseif LinearSolver == :Band
             A = Sundials.SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
                                        alg.stored_upper)
             LS = Sundials.SUNBandLinearSolver(u0,A)
             flag = Sundials.CVDlsSetLinearSolver(mem, LS, A)
+            _A = MatrixHandle(A,Band())
         elseif LinearSolver == :Diagonal
             flag = CVDiag(mem)
             A = nothing
@@ -139,26 +141,26 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         elseif LinearSolver == :GMRES
             LS = SUNSPGMR(u0, PREC_NONE, alg.krylov_dim)
             flag = Sundials.CVSpilsSetLinearSolver(mem, LS)
-            A = nothing
+            _A = nothing
         elseif LinearSolver == :FGMRES
             LS = SUNSPFGMR(u0, PREC_NONE, alg.krylov_dim)
             flag = Sundials.CVSpilsSetLinearSolver(mem, LS)
-            A = nothing
+            _A = nothing
         elseif LinearSolver == :BCG
             LS = SUNSPBCGS(u0, PREC_NONE, alg.krylov_dim)
             flag = Sundials.CVSpilsSetLinearSolver(mem, LS)
-            A = nothing
+            _A = nothing
         elseif LinearSolver == :PCG
             LS = SUNPCG(u0, PREC_NONE, alg.krylov_dim)
             flag = Sundials.CVSpilsSetLinearSolver(mem, LS)
-            A = nothing
+            _A = nothing
         elseif LinearSolver == :TFQMR
             LS = SUNSPTFQMR(u0, PREC_NONE, alg.krylov_dim)
             flag = Sundials.CVSpilsSetLinearSolver(mem, LS)
-            A = nothing
+            _A = nothing
         end
     else
-        A = nothing
+        _A = nothing
         LS = nothing
     end
 
@@ -202,7 +204,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
-    CVODEIntegrator(utmp,t0,t0,mem,LS,A,sol,alg,f!,userfun,jac,opts,
+    CVODEIntegrator(utmp,t0,t0,mem,LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false)
 end # function solve
 
@@ -344,31 +346,33 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
         A = Sundials.SUNDenseMatrix(length(u0),length(u0))
         LS = Sundials.SUNDenseLinearSolver(u0,A)
         flag = Sundials.IDADlsSetLinearSolver(mem, LS, A)
+        _A = MatrixHandle(A,Dense())
     elseif LinearSolver == :Band
         A = Sundials.SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
                                    alg.stored_upper)
         LS = Sundials.SUNBandLinearSolver(u0,A)
         flag = Sundials.IDADlsSetLinearSolver(mem, LS, A)
+        _A = MatrixHandle(A,Band())
     elseif LinearSolver == :GMRES
         LS = SUNSPGMR(u0, PREC_NONE, alg.krylov_dim)
         flag = Sundials.IDASpilsSetLinearSolver(mem, LS)
-        A = nothing
+        _A = nothing
     elseif LinearSolver == :FGMRES
         LS = SUNSPFGMR(u0, PREC_NONE, alg.krylov_dim)
         flag = Sundials.IDASpilsSetLinearSolver(mem, LS)
-        A = nothing
+        _A = nothing
     elseif LinearSolver == :BCG
         LS = SUNSPBCGS(u0, PREC_NONE, alg.krylov_dim)
         flag = Sundials.IDASpilsSetLinearSolver(mem, LS)
-        A = nothing
+        _A = nothing
     elseif LinearSolver == :PCG
         LS = SUNPCG(u0, PREC_NONE, alg.krylov_dim)
         flag = Sundials.IDASpilsSetLinearSolver(mem, LS)
-        A = nothing
+        _A = nothing
     elseif LinearSolver == :TFQMR
         LS = SUNSPTFQMR(u0, PREC_NONE, alg.krylov_dim)
         flag = Sundials.IDASpilsSetLinearSolver(mem, LS)
-        A = nothing
+        _A = nothing
     end
 
     if has_jac(prob.f)
@@ -439,7 +443,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
                     timeseries_errors,dense_errors,save_end,
                     callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
 
-    IDAIntegrator(utmp,dutmp,t0,t0,mem,LS,A,sol,alg,f!,userfun,jac,opts,
+    IDAIntegrator(utmp,dutmp,t0,t0,mem,LS,_A,sol,alg,f!,userfun,jac,opts,
                    tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false)
 end # function solve
 
@@ -501,13 +505,12 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     end
 
     empty!(integrator.mem)
+    empty!(integrator.A)
     if method_choice(integrator.alg) == :Newton
         if linear_solver(integrator.alg) == :Dense
             Sundials.SUNLinSolFree_Dense(integrator.LS)
-            Sundials.SUNMatDestroy_Dense(integrator.A)
         elseif linear_solver(integrator.alg) == :Band
             Sundials.SUNLinSolFree_Band(integrator.LS)
-            Sundials.SUNMatDestroy_Band(integrator.A)
         elseif linear_solver(integrator.alg) == :Diagonal
             # Do nothing!
         elseif linear_solver(integrator.alg) == :GMRES
