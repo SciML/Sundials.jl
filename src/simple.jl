@@ -165,7 +165,7 @@ function cvode(f, y0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
     A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-    LS = Sundials.SUNDenseLinearSolver(y0,A)
+    LS = Sundials.SUNDenseLinearSolver(y0nv,A)
     flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
     yres[1,:] = y0
