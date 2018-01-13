@@ -52,14 +52,12 @@ download_info = Dict(
     BinaryProvider.Windows(:x86_64) => ("$bin_prefix/Sundials.x86_64-w64-mingw32.tar.gz", "fd0e9840c1eeb5da23df37156d8da2a2f7f74a2722c633c45a50068baa82887d"),
 )
 if platform_key() in keys(download_info)
-    @show "1st"
     # First, check to see if we're all satisfied
     if any(!satisfied(p; verbose=true) for p in products)
         # Download and install binaries
         url, tarball_hash = download_info[platform_key()]
         install(url, tarball_hash; prefix=prefix, force=true, verbose=true)
     end
-    @show "HERE"
 
     # Finally, write out a deps.jl file that will contain mappings for each
     # named product here: (there will be a "libfoo" variable and a "fooifier"
