@@ -48,3 +48,7 @@ struct SPFGMR <: SundialsLinSol end
 struct SPBCGS <: SundialsLinSol end
 struct PCG <: SundialsLinSol end
 struct PTFQMR <: SundialsLinSol end
+
+abstract type StiffnessChoice end
+struct Explicit <: StiffnessChoice end
+struct Implicit <: StiffnessChoice end

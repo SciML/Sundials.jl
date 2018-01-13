@@ -292,7 +292,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     save_start ? ts = [t0] : ts = Float64[]
     u0nv = NVector(u0)
 
-    if typeof(prob.problem_type) <: SplitODEProblem()
+    if typeof(prob.problem_type) <: SplitODEProblem
         error("Not implemented yet")
     else
         userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
@@ -303,7 +303,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                                  N_Vector, Ref{typeof(userfun)})),
                         C_NULL,
                         t0, convert(N_Vector, u0nv))
-        if alg.stiffness == Implicit()
+        elseif alg.stiffness == Implicit()
             flag = ARKodeInit(mem,
                         C_NULL,
                         cfunction(cvodefunjac, Cint,
