@@ -48,6 +48,7 @@ if isdefined(:libsundials_cvodes)
 else
     include("cvode.jl")
 end
+include("arkode.jl")
 if isdefined(:libsundials_idas)
     include("idas.jl")
 else

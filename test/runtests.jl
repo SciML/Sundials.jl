@@ -5,6 +5,9 @@ using Base.Test
     @testset "Roberts CVODE Simplified" begin include("cvode_Roberts_simplified.jl") end
     @testset "Roberts CVODE Direct" begin include("cvode_Roberts_dns.jl") end
 end
+@testset "ARK" begin
+    @testset "Roberts ARKODE Direct" begin include("arkode_Roberts_dns.jl") end
+end
 @testset "IDA" begin
     @testset "Roberts IDA Simplified" begin include("ida_Roberts_simplified.jl") end
     @testset "Roberts IDA Direct" begin include("ida_Roberts_dns.jl") end

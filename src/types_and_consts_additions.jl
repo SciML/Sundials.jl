@@ -9,6 +9,9 @@ end
 CVRhsFn_wrapper(fp::CVRhsFn) = fp
 CVRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
 
+ARKRhsFn_wrapper(fp::ARKRhsFn) = fp
+ARKRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
+
 CVRootFn_wrapper(fp::CVRootFn) = fp
 CVRootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,Ptr{realtype},Ptr{Void}))
 
