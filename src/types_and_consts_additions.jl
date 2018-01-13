@@ -34,3 +34,8 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
     # own is false as memory is allocated by sundials
     unsafe_wrap(Array, mat.data, (mat.M, mat.N), false)
 end
+
+abstract type SundialsMatrix end
+struct Dense <: SundialsMatrix end
+struct Band <: SundialsMatrix end
+struct Sparse <: SundialsMatrix end
