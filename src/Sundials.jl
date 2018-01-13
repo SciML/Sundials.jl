@@ -39,22 +39,22 @@ include("types_and_consts_additions.jl")
 include("handle.jl")
 include("nvector_wrapper.jl")
 
-include("nvector.jl")
-include("libsundials.jl")
-include("sunmatrix.jl")
-include("sunlinsol.jl")
+include("wrapped_api/nvector.jl")
+include("wrapped_api/libsundials.jl")
+include("wrapped_api/sunmatrix.jl")
+include("wrapped_api/sunlinsol.jl")
 if isdefined(:libsundials_cvodes)
-    include("cvodes.jl")
+    include("wrapped_api/cvodes.jl")
 else
-    include("cvode.jl")
+    include("wrapped_api/cvode.jl")
 end
-include("arkode.jl")
+include("wrapped_api/arkode.jl")
 if isdefined(:libsundials_idas)
-    include("idas.jl")
+    include("wrapped_api/idas.jl")
 else
-    include("ida.jl")
+    include("wrapped_api/ida.jl")
 end
-include("kinsol.jl")
+include("wrapped_api/kinsol.jl")
 
 include("simple.jl")
 include("common_interface/verbosity.jl")
