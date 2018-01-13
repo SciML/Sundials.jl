@@ -48,6 +48,40 @@ function (integrator::CVODEIntegrator)(out,t::Number,
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
 end
 
+mutable struct ARKODEIntegrator{uType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
+    u::uType
+    t::Float64
+    tprev::Float64
+    mem::memType
+    LS::LStype
+    A::Atype
+    sol::solType
+    alg::algType
+    f::fType
+    userfun::UFType
+    jac::JType
+    opts::oType
+    tout::toutType
+    tdir::Float64
+    sizeu::sizeType
+    u_modified::Bool
+    tmp::tmpType
+    uprev::tmpType
+    flag::Cint
+    just_hit_tstop::Bool
+end
+
+function (integrator::ARKODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
+    out = similar(integrator.u)
+    integrator.flag = @checkflag ARKodeGetDky(integrator.mem, t, Cint(T), out)
+    out
+end
+
+function (integrator::ARKODEIntegrator)(out,t::Number,
+                                          deriv::Type{Val{T}}=Val{0}) where T
+    integrator.flag = @checkflag ARKodeGetDky(integrator.mem, t, Cint(T), out)
+end
+
 mutable struct IDAIntegrator{uType,duType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
     u::uType
     du::duType

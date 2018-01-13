@@ -215,6 +215,204 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false)
 end # function solve
 
+function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
+    prob::AbstractODEProblem{uType, tType, isinplace},
+    alg::ARKODE{Method,LinearSolver},
+    timeseries=[], ts=[], ks=[];
+
+    verbose=true,
+    callback=nothing, abstol=1/10^6, reltol=1/10^3,
+    saveat=Float64[], tstops=Float64[],
+    maxiter=Int(1e5),
+    dt = nothing, dtmin = 0.0, dtmax = 0.0,
+    timeseries_errors=true,
+    dense_errors = false,
+    save_everystep=isempty(saveat), dense = save_everystep,
+    save_start = true, save_end = true,
+    save_timeseries = nothing,
+    advance_to_tstop = false,stop_at_next_tstop=false,
+    userdata=nothing,
+    kwargs...)
+
+    if verbose
+        warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
+        if !(typeof(prob.f) <: AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
+            if has_tgrad(prob.f)
+                warn("Explicit t-gradient given to this stiff solver is ignored.")
+                warned = true
+            end
+        end
+        warned && warn_compat()
+    end
+
+    if prob.mass_matrix != I
+        error("This solver is not able to use mass matrices.")
+    end
+
+    callbacks_internal = CallbackSet(callback,prob.callback)
+
+    tspan = prob.tspan
+    t0 = tspan[1]
+
+    tdir = sign(tspan[2]-tspan[1])
+
+    tstops_internal, saveat_internal =
+      tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
+
+    if typeof(prob.u0) <: Number
+        u0 = [prob.u0]
+    else
+        u0 = vec(deepcopy(prob.u0))
+    end
+
+    sizeu = size(prob.u0)
+
+    ### Fix the more general function to Sundials allowed style
+    if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
+        f! = (t, u, du) -> (du .= prob.f(t, u); 0)
+    elseif !isinplace && typeof(prob.u0)<:AbstractArray
+        f! = (t, u, du) -> (du .= vec(prob.f(t, reshape(u, sizeu))); 0)
+    elseif typeof(prob.u0)<:Vector{Float64}
+        f! = prob.f
+    else # Then it's an in-place function on an abstract array
+        f! = (t, u, du) -> (prob.f(t, reshape(u, sizeu),reshape(du, sizeu));
+                            u = vec(u); du=vec(du); 0)
+    end
+
+    mem_ptr = ARKodeCreate()
+    (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
+    mem = Handle(mem_ptr)
+
+    !verbose && ARKodeSetErrHandlerFn(mem,cfunction(null_error_handler, Void,
+                                    (Cint, Char,
+                                    Char, Ptr{Void})),C_NULL)
+
+    ures  = Vector{uType}()
+    dures = Vector{uType}()
+    save_start ? ts = [t0] : ts = Float64[]
+    u0nv = NVector(u0)
+
+    if typeof(prob.problem_type) <: SplitODEProblem()
+        error("Not implemented yet")
+    else
+        userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
+        if alg.stiffness == Explicit()
+            flag = ARKodeInit(mem,
+                        cfunction(cvodefunjac, Cint,
+                                 (realtype, N_Vector,
+                                 N_Vector, Ref{typeof(userfun)})),
+                        C_NULL,
+                        t0, convert(N_Vector, u0nv))
+        if alg.stiffness == Implicit()
+            flag = ARKodeInit(mem,
+                        C_NULL,
+                        cfunction(cvodefunjac, Cint,
+                                  (realtype, N_Vector,
+                                   N_Vector, Ref{typeof(userfun)})),
+                        t0, convert(N_Vector, u0nv))
+        end
+    end
+
+    dt != nothing && (flag = ARKodeSetInitStep(mem, dt))
+    flag = ARKodeSetMinStep(mem, dtmin)
+    flag = ARKodeSetMaxStep(mem, dtmax)
+    flag = ARKodeSetUserData(mem, userfun)
+    flag = ARKodeSStolerances(mem, reltol, abstol)
+    flag = ARKodeSetMaxNumSteps(mem, maxiter)
+    flag = ARKodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
+    flag = ARKodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
+    flag = ARKodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
+    flag = ARKodeSetMaxConvFails(mem, alg.max_convergence_failures)
+
+    if Method == :Newton # Only use a linear solver if it's a Newton-based method
+        if LinearSolver == :Dense
+            A = SUNDenseMatrix(length(u0),length(u0))
+            LS = SUNDenseLinearSolver(u0,A)
+            flag = ARKDlsSetLinearSolver(mem, LS, A)
+            _A = MatrixHandle(A,DenseMatrix())
+            _LS = LinSolHandle(LS,Dense())
+        elseif LinearSolver == :Band
+            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
+                                       alg.stored_upper)
+            LS = SUNBandLinearSolver(u0,A)
+            flag = ARKDlsSetLinearSolver(mem, LS, A)
+            _A = MatrixHandle(A,BandMatrix())
+            _LS = LinSolHandle(LS,Band())
+        elseif LinearSolver == :GMRES
+            LS = SUNSPGMR(u0, PREC_NONE, alg.krylov_dim)
+            flag = ARKSpilsSetLinearSolver(mem, LS)
+            _A = nothing
+            _LS = Sundials.LinSolHandle(LS,Sundials.SPGMR())
+        elseif LinearSolver == :FGMRES
+            LS = SUNSPFGMR(u0, PREC_NONE, alg.krylov_dim)
+            flag = ARKSpilsSetLinearSolver(mem, LS)
+            _A = nothing
+            _LS = LinSolHandle(LS,SPFGMR())
+        elseif LinearSolver == :BCG
+            LS = SUNSPBCGS(u0, PREC_NONE, alg.krylov_dim)
+            flag = ARKSpilsSetLinearSolver(mem, LS)
+            _A = nothing
+            _LS = LinSolHandle(LS,SPBCGS())
+        elseif LinearSolver == :PCG
+            LS = SUNPCG(u0, PREC_NONE, alg.krylov_dim)
+            flag = ARKSpilsSetLinearSolver(mem, LS)
+            _A = nothing
+            _LS = LinSolHandle(LS,PCG())
+        elseif LinearSolver == :TFQMR
+            LS = SUNSPTFQMR(u0, PREC_NONE, alg.krylov_dim)
+            flag = ARKSpilsSetLinearSolver(mem, LS)
+            _A = nothing
+            _LS = LinSolHandle(LS,PTFQMR())
+        end
+    else
+        _A = nothing
+        _LS = nothing
+    end
+
+    if has_jac(prob.f)
+      jac = cfunction(cvodejac,
+                      Cint,
+                      (realtype,
+                       N_Vector,
+                       N_Vector,
+                       SUNMatrix,
+                       Ref{typeof(userfun)},
+                       N_Vector,
+                       N_Vector,
+                       N_Vector))
+      flag = ARKodeSetUserData(mem, userfun)
+      flag = ARKDlsSetJacFn(mem, jac)
+    else
+        jac = nothing
+    end
+
+    utmp = NVector(copy(u0))
+    callback == nothing ? tmp = nothing : tmp = similar(u0)
+    callback == nothing ? uprev = nothing : uprev = similar(u0)
+    tout = [tspan[1]]
+
+    if save_start
+      save_value!(ures,u0,uType,sizeu)
+      if dense
+        f!(tspan[1],u0,utmp)
+        save_value!(dures,utmp,uType,sizeu)
+      end
+    end
+
+    sol = build_solution(prob, alg, ts, ures,
+                   dense = dense,
+                   du = dures,
+                   interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
+                                    DiffEqBase.LinearInterpolation(ts,ures),
+                   timeseries_errors = timeseries_errors,
+                   calculate_error = false)
+    opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
+                     timeseries_errors,dense_errors,save_end,
+                     callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
+    ARKODEIntegrator(utmp,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false)
+end # function solve
+
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
   tstops_vec = vec(collect(tType,Iterators.filter(x->tdir*tspan[1]<tdir*x≤tdir*tspan[end],Iterators.flatten((tstops,tspan[end])))))
 
@@ -474,11 +672,19 @@ end
 function solver_step(integrator::CVODEIntegrator,tstop)
     integrator.flag = CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
 end
-function solver_step(integrator::IDAIntegrator,tstop)
-    integrator.flag = IDASolve(integrator.mem, tstop, integrator.tout, integrator.u, integrator.du, IDA_ONE_STEP)
+function solver_step(integrator::ARKODEIntegrator,tstop)
+    integrator.flag = ARKode(integrator.mem, tstop, integrator.u, integrator.tout, ARK_ONE_STEP)
 end
+function solver_step(integrator::IDAIntegrator,tstop)
+    integrator.flag = IDASolve(integrator.mem, tstop, integrator.tout,
+                               integrator.u, integrator.du, IDA_ONE_STEP)
+end
+
 function set_stop_time(integrator::CVODEIntegrator,tstop)
     CVodeSetStopTime(integrator.mem,tstop)
+end
+function set_stop_time(integrator::ARKODEIntegrator,tstop)
+    ARKodeSetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::IDAIntegrator,tstop)
     IDASetStopTime(integrator.mem,tstop)

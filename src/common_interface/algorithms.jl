@@ -77,6 +77,39 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                                       max_convergence_failures)
 end
 
+immutable ARKODE{Method,LinearSolver,T} <: SundialsODEAlgorithm{Method,LinearSolver}
+    stiffness::T
+    jac_upper::Int
+    jac_lower::Int
+    stored_upper::Int
+    krylov_dim::Int
+    max_hnil_warns::Int
+    max_error_test_failures::Int
+    max_nonlinear_iters::Int
+    max_convergence_failures::Int
+end
+
+Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:Dense,
+                    jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower, non_zero=0,krylov_dim=0,
+                    max_hnil_warns = 10,
+                    max_error_test_failures = 7,
+                    max_nonlinear_iters = 3,
+                    max_convergence_failures = 10)
+    if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
+        error("Banded solver must set the jac_upper and jac_lower")
+    end
+    if linear_solver != :None && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
+        error("Linear solver choice not accepted.")
+    end
+    ARKODE{method,linear_solver,typeof(stiffness)}(stiffness,
+                                    jac_upper,jac_lower,
+                                    stored_upper,krylov_dim,
+                                    max_hnil_warns,
+                                    max_error_test_failures,
+                                    max_nonlinear_iters,
+                                    max_convergence_failures)
+end
+
 # DAE Algorithms
 immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver}
   jac_upper::Int

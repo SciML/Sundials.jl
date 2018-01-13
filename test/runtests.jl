@@ -20,8 +20,10 @@ end
     @testset "Kinsol Banded" begin include("kinsol_banded.jl") end
 end
 @testset "Handle Tests" begin include("handle_tests.jl") end
+
 @testset "Common Interface" begin
     @testset "CVODE" begin include("common_interface/cvode.jl") end
+    @testset "ARKODE" begin include("common_interface/arkode.jl") end
     @testset "IDA" begin include("common_interface/ida.jl") end
     @testset "Jacobians" begin include("common_interface/jacobians.jl") end
     @testset "Callbacks" begin include("common_interface/callbacks.jl") end
