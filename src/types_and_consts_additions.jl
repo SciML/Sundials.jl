@@ -36,6 +36,15 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
 end
 
 abstract type SundialsMatrix end
-struct Dense <: SundialsMatrix end
-struct Band <: SundialsMatrix end
-struct Sparse <: SundialsMatrix end
+struct DenseMatrix <: SundialsMatrix end
+struct BandMatrix <: SundialsMatrix end
+struct SparseMatrix <: SundialsMatrix end
+
+abstract type SundialsLinSol end
+struct Dense <: SundialsLinSol end
+struct Band <: SundialsLinSol end
+struct SPGMR <: SundialsLinSol end
+struct SPFGMR <: SundialsLinSol end
+struct SPBCGS <: SundialsLinSol end
+struct PCG <: SundialsLinSol end
+struct PTFQMR <: SundialsLinSol end

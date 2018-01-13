@@ -63,8 +63,9 @@ Sundials.@checkflag Sundials.CVodeInit(cvode_mem, f, t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g)
 A = Sundials.SUNDenseMatrix(neq,neq)
-mat_handle = Sundials.MatrixHandle(A,Sundials.Dense())
+mat_handle = Sundials.MatrixHandle(A,Sundials.DenseMatrix())
 LS = Sundials.SUNDenseLinearSolver(convert(Sundials.N_Vector,y0),A)
+LS_handle = Sundials.LinSolHandle(LS,Sundials.Dense())
 Sundials.@checkflag Sundials.CVDlsSetLinearSolver(cvode_mem, LS, A)
 #Sundials.@checkflag Sundials.CVDlsSetDenseJacFn(cvode_mem, Jac)
 
@@ -88,4 +89,4 @@ end
 
 empty!(cvode_mem)
 empty!(mat_handle)
-#Sundials.SUNLinSolFree_Dense(LS)
+empty!(LS_handle)
