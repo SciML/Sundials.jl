@@ -326,7 +326,17 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     flag = ARKodeSetPredictorMethod(mem, alg.predictor_method)
     flag = ARKodeSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
     flag = ARKodeSetDenseOrder(mem,alg.dense_order)
-    flag = ARKodeSetOrder(mem,alg.order)
+
+    if alg.itable == nothing && alg.etable == nothing
+        flag = ARKodeSetOrder(mem,alg.order)
+    elseif alg.itable == nothing && alg.etable != nothing
+        flag = ARKodeSetERKTableNum(mem, alg.etable)
+    elseif alg.itable != nothing && alg.etable == nothing
+        flag = ARKodeSetIRKTableNum(mem, alg.itable)
+    else
+        flag = ARKodeSetARKTableNum(mem, alg.itable, alg.etable)
+    end
+
     flag = ARKodeSetNonlinCRDown(mem,alg.crdown)
     flag = ARKodeSetNonlinRDiv(mem, alg.rdiv)
     flag = ARKodeSetDeltaGammaMax(mem, alg.dgmax)

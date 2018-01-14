@@ -78,7 +78,7 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                                       max_convergence_failures)
 end
 
-immutable ARKODE{Method,LinearSolver,T} <: SundialsODEAlgorithm{Method,LinearSolver}
+immutable ARKODE{Method,LinearSolver,T,T1,T2} <: SundialsODEAlgorithm{Method,LinearSolver}
     stiffness::T
     jac_upper::Int
     jac_lower::Int
@@ -97,6 +97,8 @@ immutable ARKODE{Method,LinearSolver,T} <: SundialsODEAlgorithm{Method,LinearSol
     dgmax::Float64
     rdiv::Float64
     msbp::Int
+    itable::T1
+    etable::T2
 end
 
 Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:Dense,
@@ -114,7 +116,9 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
                     dgmax = 0.2,
                     rdiv = 2.3,
                     msbp = 20,
-                    adaptivity_method = 0
+                    adaptivity_method = 0,
+                    itable = nothing,
+                    etable = nothing
                     )
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
@@ -122,7 +126,9 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
     if linear_solver != :None && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
         error("Linear solver choice not accepted.")
     end
-    ARKODE{method,linear_solver,typeof(stiffness)}(stiffness,
+    ARKODE{method,linear_solver,typeof(stiffness),
+                    typeof(itable),typeof(etable)}(
+                                    stiffness,
                                     jac_upper,jac_lower,
                                     stored_upper,krylov_dim,
                                     max_hnil_warns,
@@ -137,7 +143,9 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
                                     crdown,
                                     dgmax,
                                     rdiv,
-                                    msbp)
+                                    msbp,
+                                    itable,
+                                    etable)
 end
 
 # DAE Algorithms
