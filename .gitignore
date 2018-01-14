@@ -6,3 +6,7 @@ deps/usr32/
 deps/usr64/
 
 deps/LICENSE
+
+deps/deps.jl
+
+deps/usr

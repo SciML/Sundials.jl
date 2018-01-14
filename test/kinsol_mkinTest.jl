@@ -9,7 +9,7 @@
 
 ## % Radu Serban <radu@llnl.gov>
 
-using Sundials
+using Sundials, Base.Test
 
 ## function to be optimized
 function sysfn(y_nv, fy_nv, a_in)
@@ -21,14 +21,16 @@ function sysfn(y_nv, fy_nv, a_in)
 end
 
 ## Initialize problem
-const neq = 2
+neq = 2
 kmem = Sundials.KINCreate()
 Sundials.@checkflag Sundials.KINSetFuncNormTol(kmem, 1.0e-5)
 Sundials.@checkflag Sundials.KINSetScaledStepTol(kmem, 1.0e-4)
 Sundials.@checkflag Sundials.KINSetMaxSetupCalls(kmem, 1)
 y = ones(neq)
 Sundials.@checkflag Sundials.KINInit(kmem, sysfn, y)
-Sundials.@checkflag Sundials.KINDense(kmem, neq)
+A = Sundials.SUNDenseMatrix(length(y),length(y))
+LS = Sundials.SUNDenseLinearSolver(y,A)
+Sundials.@checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A)
 ## Solve problem
 scale = ones(neq)
 Sundials.@checkflag Sundials.KINSol(kmem, y, Sundials.KIN_LINESEARCH,

@@ -25,12 +25,12 @@ using Sundials
 ## components.
 ##
 
-const MGRID = 10
-const NEQ = MGRID*MGRID
+MGRID = 10
+NEQ = MGRID*MGRID
 
-const dx = 1.0/(MGRID - 1.0)
-const coeff = 1.0 / (dx * dx)
-const bval = 0.1
+dx = 1.0/(MGRID - 1.0)
+coeff = 1.0 / (dx * dx)
+bval = 0.1
 ##
 ## heatres: heat equation system residual function This uses 5-point
 ## central differencing on the interior points, and includes algebraic
@@ -115,7 +115,11 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints)
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
-    Sundials.@checkflag Sundials.IDABand(mem, neq, MGRID, MGRID)
+
+    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID,2MGRID)
+    LS = Sundials.SUNBandLinearSolver(y0,A)
+    Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
+
     rtest = zeros(neq)
     Sundials.@checkflag Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
     yres = zeros(Float64, length(y0), length(t))
@@ -130,13 +134,17 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
         yres[:, k] = y
         ypres[:, k] = yp
     end
+
+    Sundials.SUNLinSolFree_Band(LS)
+    Sundials.SUNMatDestroy_Band(A)
+
     return yres, ypres
 end
 
-const nsteps = 10
-const tstep = 0.005
-const t = collect(0.0:tstep:(tstep*nsteps))
+nsteps = 10
+tstep = 0.005
+t = collect(0.0:tstep:(tstep*nsteps))
 u0, up0, id, constraints = initial()
 
-yout, ypout = idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t),
+idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t),
                          reltol = 0.0, abstol = 1e-3)

@@ -22,7 +22,8 @@ end
 info("Scanning Sundials headers in $incpath...")
 const sundials_folders = filter!(isdir, map!(folder -> joinpath(incpath, folder),
                                  ["nvector", "sundials", "cvode", "cvodes",
-                                  "ida", "idas", "kinsol", "arkode"]))
+                                  "ida", "idas", "kinsol", "arkode",
+                                  "sunlinsol","sunmatrix"]))
 const sundials_headers = similar(sundials_folders, 0)
 for folder in sundials_folders
     info("Processing $folder...")
@@ -47,7 +48,7 @@ end
 function wrap_cursor(name::AbstractString, cursor)
     if typeof(cursor) == Clang.cindex.FunctionDecl
         # only wrap API functions
-        return ismatch(r"^(CV|KIN|IDA|N_V)", name)
+        return ismatch(r"^(CV|KIN|IDA|ARK|N_V|SUN)", name)
     else
         # skip problematic definitions
         return !ismatch(r"^(ABS|SQRT|EXP)$", name)
@@ -71,7 +72,7 @@ function library_file(header::AbstractString)
 end
 
 const context = wrap_c.init(
-    common_file="types_and_consts.jl",
+    common_file = joinpath(outpath, "types_and_consts.jl"),
     clang_args = [
         "-D", "__STDC_LIMIT_MACROS",
         "-D", "__STDC_CONSTANT_MACROS",
@@ -88,7 +89,9 @@ context.headers = sundials_headers
 
 # 1st arg name to wrapped arg type map
 const arg1_name2type = Dict(
+    :arkode_mem => :(ARKODEMemPtr),
     :cvode_mem => :(CVODEMemPtr),
+    :cv_mem => :(CVODEMemPtr),
     :kinmem => :(KINMemPtr),
     :kinmemm => :(KINMemPtr), # Sundials typo?
     :ida_mem => :(IDAMemPtr),
@@ -96,8 +99,20 @@ const arg1_name2type = Dict(
     :idaadj_mem => :(IDAMemPtr), # Sundials typo?
 )
 
+const linear_solvers_and_matrices = [
+    "dense",
+    "band",
+    "pcg",
+    "spbcgs",
+    "spfgmr",
+    "spgmr",
+    "sptfqmr",
+    "sparse"
+    ]
+
 # substitute Ptr{Void} with the typed pointer
 const ctor_return_type = Dict(
+    "ARKodeCreate" => :(ARKODEMemPtr),
     "CVodeCreate" => :(CVODEMemPtr),
     "IDACreate" => :(IDAMemPtr),
     "KINCreate" => :(KINMemPtr)
@@ -105,6 +120,7 @@ const ctor_return_type = Dict(
 
 # signatures for C function pointer types
 const FnTypeSignatures = Dict(
+    :ARKRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Void}))),
     :CVRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Void}))),
     :CVRootFn => (:Cint, :((realtype, N_Vector, Ptr{realtype}, Ptr{Void}))),
     :IDAResFn => (:Cint, :((realtype, N_Vector, N_Vector, N_Vector, Ptr{Void}))),
@@ -112,59 +128,73 @@ const FnTypeSignatures = Dict(
     :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Void}))),
 )
 
-typeify_sundials_pointers(notexpr) = Any[notexpr]
+wrap_sundials_api(notexpr) = Any[notexpr]
 
-function typeify_sundials_pointers(expr::Expr)
+function wrap_sundials_api(expr::Expr)
     if expr.head == :function &&
         expr.args[1].head == :call
         func_name = string(expr.args[1].args[1])
         convert_required = false
-        if ismatch(r"^(CV|KIN|IDA|N_V)", func_name)
+        if ismatch(r"^(ARK|CV|KIN|IDA|SUN|N_V)", func_name)
+	        @show func_name
             if ismatch(r"Create$", func_name)
                 # create functions return typed pointers
-                @assert expr.args[2].args[1].args[2] == :(Ptr{Void})
-                expr.args[2].args[1].args[2] = ctor_return_type[func_name]
+		        @assert expr.args[2].args[1].args[3] == :(Ptr{Void})
+                expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
-                arg1_name = expr.args[1].args[2].args[1]
-                arg1_type = expr.args[1].args[2].args[2]
+		        arg1_type = expr.args[2].args[1].args[4].args[1]
                 if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
-                    # also check in the ccall list of arg types
-                    @assert expr.args[2].args[1].args[3].args[1] == arg1_type
+		            arg1_name = expr.args[1].args[2]
                     arg1_newtype = arg1_name2type[arg1_name]
                     if arg1_type == :(Ptr{Ptr{Void}})
                         # adjust for void** type (for CVodeFree()-like funcs)
                         arg1_newtype = Expr(:curly, :Ref, arg1_newtype)
                     end
-                    expr.args[1].args[2].args[2] = arg1_newtype
-                    expr.args[2].args[1].args[3].args[1] = arg1_newtype
+		             expr.args[2].args[1].args[4].args[1] = arg1_newtype
                     convert_required = true
                 end
             end
             if ismatch(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
-                for (i, arg_expr) in enumerate(expr.args[1].args)
-                    if i > 1 && ismatch(r"^user_dataB?$", string(arg_expr.args[1]))
-                        @assert arg_expr.head == :(::) && arg_expr.args[2] == :(Ptr{Void})
-                        expr.args[1].args[i].args[2] = :(Any)
-                        # replace in ccall list
-                        @assert expr.args[2].args[1].args[3].args[i-1] == :(Ptr{Void})
-                        expr.args[2].args[1].args[3].args[i-1] = :(Any)
-                        break
-                    end
+                for (i, arg_expr) in enumerate(expr.args[2].args[1].args)
+         	        if !(typeof(arg_expr)<:Symbol) && arg_expr.args[1] in values(ctor_return_type)
+			            if arg_expr.args[2] == :(Ptr{Void})
+		                    arg_expr.args[2] = Any
+		                elseif arg_expr.args[3] == :(Ptr{Void})
+		    	            arg_expr.args[3] = Any
+		                end
+			        end
+                end
+            end
+            if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix)
+                if func_name[1:6] == "SUNMAT"
+                    expr.args[2].args[1].args[2].args[2] =
+                    Symbol(string(expr.args[2].args[1].args[2].args[2])*
+                    lowercase(split(func_name,"_")[end]))
+                else
+                    name_i = findfirst(lsmn -> contains(lowercase(func_name),lsmn),linear_solvers_and_matrices)
+                    @assert name_i > 0
+                    name = linear_solvers_and_matrices[name_i]
+                    expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2])*name)
                 end
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
             # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
             # create wrapers for all arguments that need wrapping
-            args_wrap_exprs = map(drop(expr.args[1].args, 1)) do expr
+            args_wrap_exprs = map(Base.Iterators.drop(expr.args[1].args, 1)) do expr
                 # process each argument
                 # return a tuple:
                 #   1) high-level wrapper arg name expr
                 #   2) expr for local var definition, nothing if not required
                 #   3) expr for low-level wrapper call
                 # if 1)==3), then no wrapping is required
-                arg_name_expr = expr.args[1]
-                arg_type_expr = expr.args[2]
+                if typeof(expr) <: Symbol
+			arg_name_expr = expr
+			arg_type_expr = Any
+		else
+			arg_name_expr = expr.args[1]
+                	arg_type_expr = expr.args[2]
+		end
                 if arg_type_expr == :N_Vector
                     # first convert argument to NVector() and store in local var,
                     # this guarantees that the wrapper and associated Sundials object (e.g. N_Vector)
@@ -241,7 +271,7 @@ end
 context.rewriter = function(exprs)
     mod_exprs = sizehint!(Vector{Any}(), length(exprs))
     for expr in exprs
-        append!(mod_exprs, typeify_sundials_pointers(expr))
+        append!(mod_exprs, wrap_sundials_api(expr))
     end
     mod_exprs
 end
