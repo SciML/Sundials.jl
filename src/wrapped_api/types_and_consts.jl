@@ -42,7 +42,12 @@ const SUNDIALS_BAND = Cint(2)
 # * ==================================================================
 # */
 
-const sunindextype = Int64
+@static if Int == Int64
+    const sunindextype = Int64
+else
+    const sunindextype = Int32
+end
+
 const realtype = Cdouble
 
 mutable struct _DlsMat
