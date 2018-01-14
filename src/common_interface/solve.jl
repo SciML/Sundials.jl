@@ -323,6 +323,19 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     flag = ARKodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
     flag = ARKodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     flag = ARKodeSetMaxConvFails(mem, alg.max_convergence_failures)
+    flag = ARKodeSetPredictorMethod(mem, alg.predictor_method)
+    flag = ARKodeSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
+    flag = ARKodeSetDenseOrder(mem,alg.dense_order)
+    flag = ARKodeSetOrder(mem,alg.order)
+    flag = ARKodeSetNonlinCRDown(mem,alg.crdown)
+    flag = ARKodeSetNonlinRDiv(mem, alg.rdiv)
+    flag = ARKodeSetDeltaGammaMax(mem, alg.dgmax)
+    flag = ARKodeSetMaxStepsBetweenLSet(mem, alg.msbp)
+    #flag = ARKodeSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
+
+
+    #flag = ARKodeSetFixedStep(mem,)
+    alg.set_optimal_params && (flag = ARKodeSetOptimalParams(mem))
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
@@ -364,6 +377,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
         end
+    elseif Method == :Functional
+        ARKodeSetFixedPoint(mem, Clong(alg.krylov_dim))
     else
         _A = nothing
         _LS = nothing

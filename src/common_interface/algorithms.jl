@@ -61,7 +61,8 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                       max_order = 12,
                       max_error_test_failures = 7,
                       max_nonlinear_iters = 3,
-                      max_convergence_failures = 10)
+                      max_convergence_failures = 10
+                      )
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
@@ -87,6 +88,15 @@ immutable ARKODE{Method,LinearSolver,T} <: SundialsODEAlgorithm{Method,LinearSol
     max_error_test_failures::Int
     max_nonlinear_iters::Int
     max_convergence_failures::Int
+    predictor_method::Int
+    nonlinear_convergence_coefficient::Float64
+    dense_order::Int
+    order::Int
+    set_optimal_params::Bool
+    crdown::Float64
+    dgmax::Float64
+    rdiv::Float64
+    msbp::Int
 end
 
 Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:Dense,
@@ -94,7 +104,18 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
                     max_hnil_warns = 10,
                     max_error_test_failures = 7,
                     max_nonlinear_iters = 3,
-                    max_convergence_failures = 10)
+                    max_convergence_failures = 10,
+                    predictor_method = 0,
+                    nonlinear_convergence_coefficient = 0.1,
+                    dense_order = 3,
+                    order = 4,
+                    set_optimal_params = false,
+                    crdown = 0.3,
+                    dgmax = 0.2,
+                    rdiv = 2.3,
+                    msbp = 20,
+                    adaptivity_method = 0
+                    )
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
@@ -107,7 +128,16 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
                                     max_hnil_warns,
                                     max_error_test_failures,
                                     max_nonlinear_iters,
-                                    max_convergence_failures)
+                                    max_convergence_failures,
+                                    predictor_method,
+                                    nonlinear_convergence_coefficient,
+                                    dense_order,
+                                    order,
+                                    set_optimal_params,
+                                    crdown,
+                                    dgmax,
+                                    rdiv,
+                                    msbp)
 end
 
 # DAE Algorithms
