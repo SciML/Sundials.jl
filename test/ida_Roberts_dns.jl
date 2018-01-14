@@ -71,14 +71,14 @@ function jacrob(Neq, tt, cj, yy, yp, resvec,
     return Sundials.IDA_SUCCESS
 end
 
-const neq = 3
-const nout = 12
-const t0 = 0.0
-const yy0 = [1.0,0.0,0.0]
-const yp0 = [-0.04,0.04,0.0]
-const rtol = 1e-4
-const avtol = [1e-8, 1e-14, 1e-6]
-const tout1 = 0.4
+neq = 3
+nout = 12
+t0 = 0.0
+yy0 = [1.0,0.0,0.0]
+yp0 = [-0.04,0.04,0.0]
+rtol = 1e-4
+avtol = [1e-8, 1e-14, 1e-6]
+tout1 = 0.4
 
 mem = Sundials.IDACreate()
 Sundials.@checkflag Sundials.IDAInit(mem, resrob, t0, yy0, yp0)
@@ -88,8 +88,9 @@ Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
 Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob)
 
 ## Call IDADense and set up the linear solver.
-Sundials.@checkflag Sundials.IDADense(mem, neq)
-## retval = Sundials.IDADlsSetDenseJacFn(mem, jacrob)
+A = Sundials.SUNDenseMatrix(length(y0),length(y0))
+LS = Sundials.SUNDenseLinearSolver(y0,A)
+Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
 iout = 0
 tout = tout1
@@ -109,3 +110,6 @@ while iout < nout
         tout *= 10.0
     end
 end
+
+Sundials.SUNLinSolFree_Dense(LS)
+Sundials.SUNMatDestroy_Dense(A)

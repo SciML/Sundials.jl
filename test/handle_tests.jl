@@ -1,3 +1,5 @@
+using Sundials, Base.Test
+
 h1 = Sundials.Handle(Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON))
 h2 = h1
 
@@ -11,5 +13,37 @@ empty!(h1)
 
 empty!(h1) # Make sure this does not throw
 
-h = Sundials.Handle(h1.ptr_ref[]) # Check construction with null pointers 
+h = Sundials.Handle(h1.ptr_ref[]) # Check construction with null pointers
 @test isempty(h)
+
+neq = 3
+h3 = Sundials.MatrixHandle(Sundials.SUNDenseMatrix(neq,neq),Sundials.DenseMatrix())
+h3 = Sundials.MatrixHandle(Sundials.SUNDenseMatrix(neq,neq),Sundials.DenseMatrix())
+empty!(h3)
+@test isempty(h3)
+empty!(h3)
+@test isempty(h3)
+
+h3 = Sundials.MatrixHandle(Sundials.SUNBandMatrix(100,3,3,6),Sundials.BandMatrix())
+h3 = Sundials.MatrixHandle(Sundials.SUNBandMatrix(100,3,3,6),Sundials.BandMatrix())
+empty!(h3)
+@test isempty(h3)
+empty!(h3)
+@test isempty(h3)
+
+h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq,neq,neq,Sundials.CSC_MAT),Sundials.SparseMatrix())
+h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq,neq,neq,Sundials.CSC_MAT),Sundials.SparseMatrix())
+empty!(h3)
+@test isempty(h3)
+empty!(h3)
+@test isempty(h3)
+
+A = Sundials.SUNDenseMatrix(neq,neq)
+u0 = rand(neq)
+Sundials.SUNDenseLinearSolver(u0,A)
+h3 = Sundials.LinSolHandle(Sundials.SUNDenseLinearSolver(u0,A),Sundials.Dense())
+h3 = Sundials.LinSolHandle(Sundials.SUNDenseLinearSolver(u0,A),Sundials.Dense())
+empty!(h3)
+@test isempty(h3)
+empty!(h3)
+@test isempty(h3)

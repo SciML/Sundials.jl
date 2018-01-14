@@ -9,6 +9,6 @@ function f(t, y, ydot)
     return Sundials.CV_SUCCESS
 end
 
-const t = [0.0; 4 * logspace(-1., 7., 9)]
-const y0 = [1.0, 0.0, 0.0]
+t = [0.0; 4 * logspace(-1., 7., 9)]
+y0 = [1.0, 0.0, 0.0]
 res = Sundials.cvode(f, y0, t)

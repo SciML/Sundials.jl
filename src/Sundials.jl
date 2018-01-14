@@ -23,7 +23,7 @@ else
     error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
 end
 
-export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, CVODE_BDF, CVODE_Adams, IDA
+export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)
@@ -33,24 +33,28 @@ const DBL_EPSILON = eps(Cdouble)
 const FILE = Void
 const __builtin_va_list = Ptr{Void}
 
-include("types_and_consts.jl")
+include("wrapped_api/types_and_consts.jl")
+include("types_and_consts_additions.jl")
 
 include("handle.jl")
 include("nvector_wrapper.jl")
 
-include("nvector.jl")
-include("libsundials.jl")
+include("wrapped_api/nvector.jl")
+include("wrapped_api/libsundials.jl")
+include("wrapped_api/sunmatrix.jl")
+include("wrapped_api/sunlinsol.jl")
 if isdefined(:libsundials_cvodes)
-    include("cvodes.jl")
+    include("wrapped_api/cvodes.jl")
 else
-    include("cvode.jl")
+    include("wrapped_api/cvode.jl")
 end
+include("wrapped_api/arkode.jl")
 if isdefined(:libsundials_idas)
-    include("idas.jl")
+    include("wrapped_api/idas.jl")
 else
-    include("ida.jl")
+    include("wrapped_api/ida.jl")
 end
-include("kinsol.jl")
+include("wrapped_api/kinsol.jl")
 
 include("simple.jl")
 include("common_interface/verbosity.jl")
