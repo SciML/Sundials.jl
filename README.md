@@ -56,26 +56,6 @@ Pkg.test("Sundials")
 ```
 which currently runs some of the examples in the `examples` directory.
 
-Direct API
----
-
-This package closely follows the Sundials C API. At a slightly higher
-level, many (but not all) Sundials.jl functions support passing Julia
-objects (like `Array`s) instead of Sundials objects (like `N_Vector`s).
-See
-[src/Sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/Sundials.jl)
-for examples of how the higher-level interfacing works.
-
-The Julia package [Clang.jl](https://github.com/ihnorton/Clang.jl) was
-used to wrap Sundials. This directly uses Sundials' headers sort-of
-like SWIG. This is great work by Isaiah--it didn't take me much work
-to package a pretty complete interface to Sundials. For the wrapping
-code, see
-[src/wrap_sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/wrap_sundials.jl).
-
-Because of Clang.jl, Sundials.jl provides good coverage of the Sundials
-library (the serial version).
-
 Common Interface API
 --------------------
 
@@ -103,60 +83,39 @@ Additionally, the `ARKODE` method can be used
 [on `SplitODEProblem`s](http://docs.juliadiffeq.org/latest/solvers/split_ode_solve.html#Implicit-Explicit-(IMEX)-ODE-1)
 to solve ODEs in IMEX form.
 
-Simplified Functions
---------------------
+Direct API
+---
 
-Three functions `kinsol`, `cvode`, and `idasol` are provided as high-level,
-very simple functions. *Note that the latter two functions were previously
-called `ode` and `ida`.* Here is an example for `cvode`:
+This package closely follows the Sundials C API. At a slightly higher
+level, many (but not all) Sundials.jl functions support passing Julia
+objects (like `Array`s) instead of Sundials objects (like `N_Vector`s).
+The Julia package [Clang.jl](https://github.com/ihnorton/Clang.jl) was
+used to wrap Sundials. This directly uses Sundials' headers sort-of
+like SWIG. Thus the general
+[C documentation](https://computation.llnl.gov/casc/sundials/documentation/documentation.html)
+is the documentation for the direct API. See the 
+[test directory](https://github.com/JuliaLang/Sundials.jl/blob/master/test) for usage examples
+of the direct interface.
 
-```julia
-using Sundials
+For the wrapping
+code, see
+[src/wrap_sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/wrap_sundials.jl).
+Because of Clang.jl, Sundials.jl provides almost full coverage of the Sundials library 
+(the serial version). A few things to note:
 
-function f(t, y, ydot)
-    ydot[1] = -0.04*y[1] + 1.0e4*y[2]*y[3]
-    ydot[3] = 3.0e7*y[2]*y[2]
-    ydot[2] = -ydot[1] - ydot[3]
-end
-
-t = [0.0; 4 * logspace(-1., 7., 9)]
-res = Sundials.cvode(f, [1.0, 0.0, 0.0], t)
-```
-
-For `cvode`, there is an optional positional argument `integrator` to choose
-between the two provided integration options: `:BDF` for a Backwards Differentiation
-Formula method and `:Adams` for an Adams-Moulton method. There are two supported
-keyword arguments, `reltol`, and `abstol`, for `cvode` and `idasol`. For more
-details, please see the docstrings.
-
-Examples
---------
-
-See the [test directory](https://github.com/JuliaLang/Sundials.jl/blob/master/test).
-
-[Three-Body Problem](http://nbviewer.ipython.org/github/pjpmarques/Julia-Modeling-the-World/blob/master/Three-Body%20Problem.ipynb) is a notebook with a more thoroughly explained example.
-
-
-Status
+* Macros like `DENSE_ELEM` are not available.
+* Nothing is exported from the module. You need to put `Sundials.`
+  in front of everything.
+* The parallel versions of Sundials which require different `N_Vector`
+  types have not been wrapped.
+  
+Citing
 ------
 
-Please note that this is a developer preview. There could be bugs, and
-everything is subject to change. Of note are:
+If you use this library, please cite both Sundials and the JuliaDiffEq project.
 
-* The API that matches the Sundials C API should be stable.
-* The simplified API is not stable.
-* There is no documentation for this package. Please see the general
-  [C documentation](https://computation.llnl.gov/casc/sundials/documentation/documentation.html)
-  for Sundials. The API should be identical.
-* Macros like `DENSE_ELEM` are not available.
-* Nothing is (yet) exported from the module. You need to put `Sundials.`
-  in front of everything.
-* Parts of the Sundials API that access C structures are difficult.
-  One can use the [StrPack package](https://github.com/pao/StrPack.jl)
-  to read or write to these structures, but nothing is built into this
-  package. See this CVODE
-  [example](https://github.com/JuliaLang/Sundials.jl/blob/master/examples/cvode_Roberts_dns.jl#L26).
-* The parallel versions of Sundials have been wrapped, but I doubt
-  that they are usable from Julia. They need to be integrated with
-  [MPI.jl](https://github.com/JuliaParallel/MPI.jl)
-* More work could be done to provide a better interface to `N_Vector`s.
+```
+Rackauckas, C. & Nie, Q., (2017). DifferentialEquations.jl – A Performant and Feature-Rich Ecosystem for Solving Differential Equations in Julia. Journal of Open Research Software. 5(1), p.15. DOI: http://doi.org/10.5334/jors.151
+
+A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, D. E. Shumaker, and C. S. Woodward, “SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers,” ACM Transactions on Mathematical Software, 31(3), pp. 363-396, 2005. Also available as LLNL technical report UCRL-JP-200037.
+```
