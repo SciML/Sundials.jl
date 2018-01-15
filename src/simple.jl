@@ -143,10 +143,10 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-cvode(f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing; kwargs...) = 
-    cvode!(zeros(length(t), length(y0)), f, y0, t, userdata; kwargs...)
+cvode(f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing; kwargs...) =
+    cvode!(f, zeros(length(t), length(y0)), y0, t, userdata; kwargs...)
 
-function cvode!(y::Matrix{Float64}, f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing;
+function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing;
                 integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
     if integrator==:BDF
         mem_ptr = CVodeCreate(CV_BDF, CV_NEWTON)
