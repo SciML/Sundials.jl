@@ -83,6 +83,27 @@ Additionally, the `ARKODE` method can be used
 [on `SplitODEProblem`s](http://docs.juliadiffeq.org/latest/solvers/split_ode_solve.html#Implicit-Explicit-(IMEX)-ODE-1)
 to solve ODEs in IMEX form.
 
+KINSOL High Level API
+------------------------
+
+Along with the ODE solvers, Sundials contains the KINSOL nonlinear solver.
+It's called via:
+
+```julia
+kinsol(f, y0::Vector{Float64};
+                userdata::Any = nothing,
+                linear_solver=:Dense, jac_upper=0, jac_lower=0,
+                stored_upper = jac_upper + jac_lower)
+```
+
+where `f(y,res)` is an in-place function that computes the residual `f(y)-res=0`,
+and KINSOL attempts to find `y` such that `res=0`. This method is generally
+quite fast and the choice `linear_solver=:Band` is well-suited for problems
+with a banded Jacobian (you must specify the upper and lower band sizes). However,
+this is not as robust as many other techniques like trust-region methods, and
+thus we recommend [NLsolve.jl](https://github.com/JuliaNLSolvers/NLsolve.jl) for
+more general nonlinear solving.
+
 Direct API
 ---
 
@@ -93,14 +114,14 @@ The Julia package [Clang.jl](https://github.com/ihnorton/Clang.jl) was
 used to wrap Sundials. This directly uses Sundials' headers sort-of
 like SWIG. Thus the general
 [C documentation](https://computation.llnl.gov/casc/sundials/documentation/documentation.html)
-is the documentation for the direct API. See the 
+is the documentation for the direct API. See the
 [test directory](https://github.com/JuliaLang/Sundials.jl/blob/master/test) for usage examples
 of the direct interface.
 
 For the wrapping
 code, see
 [src/wrap_sundials.jl](https://github.com/JuliaLang/Sundials.jl/blob/master/src/wrap_sundials.jl).
-Because of Clang.jl, Sundials.jl provides almost full coverage of the Sundials library 
+Because of Clang.jl, Sundials.jl provides almost full coverage of the Sundials library
 (the serial version). A few things to note:
 
 * Macros like `DENSE_ELEM` are not available.
@@ -108,7 +129,7 @@ Because of Clang.jl, Sundials.jl provides almost full coverage of the Sundials l
   in front of everything.
 * The parallel versions of Sundials which require different `N_Vector`
   types have not been wrapped.
-  
+
 Citing
 ------
 
