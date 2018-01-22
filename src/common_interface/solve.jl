@@ -67,14 +67,14 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (t, u, du) -> (du .= prob.f(t, u); 0)
+        f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t, u, du) -> (du .= vec(prob.f(t, reshape(u, sizeu))); 0)
+        f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (t, u, du) -> (prob.f(t, reshape(u, sizeu),reshape(du, sizeu));
-                            u = vec(u); du=vec(du); 0)
+        f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
+                               du=vec(du); 0)
     end
 
     if typeof(alg) <: CVODE_BDF
@@ -101,7 +101,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
 
-    userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
+    userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p)
     u0nv = NVector(u0)
     flag = CVodeInit(mem,
                     cfunction(cvodefunjac, Cint,
@@ -196,7 +196,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if save_start
       save_value!(ures,u0,uType,sizeu)
       if dense
-        f!(tspan[1],u0,utmp)
+        f!(utmp,u0,prob.p,tspan[1])
         save_value!(dures,utmp,uType,sizeu)
       end
     end
@@ -269,14 +269,14 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (t, u, du) -> (du .= prob.f(t, u); 0)
+        f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t, u, du) -> (du .= vec(prob.f(t, reshape(u, sizeu))); 0)
+        f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (t, u, du) -> (prob.f(t, reshape(u, sizeu),reshape(du, sizeu));
-                            u = vec(u); du=vec(du); 0)
+        f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
+                               du=vec(du); Cint(0))
     end
 
     mem_ptr = ARKodeCreate()
@@ -295,7 +295,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if typeof(prob.problem_type) <: SplitODEProblem
         error("Not implemented yet")
     else
-        userfun = FunJac(f!,(t,u,J) -> f!(Val{:jac},t,u,J))
+        userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         cfunction(cvodefunjac, Cint,
@@ -419,7 +419,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if save_start
       save_value!(ures,u0,uType,sizeu)
       if dense
-        f!(tspan[1],u0,utmp)
+        f!(utmp,u0,prob.p,tspan[1])
         save_value!(dures,utmp,uType,sizeu)
       end
     end
@@ -531,15 +531,16 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (t, u, du, out) -> (out[:] = prob.f(t, u, du); 0)
+        f! = (out, du, u, p, t) -> (out[:] = prob.f(du, u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (t, u, du, out) -> (out[:] = vec(prob.f(t, reshape(u, sizeu),
-                                 reshape(du, sizedu)));0)
+        f! = (out, du, u, p, t) -> (out[:] = vec(
+                            prob.f(reshape(du, sizedu), reshape(u, sizeu), p, t)
+                                 );Cint(0))
     elseif typeof(prob.u0)<:Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (t, u, du, out) -> (prob.f(t, reshape(u, sizeu),
-                                 reshape(du, sizedu), reshape(out, sizeu)); 0)
+        f! = (out, du, u, p, t) -> (prob.f(reshape(out, sizeu), reshape(du, sizedu),
+                                    reshape(u, sizeu), p, t); Cint(0))
     end
 
     mem_ptr = IDACreate()
@@ -555,7 +556,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     ts   = [t0]
 
 
-    userfun = FunJac(f!,(t,u,du,gamma,J) -> f!(Val{:jac},t,u,du,gamma,J))
+    userfun = FunJac(f!,(J,du,u,p,gamma,t) -> f!(Val{:jac},J,du,u,p,gamma,t),prob.p)
     u0nv = NVector(u0)
     flag = IDAInit(mem, cfunction(idasolfun,
                      Cint, (realtype, N_Vector, N_Vector,
@@ -643,7 +644,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     tout = [tspan[1]]
 
     rtest = zeros(length(u0))
-    f!(t0, u0, du0, rtest)
+    f!(rtest, du0, u0, prob.p, t0)
     if any(abs.(rtest) .>= reltol)
         if prob.differential_vars === nothing
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")

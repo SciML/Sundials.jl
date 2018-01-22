@@ -2,13 +2,13 @@ using Sundials, Base.Test
 
 println("Test error handling")
 
-f_error(t,u) = u/t
+f_error(u,p,t) = u/t
 u0 = 1.0
 prob = ODEProblem(f_error,u0,(0.0,1.0))
 sol = solve(prob,CVODE_BDF())
 sol = solve(prob,CVODE_BDF(),verbose=false)
 
-f_error2(t,u,du) = u/t-1
+f_error2(du,u,p,t) = u/t-1
 u0 = 1.0; du0 = 1.0
 prob = DAEProblem(f_error2,u0,du0,(0.0,1.0),differential_vars=[1])
 sol = solve(prob,IDA())

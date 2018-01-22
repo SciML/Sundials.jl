@@ -30,7 +30,7 @@ prob2 = DAEProblem(prob.f,prob.u0,prob.du0,(1.0,0.0))
 sol = solve(prob2,IDA())
 @test maximum(diff(sol.t)) < 0 # Make sure all go negative
 
-function f!(t, u, du, res)
+function f!(res, du, u, p ,t)
     res[1] = du[1]-1.01
     return
 end

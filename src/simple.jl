@@ -92,17 +92,17 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun)
     return CV_SUCCESS
 end
 
-type FunJac{F, J}
+type FunJac{F, J, P}
     fun::F
     jac::J
+    p::P
 end
-funjac(f, J) = FunJac(f, J)
 
 function cvodefunjac(t::Float64,
                      x::N_Vector,
                      ẋ::N_Vector,
                      funjac::FunJac)
-    funjac.fun(t, convert(Vector, x), convert(Vector, ẋ))
+    funjac.fun(convert(Vector, ẋ), convert(Vector, x), funjac.p, t)
     return CV_SUCCESS
 end
 
@@ -110,11 +110,11 @@ function cvodejac(t::realtype,
                   x::N_Vector,
                   ẋ::N_Vector,
                   J::SUNMatrix,
-                  userjac::FunJac,
+                  funjac::FunJac,
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
-    userjac.jac(t, convert(Vector, x), convert(Matrix, J))
+    funjac.jac(convert(Matrix, J), convert(Vector, x), funjac.p, t)
     return CV_SUCCESS
 end
 
@@ -198,8 +198,8 @@ function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun)
     return IDA_SUCCESS
 end
 
-function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::FunJac)
-    userfun.fun(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r))
+function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, funjac::FunJac)
+    funjac.fun(convert(Vector, r), convert(Vector, yp), convert(Vector, y), funjac.p, t)
     return IDA_SUCCESS
 end
 
@@ -209,11 +209,11 @@ function idajac(t::realtype,
                 dx::N_Vector,
                 res::N_Vector,
                 J::SUNMatrix,
-                userjac::FunJac,
+                funjac::FunJac,
                 tmp1::N_Vector,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
-    userjac.jac(t, convert(Vector, x), convert(Vector,dx), cj, convert(Matrix, J))
+    funjac.jac(convert(Matrix, J), convert(Vector,dx), convert(Vector, x), funjac.p, cj, t)
     return CV_SUCCESS
 end
 

@@ -1,6 +1,6 @@
 using Sundials, Base.Test
 
-callback_f = function (t,u,du)
+callback_f = function (du, u, p, t)
   du[1] = u[2]
   du[2] = -9.81
 end
@@ -26,7 +26,7 @@ sol = solve(prob,CVODE_BDF(),callback=callback)
 @test sol(4.0)[1] > 0
 
 u0 = [1.,0.]
-function fun2(t,u,du)
+function fun2(du, u, p, t)
    du[2] = -u[1]
    du[1] = u[2]
 end

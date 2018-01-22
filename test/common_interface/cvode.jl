@@ -44,10 +44,10 @@ sol = solve(prob,CVODE_Adams(),tstops=[0.9])
 @test 0.9 ∈ sol.t
 
 # Test the other function conversions
-k = (t,u,du) -> du[1] = u[1]
+k = (du, u, p, t) -> du[1] = u[1]
 prob = ODEProblem(k,[1.0],(0.0,1.0))
 sol = solve(prob,CVODE_BDF())
-h = (t,u) -> u
+h = (u, p, t) -> u
 u0 = [1.0 2.0
       3.0 2.0]
 prob = ODEProblem(h,u0,(0.0,1.0))
