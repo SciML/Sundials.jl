@@ -5,7 +5,7 @@ callback_f = function (du, u, p, t)
   du[2] = -9.81
 end
 
-condtion= function (t,u,integrator) # Event when event_f(t,u,k) == 0
+condtion= function (u,t,integrator) # Event when event_f(u,t,k) == 0
   u[1]
 end
 
@@ -33,7 +33,7 @@ end
 tspan = (0.0,10.0)
 prob = ODEProblem(fun2,u0,tspan)
 
-function condition2(t,u,integrator)
+function condition2(u,t,integrator)
   get_du(integrator)[1]>0
 end
 affect2!(integrator) = terminate!(integrator)
@@ -41,7 +41,7 @@ cb = DiscreteCallback(condition2,affect2!)
 sol = solve(prob,CVODE_BDF(),callback=cb)
 @test sol.t[end] < 3.5
 
-condition3(t,u,integrator) = u[2]
+condition3(u,t,integrator) = u[2]
 affect3!(integrator) = terminate!(integrator)
 cb = ContinuousCallback(condition3,affect3!)
 sol = solve(prob,CVODE_Adams(),callback=cb,abstol=1e-12,reltol=1e-12)

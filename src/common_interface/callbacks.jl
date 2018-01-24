@@ -32,11 +32,11 @@ end
   dt = integrator.t - integrator.tprev
   # Check if the event occured
   if typeof(callback.idxs) <: Void
-    previous_condition = callback.condition(integrator.tprev,integrator.uprev,integrator)
+    previous_condition = callback.condition(integrator.uprev,integrator.tprev,integrator)
   elseif typeof(callback.idxs) <: Number
-    previous_condition = callback.condition(integrator.tprev,integrator.uprev[callback.idxs],integrator)
+    previous_condition = callback.condition(integrator.uprev[callback.idxs],integrator.tprev,integrator)
   else
-    previous_condition = callback.condition(integrator.tprev,@view(integrator.uprev[callback.idxs]),integrator)
+    previous_condition = callback.condition(@view(integrator.uprev[callback.idxs]),integrator.tprev,integrator)
   end
   if isapprox(previous_condition,0,rtol=callback.reltol,atol=callback.abstol)
     prev_sign = 0.0
@@ -45,11 +45,11 @@ end
   end
   prev_sign_index = 1
   if typeof(callback.idxs) <: Void
-    next_sign = sign(callback.condition(integrator.t,integrator.u,integrator))
+    next_sign = sign(callback.condition(integrator.u,integrator.t,integrator))
   elseif typeof(callback.idxs) <: Number
-    next_sign = sign(callback.condition(integrator.t,integrator.u[callback.idxs],integrator))
+    next_sign = sign(callback.condition(integrator.u[callback.idxs],integrator.t,integrator))
   else
-    next_sign = sign(callback.condition(integrator.t,@view(integrator.u[callback.idxs]),integrator))
+    next_sign = sign(callback.condition(@view(integrator.u[callback.idxs]),integrator.t,integrator))
   end
   if ((prev_sign<0 && !(typeof(callback.affect!)<:Void)) || (prev_sign>0 && !(typeof(callback.affect_neg!)<:Void))) && prev_sign*next_sign<=0
     event_occurred = true
@@ -63,7 +63,7 @@ end
       else
         _tmp = integrator(integrator.tprev+dt*Θs[i])[callback.idxs]
       end
-      new_sign = callback.condition(integrator.tprev+dt*Θs[i],_tmp,integrator)
+      new_sign = callback.condition(_tmp,integrator.tprev+dt*Θs[i],integrator)
       if prev_sign == 0
         prev_sign = new_sign
         prev_sign_index = i
@@ -101,7 +101,7 @@ function find_callback_time(integrator,callback)
           else
             _tmp = integrator(integrator.tprev+Θ*dt)[callback.idxs]
           end
-          out = callback.condition(integrator.tprev+Θ*dt,tmp,integrator)
+          out = callback.condition(tmp,integrator.tprev+Θ*dt,integrator)
           out
         end
         Θ = prevfloat(find_zero(zero_func,(bottom_θ,top_Θ),FalsePosition(),abstol = callback.abstol/10))
@@ -169,7 +169,7 @@ end
 #Base Case: Just one
 @inline function apply_discrete_callback!(integrator,callback::DiscreteCallback)
   saved_in_cb = false
-  if callback.condition(integrator.t,integrator.u,integrator)
+  if callback.condition(integrator.u,integrator.t,integrator)
     @inbounds if callback.save_positions[1]
       savevalues!(integrator,true)
       saved_in_cb = true
