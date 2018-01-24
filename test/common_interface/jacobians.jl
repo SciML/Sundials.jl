@@ -37,7 +37,7 @@ end
 u0 = [0.]
 tspan = (0.0, 10.)
 du0 = [0.]
-dae_prob = DAEProblem(f2!,u0,du0,tspan, differential_vars=[true])
+dae_prob = DAEProblem(f2!,du0, u0,tspan, differential_vars=[true])
 good_sol = solve(dae_prob,IDA())
 @test jac_called == true
 
@@ -57,13 +57,13 @@ function testjac(::Type{Val{:jac}},J, du, u, p, gamma, t)
   nothing
 end
 
-prob3 = DAEProblem(testjac,ones(2),[0.5,-2.0],(0.0,10.0),differential_vars=[true,true])
+prob3 = DAEProblem(testjac,[0.5,-2.0],ones(2),(0.0,10.0),differential_vars=[true,true])
 sol3 = solve(prob3, IDA())
 
 @test jac_called == true
 jac_called = false
-prob4 = DAEProblem((res, du, u, p, t) -> testjac(res, du, u, p, t),ones(2),
-                    [0.5,-2.0],(0.0,10.0))
+prob4 = DAEProblem((res, du, u, p, t) -> testjac(res, du, u, p, t),
+                    [0.5,-2.0],ones(2),(0.0,10.0))
 sol4 = solve(prob4, IDA())
 
 @test jac_called == false

@@ -26,7 +26,7 @@ sol = solve(prob,IDA(),tstops=[0.9])
 @test 0.9 ∈ sol.t
 
 prob = deepcopy(prob_dae_resrob)
-prob2 = DAEProblem(prob.f,prob.u0,prob.du0,(1.0,0.0))
+prob2 = DAEProblem(prob.f,prob.du0,prob.u0,(1.0,0.0))
 sol = solve(prob2,IDA())
 @test maximum(diff(sol.t)) < 0 # Make sure all go negative
 
@@ -41,12 +41,12 @@ tspan = (0.0, 10.)
 
 println("With consistent initial conditions:")
 
-dae_prob = DAEProblem(f!,u0,du0,tspan, differential_vars=[true])
+dae_prob = DAEProblem(f!,du0,u0,tspan, differential_vars=[true])
 sol = solve(dae_prob,IDA())
 
 println("With inconsistent initial conditions:")
 
 du0 = [0.]
 
-dae_prob = DAEProblem(f!,u0,du0,tspan, differential_vars=[true])
+dae_prob = DAEProblem(f!,du0, u0,tspan, differential_vars=[true])
 sol = solve(dae_prob,IDA())
