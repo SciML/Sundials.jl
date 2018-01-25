@@ -267,17 +267,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
 
     sizeu = size(prob.u0)
 
-    ### Fix the more general function to Sundials allowed style
-    if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
-    elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
-    elseif typeof(prob.u0)<:Vector{Float64}
-        f! = prob.f
-    else # Then it's an in-place function on an abstract array
-        f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                               du=vec(du); Cint(0))
-    end
+
 
     mem_ptr = ARKodeCreate()
     (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
@@ -292,8 +282,46 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     save_start ? ts = [t0] : ts = Float64[]
     u0nv = NVector(u0)
 
+    ### Fix the more general function to Sundials allowed style
+    if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
+        f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
+    elseif !isinplace && typeof(prob.u0)<:AbstractArray
+        f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
+    elseif typeof(prob.u0)<:Vector{Float64}
+        f! = prob.f
+    else # Then it's an in-place function on an abstract array
+        f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
+                               du=vec(du); Cint(0))
+    end
+
     if typeof(prob.problem_type) <: SplitODEProblem
-        error("Not implemented yet")
+
+        ### Fix the more general function to Sundials allowed style
+        if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
+            f1! = (du, u, p, t) -> (du .= prob.f.f1(u, p, t); Cint(0))
+            f2! = (du, u, p, t) -> (du .= prob.f.f2(u, p, t); Cint(0))
+        elseif !isinplace && typeof(prob.u0)<:AbstractArray
+            f1! = (du, u, p, t) -> (du .= vec(prob.f.f1(reshape(u, sizeu), p, t)); Cint(0))
+            f2! = (du, u, p, t) -> (du .= vec(prob.f.f2(reshape(u, sizeu), p, t)); Cint(0))
+        elseif typeof(prob.u0)<:Vector{Float64}
+            f1! = prob.f.f1
+            f2! = prob.f.f2
+        else # Then it's an in-place function on an abstract array
+            f1! = (du, u, p, t) -> (prob.f.f1(reshape(du, sizeu), reshape(u, sizeu), p, t);
+                                   du=vec(du); Cint(0))
+            f2! = (du, u, p, t) -> (prob.f.f2(reshape(du, sizeu), reshape(u, sizeu), p, t);
+                                  du=vec(du); Cint(0))
+        end
+
+        userfun = FunJac(f1!,f2!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p)
+        flag = ARKodeInit(mem,
+                    cfunction(cvodefunjac, Cint,
+                             (realtype, N_Vector,
+                             N_Vector, Ref{typeof(userfun)})),
+                    cfunction(cvodefunjac2, Cint,
+                             (realtype, N_Vector,
+                             N_Vector, Ref{typeof(userfun)})),
+                    t0, convert(N_Vector, u0nv))
     else
         userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p)
         if alg.stiffness == Explicit()

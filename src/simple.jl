@@ -92,17 +92,27 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun)
     return CV_SUCCESS
 end
 
-type FunJac{F, J, P}
+type FunJac{F, F2, J, P}
     fun::F
+    fun2::F2
     jac::J
     p::P
 end
+FunJac(fun,jac,p) = FunJac(fun,nothing,jac,p)
 
 function cvodefunjac(t::Float64,
                      x::N_Vector,
                      ẋ::N_Vector,
                      funjac::FunJac)
     funjac.fun(convert(Vector, ẋ), convert(Vector, x), funjac.p, t)
+    return CV_SUCCESS
+end
+
+function cvodefunjac2(t::Float64,
+                     x::N_Vector,
+                     ẋ::N_Vector,
+                     funjac::FunJac)
+    funjac.fun2(convert(Vector, ẋ), convert(Vector, x), funjac.p, t)
     return CV_SUCCESS
 end
 
