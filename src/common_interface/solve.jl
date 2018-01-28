@@ -188,7 +188,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         jac = nothing
     end
 
-    utmp = NVector(copy(u0))
+    _u0 = copy(u0)
+    utmp = NVector(_u0)
     callback == nothing ? tmp = nothing : tmp = similar(u0)
     callback == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
@@ -196,7 +197,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if save_start
       save_value!(ures,u0,uType,sizeu)
       if dense
-        f!(utmp,u0,prob.p,tspan[1])
+        f!(_u0,u0,prob.p,tspan[1])
         save_value!(dures,utmp,uType,sizeu)
       end
     end
@@ -439,7 +440,8 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
         jac = nothing
     end
 
-    utmp = NVector(copy(u0))
+    _u0 = copy(u0)
+    utmp = NVector(_u0)
     callback == nothing ? tmp = nothing : tmp = similar(u0)
     callback == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
@@ -447,7 +449,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if save_start
       save_value!(ures,u0,uType,sizeu)
       if dense
-        f!(utmp,u0,prob.p,tspan[1])
+        f!(_u0,u0,prob.p,tspan[1])
         save_value!(dures,utmp,uType,sizeu)
       end
     end
@@ -667,11 +669,15 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
       jac = nothing
     end
 
-    utmp = NVector(copy(u0))
-    dutmp = NVector(copy(u0))
+    _u0 = copy(u0)
+    utmp = NVector(_u0)
+    _du0 = copy(du0)
+    dutmp = NVector(_du0)
+
     tout = [tspan[1]]
 
     rtest = zeros(length(u0))
+
     f!(rtest, du0, u0, prob.p, t0)
     if any(abs.(rtest) .>= reltol)
         if prob.differential_vars === nothing
