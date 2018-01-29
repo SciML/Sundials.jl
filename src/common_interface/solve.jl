@@ -103,7 +103,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
 
-    userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p)
+    userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
     u0nv = NVector(u0)
     flag = CVodeInit(mem,
                     cfunction(cvodefunjac, Cint,
@@ -167,9 +167,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
             flag = CVSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
-	elseif LinearSolver == :KLU
-	    nnz = length(u0)*length(u0)
-	    A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
+	    elseif LinearSolver == :KLU
+	        nnz = length(nonzeros(prob.jac_prototype))
+	        A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNKLU(u0, A)
             flag = CVDlsSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,SparseMatrix())
@@ -328,7 +328,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p)
+        userfun = FunJac(f1!,f2!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
         flag = ARKodeInit(mem,
                     cfunction(cvodefunjac, Cint,
                              (realtype, N_Vector,
@@ -338,7 +338,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                              N_Vector, Ref{typeof(userfun)})),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p)
+        userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         cfunction(cvodefunjac, Cint,
@@ -429,6 +429,13 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
             flag = ARKSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
+        elseif LinearSolver == :KLU
+            nnz = length(nonzeros(prob.jac_prototype))
+            A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
+            LS = SUNKLU(u0, A)
+            flag = ARKDlsSetLinearSolver(mem, LS, A)
+            _A = MatrixHandle(A,SparseMatrix())
+            _LS = LinSolHandle(LS,KLU())
         end
     elseif Method == :Functional
         ARKodeSetFixedPoint(mem, Clong(alg.krylov_dim))
@@ -602,7 +609,8 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     ts   = [t0]
 
 
-    userfun = FunJac(f!,(J,du,u,p,gamma,t) -> f!(Val{:jac},J,du,u,p,gamma,t),prob.p)
+    userfun = FunJac(f!,(J,du,u,p,gamma,t) -> f!(Val{:jac},J,du,u,p,gamma,t),
+                     prob.p,prob.jac_prototype)
     u0nv = NVector(u0)
     flag = IDAInit(mem, cfunction(idasolfun,
                      Cint, (realtype, N_Vector, N_Vector,
@@ -664,6 +672,13 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
         flag = IDASpilsSetLinearSolver(mem, LS)
         _A = nothing
         _LS = LinSolHandle(LS,PTFQMR())
+    elseif LinearSolver == :KLU
+        nnz = length(nonzeros(prob.jac_prototype))
+        A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
+        LS = SUNKLU(u0, A)
+        flag = IDADlsSetLinearSolver(mem, LS, A)
+        _A = MatrixHandle(A,SparseMatrix())
+        _LS = LinSolHandle(LS,KLU())
     end
 
     if has_jac(prob.f)

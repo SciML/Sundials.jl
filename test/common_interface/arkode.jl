@@ -14,5 +14,5 @@ function (::typeof(prob.f))(::Type{Val{:analytic}},u0,p,t)
 end
 sol = solve(prob,ARKODE())
 @test sol.errors[:l2] < 1e-3
-sol = solve(prob,ARKODE(),reltol=1e-7,abstol=1e-8)
-@test sol.errors[:l2] < 1e-4
+sol = solve(prob,ARKODE(),reltol=1e-12,abstol=1e-12)
+@test sol.errors[:l2] < 1e-6
