@@ -92,13 +92,15 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun)
     return CV_SUCCESS
 end
 
-type FunJac{F, F2, J, P}
+abstract type AbstactFunJac{J2} end
+type FunJac{F, F2, J, P, J2} <: AbstactFunJac{J2}
     fun::F
     fun2::F2
     jac::J
     p::P
+    jac_prototype::J2
 end
-FunJac(fun,jac,p) = FunJac(fun,nothing,jac,p)
+FunJac(fun,jac,p,jac_prototype) = FunJac(fun,nothing,jac,p,jac_prototype)
 
 function cvodefunjac(t::Float64,
                      x::N_Vector,
@@ -118,16 +120,31 @@ end
 
 function cvodejac(t::realtype,
                   x::N_Vector,
-                  	    ẋ::N_Vector,
+                  ẋ::N_Vector,
                   J::SUNMatrix,
-                  funjac::FunJac,
+                  funjac::AbstactFunJac{Void},
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
-    A = convert(SparseMatrixCSC, J)
-    funjac.jac(convert(SparseMatrixCSC, J), convert(Vector, x), funjac.p, t)
-    A.rowval .-= 1
-    A.colptr .-= 1
+    funjac.jac(convert(Matrix, J), convert(Vector, x), funjac.p, t)
+    return CV_SUCCESS
+end
+
+function cvodejac(t::realtype,
+                  x::N_Vector,
+                  ẋ::N_Vector,
+                  _J::SUNMatrix,
+                  funjac::AbstactFunJac{<:SparseMatrixCSC},
+                  tmp1::N_Vector,
+                  tmp2::N_Vector,
+                  tmp3::N_Vector)
+    jac_prototype = funjac.jac_prototype
+    J = convert(SparseMatrixCSC,_J)
+    funjac.jac(jac_prototype, convert(Vector, x), funjac.p, t)
+    J.nzval .= jac_prototype.nzval
+    # Sundials resets the value pointers each time, so reset it too
+    @. J.rowval = jac_prototype.rowval - 1
+    @. J.colptr = jac_prototype.colptr - 1
     return CV_SUCCESS
 end
 
@@ -222,12 +239,36 @@ function idajac(t::realtype,
                 dx::N_Vector,
                 res::N_Vector,
                 J::SUNMatrix,
-                funjac::FunJac,
+                funjac::AbstactFunJac{Void},
                 tmp1::N_Vector,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
-    funjac.jac(convert(Matrix, J), convert(Vector,dx), convert(Vector, x), funjac.p, cj, t)
-    return CV_SUCCESS
+    funjac.jac(convert(Matrix, J), convert(Vector,dx),
+               convert(Vector, x), funjac.p, cj, t)
+    return IDA_SUCCESS
+end
+
+function idajac(t::realtype,
+                cj::realtype,
+                x::N_Vector,
+                dx::N_Vector,
+                res::N_Vector,
+                J::SUNMatrix,
+                funjac::AbstactFunJac{<:SparseMatrixCSC},
+                tmp1::N_Vector,
+                tmp2::N_Vector,
+                tmp3::N_Vector)
+
+                jac_prototype = funjac.jac_prototype
+                J = convert(SparseMatrixCSC,_J)
+                funjac.jac(jac_prototype, convert(Vector,dx),
+                            convert(Vector, x), funjac.p, cj, t)
+                J.nzval .= jac_prototype.nzval
+                # Sundials resets the value pointers each time, so reset it too
+                @. J.rowval = jac_prototype.rowval - 1
+                @. J.colptr = jac_prototype.colptr - 1
+
+    return IDA_SUCCESS
 end
 
 

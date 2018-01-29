@@ -22,7 +22,11 @@ prob = ODEProblem(Lotka,ones(2),(0.0,10.0))
 good_sol = solve(prob,CVODE_BDF())
 @test jac_called == true
 
+prob = ODEProblem(Lotka,ones(2),(0.0,10.0),
+                  jac_prototype = sparse([1,2,1,2],[1,1,2,2],zeros(4)))
+jac_called = false
 sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU))
+@test jac_called == true
 
 function f2!(res, du, u, p, t)
     res[1] = 1.01du[1]

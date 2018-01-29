@@ -41,17 +41,12 @@ function Base.convert(::Type{SparseMatrixCSC}, J::SUNMatrix)
     mat = unsafe_load(_mat)
     # own is false as memory is allocated by sundials
     # TODO: Get rid of allocation for 1-based index change
-    rowval = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), false)# + 1
-    rowval .= [1, 2, 1, 2]
-    colptr = unsafe_wrap(Array, mat.indexptrs, (mat.NP+1), false)# + 1
-    colptr .= [1,3,5]
+    rowval = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), false)
+    colptr = unsafe_wrap(Array, mat.indexptrs, (mat.NP+1), false)
     m = mat.M
     n = mat.N
     nzval = unsafe_wrap(Array,mat.data, (mat.NNZ), false)
-    A = SparseMatrixCSC(m,n,colptr,rowval,nzval)
-    @show A
-    A
-    #unsafe_wrap(Array, mat.data, (mat.M, mat.N), false)
+    SparseMatrixCSC(m,n,colptr,rowval,nzval)
 end
 
 abstract type SundialsMatrix end
