@@ -96,7 +96,7 @@ kinsol(f, y0::Vector{Float64};
                 stored_upper = jac_upper + jac_lower)
 ```
 
-where `f(y,res)` is an in-place function that computes the residual `f(y)-res=0`,
+where `f(res,y)` is an in-place function that computes the residual `f(y)-res=0`,
 and KINSOL attempts to find `y` such that `res=0`. This method is generally
 quite fast and the choice `linear_solver=:Band` is well-suited for problems
 with a banded Jacobian (you must specify the upper and lower band sizes). However,
