@@ -35,6 +35,25 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
     unsafe_wrap(Array, mat.data, (mat.M, mat.N), false)
 end
 
+function Base.convert(::Type{SparseMatrixCSC}, J::SUNMatrix)
+    _sunmat = unsafe_load(J)
+    _mat = convert(SUNMatrixContent_Sparse, _sunmat.content)
+    mat = unsafe_load(_mat)
+    # own is false as memory is allocated by sundials
+    # TODO: Get rid of allocation for 1-based index change
+    rowval = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), false)# + 1
+    rowval .= [1, 2, 1, 2]
+    colptr = unsafe_wrap(Array, mat.indexptrs, (mat.NP+1), false)# + 1
+    colptr .= [1,3,5]
+    m = mat.M
+    n = mat.N
+    nzval = unsafe_wrap(Array,mat.data, (mat.NNZ), false)
+    A = SparseMatrixCSC(m,n,colptr,rowval,nzval)
+    @show A
+    A
+    #unsafe_wrap(Array, mat.data, (mat.M, mat.N), false)
+end
+
 abstract type SundialsMatrix end
 struct DenseMatrix <: SundialsMatrix end
 struct BandMatrix <: SundialsMatrix end
@@ -48,6 +67,7 @@ struct SPFGMR <: SundialsLinSol end
 struct SPBCGS <: SundialsLinSol end
 struct PCG <: SundialsLinSol end
 struct PTFQMR <: SundialsLinSol end
+struct KLU <: SundialsLinSol end
 
 abstract type StiffnessChoice end
 struct Explicit <: StiffnessChoice end

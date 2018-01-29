@@ -167,6 +167,13 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
             flag = CVSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
+	elseif LinearSolver == :KLU
+	    nnz = length(u0)*length(u0)
+	    A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
+            LS = SUNKLU(u0, A)
+            flag = CVDlsSetLinearSolver(mem, LS, A)
+            _A = MatrixHandle(A,SparseMatrix())
+            _LS = LinSolHandle(LS,KLU())
         end
     else
         _A = nothing

@@ -118,13 +118,16 @@ end
 
 function cvodejac(t::realtype,
                   x::N_Vector,
-                  ẋ::N_Vector,
+                  	    ẋ::N_Vector,
                   J::SUNMatrix,
                   funjac::FunJac,
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
-    funjac.jac(convert(Matrix, J), convert(Vector, x), funjac.p, t)
+    A = convert(SparseMatrixCSC, J)
+    funjac.jac(convert(SparseMatrixCSC, J), convert(Vector, x), funjac.p, t)
+    A.rowval .-= 1
+    A.colptr .-= 1
     return CV_SUCCESS
 end
 
