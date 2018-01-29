@@ -18,6 +18,7 @@ libsundials_sunmatrixsparse  = LibraryProduct(prefix, String["libsundials_sunmat
 libsundials_sunlinsolband    = LibraryProduct(prefix, String["libsundials_sunlinsolband"])
 libsundials_sunmatrixband    = LibraryProduct(prefix, String["libsundials_sunmatrixband"])
 libsundials_arkode           = LibraryProduct(prefix, String["libsundials_arkode"])
+libsundials_sunlinsolklu     = LibraryProduct(prefix, String["libsundials_klu"])
 
 products = [
 libsundials_nvecserial,
@@ -35,6 +36,7 @@ libsundials_sunmatrixsparse,
 libsundials_sunlinsolband,
 libsundials_sunmatrixband,
 libsundials_arkode,
+libsundials_sunlinsolklu,
 ]
 
 # Download binaries from hosted location
@@ -62,7 +64,7 @@ if platform_key() in keys(download_info)
     # Finally, write out a deps.jl file that will contain mappings for each
     # named product here: (there will be a "libfoo" variable and a "fooifier"
     # variable, etc...)
-    @write_deps_file libsundials_kinsol libsundials_idas libsundials_nvecserial libsundials_cvodes libsundials_sunlinsolspfgmr  libsundials_sunmatrixdense libsundials_sunlinsolspbcgs libsundials_sunlinsoldense libsundials_sunlinsolspgmr  libsundials_sunlinsolpcg libsundials_sunlinsolsptfqmr libsundials_sunmatrixsparse libsundials_sunlinsolband libsundials_sunmatrixband libsundials_arkode
+    @write_deps_file libsundials_kinsol libsundials_idas libsundials_nvecserial libsundials_cvodes libsundials_sunlinsolspfgmr  libsundials_sunmatrixdense libsundials_sunlinsolspbcgs libsundials_sunlinsoldense libsundials_sunlinsolspgmr  libsundials_sunlinsolpcg libsundials_sunlinsolsptfqmr libsundials_sunmatrixsparse libsundials_sunlinsolband libsundials_sunmatrixband libsundials_arkode libsundials_sunlinsolklu
 else
     error("Your platform $(Sys.MACHINE) is not supported by this package!")
 end

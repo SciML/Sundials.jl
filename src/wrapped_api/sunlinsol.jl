@@ -90,6 +90,68 @@ end
 function SUNLinSolFree_Dense(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_Dense, libsundials_sunlinsoldense), Cint, (SUNLinearSolver,), S)
 end
+# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/sunlinsol/sunlinsol_klu.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+
+function __SUNKLU(y::N_Vector, A::SUNMatrix)
+    ccall((:SUNKLU, libsundials_sunlinsolklu), SUNLinearSolver, (N_Vector, SUNMatrix), y, A)
+end
+
+function SUNKLU(y, A)
+    __y = convert(NVector, y)
+    __SUNKLU(convert(N_Vector, __y), A)
+end
+
+function __SUNKLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype, reinit_type::Cint)
+    ccall((:SUNKLUReInit, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, SUNMatrix, sunindextype, Cint), S, A, nnz, reinit_type)
+end
+
+function SUNKLUReInit(S, A, nnz, reinit_type)
+    __SUNKLUReInit(S, A, nnz, convert(Cint, reinit_type))
+end
+
+function __SUNKLUSetOrdering(S::SUNLinearSolver, ordering_choice::Cint)
+    ccall((:SUNKLUSetOrdering, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, Cint), S, ordering_choice)
+end
+
+function SUNKLUSetOrdering(S, ordering_choice)
+    __SUNKLUSetOrdering(S, convert(Cint, ordering_choice))
+end
+
+function SUNLinSolGetType_KLU(S::SUNLinearSolver)
+    ccall((:SUNLinSolGetType_KLU, libsundials_sunlinsolklu), SUNLinearSolver_Type, (SUNLinearSolver,), S)
+end
+
+function SUNLinSolInitialize_KLU(S::SUNLinearSolver)
+    ccall((:SUNLinSolInitialize_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver,), S)
+end
+
+function SUNLinSolSetup_KLU(S::SUNLinearSolver, A::SUNMatrix)
+    ccall((:SUNLinSolSetup_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, SUNMatrix), S, A)
+end
+
+function __SUNLinSolSolve_KLU(S::SUNLinearSolver, A::SUNMatrix, x::N_Vector, b::N_Vector, tol::realtype)
+    ccall((:SUNLinSolSolve_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+end
+
+function SUNLinSolSolve_KLU(S, A, x, b, tol)
+    __x = convert(NVector, x)
+    __b = convert(NVector, b)
+    __SUNLinSolSolve_KLU(S, A, convert(N_Vector, __x), convert(N_Vector, __b), tol)
+end
+
+function SUNLinSolLastFlag_KLU(S::SUNLinearSolver)
+    ccall((:SUNLinSolLastFlag_KLU, libsundials_sunlinsolklu), Clong, (SUNLinearSolver,), S)
+end
+
+function SUNLinSolSpace_KLU(S::SUNLinearSolver, lenrwLS, leniwLS)
+    ccall((:SUNLinSolSpace_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+end
+
+function SUNLinSolFree_KLU(S::SUNLinearSolver)
+    ccall((:SUNLinSolFree_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver,), S)
+end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/sunlinsol/sunlinsol_pcg.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
