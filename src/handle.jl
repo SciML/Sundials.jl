@@ -152,6 +152,14 @@ function release_handle(h::LinSolHandle{PTFQMR})
     nothing
 end
 
+function release_handle(h::LinSolHandle{KLU})
+    if !isempty(h)
+        Sundials.SUNLinSolFree_KLU(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
 Base.empty!(h::LinSolHandle) = release_handle(h)
 Base.empty!(h::MatrixHandle) = release_handle(h)
 Base.empty!{T}(h::Handle{T}) = release_handle(h.ptr_ref)

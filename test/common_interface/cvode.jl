@@ -62,6 +62,7 @@ sol5 = solve(prob,CVODE_BDF(linear_solver=:FGMRES))
 sol6 = solve(prob,CVODE_BDF(linear_solver=:PCG))
 sol7 = solve(prob,CVODE_BDF(linear_solver=:BCG))
 sol8 = solve(prob,CVODE_BDF(linear_solver=:TFQMR))
+#sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU)) # Requires Jacobian
 
 @test isapprox(sol1[end],sol2[end],rtol=1e-3)
 @test isapprox(sol1[end],sol3[end],rtol=1e-3)
@@ -70,6 +71,7 @@ sol8 = solve(prob,CVODE_BDF(linear_solver=:TFQMR))
 @test isapprox(sol1[end],sol6[end],rtol=1e-3)
 @test isapprox(sol1[end],sol7[end],rtol=1e-3)
 @test isapprox(sol1[end],sol8[end],rtol=1e-3)
+#@test isapprox(sol1[end],sol9[end],rtol=1e-3)
 # Backwards
 prob = deepcopy(prob_ode_2Dlinear)
 prob2 = ODEProblem(prob.f,prob.u0,(1.0,0.0))

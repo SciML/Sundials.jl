@@ -22,6 +22,8 @@ prob = ODEProblem(Lotka,ones(2),(0.0,10.0))
 good_sol = solve(prob,CVODE_BDF())
 @test jac_called == true
 
+sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU))
+
 function f2!(res, du, u, p, t)
     res[1] = 1.01du[1]
     return
