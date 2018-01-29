@@ -107,7 +107,8 @@ const linear_solvers_and_matrices = [
     "spfgmr",
     "spgmr",
     "sptfqmr",
-    "sparse"
+    "sparse",
+    "klu"
     ]
 
 # substitute Ptr{Void} with the typed pointer
@@ -173,6 +174,7 @@ function wrap_sundials_api(expr::Expr)
                     lowercase(split(func_name,"_")[end]))
                 else
                     name_i = findfirst(lsmn -> contains(lowercase(func_name),lsmn),linear_solvers_and_matrices)
+
                     @assert name_i > 0
                     name = linear_solvers_and_matrices[name_i]
                     expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2])*name)
