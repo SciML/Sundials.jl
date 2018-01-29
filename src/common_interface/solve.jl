@@ -21,7 +21,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     verbose=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[],
-    maxiter=Int(1e5),
+    maxiters=Int(1e5),
     dt = nothing, dtmin = 0.0, dtmax = 0.0,
     timeseries_errors=true,
     dense_errors = false,
@@ -114,7 +114,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     flag = CVodeSetMaxStep(mem, dtmax)
     flag = CVodeSetUserData(mem, userfun)
     flag = CVodeSStolerances(mem, reltol, abstol)
-    flag = CVodeSetMaxNumSteps(mem, maxiter)
+    flag = CVodeSetMaxNumSteps(mem, maxiters)
     flag = CVodeSetMaxOrd(mem, alg.max_order)
     flag = CVodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
     flag = CVodeSetStabLimDet(mem, alg.stability_limit_detect)
@@ -224,7 +224,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     verbose=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[],
-    maxiter=Int(1e5),
+    maxiters=Int(1e5),
     dt = nothing, dtmin = 0.0, dtmax = 0.0,
     timeseries_errors=true,
     dense_errors = false,
@@ -347,7 +347,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     flag = ARKodeSetMaxStep(mem, dtmax)
     flag = ARKodeSetUserData(mem, userfun)
     flag = ARKodeSStolerances(mem, reltol, abstol)
-    flag = ARKodeSetMaxNumSteps(mem, maxiter)
+    flag = ARKodeSetMaxNumSteps(mem, maxiters)
     flag = ARKodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
     flag = ARKodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
     flag = ARKodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
@@ -514,7 +514,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     dt=nothing, dtmax=0.0,
     save_start=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
-    saveat=Float64[], tstops=Float64[], maxiter=Int(1e5),
+    saveat=Float64[], tstops=Float64[], maxiters=Int(1e5),
     timeseries_errors=true,
     dense_errors = false,
     save_everystep=isempty(saveat), dense=save_everystep,
@@ -597,7 +597,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
     flag = IDASStolerances(mem, reltol, abstol)
-    flag = IDASetMaxNumSteps(mem, maxiter)
+    flag = IDASetMaxNumSteps(mem, maxiters)
     flag = IDASetMaxOrd(mem,alg.max_order)
     flag = IDASetMaxErrTestFails(mem,alg.max_error_test_failures)
     flag = IDASetNonlinConvCoef(mem,alg.nonlinear_convergence_coefficient)
@@ -730,7 +730,7 @@ end # function solve
 
 function interpret_sundials_retcode(flag)
   flag >= 0 && return :Success
-  flag == -1 && return :MaxIters
+  flag == -1 && return :maxiterss
   (flag == -2 || flag == -3) && return :Unstable
   flag == -4 && return :ConvergenceFailure
   return :Failure
