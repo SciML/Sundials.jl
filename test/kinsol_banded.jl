@@ -1,4 +1,4 @@
-function f!(x, resid)
+function f!(resid, x)
     for i in eachindex(x)
        resid[i] = sin(x[i]) + x[i]^3
     end

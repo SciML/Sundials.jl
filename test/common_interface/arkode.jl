@@ -15,4 +15,4 @@ end
 sol = solve(prob,ARKODE())
 @test sol.errors[:l2] < 1e-3
 sol = solve(prob,ARKODE(),reltol=1e-7,abstol=1e-8)
-@test sol.errors[:l2] < 1e-6
+@test sol.errors[:l2] < 1e-4

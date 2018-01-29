@@ -35,12 +35,12 @@ UserFunctionAndData(func) = func
 UserFunctionAndData(func, data::Void) = func
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
-    userfun[].func(convert(Vector, y), convert(Vector, fy), userfun[].data)
+    userfun[].func(convert(Vector, fy), convert(Vector, y), userfun[].data)
     return KIN_SUCCESS
 end
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
-    userfun(convert(Vector, y), convert(Vector, fy))
+    userfun(convert(Vector, fy), convert(Vector, y))
     return KIN_SUCCESS
 end
 
