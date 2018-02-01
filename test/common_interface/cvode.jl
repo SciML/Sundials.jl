@@ -75,3 +75,9 @@ prob = deepcopy(prob_ode_2Dlinear)
 prob2 = ODEProblem(prob.f,prob.u0,(1.0,0.0))
 sol = solve(prob2,CVODE_BDF())
 @test maximum(diff(sol.t)) < 0 # Make sure all go negative
+
+number_test(u,p,t) = -u^2 + (p[1] + t + p[2])*u + p[2]
+u0 = 0.0;
+tspan = (0.0, 10)
+prob = ODEProblem(number_test,u0,tspan,(2.0,0.01))
+sol = solve(prob,CVODE_BDF())
