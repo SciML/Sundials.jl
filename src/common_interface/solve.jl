@@ -66,7 +66,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     sizeu = size(prob.u0)
 
     ### Fix the more general function to Sundials allowed style
-    if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
+    if !isinplace && typeof(prob.u0)<:Number
+        f! = (du, u, p, t) -> (du .= prob.f(first(u), p, t); Cint(0))
+    elseif !isinplace && typeof(prob.u0)<:Vector{Float64}
         f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
         f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
@@ -284,7 +286,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     u0nv = NVector(u0)
 
     ### Fix the more general function to Sundials allowed style
-    if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
+    if !isinplace && typeof(prob.u0)<:Number
+        f! = (du, u, p, t) -> (du .= prob.f(first(u), p, t); Cint(0))
+    elseif !isinplace && typeof(prob.u0)<:Vector{Float64}
         f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
         f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
@@ -298,7 +302,10 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     if typeof(prob.problem_type) <: SplitODEProblem
 
         ### Fix the more general function to Sundials allowed style
-        if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
+        if !isinplace && typeof(prob.u0)<:Number
+            f1! = (du, u, p, t) -> (du .= prob.f.f1(first(u), p, t); Cint(0))
+            f2! = (du, u, p, t) -> (du .= prob.f.f2(first(u), p, t); Cint(0))
+        elseif !isinplace && typeof(prob.u0)<:Vector{Float64}
             f1! = (du, u, p, t) -> (du .= prob.f.f1(u, p, t); Cint(0))
             f2! = (du, u, p, t) -> (du .= prob.f.f2(u, p, t); Cint(0))
         elseif !isinplace && typeof(prob.u0)<:AbstractArray
@@ -560,10 +567,12 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     sizedu = size(prob.du0)
 
     ### Fix the more general function to Sundials allowed style
-    if !isinplace && (typeof(prob.u0)<:Vector{Float64} || typeof(prob.u0)<:Number)
-        f! = (out, du, u, p, t) -> (out[:] = prob.f(du, u, p, t); Cint(0))
+    if !isinplace && typeof(prob.u0)<:Number
+        f! = (out, du, u, p, t) -> (out .= prob.f(first(du),first(u), p, t); Cint(0))
+    elseif !isinplace && typeof(prob.u0)<:Vector{Float64}
+        f! = (out, du, u, p, t) -> (out .= prob.f(du, u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0)<:AbstractArray
-        f! = (out, du, u, p, t) -> (out[:] = vec(
+        f! = (out, du, u, p, t) -> (out .= vec(
                             prob.f(reshape(du, sizedu), reshape(u, sizeu), p, t)
                                  );Cint(0))
     elseif typeof(prob.u0)<:Vector{Float64}
