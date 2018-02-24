@@ -173,8 +173,10 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-cvode(f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing; kwargs...) =
-    cvode!(f, zeros(length(t), length(y0)), y0, t, userdata; kwargs...)
+function cvode(f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing; kwargs...)
+    n = cvode!(f, zeros(length(t), length(y0)), y0, t, userdata; kwargs...)
+    return y[1:n,:]
+end
 
 function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing;
                 integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
@@ -215,7 +217,7 @@ function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::Abstrac
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
 
-    return y
+    return c
 end
 
 function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
