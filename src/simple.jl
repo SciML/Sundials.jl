@@ -174,7 +174,8 @@ return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
 function cvode(f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing; kwargs...)
-    n = cvode!(f, zeros(length(t), length(y0)), y0, t, userdata; kwargs...)
+    y = zeros(length(t), length(y0))
+    n = cvode!(f, y, y0, t, userdata; kwargs...)
     return y[1:n,:]
 end
 
