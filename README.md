@@ -45,7 +45,7 @@ This should download and install the Sundials libraries and register the package
 are used, while on Unix and OSX Sundials is built from its sources (provided the necessary tools are
 available). If you have Sundials already installed, make sure that Julia can find it, e.g., via
 ```julia
-push!(Sys.DL_LOAD_PATH, "/opt/local/lib")
+push!(Base.DL_LOAD_PATH, "/opt/local/lib")
 ```
 before you install the package. Downloading and/or re-building of the library can be triggered by `Pkg.build("Sundials")`
 if anything goes wrong.
