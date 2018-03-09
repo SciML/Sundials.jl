@@ -165,6 +165,7 @@ immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver}
   max_num_iters_ic::Int
   max_num_backs_ic::Int
   use_linesearch_ic::Bool
+  init_all::Bool
 end
 Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
                         stored_upper = jac_upper+jac_lower,
@@ -179,6 +180,7 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
                         max_num_iters_ic = 10,
                         max_num_backs_ic = 100,
                         use_linesearch_ic = true,
+                        init_all = false,
                         max_convergence_failures = 10)
   if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
       error("Banded solver must set the jac_upper and jac_lower")
@@ -197,7 +199,8 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
                       max_num_jacs_ic,
                       max_num_iters_ic,
                       max_num_backs_ic,
-                      use_linesearch_ic)
+                      use_linesearch_ic,
+                      init_all)
 end
 
 method_choice(alg::SundialsODEAlgorithm{Method}) where Method = Method

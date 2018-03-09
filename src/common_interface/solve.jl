@@ -720,7 +720,12 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
         else
             _t = float(tspan[2])
         end
-        flag = IDACalcIC(mem, IDA_YA_YDP_INIT, _t)
+        if alg.init_all
+            init_type = IDA_Y_INIT
+        else
+            init_type = IDA_YA_YDP_INIT
+        end
+        flag = IDACalcIC(mem, init_type, _t)
     end
 
     if save_start
