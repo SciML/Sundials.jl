@@ -13,6 +13,6 @@ function (::typeof(prob.f))(::Type{Val{:analytic}},u0,p,t)
     exp(2t)*u0
 end
 sol = solve(prob,ARKODE())
-@test sol.errors[:l2] < 1e-3
+@test sol.errors[:l2] < 1e-2
 sol = solve(prob,ARKODE(),reltol=1e-12,abstol=1e-12)
 @test sol.errors[:l2] < 1e-6
