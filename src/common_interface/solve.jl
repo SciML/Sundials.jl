@@ -222,7 +222,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
     CVODEIntegrator(utmp,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false)
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
 function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
@@ -486,7 +486,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
     ARKODEIntegrator(utmp,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false)
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
@@ -759,7 +759,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
                     callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
 
     IDAIntegrator(utmp,dutmp,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false)
+                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
 ## Common calls
