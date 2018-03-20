@@ -56,7 +56,7 @@ end
     interp_index = callback.interp_points
   elseif callback.interp_points!=0  # Use the interpolants for safety checking
     tmp = integrator.tmp
-    for i in 2:length(Θs)-1
+    for i in 2:length(Θs)
       if !(typeof(callback.idxs) <: Number)
         integrator(tmp,integrator.tprev+dt*Θs[i])
         callback.idxs == nothing ? _tmp = tmp : _tmp = @view tmp[callback.idxs]
