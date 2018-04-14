@@ -124,40 +124,16 @@ function (integrator::IDAIntegrator)(out,t::Number,
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
 end
 
+###  Error check (retcode)
+
+DiffEqBase.check_error(integrator::AbstractSundialsIntegrator) =
+    interpret_sundials_retcode(integrator.flag)
+
+DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
+# No-op postamble! to make check_error! (and hence iterator interface
+# implemented in DiffEqBase) work.
 
 ### Iterator interface
-
-function Base.start(integrator::AbstractSundialsIntegrator)
-  0
-end
-
-@inline function Base.next(integrator::AbstractSundialsIntegrator,state)
-  state += 1
-  DiffEqBase.step!(integrator) # Iter updated in the step! header
-  # Next is callbacks -> iterator  -> top
-  integrator,state
-end
-
-@inline function Base.done(integrator::AbstractSundialsIntegrator,state)
-  #=
-  if integrator.opts.unstable_check(integrator.dt,integrator.t,integrator.u)
-    if integrator.opts.verbose
-      warn("Instability detected. Aborting")
-    end
-    postamble!(integrator)
-    return true
-  end
-  =#
-  if isempty(integrator.opts.tstops)
-    return true
-  elseif integrator.just_hit_tstop
-    integrator.just_hit_tstop = false
-    if integrator.opts.stop_at_next_tstop
-      return true
-    end
-  end
-  false
-end
 
 @inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
   if integrator.opts.advance_to_tstop
@@ -194,5 +170,3 @@ end
   handle_tstop!(integrator)
   nothing
 end
-
-Base.eltype(integrator::AbstractSundialsIntegrator) = typeof(integrator)
