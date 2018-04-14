@@ -8,9 +8,10 @@ function DiffEqBase.solve{algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorit
   kwargs...)
 
   integrator = DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
-  integrator.sol.retcode == :Default ? _sol = solve!(integrator) :
-                                       _sol = integrator.sol
-  _sol
+  if integrator.sol.retcode == :Default
+    solve!(integrator)
+  end
+  integrator.sol
 end
 
 function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
@@ -837,7 +838,8 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         timeseries_errors=integrator.opts.timeseries_errors,
         dense_errors=integrator.opts.dense_errors)
     end
-    solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
+    integrator.sol = solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
+    nothing
 end
 
 function handle_tstop!(integrator::AbstractSundialsIntegrator)
