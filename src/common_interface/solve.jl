@@ -766,7 +766,7 @@ end # function solve
 
 function interpret_sundials_retcode(flag)
   flag >= 0 && return :Success
-  flag == -1 && return :maxiterss
+  flag == -1 && return :MaxIters
   (flag == -2 || flag == -3) && return :Unstable
   flag == -4 && return :ConvergenceFailure
   return :Failure
