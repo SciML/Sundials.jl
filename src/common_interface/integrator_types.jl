@@ -14,8 +14,9 @@ end
 
 abstract type AbstractSundialsIntegrator <: AbstractODEIntegrator end
 
-mutable struct CVODEIntegrator{uType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
+mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
     u::uType
+    p::pType
     t::Float64
     tprev::Float64
     mem::memType
@@ -49,8 +50,9 @@ function (integrator::CVODEIntegrator)(out,t::Number,
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
 end
 
-mutable struct ARKODEIntegrator{uType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
+mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
     u::uType
+    p::pType
     t::Float64
     tprev::Float64
     mem::memType
@@ -84,9 +86,10 @@ function (integrator::ARKODEIntegrator)(out,t::Number,
     integrator.flag = @checkflag ARKodeGetDky(integrator.mem, t, Cint(T), out)
 end
 
-mutable struct IDAIntegrator{uType,duType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
+mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
     u::uType
     du::duType
+    p::pType
     t::Float64
     tprev::Float64
     mem::memType

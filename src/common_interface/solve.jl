@@ -221,7 +221,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
-    CVODEIntegrator(utmp,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+    CVODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
@@ -485,7 +485,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
-    ARKODEIntegrator(utmp,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
@@ -758,7 +758,7 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
                     timeseries_errors,dense_errors,save_end,
                     callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
 
-    IDAIntegrator(utmp,dutmp,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+    IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                    tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
@@ -805,6 +805,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
             if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
                 integrator.uprev .= integrator.u
             end
+            integrator.userfun.p = integrator.p
             solver_step(integrator,tstop)
             integrator.t = first(integrator.tout)
             integrator.flag < 0 && break
