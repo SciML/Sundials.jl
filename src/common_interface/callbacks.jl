@@ -136,8 +136,7 @@ function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_si
   end
   saved_in_cb = false
 
-  # Pre-callback save, but don't double up if unnecessary
-  @inbounds if callback.save_positions[1] && integrator.t != sol.t[end]
+  @inbounds if callback.save_positions[1]
     savevalues!(integrator,true)
     saved_in_cb = true
   end
@@ -173,8 +172,7 @@ end
 @inline function apply_discrete_callback!(integrator,callback::DiscreteCallback)
   saved_in_cb = false
   if callback.condition(integrator.u,integrator.t,integrator)
-    # Pre-callback save, but don't double up if unnecessary
-    @inbounds if callback.save_positions[1] && integrator.t != sol.t[end]
+    @inbounds if callback.save_positions[1]
       savevalues!(integrator,true)
       saved_in_cb = true
     end
