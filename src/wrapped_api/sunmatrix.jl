@@ -7,7 +7,7 @@ function SUNBandMatrix(N::sunindextype, mu::sunindextype, ml::sunindextype, smu:
 end
 
 function SUNBandMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNBandMatrix_Print, libsundials_sunmatrixband), Void, (SUNMatrix, Ptr{Cint}), A, outfile)
+    ccall((:SUNBandMatrix_Print, libsundials_sunmatrixband), Cvoid, (SUNMatrix, Ptr{Cint}), A, outfile)
 end
 
 function SUNBandMatrix_Rows(A::SUNMatrix)
@@ -55,7 +55,7 @@ function SUNMatClone_Band(A::SUNMatrix)
 end
 
 function SUNMatDestroy_Band(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Band, libsundials_sunmatrixband), Void, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Band, libsundials_sunmatrixband), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Band(A::SUNMatrix)
@@ -96,7 +96,7 @@ function SUNDenseMatrix(M::sunindextype, N::sunindextype)
 end
 
 function SUNDenseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNDenseMatrix_Print, libsundials_sunmatrixdense), Void, (SUNMatrix, Ptr{Cint}), A, outfile)
+    ccall((:SUNDenseMatrix_Print, libsundials_sunmatrixdense), Cvoid, (SUNMatrix, Ptr{Cint}), A, outfile)
 end
 
 function SUNDenseMatrix_Rows(A::SUNMatrix)
@@ -132,7 +132,7 @@ function SUNMatClone_Dense(A::SUNMatrix)
 end
 
 function SUNMatDestroy_Dense(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Dense, libsundials_sunmatrixdense), Void, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Dense, libsundials_sunmatrixdense), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Dense(A::SUNMatrix)
@@ -197,7 +197,7 @@ function SUNSparseMatrix_Realloc(A::SUNMatrix)
 end
 
 function SUNSparseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNSparseMatrix_Print, libsundials_sunmatrixsparse), Void, (SUNMatrix, Ptr{Cint}), A, outfile)
+    ccall((:SUNSparseMatrix_Print, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix, Ptr{Cint}), A, outfile)
 end
 
 function SUNSparseMatrix_Rows(A::SUNMatrix)
@@ -241,7 +241,7 @@ function SUNMatClone_Sparse(A::SUNMatrix)
 end
 
 function SUNMatDestroy_Sparse(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrixsparse), Void, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Sparse(A::SUNMatrix)

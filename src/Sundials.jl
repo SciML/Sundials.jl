@@ -13,8 +13,8 @@ const warnkeywords =
      :internalnorm, :gamma, :beta1, :beta2, :qmax, :qmin, :qoldinit)
 
 function __init__()
-    const global warnlist = Set(warnkeywords)
-    const global warnida  = union(warnlist, Set((:dtmin,)))
+    global warnlist = Set(warnkeywords)
+    global warnida  = union(warnlist, Set((:dtmin,)))
 end
 
 const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
@@ -31,8 +31,8 @@ const DBL_MAX = prevfloat(Inf)
 const DBL_MIN = nextfloat(-Inf)
 const DBL_EPSILON = eps(Cdouble)
 
-const FILE = Void
-const __builtin_va_list = Ptr{Void}
+const FILE = Nothing
+const __builtin_va_list = Ptr{Cvoid}
 
 include("wrapped_api/types_and_consts.jl")
 include("types_and_consts_additions.jl")

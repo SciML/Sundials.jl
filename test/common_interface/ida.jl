@@ -1,4 +1,4 @@
-using DiffEqProblemLibrary, Sundials, Base.Test
+using DiffEqProblemLibrary, Sundials, Test
 
 # Test DAE
 prob = prob_dae_resrob

@@ -1,4 +1,4 @@
-using Sundials, Base.Test
+using Sundials, Test
 
 println("Test error handling")
 

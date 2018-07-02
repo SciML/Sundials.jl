@@ -77,9 +77,9 @@ const MODIFIED_GS = (UInt32)(1)
 const CLASSICAL_GS = (UInt32)(2)
 # end enum ANONYMOUS_2
 
-const ATimesFn = Ptr{Void}
-const PSetupFn = Ptr{Void}
-const PSolveFn = Ptr{Void}
+const ATimesFn = Ptr{Cvoid}
+const PSetupFn = Ptr{Cvoid}
+const PSolveFn = Ptr{Cvoid}
 const SUNLS_SUCCESS = Cint(0)
 const SUNLS_MEM_NULL = Cint(-1)
 const SUNLS_ILL_INPUT = Cint(-2)
@@ -114,25 +114,25 @@ const SUNLINEARSOLVER_CUSTOM = (UInt32)(2)
 # end enum SUNLinearSolver_Type
 
 mutable struct _generic_SUNLinearSolver_Ops
-    gettype::Ptr{Void}
-    setatimes::Ptr{Void}
-    setpreconditioner::Ptr{Void}
-    setscalingvectors::Ptr{Void}
-    initialize::Ptr{Void}
-    setup::Ptr{Void}
-    solve::Ptr{Void}
-    numiters::Ptr{Void}
-    resnorm::Ptr{Void}
-    lastflag::Ptr{Void}
-    space::Ptr{Void}
-    resid::Ptr{Void}
-    free::Ptr{Void}
+    gettype::Ptr{Cvoid}
+    setatimes::Ptr{Cvoid}
+    setpreconditioner::Ptr{Cvoid}
+    setscalingvectors::Ptr{Cvoid}
+    initialize::Ptr{Cvoid}
+    setup::Ptr{Cvoid}
+    solve::Ptr{Cvoid}
+    numiters::Ptr{Cvoid}
+    resnorm::Ptr{Cvoid}
+    lastflag::Ptr{Cvoid}
+    space::Ptr{Cvoid}
+    resid::Ptr{Cvoid}
+    free::Ptr{Cvoid}
 end
 
 const SUNLinearSolver_Ops = Ptr{_generic_SUNLinearSolver_Ops}
 
 mutable struct _generic_SUNLinearSolver
-    content::Ptr{Void}
+    content::Ptr{Cvoid}
     ops::Ptr{_generic_SUNLinearSolver_Ops}
 end
 
@@ -155,21 +155,21 @@ const SUNMATRIX_CUSTOM = (UInt32)(3)
 # end enum SUNMatrix_ID
 
 mutable struct _generic_SUNMatrix_Ops
-    getid::Ptr{Void}
-    clone::Ptr{Void}
-    destroy::Ptr{Void}
-    zero::Ptr{Void}
-    copy::Ptr{Void}
-    scaleadd::Ptr{Void}
-    scaleaddi::Ptr{Void}
-    matvec::Ptr{Void}
-    space::Ptr{Void}
+    getid::Ptr{Cvoid}
+    clone::Ptr{Cvoid}
+    destroy::Ptr{Cvoid}
+    zero::Ptr{Cvoid}
+    copy::Ptr{Cvoid}
+    scaleadd::Ptr{Cvoid}
+    scaleaddi::Ptr{Cvoid}
+    matvec::Ptr{Cvoid}
+    space::Ptr{Cvoid}
 end
 
 const SUNMatrix_Ops = Ptr{_generic_SUNMatrix_Ops}
 
 mutable struct _generic_SUNMatrix
-    content::Ptr{Void}
+    content::Ptr{Cvoid}
     ops::Ptr{_generic_SUNMatrix_Ops}
 end
 
@@ -202,38 +202,38 @@ const SUNDIALS_NVEC_CUSTOM = (UInt32)(8)
 # end enum N_Vector_ID
 
 mutable struct _generic_N_Vector_Ops
-    nvgetvectorid::Ptr{Void}
-    nvclone::Ptr{Void}
-    nvcloneempty::Ptr{Void}
-    nvdestroy::Ptr{Void}
-    nvspace::Ptr{Void}
-    nvgetarraypointer::Ptr{Void}
-    nvsetarraypointer::Ptr{Void}
-    nvlinearsum::Ptr{Void}
-    nvconst::Ptr{Void}
-    nvprod::Ptr{Void}
-    nvdiv::Ptr{Void}
-    nvscale::Ptr{Void}
-    nvabs::Ptr{Void}
-    nvinv::Ptr{Void}
-    nvaddconst::Ptr{Void}
-    nvdotprod::Ptr{Void}
-    nvmaxnorm::Ptr{Void}
-    nvwrmsnorm::Ptr{Void}
-    nvwrmsnormmask::Ptr{Void}
-    nvmin::Ptr{Void}
-    nvwl2norm::Ptr{Void}
-    nvl1norm::Ptr{Void}
-    nvcompare::Ptr{Void}
-    nvinvtest::Ptr{Void}
-    nvconstrmask::Ptr{Void}
-    nvminquotient::Ptr{Void}
+    nvgetvectorid::Ptr{Cvoid}
+    nvclone::Ptr{Cvoid}
+    nvcloneempty::Ptr{Cvoid}
+    nvdestroy::Ptr{Cvoid}
+    nvspace::Ptr{Cvoid}
+    nvgetarraypointer::Ptr{Cvoid}
+    nvsetarraypointer::Ptr{Cvoid}
+    nvlinearsum::Ptr{Cvoid}
+    nvconst::Ptr{Cvoid}
+    nvprod::Ptr{Cvoid}
+    nvdiv::Ptr{Cvoid}
+    nvscale::Ptr{Cvoid}
+    nvabs::Ptr{Cvoid}
+    nvinv::Ptr{Cvoid}
+    nvaddconst::Ptr{Cvoid}
+    nvdotprod::Ptr{Cvoid}
+    nvmaxnorm::Ptr{Cvoid}
+    nvwrmsnorm::Ptr{Cvoid}
+    nvwrmsnormmask::Ptr{Cvoid}
+    nvmin::Ptr{Cvoid}
+    nvwl2norm::Ptr{Cvoid}
+    nvl1norm::Ptr{Cvoid}
+    nvcompare::Ptr{Cvoid}
+    nvinvtest::Ptr{Cvoid}
+    nvconstrmask::Ptr{Cvoid}
+    nvminquotient::Ptr{Cvoid}
 end
 
 const N_Vector_Ops = Ptr{_generic_N_Vector_Ops}
 
 mutable struct _generic_N_Vector
-    content::Ptr{Void}
+    content::Ptr{Cvoid}
     ops::Ptr{_generic_N_Vector_Ops}
 end
 
@@ -258,7 +258,7 @@ mutable struct PcgMemRec
     Ap::N_Vector
 end
 
-const PcgMem = Ptr{Void}
+const PcgMem = Ptr{Cvoid}
 const SPBCG_SUCCESS = Cint(0)
 const SPBCG_RES_REDUCED = Cint(1)
 const SPBCG_CONV_FAIL = Cint(2)
@@ -283,7 +283,7 @@ mutable struct SpbcgMemRec
     vtemp::N_Vector
 end
 
-const SpbcgMem = Ptr{Void}
+const SpbcgMem = Ptr{Cvoid}
 const SPFGMR_SUCCESS = Cint(0)
 const SPFGMR_RES_REDUCED = Cint(1)
 const SPFGMR_CONV_FAIL = Cint(2)
@@ -387,7 +387,7 @@ mutable struct SptfqmrMemRec
     vtemp3::N_Vector
 end
 
-const SptfqmrMem = Ptr{Void}
+const SptfqmrMem = Ptr{Cvoid}
 
 # Skipping MacroDefinition: RCONST ( x ) x #
 
@@ -429,10 +429,10 @@ const CV_BAD_K = Cint(-24)
 const CV_BAD_T = Cint(-25)
 const CV_BAD_DKY = Cint(-26)
 const CV_TOO_CLOSE = Cint(-27)
-const CVRhsFn = Ptr{Void}
-const CVRootFn = Ptr{Void}
-const CVEwtFn = Ptr{Void}
-const CVErrHandlerFn = Ptr{Void}
+const CVRhsFn = Ptr{Cvoid}
+const CVRootFn = Ptr{Cvoid}
+const CVEwtFn = Ptr{Cvoid}
+const CVErrHandlerFn = Ptr{Cvoid}
 const CV_SIMULTANEOUS = Cint(1)
 const CV_STAGGERED = Cint(2)
 const CV_STAGGERED1 = Cint(3)
@@ -463,18 +463,18 @@ const CV_BAD_TB0 = Cint(-104)
 const CV_REIFWD_FAIL = Cint(-105)
 const CV_FWD_FAIL = Cint(-106)
 const CV_GETY_BADT = Cint(-107)
-const CVQuadRhsFn = Ptr{Void}
-const CVSensRhsFn = Ptr{Void}
-const CVSensRhs1Fn = Ptr{Void}
-const CVQuadSensRhsFn = Ptr{Void}
-const CVRhsFnB = Ptr{Void}
-const CVRhsFnBS = Ptr{Void}
-const CVQuadRhsFnB = Ptr{Void}
-const CVQuadRhsFnBS = Ptr{Void}
+const CVQuadRhsFn = Ptr{Cvoid}
+const CVSensRhsFn = Ptr{Cvoid}
+const CVSensRhs1Fn = Ptr{Cvoid}
+const CVQuadSensRhsFn = Ptr{Cvoid}
+const CVRhsFnB = Ptr{Cvoid}
+const CVRhsFnBS = Ptr{Cvoid}
+const CVQuadRhsFnB = Ptr{Cvoid}
+const CVQuadRhsFnBS = Ptr{Cvoid}
 
 mutable struct CVadjCheckPointRec
-    my_addr::Ptr{Void}
-    next_addr::Ptr{Void}
+    my_addr::Ptr{Cvoid}
+    next_addr::Ptr{Cvoid}
     t0::realtype
     t1::realtype
     nstep::Clong
@@ -513,10 +513,10 @@ const IDA_BAD_K = Cint(-25)
 const IDA_BAD_T = Cint(-26)
 const IDA_BAD_DKY = Cint(-27)
 const IDA_UNRECOGNISED_ERROR = Cint(-99)
-const IDAResFn = Ptr{Void}
-const IDARootFn = Ptr{Void}
-const IDAEwtFn = Ptr{Void}
-const IDAErrHandlerFn = Ptr{Void}
+const IDAResFn = Ptr{Cvoid}
+const IDARootFn = Ptr{Cvoid}
+const IDAEwtFn = Ptr{Cvoid}
+const IDAErrHandlerFn = Ptr{Cvoid}
 const IDA_SIMULTANEOUS = Cint(1)
 const IDA_STAGGERED = Cint(2)
 const IDA_CENTERED = Cint(1)
@@ -543,17 +543,17 @@ const IDA_BAD_TB0 = Cint(-104)
 const IDA_REIFWD_FAIL = Cint(-105)
 const IDA_FWD_FAIL = Cint(-106)
 const IDA_GETY_BADT = Cint(-107)
-const IDAQuadRhsFn = Ptr{Void}
-const IDASensResFn = Ptr{Void}
-const IDAQuadSensRhsFn = Ptr{Void}
-const IDAResFnB = Ptr{Void}
-const IDAResFnBS = Ptr{Void}
-const IDAQuadRhsFnB = Ptr{Void}
-const IDAQuadRhsFnBS = Ptr{Void}
+const IDAQuadRhsFn = Ptr{Cvoid}
+const IDASensResFn = Ptr{Cvoid}
+const IDAQuadSensRhsFn = Ptr{Cvoid}
+const IDAResFnB = Ptr{Cvoid}
+const IDAResFnBS = Ptr{Cvoid}
+const IDAQuadRhsFnB = Ptr{Cvoid}
+const IDAQuadRhsFnBS = Ptr{Cvoid}
 
 mutable struct IDAadjCheckPointRec
-    my_addr::Ptr{Void}
-    next_addr::Ptr{Void}
+    my_addr::Ptr{Cvoid}
+    next_addr::Ptr{Cvoid}
     t0::realtype
     t1::realtype
     nstep::Clong
@@ -587,9 +587,9 @@ const KIN_NONE = Cint(0)
 const KIN_LINESEARCH = Cint(1)
 const KIN_PICARD = Cint(2)
 const KIN_FP = Cint(3)
-const KINSysFn = Ptr{Void}
-const KINErrHandlerFn = Ptr{Void}
-const KINInfoHandlerFn = Ptr{Void}
+const KINSysFn = Ptr{Cvoid}
+const KINErrHandlerFn = Ptr{Cvoid}
+const KINInfoHandlerFn = Ptr{Cvoid}
 const ARK_S_MAX = Cint(15)
 
 # Skipping MacroDefinition: ARK_A ( A , i , j ) ( A [ i * ARK_S_MAX + j ] ) /* itask */
@@ -671,15 +671,15 @@ const ARK_BAD_T = Cint(-25)
 const ARK_BAD_DKY = Cint(-26)
 const ARK_TOO_CLOSE = Cint(-27)
 const ARK_POSTPROCESS_FAIL = Cint(-28)
-const ARKRhsFn = Ptr{Void}
-const ARKRootFn = Ptr{Void}
-const ARKEwtFn = Ptr{Void}
-const ARKRwtFn = Ptr{Void}
-const ARKErrHandlerFn = Ptr{Void}
-const ARKAdaptFn = Ptr{Void}
-const ARKExpStabFn = Ptr{Void}
-const ARKVecResizeFn = Ptr{Void}
-const ARKPostProcessStepFn = Ptr{Void}
+const ARKRhsFn = Ptr{Cvoid}
+const ARKRootFn = Ptr{Cvoid}
+const ARKEwtFn = Ptr{Cvoid}
+const ARKRwtFn = Ptr{Cvoid}
+const ARKErrHandlerFn = Ptr{Cvoid}
+const ARKAdaptFn = Ptr{Cvoid}
+const ARKExpStabFn = Ptr{Cvoid}
+const ARKVecResizeFn = Ptr{Cvoid}
+const ARKPostProcessStepFn = Ptr{Cvoid}
 const ARKSPILS_SUCCESS = Cint(0)
 const ARKSPILS_MEM_NULL = Cint(-1)
 const ARKSPILS_LMEM_NULL = Cint(-2)
@@ -695,14 +695,14 @@ const ARKSPILS_MSBPRE = Cint(50)
 # ARKSPILS user-supplied function prototypes#
 # ===============================================================*/
 
-const ARKSpilsPrecSetupFn = Ptr{Void}
-const ARKSpilsPrecSolveFn = Ptr{Void}
-const ARKSpilsJacTimesSetupFn = Ptr{Void}
-const ARKSpilsJacTimesVecFn = Ptr{Void}
-const ARKSpilsMassTimesSetupFn = Ptr{Void}
-const ARKSpilsMassTimesVecFn = Ptr{Void}
-const ARKSpilsMassPrecSetupFn = Ptr{Void}
-const ARKSpilsMassPrecSolveFn = Ptr{Void}
+const ARKSpilsPrecSetupFn = Ptr{Cvoid}
+const ARKSpilsPrecSolveFn = Ptr{Cvoid}
+const ARKSpilsJacTimesSetupFn = Ptr{Cvoid}
+const ARKSpilsJacTimesVecFn = Ptr{Cvoid}
+const ARKSpilsMassTimesSetupFn = Ptr{Cvoid}
+const ARKSpilsMassTimesVecFn = Ptr{Cvoid}
+const ARKSpilsMassPrecSetupFn = Ptr{Cvoid}
+const ARKSpilsMassPrecSolveFn = Ptr{Cvoid}
 
 # Skipping MacroDefinition: SM_CONTENT_B ( A ) ( ( SUNMatrixContent_Band ) ( A -> content ) ) #
 # Skipping MacroDefinition: SM_ROWS_B ( A ) ( SM_CONTENT_B ( A ) -> M ) #
@@ -843,8 +843,8 @@ mutable struct _SlsMat
 end
 
 const SlsMat = Ptr{_SlsMat}
-const CVLocalFn = Ptr{Void}
-const CVCommFn = Ptr{Void}
+const CVLocalFn = Ptr{Cvoid}
+const CVCommFn = Ptr{Cvoid}
 const CVDIAG_SUCCESS = Cint(0)
 const CVDIAG_MEM_NULL = Cint(-1)
 const CVDIAG_LMEM_NULL = Cint(-2)
@@ -861,7 +861,7 @@ const CVDLS_MEM_FAIL = Cint(-4)
 const CVDLS_JACFUNC_UNRECVR = Cint(-5)
 const CVDLS_JACFUNC_RECVR = Cint(-6)
 const CVDLS_SUNMAT_FAIL = Cint(-7)
-const CVDlsJacFn = Ptr{Void}
+const CVDlsJacFn = Ptr{Cvoid}
 const CVSPILS_SUCCESS = Cint(0)
 const CVSPILS_MEM_NULL = Cint(-1)
 const CVSPILS_LMEM_NULL = Cint(-2)
@@ -876,17 +876,17 @@ const CVSPILS_MSBPRE = Cint(50)
 #  CVSPILS user-supplied function prototypes#
 #  ===============================================================*/
 
-const CVSpilsPrecSetupFn = Ptr{Void}
-const CVSpilsPrecSolveFn = Ptr{Void}
-const CVSpilsJacTimesSetupFn = Ptr{Void}
-const CVSpilsJacTimesVecFn = Ptr{Void}
-const CVLocalFnB = Ptr{Void}
-const CVCommFnB = Ptr{Void}
+const CVSpilsPrecSetupFn = Ptr{Cvoid}
+const CVSpilsPrecSolveFn = Ptr{Cvoid}
+const CVSpilsJacTimesSetupFn = Ptr{Cvoid}
+const CVSpilsJacTimesVecFn = Ptr{Cvoid}
+const CVLocalFnB = Ptr{Cvoid}
+const CVCommFnB = Ptr{Cvoid}
 const CVDIAG_NO_ADJ = Cint(-101)
 const CVDLS_NO_ADJ = Cint(-101)
 const CVDLS_LMEMB_NULL = Cint(-102)
-const CVDlsJacFnB = Ptr{Void}
-const CVDlsJacFnBS = Ptr{Void}
+const CVDlsJacFnB = Ptr{Cvoid}
+const CVDlsJacFnBS = Ptr{Cvoid}
 const CVSPILS_NO_ADJ = Cint(-101)
 const CVSPILS_LMEMB_NULL = Cint(-102)
 
@@ -894,16 +894,16 @@ const CVSPILS_LMEMB_NULL = Cint(-102)
 #  PART I - forward problems#
 #  -----------------------------------------------------------------*/
 
-const CVSpilsPrecSetupFnB = Ptr{Void}
-const CVSpilsPrecSetupFnBS = Ptr{Void}
-const CVSpilsPrecSolveFnB = Ptr{Void}
-const CVSpilsPrecSolveFnBS = Ptr{Void}
-const CVSpilsJacTimesSetupFnB = Ptr{Void}
-const CVSpilsJacTimesSetupFnBS = Ptr{Void}
-const CVSpilsJacTimesVecFnB = Ptr{Void}
-const CVSpilsJacTimesVecFnBS = Ptr{Void}
-const IDABBDLocalFn = Ptr{Void}
-const IDABBDCommFn = Ptr{Void}
+const CVSpilsPrecSetupFnB = Ptr{Cvoid}
+const CVSpilsPrecSetupFnBS = Ptr{Cvoid}
+const CVSpilsPrecSolveFnB = Ptr{Cvoid}
+const CVSpilsPrecSolveFnBS = Ptr{Cvoid}
+const CVSpilsJacTimesSetupFnB = Ptr{Cvoid}
+const CVSpilsJacTimesSetupFnBS = Ptr{Cvoid}
+const CVSpilsJacTimesVecFnB = Ptr{Cvoid}
+const CVSpilsJacTimesVecFnBS = Ptr{Cvoid}
+const IDABBDLocalFn = Ptr{Cvoid}
+const IDABBDCommFn = Ptr{Cvoid}
 const IDADLS_SUCCESS = Cint(0)
 const IDADLS_MEM_NULL = Cint(-1)
 const IDADLS_LMEM_NULL = Cint(-2)
@@ -912,7 +912,7 @@ const IDADLS_MEM_FAIL = Cint(-4)
 const IDADLS_JACFUNC_UNRECVR = Cint(-5)
 const IDADLS_JACFUNC_RECVR = Cint(-6)
 const IDADLS_SUNMAT_FAIL = Cint(-7)
-const IDADlsJacFn = Ptr{Void}
+const IDADlsJacFn = Ptr{Cvoid}
 const IDASPILS_SUCCESS = Cint(0)
 const IDASPILS_MEM_NULL = Cint(-1)
 const IDASPILS_LMEM_NULL = Cint(-2)
@@ -920,31 +920,31 @@ const IDASPILS_ILL_INPUT = Cint(-3)
 const IDASPILS_MEM_FAIL = Cint(-4)
 const IDASPILS_PMEM_NULL = Cint(-5)
 const IDASPILS_SUNLS_FAIL = Cint(-6)
-const IDASpilsPrecSetupFn = Ptr{Void}
-const IDASpilsPrecSolveFn = Ptr{Void}
-const IDASpilsJacTimesSetupFn = Ptr{Void}
-const IDASpilsJacTimesVecFn = Ptr{Void}
-const IDABBDLocalFnB = Ptr{Void}
-const IDABBDCommFnB = Ptr{Void}
+const IDASpilsPrecSetupFn = Ptr{Cvoid}
+const IDASpilsPrecSolveFn = Ptr{Cvoid}
+const IDASpilsJacTimesSetupFn = Ptr{Cvoid}
+const IDASpilsJacTimesVecFn = Ptr{Cvoid}
+const IDABBDLocalFnB = Ptr{Cvoid}
+const IDABBDCommFnB = Ptr{Cvoid}
 const IDADLS_NO_ADJ = Cint(-101)
 const IDADLS_LMEMB_NULL = Cint(-102)
-const IDADlsJacFnB = Ptr{Void}
-const IDADlsJacFnBS = Ptr{Void}
+const IDADlsJacFnB = Ptr{Cvoid}
+const IDADlsJacFnBS = Ptr{Cvoid}
 const IDASPILS_NO_ADJ = Cint(-101)
 const IDASPILS_LMEMB_NULL = Cint(-102)
-const IDASpilsPrecSetupFnB = Ptr{Void}
-const IDASpilsPrecSetupFnBS = Ptr{Void}
-const IDASpilsPrecSolveFnB = Ptr{Void}
-const IDASpilsPrecSolveFnBS = Ptr{Void}
-const IDASpilsJacTimesSetupFnB = Ptr{Void}
-const IDASpilsJacTimesSetupFnBS = Ptr{Void}
-const IDASpilsJacTimesVecFnB = Ptr{Void}
-const IDASpilsJacTimesVecFnBS = Ptr{Void}
+const IDASpilsPrecSetupFnB = Ptr{Cvoid}
+const IDASpilsPrecSetupFnBS = Ptr{Cvoid}
+const IDASpilsPrecSolveFnB = Ptr{Cvoid}
+const IDASpilsPrecSolveFnBS = Ptr{Cvoid}
+const IDASpilsJacTimesSetupFnB = Ptr{Cvoid}
+const IDASpilsJacTimesSetupFnBS = Ptr{Cvoid}
+const IDASpilsJacTimesVecFnB = Ptr{Cvoid}
+const IDASpilsJacTimesVecFnBS = Ptr{Cvoid}
 const KINBBDPRE_SUCCESS = Cint(0)
 const KINBBDPRE_PDATA_NULL = Cint(-11)
 const KINBBDPRE_FUNC_UNRECVR = Cint(-12)
-const KINBBDCommFn = Ptr{Void}
-const KINBBDLocalFn = Ptr{Void}
+const KINBBDCommFn = Ptr{Cvoid}
+const KINBBDLocalFn = Ptr{Cvoid}
 const KINDLS_SUCCESS = Cint(0)
 const KINDLS_MEM_NULL = Cint(-1)
 const KINDLS_LMEM_NULL = Cint(-2)
@@ -952,7 +952,7 @@ const KINDLS_ILL_INPUT = Cint(-3)
 const KINDLS_MEM_FAIL = Cint(-4)
 const KINDLS_JACFUNC_ERR = Cint(-5)
 const KINDLS_SUNMAT_FAIL = Cint(-6)
-const KINDlsJacFn = Ptr{Void}
+const KINDlsJacFn = Ptr{Cvoid}
 const KINSPILS_SUCCESS = Cint(0)
 const KINSPILS_MEM_NULL = Cint(-1)
 const KINSPILS_LMEM_NULL = Cint(-2)
@@ -960,11 +960,11 @@ const KINSPILS_ILL_INPUT = Cint(-3)
 const KINSPILS_MEM_FAIL = Cint(-4)
 const KINSPILS_PMEM_NULL = Cint(-5)
 const KINSPILS_SUNLS_FAIL = Cint(-6)
-const KINSpilsPrecSetupFn = Ptr{Void}
-const KINSpilsPrecSolveFn = Ptr{Void}
-const KINSpilsJacTimesVecFn = Ptr{Void}
-const ARKLocalFn = Ptr{Void}
-const ARKCommFn = Ptr{Void}
+const KINSpilsPrecSetupFn = Ptr{Cvoid}
+const KINSpilsPrecSolveFn = Ptr{Cvoid}
+const KINSpilsJacTimesVecFn = Ptr{Cvoid}
+const ARKLocalFn = Ptr{Cvoid}
+const ARKCommFn = Ptr{Cvoid}
 const ARKDLS_SUCCESS = Cint(0)
 const ARKDLS_MEM_NULL = Cint(-1)
 const ARKDLS_LMEM_NULL = Cint(-2)
@@ -976,8 +976,8 @@ const ARKDLS_JACFUNC_RECVR = Cint(-7)
 const ARKDLS_MASSFUNC_UNRECVR = Cint(-8)
 const ARKDLS_MASSFUNC_RECVR = Cint(-9)
 const ARKDLS_SUNMAT_FAIL = Cint(-10)
-const ARKDlsJacFn = Ptr{Void}
-const ARKDlsMassFn = Ptr{Void}
+const ARKDlsJacFn = Ptr{Cvoid}
+const ARKDlsMassFn = Ptr{Cvoid}
 
 mutable struct _SUNLinearSolverContent_Band
     N::sunindextype
@@ -1003,10 +1003,10 @@ mutable struct _SUNLinearSolverContent_PCG
     resnorm::realtype
     last_flag::Clong
     ATimes::ATimesFn
-    ATData::Ptr{Void}
+    ATData::Ptr{Cvoid}
     Psetup::PSetupFn
     Psolve::PSolveFn
-    PData::Ptr{Void}
+    PData::Ptr{Cvoid}
     s::N_Vector
     r::N_Vector
     p::N_Vector
@@ -1024,10 +1024,10 @@ mutable struct _SUNLinearSolverContent_SPBCGS
     resnorm::realtype
     last_flag::Clong
     ATimes::ATimesFn
-    ATData::Ptr{Void}
+    ATData::Ptr{Cvoid}
     Psetup::PSetupFn
     Psolve::PSolveFn
-    PData::Ptr{Void}
+    PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
     r::N_Vector
@@ -1053,10 +1053,10 @@ mutable struct _SUNLinearSolverContent_SPFGMR
     resnorm::realtype
     last_flag::Clong
     ATimes::ATimesFn
-    ATData::Ptr{Void}
+    ATData::Ptr{Cvoid}
     Psetup::PSetupFn
     Psolve::PSolveFn
-    PData::Ptr{Void}
+    PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
     V::Ptr{N_Vector}
@@ -1082,10 +1082,10 @@ mutable struct _SUNLinearSolverContent_SPGMR
     resnorm::realtype
     last_flag::Clong
     ATimes::ATimesFn
-    ATData::Ptr{Void}
+    ATData::Ptr{Cvoid}
     Psetup::PSetupFn
     Psolve::PSolveFn
-    PData::Ptr{Void}
+    PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
     V::Ptr{N_Vector}
@@ -1106,10 +1106,10 @@ mutable struct _SUNLinearSolverContent_SPTFQMR
     resnorm::realtype
     last_flag::Clong
     ATimes::ATimesFn
-    ATData::Ptr{Void}
+    ATData::Ptr{Cvoid}
     Psetup::PSetupFn
     Psolve::PSolveFn
-    PData::Ptr{Void}
+    PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
     r_star::N_Vector

@@ -26,10 +26,10 @@ end
 # broken -- needs a wrapper from Sundials._DlsMat to Matrix and Jac user function wrapper
 function Jac(N, t, ny, fy, Jptr, user_data, tmp1, tmp2, tmp3)
     y = convert(Vector, ny)
-    dlsmat = unpack(IOString(@compat unsafe_wrap(convert(Ptr{UInt8}, Jptr),
+    dlsmat = unpack(IOString(unsafe_wrap(convert(Ptr{UInt8}, Jptr),
                                                  (sum(map(sizeof, Sundials._DlsMat))+10,), false)),
                     Sundials._DlsMat)
-    J = @compat unsafe_wrap(unsafe_ref(dlsmat.cols), (Int(neq), Int(neq)), false)
+    J = unsafe_wrap(unsafe_ref(dlsmat.cols), (Int(neq), Int(neq)), false)
     J[1,1] = -0.04
     J[1,2] = 1.0e4*y[3]
     J[1,3] = 1.0e4*y[2]

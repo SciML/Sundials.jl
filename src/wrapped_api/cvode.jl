@@ -11,7 +11,7 @@ function CVodeCreate(lmm, iter)
 end
 
 function CVodeSetErrHandlerFn(cvode_mem, ehfun::CVErrHandlerFn, eh_data)
-    ccall((:CVodeSetErrHandlerFn, libsundials_cvode), Cint, (CVODEMemPtr, CVErrHandlerFn, Ptr{Void}), cvode_mem, ehfun, eh_data)
+    ccall((:CVodeSetErrHandlerFn, libsundials_cvode), Cint, (CVODEMemPtr, CVErrHandlerFn, Ptr{Cvoid}), cvode_mem, ehfun, eh_data)
 end
 
 function CVodeSetErrFile(cvode_mem, errfp)
@@ -278,7 +278,7 @@ function CVodeGetReturnFlagName(flag)
 end
 
 function CVodeFree(cvode_mem)
-    ccall((:CVodeFree, libsundials_cvode), Void, (Ref{CVODEMemPtr},), cvode_mem)
+    ccall((:CVodeFree, libsundials_cvode), Cvoid, (Ref{CVODEMemPtr},), cvode_mem)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/cvode/cvode_bandpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0

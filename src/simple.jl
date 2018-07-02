@@ -24,15 +24,15 @@ macro checkflag(ex,throw_error=false)
     end
 end
 
-type UserFunctionAndData{F}
+mutable struct UserFunctionAndData{F}
     func::F
     data::Any
 
-    (::Type{UserFunctionAndData{F}}){F}(func, data) = new{F}(func, data)
+    UserFunctionAndData{F}(func, data) where {F} = new{F}(func, data)
 end
 
 UserFunctionAndData(func) = func
-UserFunctionAndData(func, data::Void) = func
+UserFunctionAndData(func, data::Nothing) = func
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
     userfun[].func(convert(Vector, fy), convert(Vector, y), userfun[].data)
@@ -93,7 +93,7 @@ function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun)
 end
 
 abstract type AbstactFunJac{J2} end
-type FunJac{F, F2, J, P, J2} <: AbstactFunJac{J2}
+mutable struct FunJac{F, F2, J, P, J2} <: AbstactFunJac{J2}
     fun::F
     fun2::F2
     jac::J
@@ -122,7 +122,7 @@ function cvodejac(t::realtype,
                   x::N_Vector,
                   ẋ::N_Vector,
                   J::SUNMatrix,
-                  funjac::AbstactFunJac{Void},
+                  funjac::AbstactFunJac{Nothing},
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
@@ -242,7 +242,7 @@ function idajac(t::realtype,
                 dx::N_Vector,
                 res::N_Vector,
                 J::SUNMatrix,
-                funjac::AbstactFunJac{Void},
+                funjac::AbstactFunJac{Nothing},
                 tmp1::N_Vector,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
@@ -293,7 +293,7 @@ return: (y,yp) two solution matrices representing the states and state derivativ
          with time steps in `t` along rows and state variable `y` or `yp` along columns
 """
 function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-                reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Void}=nothing)
+                reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Nothing}=nothing)
     mem_ptr = IDACreate()
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)

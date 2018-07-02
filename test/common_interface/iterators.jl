@@ -1,4 +1,4 @@
-using DiffEqProblemLibrary, Sundials, Base.Test
+using DiffEqProblemLibrary, Sundials, Test
 
 prob = prob_ode_2Dlinear
 integrator = init(prob,CVODE_BDF())

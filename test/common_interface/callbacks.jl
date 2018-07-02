@@ -1,4 +1,4 @@
-using Sundials, Base.Test
+using Sundials, Test
 
 callback_f = function (du, u, p, t)
   du[1] = u[2]
