@@ -5,7 +5,7 @@ abstract type SundialsODEAlgorithm{Method,LinearSolver} <: AbstractODEAlgorithm 
 abstract type SundialsDAEAlgorithm{LinearSolver} <: AbstractDAEAlgorithm end
 
 # ODE Algorithms
-immutable CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver}
+struct CVODE_BDF{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver}
     jac_upper::Int
     jac_lower::Int
     stored_upper::Int
@@ -40,7 +40,7 @@ Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
                                     max_convergence_failures)
 end
 
-immutable CVODE_Adams{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver}
+struct CVODE_Adams{Method,LinearSolver} <: SundialsODEAlgorithm{Method,LinearSolver}
     jac_upper::Int
     jac_lower::Int
     stored_upper::Int
@@ -78,7 +78,7 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                                       max_convergence_failures)
 end
 
-immutable ARKODE{Method,LinearSolver,T,T1,T2} <: SundialsODEAlgorithm{Method,LinearSolver}
+struct ARKODE{Method,LinearSolver,T,T1,T2} <: SundialsODEAlgorithm{Method,LinearSolver}
     stiffness::T
     jac_upper::Int
     jac_lower::Int
@@ -149,7 +149,7 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
 end
 
 # DAE Algorithms
-immutable IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver}
+struct IDA{LinearSolver} <: SundialsDAEAlgorithm{LinearSolver}
   jac_upper::Int
   jac_lower::Int
   stored_upper::Int

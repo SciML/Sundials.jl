@@ -9,7 +9,7 @@
 
 ## % Radu Serban <radu@llnl.gov>
 
-using Sundials, Base.Test
+using Sundials, Test
 
 ## function to be optimized
 function sysfn(y_nv, fy_nv, a_in)

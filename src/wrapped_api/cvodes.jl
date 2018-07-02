@@ -141,23 +141,23 @@ function CVodeRootInit(cvode_mem, nrtfn, g)
 end
 
 function CVodeFree(cvode_mem)
-    ccall((:CVodeFree, libsundials_cvodes), Void, (Ref{CVODEMemPtr},), cvode_mem)
+    ccall((:CVodeFree, libsundials_cvodes), Cvoid, (Ref{CVODEMemPtr},), cvode_mem)
 end
 
 function CVodeQuadFree(cvode_mem)
-    ccall((:CVodeQuadFree, libsundials_cvodes), Void, (CVODEMemPtr,), cvode_mem)
+    ccall((:CVodeQuadFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeSensFree(cvode_mem)
-    ccall((:CVodeSensFree, libsundials_cvodes), Void, (CVODEMemPtr,), cvode_mem)
+    ccall((:CVodeSensFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeQuadSensFree(cvode_mem)
-    ccall((:CVodeQuadSensFree, libsundials_cvodes), Void, (CVODEMemPtr,), cvode_mem)
+    ccall((:CVodeQuadSensFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeSetErrHandlerFn(cvode_mem, ehfun::CVErrHandlerFn, eh_data)
-    ccall((:CVodeSetErrHandlerFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVErrHandlerFn, Ptr{Void}), cvode_mem, ehfun, eh_data)
+    ccall((:CVodeSetErrHandlerFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVErrHandlerFn, Ptr{Cvoid}), cvode_mem, ehfun, eh_data)
 end
 
 function CVodeSetErrFile(cvode_mem, errfp)
@@ -600,7 +600,7 @@ function CVodeAdjReInit(cvode_mem)
 end
 
 function CVodeAdjFree(cvode_mem)
-    ccall((:CVodeAdjFree, libsundials_cvodes), Void, (CVODEMemPtr,), cvode_mem)
+    ccall((:CVodeAdjFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function __CVodeCreateB(cvode_mem, lmmB::Cint, iterB::Cint, which)
@@ -811,7 +811,7 @@ function CVodeGetQuadB(cvode_mem, which, tBret, qB)
 end
 
 function __CVodeGetAdjCVodeBmem(cvode_mem, which::Cint)
-    ccall((:CVodeGetAdjCVodeBmem, libsundials_cvodes), Ptr{Void}, (CVODEMemPtr, Cint), cvode_mem, which)
+    ccall((:CVodeGetAdjCVodeBmem, libsundials_cvodes), Ptr{Cvoid}, (CVODEMemPtr, Cint), cvode_mem, which)
 end
 
 function CVodeGetAdjCVodeBmem(cvode_mem, which)
@@ -851,7 +851,7 @@ function CVodeGetAdjDataPointPolynomial(cvode_mem, which, t, order, y)
 end
 
 function CVodeGetAdjCurrentCheckPoint(cvode_mem, addr)
-    ccall((:CVodeGetAdjCurrentCheckPoint, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Ptr{Void}}), cvode_mem, addr)
+    ccall((:CVodeGetAdjCurrentCheckPoint, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Ptr{Cvoid}}), cvode_mem, addr)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/cvodes/cvodes_bandpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0

@@ -1,11 +1,11 @@
 ## Common Interface Solve Functions
 
-function DiffEqBase.solve{algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorithm},
-                          recompile_flag}(
+function DiffEqBase.solve(
   prob::Union{AbstractODEProblem,AbstractDAEProblem},
   alg::algType,timeseries=[],ts=[],ks=[],
   recompile::Type{Val{recompile_flag}}=Val{true};
-  kwargs...)
+  kwargs...) where {algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorithm},
+                    recompile_flag}
 
   integrator = DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
   if integrator.sol.retcode == :Default
@@ -14,7 +14,7 @@ function DiffEqBase.solve{algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorit
   integrator.sol
 end
 
-function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
+function DiffEqBase.init(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
@@ -33,13 +33,13 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
-    kwargs...)
+    kwargs...) where {uType, tType, isinplace, Method, LinearSolver}
 
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
             if has_tgrad(prob.f)
-                warn("Explicit t-gradient given to this stiff solver is ignored.")
+                @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
         end
@@ -98,9 +98,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && CVodeSetErrHandlerFn(mem,cfunction(null_error_handler, Void,
+    !verbose && CVodeSetErrHandlerFn(mem,cfunction(null_error_handler, Nothing,
                                     (Cint, Char,
-                                    Char, Ptr{Void})),C_NULL)
+                                    Char, Ptr{Cvoid})),C_NULL)
 
     ures  = Vector{uType}()
     dures = Vector{uType}()
@@ -228,7 +228,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
-function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
+function DiffEqBase.init(
     prob::AbstractODEProblem{uType, tType, isinplace},
     alg::ARKODE{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
@@ -245,13 +245,13 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
-    kwargs...)
+    kwargs...) where {uType, tType, isinplace, Method, LinearSolver}
 
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
             if has_tgrad(prob.f)
-                warn("Explicit t-gradient given to this stiff solver is ignored.")
+                @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
         end
@@ -286,9 +286,9 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && ARKodeSetErrHandlerFn(mem,cfunction(null_error_handler, Void,
+    !verbose && ARKodeSetErrHandlerFn(mem,cfunction(null_error_handler, Nothing,
                                     (Cint, Char,
-                                    Char, Ptr{Void})),C_NULL)
+                                    Char, Ptr{Cvoid})),C_NULL)
 
     ures  = Vector{uType}()
     dures = Vector{uType}()
@@ -529,7 +529,7 @@ end
 
 ## Solve for DAEs uses IDA
 
-function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
+function DiffEqBase.init(
     prob::AbstractDAEProblem{uType, duType, tType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
@@ -545,13 +545,13 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     save_timeseries=nothing, save_end = true,
     advance_to_tstop = false, stop_at_next_tstop = false,
     userdata=nothing,
-    kwargs...)
+    kwargs...) where {uType, duType, tType, isinplace, LinearSolver}
 
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
         if !(typeof(prob.f) <: AbstractParameterizedFunction)
             if has_tgrad(prob.f)
-                warn("Explicit t-gradient given to this stiff solver is ignored.")
+                @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
         end
@@ -603,9 +603,9 @@ function DiffEqBase.init{uType, duType, tType, isinplace, LinearSolver}(
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && IDASetErrHandlerFn(mem,cfunction(null_error_handler, Void,
+    !verbose && IDASetErrHandlerFn(mem,cfunction(null_error_handler, Nothing,
                                     (Cint, Char,
-                                    Char, Ptr{Void})),C_NULL)
+                                    Char, Ptr{Cvoid})),C_NULL)
 
     ures = Vector{uType}()
     dures = Vector{uType}()

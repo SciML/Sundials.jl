@@ -7,7 +7,7 @@ function IDACreate()
 end
 
 function IDASetErrHandlerFn(ida_mem, ehfun::IDAErrHandlerFn, eh_data)
-    ccall((:IDASetErrHandlerFn, libsundials_idas), Cint, (IDAMemPtr, IDAErrHandlerFn, Ptr{Void}), ida_mem, ehfun, eh_data)
+    ccall((:IDASetErrHandlerFn, libsundials_idas), Cint, (IDAMemPtr, IDAErrHandlerFn, Ptr{Cvoid}), ida_mem, ehfun, eh_data)
 end
 
 function IDASetErrFile(ida_mem, errfp)
@@ -623,19 +623,19 @@ function IDAGetReturnFlagName(flag)
 end
 
 function IDAFree(ida_mem)
-    ccall((:IDAFree, libsundials_idas), Void, (Ref{IDAMemPtr},), ida_mem)
+    ccall((:IDAFree, libsundials_idas), Cvoid, (Ref{IDAMemPtr},), ida_mem)
 end
 
 function IDAQuadFree(ida_mem)
-    ccall((:IDAQuadFree, libsundials_idas), Void, (IDAMemPtr,), ida_mem)
+    ccall((:IDAQuadFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function IDASensFree(ida_mem)
-    ccall((:IDASensFree, libsundials_idas), Void, (IDAMemPtr,), ida_mem)
+    ccall((:IDASensFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function IDAQuadSensFree(ida_mem)
-    ccall((:IDAQuadSensFree, libsundials_idas), Void, (IDAMemPtr,), ida_mem)
+    ccall((:IDAQuadSensFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function __IDAAdjInit(ida_mem, steps::Clong, interp::Cint)
@@ -651,7 +651,7 @@ function IDAAdjReInit(ida_mem)
 end
 
 function IDAAdjFree(ida_mem)
-    ccall((:IDAAdjFree, libsundials_idas), Void, (IDAMemPtr,), ida_mem)
+    ccall((:IDAAdjFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function IDACreateB(ida_mem, which)
@@ -885,7 +885,7 @@ function IDAGetQuadB(ida_mem, which, tret, qB)
 end
 
 function __IDAGetAdjIDABmem(ida_mem, which::Cint)
-    ccall((:IDAGetAdjIDABmem, libsundials_idas), Ptr{Void}, (IDAMemPtr, Cint), ida_mem, which)
+    ccall((:IDAGetAdjIDABmem, libsundials_idas), Ptr{Cvoid}, (IDAMemPtr, Cint), ida_mem, which)
 end
 
 function IDAGetAdjIDABmem(ida_mem, which)
@@ -936,7 +936,7 @@ function IDAGetAdjDataPointPolynomial(ida_mem, which, t, order, y)
 end
 
 function IDAGetAdjCurrentCheckPoint(ida_mem, addr)
-    ccall((:IDAGetAdjCurrentCheckPoint, libsundials_idas), Cint, (IDAMemPtr, Ptr{Ptr{Void}}), ida_mem, addr)
+    ccall((:IDAGetAdjCurrentCheckPoint, libsundials_idas), Cint, (IDAMemPtr, Ptr{Ptr{Cvoid}}), ida_mem, addr)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/idas/idas_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0

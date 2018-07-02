@@ -15,7 +15,7 @@ function ARKodeSetOptimalParams(arkode_mem)
 end
 
 function ARKodeSetErrHandlerFn(arkode_mem, ehfun::ARKErrHandlerFn, eh_data)
-    ccall((:ARKodeSetErrHandlerFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKErrHandlerFn, Ptr{Void}), arkode_mem, ehfun, eh_data)
+    ccall((:ARKodeSetErrHandlerFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
 end
 
 function ARKodeSetErrFile(arkode_mem, errfp)
@@ -195,7 +195,7 @@ function ARKodeSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_para
 end
 
 function ARKodeSetAdaptivityFn(arkode_mem, hfun::ARKAdaptFn, h_data)
-    ccall((:ARKodeSetAdaptivityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKAdaptFn, Ptr{Void}), arkode_mem, hfun, h_data)
+    ccall((:ARKodeSetAdaptivityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data)
 end
 
 function ARKodeSetMaxFirstGrowth(arkode_mem, etamx1::realtype)
@@ -247,7 +247,7 @@ function ARKodeSetPredictorMethod(arkode_mem, method)
 end
 
 function ARKodeSetStabilityFn(arkode_mem, EStab::ARKExpStabFn, estab_data)
-    ccall((:ARKodeSetStabilityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKExpStabFn, Ptr{Void}), arkode_mem, EStab, estab_data)
+    ccall((:ARKodeSetStabilityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data)
 end
 
 function __ARKodeSetMaxErrTestFails(arkode_mem, maxnef::Cint)
@@ -309,7 +309,7 @@ function ARKodeReInit(arkode_mem, fe, fi, t0, y0)
 end
 
 function __ARKodeResize(arkode_mem, ynew::N_Vector, hscale::realtype, t0::realtype, resize::ARKVecResizeFn, resize_data)
-    ccall((:ARKodeResize, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Void}), arkode_mem, ynew, hscale, t0, resize, resize_data)
+    ccall((:ARKodeResize, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, hscale, t0, resize, resize_data)
 end
 
 function ARKodeResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
@@ -517,7 +517,7 @@ function ARKodeWriteButcher(arkode_mem, fp)
 end
 
 function ARKodeFree(arkode_mem)
-    ccall((:ARKodeFree, libsundials_arkode), Void, (Ref{ARKODEMemPtr},), arkode_mem)
+    ccall((:ARKodeFree, libsundials_arkode), Cvoid, (Ref{ARKODEMemPtr},), arkode_mem)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode_spils.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
@@ -556,7 +556,7 @@ function ARKSpilsSetJacTimes(arkode_mem, jtsetup::ARKSpilsJacTimesSetupFn, jtime
 end
 
 function ARKSpilsSetMassTimes(arkode_mem, msetup::ARKSpilsMassTimesSetupFn, mtimes::ARKSpilsMassTimesVecFn, mtimes_data)
-    ccall((:ARKSpilsSetMassTimes, libsundials_arkode), Cint, (ARKODEMemPtr, ARKSpilsMassTimesSetupFn, ARKSpilsMassTimesVecFn, Ptr{Void}), arkode_mem, msetup, mtimes, mtimes_data)
+    ccall((:ARKSpilsSetMassTimes, libsundials_arkode), Cint, (ARKODEMemPtr, ARKSpilsMassTimesSetupFn, ARKSpilsMassTimesVecFn, Ptr{Cvoid}), arkode_mem, msetup, mtimes, mtimes_data)
 end
 
 function ARKSpilsGetWorkSpace(arkode_mem, lenrwLS, leniwLS)

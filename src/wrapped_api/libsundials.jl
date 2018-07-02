@@ -22,11 +22,11 @@ function SUNLinSolGetType(S::SUNLinearSolver)
 end
 
 function SUNLinSolSetATimes(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Void}, ATimesFn), S, A_data, ATimes)
+    ccall((:SUNLinSolSetATimes, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
 end
 
 function SUNLinSolSetPreconditioner(S::SUNLinearSolver, P_data, Pset::PSetupFn, Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Void}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+    ccall((:SUNLinSolSetPreconditioner, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
 function __SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::N_Vector, s2::N_Vector)
@@ -93,7 +93,7 @@ function SUNMatClone(A::SUNMatrix)
 end
 
 function SUNMatDestroy(A::SUNMatrix)
-    ccall((:SUNMatDestroy, libsundials_sundials), Void, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy, libsundials_sundials), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero(A::SUNMatrix)
@@ -157,7 +157,7 @@ function N_VCloneEmpty(w)
 end
 
 function __N_VDestroy(v::N_Vector)
-    ccall((:N_VDestroy, libsundials_sundials), Void, (N_Vector,), v)
+    ccall((:N_VDestroy, libsundials_sundials), Cvoid, (N_Vector,), v)
 end
 
 function N_VDestroy(v)
@@ -166,7 +166,7 @@ function N_VDestroy(v)
 end
 
 function __N_VSpace(v::N_Vector, lrw, liw)
-    ccall((:N_VSpace, libsundials_sundials), Void, (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
+    ccall((:N_VSpace, libsundials_sundials), Cvoid, (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
 end
 
 function N_VSpace(v, lrw, liw)
@@ -184,7 +184,7 @@ function N_VGetArrayPointer(v)
 end
 
 function __N_VSetArrayPointer(v_data, v::N_Vector)
-    ccall((:N_VSetArrayPointer, libsundials_sundials), Void, (Ptr{realtype}, N_Vector), v_data, v)
+    ccall((:N_VSetArrayPointer, libsundials_sundials), Cvoid, (Ptr{realtype}, N_Vector), v_data, v)
 end
 
 function N_VSetArrayPointer(v_data, v)
@@ -193,7 +193,7 @@ function N_VSetArrayPointer(v_data, v)
 end
 
 function __N_VLinearSum(a::realtype, x::N_Vector, b::realtype, y::N_Vector, z::N_Vector)
-    ccall((:N_VLinearSum, libsundials_sundials), Void, (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
+    ccall((:N_VLinearSum, libsundials_sundials), Cvoid, (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
 
 function N_VLinearSum(a, x, b, y, z)
@@ -204,7 +204,7 @@ function N_VLinearSum(a, x, b, y, z)
 end
 
 function __N_VConst(c::realtype, z::N_Vector)
-    ccall((:N_VConst, libsundials_sundials), Void, (realtype, N_Vector), c, z)
+    ccall((:N_VConst, libsundials_sundials), Cvoid, (realtype, N_Vector), c, z)
 end
 
 function N_VConst(c, z)
@@ -213,7 +213,7 @@ function N_VConst(c, z)
 end
 
 function __N_VProd(x::N_Vector, y::N_Vector, z::N_Vector)
-    ccall((:N_VProd, libsundials_sundials), Void, (N_Vector, N_Vector, N_Vector), x, y, z)
+    ccall((:N_VProd, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
 function N_VProd(x, y, z)
@@ -224,7 +224,7 @@ function N_VProd(x, y, z)
 end
 
 function __N_VDiv(x::N_Vector, y::N_Vector, z::N_Vector)
-    ccall((:N_VDiv, libsundials_sundials), Void, (N_Vector, N_Vector, N_Vector), x, y, z)
+    ccall((:N_VDiv, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
 function N_VDiv(x, y, z)
@@ -235,7 +235,7 @@ function N_VDiv(x, y, z)
 end
 
 function __N_VScale(c::realtype, x::N_Vector, z::N_Vector)
-    ccall((:N_VScale, libsundials_sundials), Void, (realtype, N_Vector, N_Vector), c, x, z)
+    ccall((:N_VScale, libsundials_sundials), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
 function N_VScale(c, x, z)
@@ -245,7 +245,7 @@ function N_VScale(c, x, z)
 end
 
 function __N_VAbs(x::N_Vector, z::N_Vector)
-    ccall((:N_VAbs, libsundials_sundials), Void, (N_Vector, N_Vector), x, z)
+    ccall((:N_VAbs, libsundials_sundials), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VAbs(x, z)
@@ -255,7 +255,7 @@ function N_VAbs(x, z)
 end
 
 function __N_VInv(x::N_Vector, z::N_Vector)
-    ccall((:N_VInv, libsundials_sundials), Void, (N_Vector, N_Vector), x, z)
+    ccall((:N_VInv, libsundials_sundials), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInv(x, z)
@@ -265,7 +265,7 @@ function N_VInv(x, z)
 end
 
 function __N_VAddConst(x::N_Vector, b::realtype, z::N_Vector)
-    ccall((:N_VAddConst, libsundials_sundials), Void, (N_Vector, realtype, N_Vector), x, b, z)
+    ccall((:N_VAddConst, libsundials_sundials), Cvoid, (N_Vector, realtype, N_Vector), x, b, z)
 end
 
 function N_VAddConst(x, b, z)
@@ -343,7 +343,7 @@ function N_VL1Norm(x)
 end
 
 function __N_VCompare(c::realtype, x::N_Vector, z::N_Vector)
-    ccall((:N_VCompare, libsundials_sundials), Void, (realtype, N_Vector, N_Vector), c, x, z)
+    ccall((:N_VCompare, libsundials_sundials), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
 function N_VCompare(c, x, z)
@@ -402,7 +402,7 @@ function N_VCloneVectorArray(count, w)
 end
 
 function __N_VDestroyVectorArray(vs, count::Cint)
-    ccall((:N_VDestroyVectorArray, libsundials_sundials), Void, (Ptr{N_Vector}, Cint), vs, count)
+    ccall((:N_VDestroyVectorArray, libsundials_sundials), Cvoid, (Ptr{N_Vector}, Cint), vs, count)
 end
 
 function N_VDestroyVectorArray(vs, count)
