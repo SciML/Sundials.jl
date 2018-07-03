@@ -1,7 +1,5 @@
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-using Compat
-
 const SUNDIALS_VERSION = "3.1.0"
 const SUNDIALS_VERSION_MAJOR = Cint(3)
 const SUNDIALS_VERSION_MINOR = Cint(1)
