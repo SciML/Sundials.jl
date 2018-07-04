@@ -59,7 +59,7 @@ end
 CVSData(f, fs, n::Int, nS::Int) = CVSData(f, fs, Array{Float64}(n, nS), Array{Float64}(n, nS))
 
 function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
-    data.f(t, Vector(y), Vector(dy))
+    data.f(t, convert(Vector,y), convert(Vector,dy))
     return Sundials.CV_SUCCESS
 end
 
@@ -67,7 +67,7 @@ function cvsensrhsfn(ns::Cint, t::Float64, y::N_Vector, dy::N_Vector, ys::N_Vect
     jys = data.jys
     jdys = data.jdys
     mycopy!(ys, data.jys)
-    data.fs(t, Vector(y), Vector(dy), jys, jdys)
+    data.fs(t, convert(Vector,y), convert(Vector,dy), jys, jdys)
     mycopy!(jdys, dys)
     return Sundials.CV_SUCCESS
 end
@@ -113,6 +113,7 @@ function cvodes(f,fS, t0, y0, yS0, reltol, abstol, pbar, t::AbstractVector)
     y[:,i] = yret
     ys[:,:,i] = ysret
   end
+  empty!(cvode_mem)
   y, ys
 end
 
