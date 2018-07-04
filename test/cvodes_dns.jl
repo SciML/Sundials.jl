@@ -1,4 +1,4 @@
-using Sundials, Base.Test, ForwardDiff
+using Sundials, Test, ForwardDiff
 using Sundials: N_Vector, N_Vector_S
 
 """

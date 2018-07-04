@@ -7,7 +7,7 @@ function KINCreate()
 end
 
 function KINSetErrHandlerFn(kinmem, ehfun::KINErrHandlerFn, eh_data)
-    ccall((:KINSetErrHandlerFn, libsundials_kinsol), Cint, (KINMemPtr, KINErrHandlerFn, Ptr{Void}), kinmem, ehfun, eh_data)
+    ccall((:KINSetErrHandlerFn, libsundials_kinsol), Cint, (KINMemPtr, KINErrHandlerFn, Ptr{Cvoid}), kinmem, ehfun, eh_data)
 end
 
 function KINSetErrFile(kinmem, errfp)
@@ -15,7 +15,7 @@ function KINSetErrFile(kinmem, errfp)
 end
 
 function KINSetInfoHandlerFn(kinmem, ihfun::KINInfoHandlerFn, ih_data)
-    ccall((:KINSetInfoHandlerFn, libsundials_kinsol), Cint, (KINMemPtr, KINInfoHandlerFn, Ptr{Void}), kinmem, ihfun, ih_data)
+    ccall((:KINSetInfoHandlerFn, libsundials_kinsol), Cint, (KINMemPtr, KINInfoHandlerFn, Ptr{Cvoid}), kinmem, ihfun, ih_data)
 end
 
 function KINSetInfoFile(kinmem, infofp)
@@ -212,7 +212,7 @@ function KINGetReturnFlagName(flag)
 end
 
 function KINFree(kinmem)
-    ccall((:KINFree, libsundials_kinsol), Void, (Ref{KINMemPtr},), kinmem)
+    ccall((:KINFree, libsundials_kinsol), Cvoid, (Ref{KINMemPtr},), kinmem)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/kinsol/kinsol_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0

@@ -1,4 +1,4 @@
-using DiffEqProblemLibrary, Sundials, Base.Test
+using DiffEqProblemLibrary, Sundials, Test
 
 prob = prob_ode_linear
 dt = 1//2^(4)

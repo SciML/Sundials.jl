@@ -33,7 +33,7 @@ function N_VCloneVectorArrayEmpty_Serial(count, w)
 end
 
 function __N_VDestroyVectorArray_Serial(vs, count::Cint)
-    ccall((:N_VDestroyVectorArray_Serial, libsundials_nvecserial), Void, (Ptr{N_Vector}, Cint), vs, count)
+    ccall((:N_VDestroyVectorArray_Serial, libsundials_nvecserial), Cvoid, (Ptr{N_Vector}, Cint), vs, count)
 end
 
 function N_VDestroyVectorArray_Serial(vs, count)
@@ -50,7 +50,7 @@ function N_VGetLength_Serial(v)
 end
 
 function __N_VPrint_Serial(v::N_Vector)
-    ccall((:N_VPrint_Serial, libsundials_nvecserial), Void, (N_Vector,), v)
+    ccall((:N_VPrint_Serial, libsundials_nvecserial), Cvoid, (N_Vector,), v)
 end
 
 function N_VPrint_Serial(v)
@@ -59,7 +59,7 @@ function N_VPrint_Serial(v)
 end
 
 function __N_VPrintFile_Serial(v::N_Vector, outfile)
-    ccall((:N_VPrintFile_Serial, libsundials_nvecserial), Void, (N_Vector, Ptr{Cint}), v, outfile)
+    ccall((:N_VPrintFile_Serial, libsundials_nvecserial), Cvoid, (N_Vector, Ptr{Cint}), v, outfile)
 end
 
 function N_VPrintFile_Serial(v, outfile)
@@ -95,7 +95,7 @@ function N_VClone_Serial(w)
 end
 
 function __N_VDestroy_Serial(v::N_Vector)
-    ccall((:N_VDestroy_Serial, libsundials_nvecserial), Void, (N_Vector,), v)
+    ccall((:N_VDestroy_Serial, libsundials_nvecserial), Cvoid, (N_Vector,), v)
 end
 
 function N_VDestroy_Serial(v)
@@ -104,7 +104,7 @@ function N_VDestroy_Serial(v)
 end
 
 function __N_VSpace_Serial(v::N_Vector, lrw, liw)
-    ccall((:N_VSpace_Serial, libsundials_nvecserial), Void, (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
+    ccall((:N_VSpace_Serial, libsundials_nvecserial), Cvoid, (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
 end
 
 function N_VSpace_Serial(v, lrw, liw)
@@ -122,7 +122,7 @@ function N_VGetArrayPointer_Serial(v)
 end
 
 function __N_VSetArrayPointer_Serial(v_data, v::N_Vector)
-    ccall((:N_VSetArrayPointer_Serial, libsundials_nvecserial), Void, (Ptr{realtype}, N_Vector), v_data, v)
+    ccall((:N_VSetArrayPointer_Serial, libsundials_nvecserial), Cvoid, (Ptr{realtype}, N_Vector), v_data, v)
 end
 
 function N_VSetArrayPointer_Serial(v_data, v)
@@ -131,7 +131,7 @@ function N_VSetArrayPointer_Serial(v_data, v)
 end
 
 function __N_VLinearSum_Serial(a::realtype, x::N_Vector, b::realtype, y::N_Vector, z::N_Vector)
-    ccall((:N_VLinearSum_Serial, libsundials_nvecserial), Void, (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
+    ccall((:N_VLinearSum_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
 
 function N_VLinearSum_Serial(a, x, b, y, z)
@@ -142,7 +142,7 @@ function N_VLinearSum_Serial(a, x, b, y, z)
 end
 
 function __N_VConst_Serial(c::realtype, z::N_Vector)
-    ccall((:N_VConst_Serial, libsundials_nvecserial), Void, (realtype, N_Vector), c, z)
+    ccall((:N_VConst_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector), c, z)
 end
 
 function N_VConst_Serial(c, z)
@@ -151,7 +151,7 @@ function N_VConst_Serial(c, z)
 end
 
 function __N_VProd_Serial(x::N_Vector, y::N_Vector, z::N_Vector)
-    ccall((:N_VProd_Serial, libsundials_nvecserial), Void, (N_Vector, N_Vector, N_Vector), x, y, z)
+    ccall((:N_VProd_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
 function N_VProd_Serial(x, y, z)
@@ -162,7 +162,7 @@ function N_VProd_Serial(x, y, z)
 end
 
 function __N_VDiv_Serial(x::N_Vector, y::N_Vector, z::N_Vector)
-    ccall((:N_VDiv_Serial, libsundials_nvecserial), Void, (N_Vector, N_Vector, N_Vector), x, y, z)
+    ccall((:N_VDiv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
 function N_VDiv_Serial(x, y, z)
@@ -173,7 +173,7 @@ function N_VDiv_Serial(x, y, z)
 end
 
 function __N_VScale_Serial(c::realtype, x::N_Vector, z::N_Vector)
-    ccall((:N_VScale_Serial, libsundials_nvecserial), Void, (realtype, N_Vector, N_Vector), c, x, z)
+    ccall((:N_VScale_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
 function N_VScale_Serial(c, x, z)
@@ -183,7 +183,7 @@ function N_VScale_Serial(c, x, z)
 end
 
 function __N_VAbs_Serial(x::N_Vector, z::N_Vector)
-    ccall((:N_VAbs_Serial, libsundials_nvecserial), Void, (N_Vector, N_Vector), x, z)
+    ccall((:N_VAbs_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VAbs_Serial(x, z)
@@ -193,7 +193,7 @@ function N_VAbs_Serial(x, z)
 end
 
 function __N_VInv_Serial(x::N_Vector, z::N_Vector)
-    ccall((:N_VInv_Serial, libsundials_nvecserial), Void, (N_Vector, N_Vector), x, z)
+    ccall((:N_VInv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInv_Serial(x, z)
@@ -203,7 +203,7 @@ function N_VInv_Serial(x, z)
 end
 
 function __N_VAddConst_Serial(x::N_Vector, b::realtype, z::N_Vector)
-    ccall((:N_VAddConst_Serial, libsundials_nvecserial), Void, (N_Vector, realtype, N_Vector), x, b, z)
+    ccall((:N_VAddConst_Serial, libsundials_nvecserial), Cvoid, (N_Vector, realtype, N_Vector), x, b, z)
 end
 
 function N_VAddConst_Serial(x, b, z)
@@ -281,7 +281,7 @@ function N_VL1Norm_Serial(x)
 end
 
 function __N_VCompare_Serial(c::realtype, x::N_Vector, z::N_Vector)
-    ccall((:N_VCompare_Serial, libsundials_nvecserial), Void, (realtype, N_Vector, N_Vector), c, x, z)
+    ccall((:N_VCompare_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
 function N_VCompare_Serial(c, x, z)

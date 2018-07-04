@@ -41,17 +41,17 @@ const clang_includes = [
 # check_use_header(path) = true
 # Callback to test if a header should actually be wrapped (for exclusion)
 function wrap_header(top_hdr::AbstractString, cursor_header::AbstractString)
-    !ismatch(r"(_parallel|_impl)\.h$", cursor_header) &&  # don't wrap parallel and implementation definitions
+    !occursin(r"(_parallel|_impl)\.h$", cursor_header) &&  # don't wrap parallel and implementation definitions
     (top_hdr == cursor_header) # don't wrap if header is included from the other header (e.g. nvector in cvode or cvode_direct from cvode_band)
 end
 
 function wrap_cursor(name::AbstractString, cursor)
     if typeof(cursor) == Clang.cindex.FunctionDecl
         # only wrap API functions
-        return ismatch(r"^(CV|KIN|IDA|ARK|N_V|SUN)", name)
+        return occursin(r"^(CV|KIN|IDA|ARK|N_V|SUN)", name)
     else
         # skip problematic definitions
-        return !ismatch(r"^(ABS|SQRT|EXP)$", name)
+        return !occursin(r"^(ABS|SQRT|EXP)$", name)
     end
 end
 
@@ -121,12 +121,12 @@ const ctor_return_type = Dict(
 
 # signatures for C function pointer types
 const FnTypeSignatures = Dict(
-    :ARKRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Void}))),
-    :CVRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Void}))),
-    :CVRootFn => (:Cint, :((realtype, N_Vector, Ptr{realtype}, Ptr{Void}))),
-    :IDAResFn => (:Cint, :((realtype, N_Vector, N_Vector, N_Vector, Ptr{Void}))),
-    :IDARootFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Void}))),
-    :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Void}))),
+    :ARKRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
+    :CVRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
+    :CVRootFn => (:Cint, :((realtype, N_Vector, Ptr{realtype}, Ptr{Cvoid}))),
+    :IDAResFn => (:Cint, :((realtype, N_Vector, N_Vector, N_Vector, Ptr{Cvoid}))),
+    :IDARootFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Cvoid}))),
+    :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Cvoid}))),
 )
 
 wrap_sundials_api(notexpr) = Any[notexpr]
@@ -136,18 +136,18 @@ function wrap_sundials_api(expr::Expr)
         expr.args[1].head == :call
         func_name = string(expr.args[1].args[1])
         convert_required = false
-        if ismatch(r"^(ARK|CV|KIN|IDA|SUN|N_V)", func_name)
+        if occursin(r"^(ARK|CV|KIN|IDA|SUN|N_V)", func_name)
 	        @show func_name
-            if ismatch(r"Create$", func_name)
+            if occursin(r"Create$", func_name)
                 # create functions return typed pointers
 		        @assert expr.args[2].args[1].args[3] == :(Ptr{Void})
                 expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
 		        arg1_type = expr.args[2].args[1].args[4].args[1]
-                if arg1_type == :(Ptr{Void}) || arg1_type == :(Ptr{Ptr{Void}})
+                if arg1_type == :(Ptr{Cvoid}) || arg1_type == :(Ptr{Ptr{Cvoid}})
 		            arg1_name = expr.args[1].args[2]
                     arg1_newtype = arg1_name2type[arg1_name]
-                    if arg1_type == :(Ptr{Ptr{Void}})
+                    if arg1_type == :(Ptr{Ptr{Cvoid}})
                         # adjust for void** type (for CVodeFree()-like funcs)
                         arg1_newtype = Expr(:curly, :Ref, arg1_newtype)
                     end
@@ -155,13 +155,13 @@ function wrap_sundials_api(expr::Expr)
                     convert_required = true
                 end
             end
-            if ismatch(r"UserDataB?$", func_name)
+            if occursin(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[2].args[1].args)
          	        if !(typeof(arg_expr)<:Symbol) && arg_expr.args[1] in values(ctor_return_type)
-			            if arg_expr.args[2] == :(Ptr{Void})
+			            if arg_expr.args[2] == :(Ptr{Cvoid})
 		                    arg_expr.args[2] = Any
-		                elseif arg_expr.args[3] == :(Ptr{Void})
+		                elseif arg_expr.args[3] == :(Ptr{Cvoid})
 		    	            arg_expr.args[3] = Any
 		                end
 			        end
@@ -205,7 +205,7 @@ function wrap_sundials_api(expr::Expr)
                             Expr(:call, :convert, :NVector, arg_name_expr), # convert arg to NVector to store in a local var
                             Expr(:call, :convert, arg_type_expr, Symbol(string("__", arg_name_expr)))) # convert NVector to N_Vector
                 elseif arg_type_expr == :Clong || arg_type_expr == :Cint ||
-                    ismatch(r"MemPtr$", string(arg_type_expr))
+                    occursin(r"MemPtr$", string(arg_type_expr))
                     # convert(XXXMemPtr, mem), no local var required
                     return (arg_name_expr, nothing,
                             Expr(:call, :convert, arg_type_expr, arg_name_expr))

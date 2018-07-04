@@ -1,4 +1,4 @@
-using Sundials, Base.Test
+using Sundials, Test
 
 h1 = Sundials.Handle(Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON))
 h2 = h1

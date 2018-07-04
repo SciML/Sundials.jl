@@ -7,7 +7,7 @@ function IDACreate()
 end
 
 function IDASetErrHandlerFn(ida_mem, ehfun::IDAErrHandlerFn, eh_data)
-    ccall((:IDASetErrHandlerFn, libsundials_ida), Cint, (IDAMemPtr, IDAErrHandlerFn, Ptr{Void}), ida_mem, ehfun, eh_data)
+    ccall((:IDASetErrHandlerFn, libsundials_ida), Cint, (IDAMemPtr, IDAErrHandlerFn, Ptr{Cvoid}), ida_mem, ehfun, eh_data)
 end
 
 function IDASetErrFile(ida_mem, errfp)
@@ -341,7 +341,7 @@ function IDAGetReturnFlagName(flag)
 end
 
 function IDAFree(ida_mem)
-    ccall((:IDAFree, libsundials_ida), Void, (Ref{IDAMemPtr},), ida_mem)
+    ccall((:IDAFree, libsundials_ida), Cvoid, (Ref{IDAMemPtr},), ida_mem)
 end
 # Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/ida/ida_bbdpre.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0

@@ -1,4 +1,4 @@
-using Sundials, Base.Test
+using Sundials, Test
 
 # Test for Jacobian usage
 function Lotka(du, u, p, t)

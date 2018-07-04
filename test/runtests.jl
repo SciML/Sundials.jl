@@ -1,5 +1,5 @@
 using Sundials
-using Base.Test
+using Test
 
 @testset "CVODE" begin
     @testset "Roberts CVODE Simplified" begin include("cvode_Roberts_simplified.jl") end

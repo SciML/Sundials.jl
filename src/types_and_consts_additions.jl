@@ -3,36 +3,36 @@
 function Base.convert(::Type{Matrix}, J::DlsMat)
     _dlsmat = unsafe_load(J)
     # own is false as memory is allocated by sundials
-    unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N), false)
+    unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N), own=false)
 end
 
 CVRhsFn_wrapper(fp::CVRhsFn) = fp
-CVRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
+CVRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Cvoid}))
 
 ARKRhsFn_wrapper(fp::ARKRhsFn) = fp
-ARKRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
+ARKRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Cvoid}))
 
 CVRootFn_wrapper(fp::CVRootFn) = fp
-CVRootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,Ptr{realtype},Ptr{Void}))
+CVRootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,Ptr{realtype},Ptr{Cvoid}))
 
 CVQuadRhsFn_wrapper(fp::CVQuadRhsFn) = fp
-CVQuadRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Void}))
+CVQuadRhsFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{Cvoid}))
 
 IDAResFn_wrapper(fp::IDAResFn) = fp
-IDAResFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,N_Vector,Ptr{Void}))
+IDAResFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,N_Vector,Ptr{Cvoid}))
 
 IDARootFn_wrapper(fp::IDARootFn) = fp
-IDARootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{realtype},Ptr{Void}))
+IDARootFn_wrapper(f) = cfunction(f,Cint,(realtype,N_Vector,N_Vector,Ptr{realtype},Ptr{Cvoid}))
 
 KINSysFn_wrapper(fp::KINSysFn) = fp
-KINSysFn_wrapper(f) = cfunction(f,Cint,(N_Vector,N_Vector,Ptr{Void}))
+KINSysFn_wrapper(f) = cfunction(f,Cint,(N_Vector,N_Vector,Ptr{Cvoid}))
 
 function Base.convert(::Type{Matrix}, J::SUNMatrix)
     _sunmat = unsafe_load(J)
     _mat = convert(SUNMatrixContent_Dense, _sunmat.content)
     mat = unsafe_load(_mat)
     # own is false as memory is allocated by sundials
-    unsafe_wrap(Array, mat.data, (mat.M, mat.N), false)
+    unsafe_wrap(Array, mat.data, (mat.M, mat.N), own=false)
 end
 
 function Base.convert(::Type{SparseMatrixCSC}, J::SUNMatrix)
@@ -41,11 +41,11 @@ function Base.convert(::Type{SparseMatrixCSC}, J::SUNMatrix)
     mat = unsafe_load(_mat)
     # own is false as memory is allocated by sundials
     # TODO: Get rid of allocation for 1-based index change
-    rowval = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), false)
-    colptr = unsafe_wrap(Array, mat.indexptrs, (mat.NP+1), false)
+    rowval = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), own=false)
+    colptr = unsafe_wrap(Array, mat.indexptrs, (mat.NP+1), own=false)
     m = mat.M
     n = mat.N
-    nzval = unsafe_wrap(Array,mat.data, (mat.NNZ), false)
+    nzval = unsafe_wrap(Array,mat.data, (mat.NNZ), own=false)
     SparseMatrixCSC(m,n,colptr,rowval,nzval)
 end
 

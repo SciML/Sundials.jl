@@ -37,7 +37,7 @@ abstract type SundialsHandle end
 struct Handle{T <: AbstractSundialsObject} <: SundialsHandle
     ptr_ref::Ref{Ptr{T}} # pointer to a pointer
 
-    function (::Type{Handle}){T <: AbstractSundialsObject}(ptr::Ptr{T})
+    function Handle(ptr::Ptr{T}) where T <: AbstractSundialsObject
         h = new{T}(Ref{Ptr{T}}(ptr))
         finalizer(h.ptr_ref, release_handle)
         return h
@@ -47,7 +47,7 @@ end
 mutable struct MatrixHandle{T<:SundialsMatrix} <: SundialsHandle
     ptr::SUNMatrix
     destroyed::Bool
-    function (::Type{MatrixHandle})(ptr::SUNMatrix,M::T) where T<:SundialsMatrix
+    function MatrixHandle(ptr::SUNMatrix,M::T) where T<:SundialsMatrix
         h = new{T}(ptr,false)
         finalizer(h, release_handle)
         return h
@@ -57,7 +57,7 @@ end
 mutable struct LinSolHandle{T<:SundialsLinSol} <: SundialsHandle
     ptr::SUNLinearSolver
     destroyed::Bool
-    function (::Type{LinSolHandle})(ptr::SUNLinearSolver,M::T) where T<:SundialsLinSol
+    function LinSolHandle(ptr::SUNLinearSolver,M::T) where T<:SundialsLinSol
         h = new{T}(ptr,false)
         finalizer(h, release_handle)
         return h
@@ -66,9 +66,9 @@ end
 
 Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) where T = h.ptr_ref[]
 Base.convert(::Type{Ptr{T}}, h::Handle{T}) where T = h.ptr_ref[]
-Base.convert{T}(::Type{Ptr{Ptr{T}}}, h::Handle{T}) = convert(Ptr{Ptr{T}}, h.ptr_ref[])
+Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T} = convert(Ptr{Ptr{T}}, h.ptr_ref[])
 
-release_handle{T}(ptr_ref::Ref{Ptr{T}}) = throw(MethodError("Freeing objects of type $T not supported"))
+release_handle(ptr_ref::Ref{Ptr{T}}) where {T} = throw(MethodError("Freeing objects of type $T not supported"))
 release_handle(ptr_ref::Ref{Ptr{KINMem}}) = ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{ARKODEMem}}) = ((ptr_ref[] != C_NULL) && ARKodeFree(ptr_ref); nothing)
@@ -162,7 +162,7 @@ end
 
 Base.empty!(h::LinSolHandle) = release_handle(h)
 Base.empty!(h::MatrixHandle) = release_handle(h)
-Base.empty!{T}(h::Handle{T}) = release_handle(h.ptr_ref)
+Base.empty!(h::Handle{T}) where {T} = release_handle(h.ptr_ref)
 Base.isempty(h::Handle) = h.ptr_ref[] == C_NULL
 Base.isempty(h::MatrixHandle) = h.destroyed
 Base.isempty(h::LinSolHandle) = h.destroyed
