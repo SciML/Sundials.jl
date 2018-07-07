@@ -39,7 +39,7 @@ struct Handle{T <: AbstractSundialsObject} <: SundialsHandle
 
     function Handle(ptr::Ptr{T}) where T <: AbstractSundialsObject
         h = new{T}(Ref{Ptr{T}}(ptr))
-        finalizer(h.ptr_ref, release_handle)
+        finalizer(release_handle, h.ptr_ref)
         return h
     end
 end
@@ -49,7 +49,7 @@ mutable struct MatrixHandle{T<:SundialsMatrix} <: SundialsHandle
     destroyed::Bool
     function MatrixHandle(ptr::SUNMatrix,M::T) where T<:SundialsMatrix
         h = new{T}(ptr,false)
-        finalizer(h, release_handle)
+        finalizer(release_handle, h)
         return h
     end
 end
@@ -59,7 +59,7 @@ mutable struct LinSolHandle{T<:SundialsLinSol} <: SundialsHandle
     destroyed::Bool
     function LinSolHandle(ptr::SUNLinearSolver,M::T) where T<:SundialsLinSol
         h = new{T}(ptr,false)
-        finalizer(h, release_handle)
+        finalizer(release_handle, h)
         return h
     end
 end
