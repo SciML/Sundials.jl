@@ -12,7 +12,7 @@ mutable struct DEOptions{SType,TstopType,CType}
     stop_at_next_tstop::Bool
 end
 
-abstract type AbstractSundialsIntegrator <: AbstractODEIntegrator end
+abstract type AbstractSundialsIntegrator <: DiffEqBase.AbstractODEIntegrator end
 
 mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
     u::uType

@@ -1,7 +1,7 @@
 ## Common Interface Solve Functions
 
 function DiffEqBase.solve(
-  prob::Union{AbstractODEProblem,AbstractDAEProblem},
+  prob::Union{DiffEqBase.AbstractODEProblem,DiffEqBase.AbstractDAEProblem},
   alg::algType,timeseries=[],ts=[],ks=[],
   recompile::Type{Val{recompile_flag}}=Val{true};
   kwargs...) where {algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorithm},
@@ -15,7 +15,7 @@ function DiffEqBase.solve(
 end
 
 function DiffEqBase.init(
-    prob::AbstractODEProblem{uType, tType, isinplace},
+    prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
 
@@ -33,11 +33,13 @@ function DiffEqBase.init(
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
-    kwargs...) where {uType, tType, isinplace, Method, LinearSolver}
+    kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
+
+    tType = eltype(tupType)
 
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
-        if !(typeof(prob.f) <: AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
+        if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
             if has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
@@ -214,7 +216,7 @@ function DiffEqBase.init(
       end
     end
 
-    sol = build_solution(prob, alg, ts, ures,
+    sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
                    du = dures,
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
@@ -229,7 +231,7 @@ function DiffEqBase.init(
 end # function solve
 
 function DiffEqBase.init(
-    prob::AbstractODEProblem{uType, tType, isinplace},
+    prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
     alg::ARKODE{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
 
@@ -245,11 +247,13 @@ function DiffEqBase.init(
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
-    kwargs...) where {uType, tType, isinplace, Method, LinearSolver}
+    kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
+
+    tType = eltype(tupType)
 
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
-        if !(typeof(prob.f) <: AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
+        if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
             if has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
@@ -478,7 +482,7 @@ function DiffEqBase.init(
       end
     end
 
-    sol = build_solution(prob, alg, ts, ures,
+    sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
                    du = dures,
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
@@ -530,7 +534,7 @@ end
 ## Solve for DAEs uses IDA
 
 function DiffEqBase.init(
-    prob::AbstractDAEProblem{uType, duType, tType, isinplace},
+    prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
 
@@ -545,11 +549,13 @@ function DiffEqBase.init(
     save_timeseries=nothing, save_end = true,
     advance_to_tstop = false, stop_at_next_tstop = false,
     userdata=nothing,
-    kwargs...) where {uType, duType, tType, isinplace, LinearSolver}
+    kwargs...) where {uType, duType, tupType, isinplace, LinearSolver}
+
+    tType = eltype(tupType)
 
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
-        if !(typeof(prob.f) <: AbstractParameterizedFunction)
+        if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
             if has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
@@ -747,7 +753,7 @@ function DiffEqBase.init(
         retcode = :InitialFailure
     end
 
-    sol = build_solution(prob, alg, ts, ures,
+    sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
                    du = dures,
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
