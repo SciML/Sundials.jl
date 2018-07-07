@@ -6,6 +6,7 @@ using Reexport, DataStructures, Roots
 @reexport using DiffEqBase
 using DiffEqBase: check_error!
 import DiffEqBase: solve
+using SparseArrays, LinearAlgebra
 
 const warnkeywords =
     (:save_idxs, :d_discontinuities, :isoutofdomain, :unstable_check,

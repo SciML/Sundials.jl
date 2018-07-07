@@ -1,5 +1,6 @@
 using Sundials, Test, ForwardDiff
 using Sundials: N_Vector, N_Vector_S
+using LinearAlgebra
 
 """
     sens(f!, t0, y0, p, tout; reltol, abstol)
@@ -12,8 +13,8 @@ ys[i, np+j, t] the i-th component sensivity wrt the j-th initial condition value
 function sens(f!::Function, t0::Float64, y0::Vector{Float64}, p::Vector{Float64}, tout::Vector{Float64}; reltol::Float64 = 1e-5, abstol::Float64 = 1e-5)
   n = length(y0)
   np = length(p)
-  ys0 = zeros(n,np+n)
-  ys0[:, np+(1:n)] = eye(n)
+  ys0 = zeros(n,np.+n)
+  ys0[:, np.+(1:n)] = Matrix(1.0I,n,n)
 
   function frhs(t,y,ydot)
     f!(ydot,t,y,p)
@@ -56,7 +57,7 @@ struct CVSData
   jdys
 end
 
-CVSData(f, fs, n::Int, nS::Int) = CVSData(f, fs, Array{Float64}(n, nS), Array{Float64}(n, nS))
+CVSData(f, fs, n::Int, nS::Int) = CVSData(f, fs, Array{Float64}(undef, n, nS), Array{Float64}(undef, n, nS))
 
 function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
     data.f(t, convert(Vector,y), convert(Vector,dy))
@@ -90,8 +91,8 @@ function cvodes(f,fS, t0, y0, yS0, reltol, abstol, pbar, t::AbstractVector)
   yS0nv = [N_Vector(n) for n in yS0n]
   #yS0nv = [N_Vector(yS0[:,j]) for j = 1:Ns]
   pyS0 = pointer(yS0nv)
-  crhs = cfunction(cvrhsfn, Cint, (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Any))
-  csensrhs = cfunction(cvsensrhsfn, Cint, (Cint, Sundials.realtype, N_Vector, N_Vector, N_Vector_S, N_Vector_S, Any, N_Vector, N_Vector))
+  crhs = @cfunction(cvrhsfn, Cint, (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Any))
+  csensrhs = @cfunction(cvsensrhsfn, Cint, (Cint, Sundials.realtype, N_Vector, N_Vector, N_Vector_S, N_Vector_S, Any, N_Vector, N_Vector))
 
   ##
 
