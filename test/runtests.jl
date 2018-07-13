@@ -4,7 +4,7 @@ using Test
 @testset "CVODE" begin
     @testset "Roberts CVODE Simplified" begin include("cvode_Roberts_simplified.jl") end
     @testset "Roberts CVODE Direct" begin include("cvode_Roberts_dns.jl") end
-    @testset "CVODES Direct" begin include("cvodes_dns.jl") end
+    #@testset "CVODES Direct" begin include("cvodes_dns.jl") end
 end
 @testset "ARK" begin
     @testset "Roberts ARKODE Direct" begin include("arkode_Roberts_dns.jl") end
