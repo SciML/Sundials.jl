@@ -1,4 +1,6 @@
-using DiffEqProblemLibrary, Sundials, Test
+using Sundials, Test
+using DiffEqProblemLibrary
+using DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_linear
 
 prob = prob_ode_linear
 dt = 1//2^(4)
