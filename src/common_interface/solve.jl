@@ -38,7 +38,7 @@ function DiffEqBase.init(
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
-            if has_tgrad(prob.f)
+            if DiffEqBase.has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
@@ -183,7 +183,7 @@ function DiffEqBase.init(
         _LS = nothing
     end
 
-    if has_jac(prob.f)
+    if DiffEqBase.has_jac(prob.f)
       jac = old_cfunction(cvodejac,
                       Cint,
                       Tuple{realtype,
@@ -252,7 +252,7 @@ function DiffEqBase.init(
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
-            if has_tgrad(prob.f)
+            if DiffEqBase.has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
@@ -449,7 +449,7 @@ function DiffEqBase.init(
         _LS = nothing
     end
 
-    if has_jac(prob.f)
+    if DiffEqBase.has_jac(prob.f)
       jac = old_cfunction(cvodejac,
                       Cint,
                       Tuple{realtype,
@@ -554,7 +554,7 @@ function DiffEqBase.init(
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
-            if has_tgrad(prob.f)
+            if DiffEqBase.has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
@@ -688,7 +688,7 @@ function DiffEqBase.init(
         _LS = LinSolHandle(LS,KLU())
     end
 
-    if has_jac(prob.f)
+    if DiffEqBase.has_jac(prob.f)
       jac = old_cfunction(idajac,
                       Cint,
                       Tuple{realtype,
