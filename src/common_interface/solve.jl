@@ -839,7 +839,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     integrator.A != nothing && empty!(integrator.A)
     integrator.LS != nothing && empty!(integrator.LS)
 
-    if has_analytic(integrator.sol.prob.f)
+    if DiffEqBase.has_analytic(integrator.sol.prob.f)
         calculate_solution_errors!(integrator.sol;
         timeseries_errors=integrator.opts.timeseries_errors,
         dense_errors=integrator.opts.dense_errors)
