@@ -840,11 +840,11 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     integrator.LS != nothing && empty!(integrator.LS)
 
     if DiffEqBase.has_analytic(integrator.sol.prob.f)
-        calculate_solution_errors!(integrator.sol;
+        DiffEqBase.calculate_solution_errors!(integrator.sol;
         timeseries_errors=integrator.opts.timeseries_errors,
         dense_errors=integrator.opts.dense_errors)
     end
-    integrator.sol = solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
+    integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
     nothing
 end
 
