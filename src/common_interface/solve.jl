@@ -29,7 +29,7 @@ function DiffEqBase.init{uType, tType, isinplace, Method, LinearSolver}(
     save_everystep=isempty(saveat), 
     save_start = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true : prob.tspan[1] in saveat,
     save_end = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true : prob.tspan[2] in saveat,
-    dense = save_everystep && !(typeof(alg) <: FunctionMap) && isempty(saveat),
+    dense = save_everystep && isempty(saveat),
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
