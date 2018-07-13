@@ -1,6 +1,6 @@
-julia 0.7.0-alpha
+julia 0.7.0-
 BinaryProvider
-DiffEqBase 3.1.0
+DiffEqBase 4.6.0
 Reexport
 DataStructures
 Roots
