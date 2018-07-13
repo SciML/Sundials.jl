@@ -100,7 +100,7 @@ function DiffEqBase.init(
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && CVodeSetErrHandlerFn(mem,cfunction(null_error_handler, Nothing,
+    !verbose && CVodeSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
                                     (Cint, Char,
                                     Char, Ptr{Cvoid})),C_NULL)
 
@@ -254,7 +254,7 @@ function DiffEqBase.init(
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
-            if DiffEqBase.has_tgrad(prob.f)
+            if DiffEqBase.has_tgrad(prob.f.f1)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
@@ -290,7 +290,7 @@ function DiffEqBase.init(
     (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && ARKodeSetErrHandlerFn(mem,cfunction(null_error_handler, Nothing,
+    !verbose && ARKodeSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
                                     (Cint, Char,
                                     Char, Ptr{Cvoid})),C_NULL)
 
@@ -609,7 +609,7 @@ function DiffEqBase.init(
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && IDASetErrHandlerFn(mem,cfunction(null_error_handler, Nothing,
+    !verbose && IDASetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
                                     (Cint, Char,
                                     Char, Ptr{Cvoid})),C_NULL)
 
