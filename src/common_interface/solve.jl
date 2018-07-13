@@ -109,7 +109,7 @@ function DiffEqBase.init(
     userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
     u0nv = NVector(u0)
     flag = CVodeInit(mem,
-                    cfunction(cvodefunjac, Cint,
+                    local_cfunction(cvodefunjac, Cint,
                               (realtype, N_Vector,
                                N_Vector, Ref{typeof(userfun)})),
                     t0, convert(N_Vector, u0nv))
@@ -184,7 +184,7 @@ function DiffEqBase.init(
     end
 
     if has_jac(prob.f)
-      jac = cfunction(cvodejac,
+      jac = local_cfunction(cvodejac,
                       Cint,
                       (realtype,
                        N_Vector,
@@ -335,10 +335,10 @@ function DiffEqBase.init(
 
         userfun = FunJac(f1!,f2!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
         flag = ARKodeInit(mem,
-                    cfunction(cvodefunjac, Cint,
+                    local_cfunction(cvodefunjac, Cint,
                              (realtype, N_Vector,
                              N_Vector, Ref{typeof(userfun)})),
-                    cfunction(cvodefunjac2, Cint,
+                    local_cfunction(cvodefunjac2, Cint,
                              (realtype, N_Vector,
                              N_Vector, Ref{typeof(userfun)})),
                     t0, convert(N_Vector, u0nv))
@@ -346,7 +346,7 @@ function DiffEqBase.init(
         userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
-                        cfunction(cvodefunjac, Cint,
+                        local_cfunction(cvodefunjac, Cint,
                                  (realtype, N_Vector,
                                  N_Vector, Ref{typeof(userfun)})),
                         C_NULL,
@@ -354,7 +354,7 @@ function DiffEqBase.init(
         elseif alg.stiffness == Implicit()
             flag = ARKodeInit(mem,
                         C_NULL,
-                        cfunction(cvodefunjac, Cint,
+                        local_cfunction(cvodefunjac, Cint,
                                   (realtype, N_Vector,
                                    N_Vector, Ref{typeof(userfun)})),
                         t0, convert(N_Vector, u0nv))
@@ -450,7 +450,7 @@ function DiffEqBase.init(
     end
 
     if has_jac(prob.f)
-      jac = cfunction(cvodejac,
+      jac = local_cfunction(cvodejac,
                       Cint,
                       (realtype,
                        N_Vector,
@@ -619,7 +619,7 @@ function DiffEqBase.init(
     userfun = FunJac(f!,(J,du,u,p,gamma,t) -> f!(Val{:jac},J,du,u,p,gamma,t),
                      prob.p,prob.jac_prototype)
     u0nv = NVector(u0)
-    flag = IDAInit(mem, cfunction(idasolfun,
+    flag = IDAInit(mem, local_cfunction(idasolfun,
                      Cint, (realtype, N_Vector, N_Vector,
                             N_Vector, Ref{typeof(userfun)})),
                               t0, convert(N_Vector, u0),
@@ -689,7 +689,7 @@ function DiffEqBase.init(
     end
 
     if has_jac(prob.f)
-      jac = cfunction(idajac,
+      jac = local_cfunction(idajac,
                       Cint,
                       (realtype,
                        realtype,

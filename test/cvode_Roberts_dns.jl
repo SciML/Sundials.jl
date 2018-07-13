@@ -55,7 +55,7 @@ cvode_mem = Sundials.Handle(mem_ptr)
 userfun = Sundials.UserFunctionAndData(f, userdata)
 Sundials.CVodeSetUserData(cvode_mem, userfun)
 
-Sundials.CVodeInit(cvode_mem, cfunction(Sundials.cvodefun,
+Sundials.CVodeInit(cvode_mem, Sundials.local_cfunction(Sundials.cvodefun,
                     Cint, (Sundials.realtype, Sundials.N_Vector,
                     Sundials.N_Vector, Ref{typeof(userfun)})), t1,
                     convert(Sundials.N_Vector, y0))
