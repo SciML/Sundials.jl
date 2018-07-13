@@ -35,6 +35,8 @@ const DBL_EPSILON = eps(Cdouble)
 const FILE = Nothing
 const __builtin_va_list = Ptr{Cvoid}
 
+include("utils.jl")
+
 include("wrapped_api/types_and_consts.jl")
 include("types_and_consts_additions.jl")
 
