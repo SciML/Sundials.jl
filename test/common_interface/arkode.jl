@@ -1,6 +1,7 @@
 using Sundials, Test
 using DiffEqProblemLibrary
-using DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_linear
+using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems; importodeproblems()
+import DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_linear, prob_ode_2Dlinear
 
 prob = prob_ode_linear
 dt = 1//2^(4)

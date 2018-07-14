@@ -1,5 +1,6 @@
 using DiffEqProblemLibrary, Sundials, Test
-using DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_2Dlinear
+using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems; importodeproblems()
+import DiffEqProblemLibrary.ODEProblemLibrary: prob_ode_linear, prob_ode_2Dlinear
 
 prob = prob_ode_2Dlinear
 integrator = init(prob,CVODE_BDF())
