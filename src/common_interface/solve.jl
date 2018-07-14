@@ -1,6 +1,6 @@
 ## Common Interface Solve Functions
 
-function DiffEqBase.solve(
+function DiffEqBase.__solve(
   prob::Union{DiffEqBase.AbstractODEProblem,DiffEqBase.AbstractDAEProblem},
   alg::algType,timeseries=[],ts=[],ks=[],
   recompile::Type{Val{recompile_flag}}=Val{true};
@@ -14,7 +14,7 @@ function DiffEqBase.solve(
   integrator.sol
 end
 
-function DiffEqBase.init(
+function DiffEqBase.__init(
     prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
     alg::SundialsODEAlgorithm{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
@@ -26,7 +26,7 @@ function DiffEqBase.init(
     dt = nothing, dtmin = 0.0, dtmax = 0.0,
     timeseries_errors=true,
     dense_errors = false,
-    save_everystep=isempty(saveat), 
+    save_everystep=isempty(saveat),
     save_start = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true : prob.tspan[1] in saveat,
     save_end = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true : prob.tspan[2] in saveat,
     dense = save_everystep && isempty(saveat),
@@ -230,7 +230,7 @@ function DiffEqBase.init(
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
-function DiffEqBase.init(
+function DiffEqBase.__init(
     prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
     alg::ARKODE{Method,LinearSolver},
     timeseries=[], ts=[], ks=[];
@@ -533,7 +533,7 @@ end
 
 ## Solve for DAEs uses IDA
 
-function DiffEqBase.init(
+function DiffEqBase.__init(
     prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType, isinplace},
     alg::SundialsDAEAlgorithm{LinearSolver},
     timeseries=[], ts=[], ks=[];
