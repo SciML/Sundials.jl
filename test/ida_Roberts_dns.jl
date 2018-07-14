@@ -106,8 +106,8 @@ while iout < nout
         Sundials.@checkflag Sundials.IDAGetRootInfo(mem, rootsfound)
         println("roots=", rootsfound)
     elseif retval == Sundials.IDA_SUCCESS
-        iout += 1
-        tout *= 10.0
+        global iout += 1
+        global tout *= 10.0
     end
 end
 

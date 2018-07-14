@@ -82,8 +82,8 @@ while iout < nout
         Sundials.@checkflag Sundials.CVodeGetRootInfo(cvode_mem, rootsfound)
         println("roots=", rootsfound)
     elseif flag == Sundials.CV_SUCCESS
-      iout += 1
-      tout *= tmult
+      global iout += 1
+      global tout *= tmult
     end
 end
 

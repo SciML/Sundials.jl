@@ -25,6 +25,8 @@ struct NVector <: DenseVector{realtype}
     end
 end
 
+N_Vector(x::NVector) = convert(N_Vector,x)
+
 release_handle(ref_nv::Ref{N_Vector}) = N_VDestroy_Serial(ref_nv[])
 
 Base.size(nv::NVector, d...) = size(nv.v, d...)

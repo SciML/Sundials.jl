@@ -46,8 +46,8 @@ while iout < nout
     y = similar(y0)
     flag = Sundials.ARKode(arkode_mem, tout, y, t, Sundials.ARK_NORMAL)
     println("T=", tout, ", Y=", y)
-    iout += 1
-    tout *= tmult
+    global iout += 1
+    global tout *= tmult
 end
 
 #Sundials.ARKodeFree(mem_ptr)
