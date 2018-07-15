@@ -77,7 +77,7 @@ sol8 = solve(prob,CVODE_BDF(linear_solver=:TFQMR))
 #@test isapprox(sol1[end],sol9[end],rtol=1e-3)
 # Backwards
 prob = deepcopy(prob_ode_2Dlinear)
-prob2 = ODEProblem(prob.f,prob.u0,(1.0,0.0))
+prob2 = ODEProblem(prob.f,prob.u0,(1.0,0.0),1.01)
 sol = solve(prob2,CVODE_BDF())
 @test maximum(diff(sol.t)) < 0 # Make sure all go negative
 

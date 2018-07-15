@@ -8,7 +8,7 @@ function Lotka(du, u, p, t)
 end
 
 jac_called = false
-function Lotka(::Type{Val{:jac}},J,u,p,t)
+function Lotka_jac(J,u,p,t)
   global jac_called
   jac_called = true
   J[1,1] = 1.0 - u[2]
@@ -18,11 +18,12 @@ function Lotka(::Type{Val{:jac}},J,u,p,t)
   nothing
 end
 
-prob = ODEProblem(Lotka,ones(2),(0.0,10.0))
+Lotka_f = ODEFunction(Lotka,jac=Lotka_jac)
+prob = ODEProblem(Lotka_f,ones(2),(0.0,10.0))
 good_sol = solve(prob,CVODE_BDF())
 @test jac_called == true
 
-prob = ODEProblem(Lotka,ones(2),(0.0,10.0),
+prob = ODEProblem(Lotka_f,ones(2),(0.0,10.0),
                   jac_prototype = sparse([1,2,1,2],[1,1,2,2],zeros(4)))
 jac_called = false
 sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU))
@@ -34,16 +35,18 @@ function f2!(res, du, u, p, t)
 end
 
 jac_called = false
-function f2!(::Type{Val{:jac}},out, du, u, p, gamma, t)
+function f2_jac!(out, du, u, p, gamma, t)
     global jac_called
     jac_called = true
     out[1] = 1.01
 end
 
+f2_f = DAEFunction(f2!,jac=f2_jac!)
+
 u0 = [0.]
 tspan = (0.0, 10.)
 du0 = [0.]
-dae_prob = DAEProblem(f2!,du0, u0,tspan, differential_vars=[true])
+dae_prob = DAEProblem(f2_f,du0, u0,tspan, differential_vars=[true])
 good_sol = solve(dae_prob,IDA())
 @test jac_called == true
 
@@ -53,7 +56,7 @@ function testjac(res, du, u, p, t)
 end
 
 jac_called = false
-function testjac(::Type{Val{:jac}},J, du, u, p, gamma, t)
+function testjac_jac(J, du, u, p, gamma, t)
   global jac_called
   jac_called = true
   J[1,1] = gamma - 1.5 + 1.0 * u[2]
@@ -63,13 +66,14 @@ function testjac(::Type{Val{:jac}},J, du, u, p, gamma, t)
   nothing
 end
 
-prob3 = DAEProblem(testjac,[0.5,-2.0],ones(2),(0.0,10.0),differential_vars=[true,true])
+testjac_f = DAEFunction(testjac,jac=testjac_jac)
+
+prob3 = DAEProblem(testjac_f,[0.5,-2.0],ones(2),(0.0,10.0),differential_vars=[true,true])
 sol3 = solve(prob3, IDA())
 
 @test jac_called == true
 jac_called = false
-prob4 = DAEProblem((res, du, u, p, t) -> testjac(res, du, u, p, t),
-                    [0.5,-2.0],ones(2),(0.0,10.0))
+prob4 = DAEProblem(testjac,[0.5,-2.0],ones(2),(0.0,10.0))
 sol4 = solve(prob4, IDA())
 
 @test jac_called == false

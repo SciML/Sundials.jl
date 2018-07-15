@@ -108,7 +108,7 @@ function DiffEqBase.__init(
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
 
-    userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
+    userfun = FunJac(f!,prob.f.jac,prob.p,prob.jac_prototype)
     u0nv = NVector(u0)
     flag = CVodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
@@ -335,7 +335,7 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.jac_prototype)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
                              Tuple{realtype, N_Vector,
@@ -345,7 +345,7 @@ function DiffEqBase.__init(
                              N_Vector, Ref{typeof(userfun)}}),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,(J,u,p,t) -> f!(Val{:jac},J,u,p,t),prob.p,prob.jac_prototype)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.jac_prototype)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         old_cfunction(cvodefunjac, Cint,
@@ -618,8 +618,7 @@ function DiffEqBase.__init(
     ts   = [t0]
 
 
-    userfun = FunJac(f!,(J,du,u,p,gamma,t) -> f!(Val{:jac},J,du,u,p,gamma,t),
-                     prob.p,prob.jac_prototype)
+    userfun = FunJac(f!,prob.f.jac,prob.p,prob.jac_prototype)
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,
                      Cint, Tuple{realtype, N_Vector, N_Vector,
