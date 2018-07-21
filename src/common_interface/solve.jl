@@ -335,7 +335,7 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.jac_prototype)
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.f1.jac_prototype)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
                              Tuple{realtype, N_Vector,
