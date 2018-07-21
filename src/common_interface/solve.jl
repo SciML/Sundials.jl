@@ -108,7 +108,7 @@ function DiffEqBase.__init(
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,f.jac_prototype)
+    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype)
     u0nv = NVector(u0)
     flag = CVodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
@@ -173,7 +173,7 @@ function DiffEqBase.__init(
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
 	    elseif LinearSolver == :KLU
-	        nnz = length(nonzeros(f.jac_prototype))
+	        nnz = length(nonzeros(prob.f.jac_prototype))
 	        A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNKLU(u0, A)
             flag = CVDlsSetLinearSolver(mem, LS, A)
@@ -335,7 +335,7 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,f.jac_prototype)
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.jac_prototype)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
                              Tuple{realtype, N_Vector,
@@ -345,7 +345,7 @@ function DiffEqBase.__init(
                              N_Vector, Ref{typeof(userfun)}}),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,prob.f.jac,prob.p,f.jac_prototype)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         old_cfunction(cvodefunjac, Cint,
@@ -437,7 +437,7 @@ function DiffEqBase.__init(
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
         elseif LinearSolver == :KLU
-            nnz = length(nonzeros(f.jac_prototype))
+            nnz = length(nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNKLU(u0, A)
             flag = ARKDlsSetLinearSolver(mem, LS, A)
@@ -618,7 +618,7 @@ function DiffEqBase.__init(
     ts   = [t0]
 
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,f.jac_prototype)
+    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype)
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,
                      Cint, Tuple{realtype, N_Vector, N_Vector,
@@ -681,7 +681,7 @@ function DiffEqBase.__init(
         _A = nothing
         _LS = LinSolHandle(LS,PTFQMR())
     elseif LinearSolver == :KLU
-        nnz = length(nonzeros(f.jac_prototype))
+        nnz = length(nonzeros(prob.f.jac_prototype))
         A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
         LS = SUNKLU(u0, A)
         flag = IDADlsSetLinearSolver(mem, LS, A)
