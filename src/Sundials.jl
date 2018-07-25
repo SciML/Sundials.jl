@@ -46,13 +46,13 @@ include("wrapped_api/nvector.jl")
 include("wrapped_api/libsundials.jl")
 include("wrapped_api/sunmatrix.jl")
 include("wrapped_api/sunlinsol.jl")
-if isdefined(:libsundials_cvodes)
+if @isdefined libsundials_cvodes
     include("wrapped_api/cvodes.jl")
 else
     include("wrapped_api/cvode.jl")
 end
 include("wrapped_api/arkode.jl")
-if isdefined(:libsundials_idas)
+if @isdefined libsundials_idas
     include("wrapped_api/idas.jl")
 else
     include("wrapped_api/ida.jl")
@@ -60,6 +60,7 @@ end
 include("wrapped_api/kinsol.jl")
 
 include("simple.jl")
+include("common_interface/function_types.jl")
 include("common_interface/verbosity.jl")
 include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")

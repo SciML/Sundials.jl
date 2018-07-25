@@ -48,7 +48,7 @@ function DiffEqBase.__init(
         warned && warn_compat()
     end
 
-    if prob.mass_matrix != I
+    if prob.f.mass_matrix != I
         error("This solver is not able to use mass matrices.")
     end
 
@@ -108,8 +108,12 @@ function DiffEqBase.__init(
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype)
     u0nv = NVector(u0)
+    _u0 = copy(u0)
+    utmp = NVector(_u0)
+
+    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
+
     flag = CVodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
                               Tuple{realtype, N_Vector,
@@ -202,8 +206,6 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
-    _u0 = copy(u0)
-    utmp = NVector(_u0)
     callback == nothing ? tmp = nothing : tmp = similar(u0)
     callback == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
@@ -262,7 +264,7 @@ function DiffEqBase.__init(
         warned && warn_compat()
     end
 
-    if prob.mass_matrix != I
+    if prob.f.mass_matrix != I
         error("This solver is not able to use mass matrices.")
     end
 
@@ -298,6 +300,8 @@ function DiffEqBase.__init(
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
     u0nv = NVector(u0)
+    _u0 = copy(u0)
+    utmp = NVector(_u0)
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && typeof(prob.u0)<:Number
@@ -335,7 +339,7 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.f1.jac_prototype)
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.f1.jac_prototype,u0,_u0)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
                              Tuple{realtype, N_Vector,
@@ -345,7 +349,7 @@ function DiffEqBase.__init(
                              N_Vector, Ref{typeof(userfun)}}),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         old_cfunction(cvodefunjac, Cint,
@@ -468,8 +472,6 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
-    _u0 = copy(u0)
-    utmp = NVector(_u0)
     callback == nothing ? tmp = nothing : tmp = similar(u0)
     callback == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
@@ -617,8 +619,13 @@ function DiffEqBase.__init(
     dures = Vector{uType}()
     ts   = [t0]
 
+    _u0 = copy(u0)
+    utmp = NVector(_u0)
+    _du0 = copy(du0)
+    dutmp = NVector(_du0)
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype)
+    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,_u0,_du0)
+
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,
                      Cint, Tuple{realtype, N_Vector, N_Vector,
@@ -707,11 +714,6 @@ function DiffEqBase.__init(
     else
       jac = nothing
     end
-
-    _u0 = copy(u0)
-    utmp = NVector(_u0)
-    _du0 = copy(du0)
-    dutmp = NVector(_du0)
 
     tout = [tspan[1]]
 
