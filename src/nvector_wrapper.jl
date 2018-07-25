@@ -40,6 +40,8 @@ Base.setindex!(nv::NVector, X, i::Real) = setindex!(nv.v, X, i)
 Base.setindex!(nv::NVector, X, i::AbstractArray) = setindex!(nv.v, X, i)
 Base.setindex!(nv::NVector, X, inds...) = setindex!(nv.v, X, inds...)
 
+Base.pointer(nv::NVector) = Sundials.__N_VGetArrayPointer_Serial(nv.ref_nv[])
+
 ##################################################################
 #
 # Methods to convert between Julia Vectors and Sundials N_Vectors.

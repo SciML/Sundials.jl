@@ -115,10 +115,10 @@ function DiffEqBase.__init(
     userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
 
     flag = CVodeInit(mem,
-                    old_cfunction(cvodefunjac, Cint,
-                              Tuple{realtype, N_Vector,
-                               N_Vector, Ref{typeof(userfun)}}),
-                    t0, convert(N_Vector, u0nv))
+                     old_cfunction(cvodefunjac, Cint,
+                                   Tuple{realtype, N_Vector,
+                                   N_Vector, Ref{typeof(userfun)}}),
+                     t0, convert(N_Vector, utmp))
 
     dt != nothing && (flag = CVodeSetInitStep(mem, dt))
     flag = CVodeSetMinStep(mem, dtmin)
@@ -228,7 +228,7 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
-    CVODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+    CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,false)
 end # function solve
 
@@ -255,7 +255,7 @@ function DiffEqBase.__init(
 
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
-        if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
+        if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
             if DiffEqBase.has_tgrad(prob.f.f1)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
@@ -623,8 +623,9 @@ function DiffEqBase.__init(
     utmp = NVector(_u0)
     _du0 = copy(du0)
     dutmp = NVector(_du0)
+    rtest = zeros(length(u0))
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,_u0,_du0)
+    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,_u0,_du0,rtest)
 
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,
@@ -716,8 +717,6 @@ function DiffEqBase.__init(
     end
 
     tout = [tspan[1]]
-
-    rtest = zeros(length(u0))
 
     f!(rtest, du0, u0, prob.p, t0)
     if any(abs.(rtest) .>= reltol)

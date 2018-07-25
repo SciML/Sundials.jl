@@ -7,14 +7,33 @@ mutable struct FunJac{F, F2, J, P, J2, uType} <: AbstactFunJac{J2}
     jac_prototype::J2
     u::uType
     du::uType
+    resid::uType
 end
-FunJac(fun,jac,p,jac_prototype,u,du) = FunJac(fun,nothing,jac,p,jac_prototype,u,du)
+FunJac(fun,jac,p,jac_prototype,u,du) = FunJac(fun,nothing,jac,p,jac_prototype,u,du,nothing)
+FunJac(fun,jac,p,jac_prototype,u,du,resid) = FunJac(fun,nothing,jac,p,jac_prototype,u,du,resid)
 
 function cvodefunjac(t::Float64,
                      u::N_Vector,
                      du::N_Vector,
                      funjac::FunJac)
-    funjac.fun(convert(Vector, du), convert(Vector, u), funjac.p, t)
+    @show pointer(funjac.u),__N_VGetArrayPointer_Serial(u)
+    @show pointer(funjac.du),__N_VGetArrayPointer_Serial(du)
+
+    if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
+      @warn "Pointer is broken to FunJac.u"
+      _u = convert(Vector, u)
+    else
+      _u = funjac.u
+    end
+
+    if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
+      @warn "Pointer is broken to FunJac.du"
+      _du = convert(Vector, du)
+    else
+      _du = funjac.du
+    end
+
+    funjac.fun(_du, _u, funjac.p, t)
     return CV_SUCCESS
 end
 
@@ -22,7 +41,17 @@ function cvodefunjac2(t::Float64,
                      u::N_Vector,
                      du::N_Vector,
                      funjac::FunJac)
-    funjac.fun2(convert(Vector, du), convert(Vector, u), funjac.p, t)
+    if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
+      @warn "Pointer is broken to FunJac.u"
+      _u = convert(Vector, u)
+    end
+
+    if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
+      @warn "Pointer is broken to FunJac.du"
+      _du = convert(Vector, du)
+    end
+
+    funjac.fun2(_du, _u, funjac.p, t)
     return CV_SUCCESS
 end
 
@@ -34,7 +63,18 @@ function cvodejac(t::realtype,
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
-    funjac.jac(convert(Matrix, J), convert(Vector, u), funjac.p, t)
+
+    if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
+      @warn "Pointer is broken to FunJac.u"
+      _u = convert(Vector, u)
+    end
+
+    if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
+      @warn "Pointer is broken to FunJac.du"
+      _du = convert(Vector, du)
+    end
+
+    funjac.jac(convert(Matrix, J), _u, funjac.p, t)
     return CV_SUCCESS
 end
 
@@ -56,8 +96,27 @@ function cvodejac(t::realtype,
     return CV_SUCCESS
 end
 
-function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, funjac::FunJac)
-    funjac.fun(convert(Vector, r), convert(Vector, yp), convert(Vector, y), funjac.p, t)
+function idasolfun(t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector, funjac::FunJac)
+    if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
+      @warn "Pointer is broken to FunJac.u"
+      _u = convert(Vector, u)
+    else
+      _u = funjac.u
+    end
+
+    if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
+      @warn "Pointer is broken to FunJac.du"
+      _du = convert(Vector, du)
+    else
+      _du = funjac.du
+    end
+
+    funjac.fun(funjac.resid, _du, _u, funjac.p, t)
+
+    unsafe_copyto!(Sundials.__N_VGetArrayPointer_Serial(resid),
+                   pointer(funjac.resid),
+                   length(funjac.resid))
+
     return IDA_SUCCESS
 end
 
@@ -71,6 +130,7 @@ function idajac(t::realtype,
                 tmp1::N_Vector,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
+
     funjac.jac(convert(Matrix, J), convert(Vector,dx),
                convert(Vector, x), funjac.p, cj, t)
     return IDA_SUCCESS
