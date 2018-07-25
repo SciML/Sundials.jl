@@ -11,6 +11,10 @@ sol = solve(prob,ARKODE())
 f1 = (du,u,p,t) -> du .= u
 f2 = (du,u,p,t) -> du .= u
 
+prob = prob_ode_2Dlinear
+dt = 1//2^(4)
+sol = solve(prob,ARKODE())
+
 prob = SplitODEProblem(SplitFunction(f1,f2,analytic=(u0,p,t)->exp(2t)*u0),
                        rand(4,2),(0.0,1.0))
 
