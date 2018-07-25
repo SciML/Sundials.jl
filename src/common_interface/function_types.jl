@@ -17,13 +17,13 @@ function cvodefunjac(t::Float64,
                      du::N_Vector,
                      funjac::FunJac)
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
-      @warn "Pointer is broken to FunJac.u"
+      #@warn "Pointer is broken to FunJac.u"
       funjac.u = convert(Vector, u)
     end
     _u = funjac.u
 
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
-      @warn "Pointer is broken to FunJac.du"
+      #@warn "Pointer is broken to FunJac.du"
       funjac.du = convert(Vector, du)
     end
     _du = funjac.du
@@ -37,13 +37,13 @@ function cvodefunjac2(t::Float64,
                      du::N_Vector,
                      funjac::FunJac)
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
-      @warn "Pointer is broken to FunJac.u"
+      #@warn "Pointer is broken to FunJac.u"
       funjac.u = convert(Vector, u)
     end
     _u = funjac.u
 
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
-      @warn "Pointer is broken to FunJac.du"
+      #@warn "Pointer is broken to FunJac.du"
       funjac.du = convert(Vector, du)
     end
     _du = funjac.du
@@ -62,14 +62,14 @@ function cvodejac(t::realtype,
                   tmp3::N_Vector)
 
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
-      @warn "Pointer is broken to FunJac.u"
+      #@warn "Pointer is broken to FunJac.u"
       funjac.u = convert(Vector, u)
     end
     _u = funjac.u
 
     #=
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
-      @warn "Pointer is broken to FunJac.du"
+      #@warn "Pointer is broken to FunJac.du"
       _du = convert(Vector, du)
     end
     =#
@@ -90,7 +90,7 @@ function cvodejac(t::realtype,
     J = convert(SparseMatrixCSC,_J)
 
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
-      @warn "Pointer is broken to FunJac.u"
+      #@warn "Pointer is broken to FunJac.u"
       funjac.u = convert(Vector, u)
     end
     _u = funjac.u
@@ -105,14 +105,14 @@ end
 
 function idasolfun(t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector, funjac::FunJac)
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
-      @warn "Pointer is broken to FunJac.u"
+      #@warn "Pointer is broken to FunJac.u"
       _u = convert(Vector, u)
     else
       _u = funjac.u
     end
 
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
-      @warn "Pointer is broken to FunJac.du"
+      #@warn "Pointer is broken to FunJac.du"
       _du = convert(Vector, du)
     else
       _du = funjac.du
@@ -140,14 +140,14 @@ function idajac(t::realtype,
 
 
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
-      @warn "Pointer is broken to FunJac.u"
+      #@warn "Pointer is broken to FunJac.u"
       _u = convert(Vector, u)
     else
       _u = funjac.u
     end
 
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
-      @warn "Pointer is broken to FunJac.du"
+      #@warn "Pointer is broken to FunJac.du"
       _du = convert(Vector, du)
     else
       _du = funjac.du
@@ -173,14 +173,14 @@ function idajac(t::realtype,
   J = convert(SparseMatrixCSC,_J)
 
   if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
-    @warn "Pointer is broken to FunJac.u"
+    #@warn "Pointer is broken to FunJac.u"
     _u = convert(Vector, u)
   else
     _u = funjac.u
   end
 
   if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
-    @warn "Pointer is broken to FunJac.du"
+    #@warn "Pointer is broken to FunJac.du"
     _du = convert(Vector, du)
   else
     _du = funjac.du
