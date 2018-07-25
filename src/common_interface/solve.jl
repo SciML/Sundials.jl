@@ -256,7 +256,7 @@ function DiffEqBase.__init(
     if verbose
         warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
-            if DiffEqBase.has_tgrad(prob.f.f1)
+            if typeof(prob.f) <: SplitFunction? DiffEqBase.has_tgrad(prob.f.f1): DiffEqBase.has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
@@ -339,7 +339,8 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.f1.jac_prototype,u0,_u0)
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,
+                         prob.f.f1.jac_prototype,u0,_u0,nothing)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
                              Tuple{realtype, N_Vector,
