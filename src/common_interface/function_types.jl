@@ -16,22 +16,17 @@ function cvodefunjac(t::Float64,
                      u::N_Vector,
                      du::N_Vector,
                      funjac::FunJac)
-    @show pointer(funjac.u),__N_VGetArrayPointer_Serial(u)
-    @show pointer(funjac.du),__N_VGetArrayPointer_Serial(du)
-
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
       @warn "Pointer is broken to FunJac.u"
-      _u = convert(Vector, u)
-    else
-      _u = funjac.u
+      funjac.u = convert(Vector, u)
     end
+    _u = funjac.u
 
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
       @warn "Pointer is broken to FunJac.du"
-      _du = convert(Vector, du)
-    else
-      _du = funjac.du
+      funjac.du = convert(Vector, du)
     end
+    _du = funjac.du
 
     funjac.fun(_du, _u, funjac.p, t)
     return CV_SUCCESS
@@ -43,13 +38,15 @@ function cvodefunjac2(t::Float64,
                      funjac::FunJac)
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
       @warn "Pointer is broken to FunJac.u"
-      _u = convert(Vector, u)
+      funjac.u = convert(Vector, u)
     end
+    _u = funjac.u
 
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
       @warn "Pointer is broken to FunJac.du"
-      _du = convert(Vector, du)
+      funjac.du = convert(Vector, du)
     end
+    _du = funjac.du
 
     funjac.fun2(_du, _u, funjac.p, t)
     return CV_SUCCESS
@@ -66,13 +63,16 @@ function cvodejac(t::realtype,
 
     if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
       @warn "Pointer is broken to FunJac.u"
-      _u = convert(Vector, u)
+      funjac.u = convert(Vector, u)
     end
+    _u = funjac.u
 
+    #=
     if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
       @warn "Pointer is broken to FunJac.du"
       _du = convert(Vector, du)
     end
+    =#
 
     funjac.jac(convert(Matrix, J), _u, funjac.p, t)
     return CV_SUCCESS
@@ -88,7 +88,14 @@ function cvodejac(t::realtype,
                   tmp3::N_Vector)
     jac_prototype = funjac.jac_prototype
     J = convert(SparseMatrixCSC,_J)
-    funjac.jac(jac_prototype, convert(Vector, u), funjac.p, t)
+
+    if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
+      @warn "Pointer is broken to FunJac.u"
+      funjac.u = convert(Vector, u)
+    end
+    _u = funjac.u
+
+    funjac.jac(jac_prototype, _u, funjac.p, t)
     J.nzval .= jac_prototype.nzval
     # Sundials resets the value pointers each time, so reset it too
     @. J.rowval = jac_prototype.rowval - 1
@@ -122,8 +129,8 @@ end
 
 function idajac(t::realtype,
                 cj::realtype,
-                x::N_Vector,
-                dx::N_Vector,
+                u::N_Vector,
+                du::N_Vector,
                 res::N_Vector,
                 J::SUNMatrix,
                 funjac::AbstactFunJac{Nothing},
@@ -131,15 +138,30 @@ function idajac(t::realtype,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
 
-    funjac.jac(convert(Matrix, J), convert(Vector,dx),
-               convert(Vector, x), funjac.p, cj, t)
+
+    if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
+      @warn "Pointer is broken to FunJac.u"
+      _u = convert(Vector, u)
+    else
+      _u = funjac.u
+    end
+
+    if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
+      @warn "Pointer is broken to FunJac.du"
+      _du = convert(Vector, du)
+    else
+      _du = funjac.du
+    end
+
+    funjac.jac(convert(Matrix, J), _du,
+               _u, funjac.p, cj, t)
     return IDA_SUCCESS
 end
 
 function idajac(t::realtype,
                 cj::realtype,
-                x::N_Vector,
-                dx::N_Vector,
+                u::N_Vector,
+                du::N_Vector,
                 res::N_Vector,
                 _J::SUNMatrix,
                 funjac::AbstactFunJac{<:SparseMatrixCSC},
@@ -147,14 +169,28 @@ function idajac(t::realtype,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
 
-                jac_prototype = funjac.jac_prototype
-                J = convert(SparseMatrixCSC,_J)
-                funjac.jac(jac_prototype, convert(Vector,dx),
-                            convert(Vector, x), funjac.p, cj, t)
-                J.nzval .= jac_prototype.nzval
-                # Sundials resets the value pointers each time, so reset it too
-                @. J.rowval = jac_prototype.rowval - 1
-                @. J.colptr = jac_prototype.colptr - 1
+  jac_prototype = funjac.jac_prototype
+  J = convert(SparseMatrixCSC,_J)
 
-    return IDA_SUCCESS
+  if !(pointer(funjac.u) === __N_VGetArrayPointer_Serial(u))
+    @warn "Pointer is broken to FunJac.u"
+    _u = convert(Vector, u)
+  else
+    _u = funjac.u
+  end
+
+  if !(pointer(funjac.du) === __N_VGetArrayPointer_Serial(du))
+    @warn "Pointer is broken to FunJac.du"
+    _du = convert(Vector, du)
+  else
+    _du = funjac.du
+  end
+
+  funjac.jac(jac_prototype, _du, convert(Vector, _u), funjac.p, cj, t)
+  J.nzval .= jac_prototype.nzval
+  # Sundials resets the value pointers each time, so reset it too
+  @. J.rowval = jac_prototype.rowval - 1
+  @. J.colptr = jac_prototype.colptr - 1
+
+  return IDA_SUCCESS
 end
