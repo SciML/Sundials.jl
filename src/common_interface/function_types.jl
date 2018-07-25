@@ -1,5 +1,5 @@
 abstract type AbstactFunJac{J2} end
-mutable struct FunJac{F, F2, J, P, J2, uType} <: AbstactFunJac{J2}
+mutable struct FunJac{F, F2, J, P, J2, uType, uType2} <: AbstactFunJac{J2}
     fun::F
     fun2::F2
     jac::J
@@ -7,7 +7,7 @@ mutable struct FunJac{F, F2, J, P, J2, uType} <: AbstactFunJac{J2}
     jac_prototype::J2
     u::uType
     du::uType
-    resid::uType
+    resid::uType2
 end
 FunJac(fun,jac,p,jac_prototype,u,du) = FunJac(fun,nothing,jac,p,jac_prototype,u,du,nothing)
 FunJac(fun,jac,p,jac_prototype,u,du,resid) = FunJac(fun,nothing,jac,p,jac_prototype,u,du,resid)
