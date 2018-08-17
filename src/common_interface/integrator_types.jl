@@ -36,7 +36,7 @@ mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,
     uprev::tmpType
     flag::Cint
     just_hit_tstop::Bool
-    event_last_time::Bool
+    event_last_time::Int
 end
 
 function (integrator::CVODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
@@ -72,7 +72,7 @@ mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType
     uprev::tmpType
     flag::Cint
     just_hit_tstop::Bool
-    event_last_time::Bool
+    event_last_time::Int
 end
 
 function (integrator::ARKODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
@@ -110,7 +110,7 @@ mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UF
     uprev::tmpType
     flag::Cint
     just_hit_tstop::Bool
-    event_last_time::Bool
+    event_last_time::Int
 end
 
 function (integrator::IDAIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
