@@ -721,10 +721,12 @@ function DiffEqBase.__init(
 
     f!(rtest, du0, u0, prob.p, t0)
     if any(abs.(rtest) .>= reltol)
-        if prob.differential_vars === nothing
+        if prob.differential_vars === nothing && !alg.init_all
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
         end
-        flag = IDASetId(mem, collect(Float64, prob.differential_vars))
+        prob.differential_vars != nothing && (flag = IDASetId(mem, collect(Float64, prob.differential_vars)))
+
+
         if dt != nothing
             _t = float(dt)
         else
