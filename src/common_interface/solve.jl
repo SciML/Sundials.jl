@@ -27,6 +27,7 @@ function DiffEqBase.__init(
     timeseries_errors=true,
     dense_errors = false,
     save_everystep=isempty(saveat),
+    save_on = true,
     save_start = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true : prob.tspan[1] in saveat,
     save_end = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true : prob.tspan[2] in saveat,
     dense = save_everystep && isempty(saveat),
@@ -226,7 +227,7 @@ function DiffEqBase.__init(
                    timeseries_errors = timeseries_errors,
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
-                     timeseries_errors,dense_errors,save_end,
+                     timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
     CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0)
@@ -245,7 +246,7 @@ function DiffEqBase.__init(
     timeseries_errors=true,
     dense_errors = false,
     save_everystep=isempty(saveat), dense = save_everystep,
-    save_start = true, save_end = true,
+    save_on = true, save_start = true, save_end = true,
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
@@ -493,7 +494,7 @@ function DiffEqBase.__init(
                    timeseries_errors = timeseries_errors,
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
-                     timeseries_errors,dense_errors,save_end,
+                     timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
     ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0)
@@ -543,7 +544,7 @@ function DiffEqBase.__init(
 
     verbose=true,
     dt=nothing, dtmax=0.0,
-    save_start=true,
+    save_on=true, save_start=true,
     callback=nothing, abstol=1/10^6, reltol=1/10^3,
     saveat=Float64[], tstops=Float64[], maxiters=Int(1e5),
     timeseries_errors=true,
@@ -767,7 +768,7 @@ function DiffEqBase.__init(
                    dense_errors = dense_errors)
 
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
-                    timeseries_errors,dense_errors,save_end,
+                    timeseries_errors,dense_errors,save_on,save_end,
                     callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
 
     IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
