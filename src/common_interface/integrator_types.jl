@@ -5,6 +5,7 @@ mutable struct DEOptions{SType,TstopType,CType}
     dense::Bool
     timeseries_errors::Bool
     dense_errors::Bool
+    save_on::Bool
     save_end::Bool
     callback::CType
     verbose::Bool

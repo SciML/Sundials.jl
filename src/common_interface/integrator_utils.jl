@@ -31,6 +31,7 @@ function handle_callbacks!(integrator)
 end
 
 function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_save=false)
+  if integrator.opts.save_on
     uType = eltype(integrator.sol.u)
     while !isempty(integrator.opts.saveat) &&
         integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
@@ -53,6 +54,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_sav
           save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu)
         end
     end
+  end
 end
 
 function save_value!(save_array,val,::Type{T},sizeu,
