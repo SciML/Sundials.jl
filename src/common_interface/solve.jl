@@ -207,8 +207,8 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
-    callback == nothing ? tmp = nothing : tmp = similar(u0)
-    callback == nothing ? uprev = nothing : uprev = similar(u0)
+    callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
+    callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
 
     if save_start
@@ -474,8 +474,8 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
-    callback == nothing ? tmp = nothing : tmp = similar(u0)
-    callback == nothing ? uprev = nothing : uprev = similar(u0)
+    callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
+    callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
 
     if save_start
@@ -748,8 +748,8 @@ function DiffEqBase.__init(
       end
     end
 
-    callback == nothing ? tmp = nothing : tmp = similar(u0)
-    callback == nothing ? uprev = nothing : uprev = similar(u0)
+    callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
+    callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
 
     if flag >= 0
         retcode = :Default
