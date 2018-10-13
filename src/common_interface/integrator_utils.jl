@@ -30,31 +30,49 @@ function handle_callbacks!(integrator)
   integrator.u_modified = false
 end
 
+"""
+    savevalues!(integrator::ODEIntegrator,
+      force_save=false,reduce_size=true) -> Tuple{Bool, Bool}
+
+Try to save the state and time variables at the current time point, or the
+`saveat` point. It returns a tuple that is `(saved, savedexactly)`. If
+`savevalues!` saved value, then `saved` is true, and if `savevalues!` saved at
+the current time point, then `savedexactly` is true.
+
+The saving priority/order is as follows:
+  - `save_on`
+    - `saveat`
+    - `force_save`
+    - `save_everystep`
+"""
 function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_save=false)
-  if integrator.opts.save_on
-    uType = eltype(integrator.sol.u)
-    while !isempty(integrator.opts.saveat) &&
-        integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
+  !integrator.opts.save_on && return false # the master switch, if save_on is false, return immediately
+  saved = savedexactly = false
+  uType = eltype(integrator.sol.u)
+  while !isempty(integrator.opts.saveat) &&
+      integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
 
-        curt = pop!(integrator.opts.saveat)
-        tmp = integrator(curt)
-        save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
-        push!(integrator.sol.t,curt)
-        if integrator.opts.dense
-          tmp = integrator(curt,Val{1})
-          save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu,Val{false})
-        end
-    end
-
-    if integrator.opts.save_everystep || force_save
-        save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
-        push!(integrator.sol.t, integrator.t)
-        if integrator.opts.dense
-          tmp = integrator(integrator.t,Val{1})
-          save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu)
-        end
+    saved = savedexactly = true
+    curt = pop!(integrator.opts.saveat)
+    tmp = integrator(curt)
+    save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
+    push!(integrator.sol.t,curt)
+    if integrator.opts.dense
+      tmp = integrator(curt,Val{1})
+      save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu,Val{false})
     end
   end
+
+  if integrator.opts.save_everystep || force_save
+    saved = savedexactly = true
+    save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
+    push!(integrator.sol.t, integrator.t)
+    if integrator.opts.dense
+      tmp = integrator(integrator.t,Val{1})
+      save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu)
+    end
+  end
+  return saved, savedexactly
 end
 
 function save_value!(save_array,val,::Type{T},sizeu,

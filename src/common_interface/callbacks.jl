@@ -181,8 +181,12 @@ function apply_callback!(integrator,callback::ContinuousCallback,cb_time,prev_si
   end
   saved_in_cb = false
 
+  # handle saveat
+  _, saved_in_saveat = savevalues!(integrator)
+
   @inbounds if callback.save_positions[1]
-    savevalues!(integrator,true)
+    # if already saved then skip saving
+    saved_in_saveat || savevalues!(integrator,true)
     saved_in_cb = true
   end
 
@@ -216,9 +220,12 @@ end
 #Base Case: Just one
 @inline function apply_discrete_callback!(integrator,callback::DiscreteCallback)
   saved_in_cb = false
+  _, saved_in_saveat = savevalues!(integrator)
+
   if callback.condition(integrator.u,integrator.t,integrator)
     @inbounds if callback.save_positions[1]
-      savevalues!(integrator,true)
+      # if already saved then skip saving
+      saved_in_saveat || savevalues!(integrator,true)
       saved_in_cb = true
     end
     integrator.u_modified = true
