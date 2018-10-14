@@ -46,7 +46,7 @@ The saving priority/order is as follows:
     - `save_everystep`
 """
 function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_save=false)
-  !integrator.opts.save_on && return false # the master switch, if save_on is false, return immediately
+  !integrator.opts.save_on && return false, false # the master switch, if save_on is false, return immediately
   saved = savedexactly = false
   uType = eltype(integrator.sol.u)
   while !isempty(integrator.opts.saveat) &&
