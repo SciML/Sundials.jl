@@ -115,3 +115,5 @@ end
 @inline function DiffEqBase.get_du!(out,integrator::IDAIntegrator)
   out .= reshape(integrator.du,integrator.sizedu)
 end
+
+@inline DiffEqBase.isnative(integrator::AbstractSundialsIntegrator) = false

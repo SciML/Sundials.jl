@@ -64,7 +64,6 @@ include("common_interface/function_types.jl")
 include("common_interface/verbosity.jl")
 include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
-include("common_interface/callbacks.jl")
 include("common_interface/algorithms.jl")
 include("common_interface/solve.jl")
 
