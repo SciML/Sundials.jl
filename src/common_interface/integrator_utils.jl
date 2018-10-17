@@ -123,3 +123,11 @@ end
     integrator(integrator.u,integrator.t)
     return nothing
 end
+
+@inline function Base.getproperty(integrator::AbstractSundialsIntegrator, sym::Symbol)
+  if sym == :dt
+    return integrator.t-integrator.tprev
+  else
+    return getfield(integrator, sym)
+  end
+end
