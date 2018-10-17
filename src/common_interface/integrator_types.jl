@@ -40,15 +40,15 @@ mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,
     event_last_time::Int
 end
 
-function (integrator::CVODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
+function (integrator::CVODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     out = similar(integrator.u)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
-    out
+    return idxs == nothing ? out : out[idx]
 end
 
-function (integrator::CVODEIntegrator)(out,t::Number,
-                                          deriv::Type{Val{T}}=Val{0}) where T
+function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
+    return idxs == nothing ? out : @view out[idx]
 end
 
 mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
@@ -76,15 +76,15 @@ mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType
     event_last_time::Int
 end
 
-function (integrator::ARKODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
+function (integrator::ARKODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     out = similar(integrator.u)
     integrator.flag = @checkflag ARKodeGetDky(integrator.mem, t, Cint(T), out)
-    out
+    return idxs == nothing ? out : out[idx]
 end
 
-function (integrator::ARKODEIntegrator)(out,t::Number,
-                                          deriv::Type{Val{T}}=Val{0}) where T
+function (integrator::ARKODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     integrator.flag = @checkflag ARKodeGetDky(integrator.mem, t, Cint(T), out)
+    return idxs == nothing ? out : @view out[idx]
 end
 
 mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
@@ -114,15 +114,15 @@ mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UF
     event_last_time::Int
 end
 
-function (integrator::IDAIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0}) where T
+function (integrator::IDAIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     out = similar(integrator.u)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
-    out
+    return idxs == nothing ? out : out[idx]
 end
 
-function (integrator::IDAIntegrator)(out,t::Number,
-                                          deriv::Type{Val{T}}=Val{0}) where T
+function (integrator::IDAIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
+    return idxs == nothing ? out : @view out[idx]
 end
 
 ###  Error check (retcode)
