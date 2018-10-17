@@ -116,8 +116,6 @@ end
   out .= reshape(integrator.du,integrator.sizedu)
 end
 
-@inline DiffEqBase.isnative(integrator::AbstractSundialsIntegrator) = false
-
 @inline function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator,t)
     integrator.t = t
     integrator(integrator.u,integrator.t)
