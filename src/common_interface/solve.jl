@@ -230,7 +230,7 @@ function DiffEqBase.__init(
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
     CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0)
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
 end # function solve
 
 function DiffEqBase.__init(
@@ -497,7 +497,7 @@ function DiffEqBase.__init(
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
     ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0)
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
 end # function solve
 
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
@@ -772,7 +772,7 @@ function DiffEqBase.__init(
                     callbacks_internal,verbose,advance_to_tstop,stop_at_next_tstop)
 
     IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,0)
+                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,0,0.)
 end # function solve
 
 ## Common calls
