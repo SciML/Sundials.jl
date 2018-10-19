@@ -2,7 +2,7 @@ __precompile__()
 
 module Sundials
 
-using Reexport, DataStructures, Roots
+using Reexport, DataStructures
 @reexport using DiffEqBase
 using DiffEqBase: check_error!
 using SparseArrays, LinearAlgebra
