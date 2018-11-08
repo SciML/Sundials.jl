@@ -850,6 +850,10 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         timeseries_errors=integrator.opts.timeseries_errors,
         dense_errors=integrator.opts.dense_errors)
     end
+
+    if integrator.sol.retcode != :Default
+      return integrator.sol
+    end
     integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
     nothing
 end

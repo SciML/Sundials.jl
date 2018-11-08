@@ -84,7 +84,7 @@ function handle_callback_modifiers!(integrator::IDAIntegrator)
   IDAReInit(integrator.mem,integrator.t,integrator.u,integrator.du)
 end
 
-@inline function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator,t)
+function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator,t)
   t < integrator.t && error("Tried to add a tstop that is behind the current time. This is strictly forbidden")
   push!(integrator.opts.tstops,t)
 end
@@ -94,13 +94,15 @@ function DiffEqBase.add_saveat!(integrator::AbstractSundialsIntegrator,t)
   push!(integrator.opts.saveat,t)
 end
 
-@inline DiffEqBase.get_tmp_cache(integrator::AbstractSundialsIntegrator) = (integrator.tmp,)
+DiffEqBase.get_tmp_cache(integrator::AbstractSundialsIntegrator) = (integrator.tmp,)
 
 @inline function DiffEqBase.u_modified!(integrator::AbstractSundialsIntegrator,bool::Bool)
   integrator.u_modified = bool
 end
 
-@inline function DiffEqBase.terminate!(integrator::AbstractSundialsIntegrator)
+function DiffEqBase.terminate!(integrator::AbstractSundialsIntegrator,
+                                       retcode = :Terminated)
+  integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol, retcode)
   integrator.opts.tstops.valtree = typeof(integrator.opts.tstops.valtree)()
 end
 
@@ -120,7 +122,7 @@ end
   out .= reshape(integrator.du,integrator.sizedu)
 end
 
-@inline function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator,t)
+function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator,t)
     integrator.t = t
     integrator(integrator.u,integrator.t)
     return nothing
