@@ -2,4 +2,4 @@ julia 1.0
 BinaryProvider
 DiffEqBase 4.29.0
 Reexport
-DataStructures
+DataStructures 0.15.0

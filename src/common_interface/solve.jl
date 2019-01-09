@@ -509,9 +509,9 @@ function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
   end
 
   if tdir>0
-    tstops_internal = binary_minheap(tstops_vec)
+    tstops_internal = BinaryMinHeap(tstops_vec)
   else
-    tstops_internal = binary_maxheap(tstops_vec)
+    tstops_internal = BinaryMaxHeap(tstops_vec)
   end
 
   if typeof(saveat) <: Number
@@ -527,9 +527,9 @@ function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
   end
 
   if tdir>0
-    saveat_internal = binary_minheap(saveat_vec)
+    saveat_internal = BinaryMinHeap(saveat_vec)
   else
-    saveat_internal = binary_maxheap(saveat_vec)
+    saveat_internal = BinaryMaxHeap(saveat_vec)
   end
 
   tstops_internal,saveat_internal
