@@ -13,9 +13,9 @@ mutable struct DEOptions{SType,TstopType,CType}
     stop_at_next_tstop::Bool
 end
 
-abstract type AbstractSundialsIntegrator <: DiffEqBase.AbstractODEIntegrator end
+abstract type AbstractSundialsIntegrator{algType} <: DiffEqBase.AbstractODEIntegrator{algType,true,Vector{Float64},Float64} end
 
-mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
+mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator{algType}
     u::uType
     p::pType
     t::Float64
@@ -52,7 +52,7 @@ function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};
     return idxs == nothing ? out : @view out[idx]
 end
 
-mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
+mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator{ARKODE}
     u::uType
     p::pType
     t::Float64
@@ -89,7 +89,7 @@ function (integrator::ARKODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0}
     return idxs == nothing ? out : @view out[idx]
 end
 
-mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator
+mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator{IDA}
     u::uType
     du::duType
     p::pType
