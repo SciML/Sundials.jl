@@ -34,6 +34,7 @@ function DiffEqBase.__init(
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
+    alias_u0=false,
     kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
 
     tType = eltype(tupType)
@@ -66,7 +67,11 @@ function DiffEqBase.__init(
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
-        u0 = vec(copy(prob.u0))
+        if alias_u0
+            u0 = vec(prob.u0)
+        else
+            u0 = vec(copy(prob.u0))
+        end
     end
 
     sizeu = size(prob.u0)
@@ -250,6 +255,7 @@ function DiffEqBase.__init(
     save_timeseries = nothing,
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
+    alias_u0=false,
     kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
 
     tType = eltype(tupType)
@@ -282,7 +288,11 @@ function DiffEqBase.__init(
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
-        u0 = vec(copy(prob.u0))
+        if alias_u0
+            u0 = vec(prob.u0)
+        else
+            u0 = vec(copy(prob.u0))
+        end
     end
 
     sizeu = size(prob.u0)
