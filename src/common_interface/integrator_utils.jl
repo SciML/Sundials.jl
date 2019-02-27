@@ -80,8 +80,24 @@ function handle_callback_modifiers!(integrator::CVODEIntegrator)
   CVodeReInit(integrator.mem,integrator.t,integrator.u)
 end
 
+function handle_callback_modifiers!(integrator::ARKODEIntegrator)
+  ARKodeReInit(integrator.mem,integrator.t,integrator.u)
+end
+
 function handle_callback_modifiers!(integrator::IDAIntegrator)
   IDAReInit(integrator.mem,integrator.t,integrator.u,integrator.du)
+  integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
+  if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
+      if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all
+          error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
+      end
+      if integrator.alg.init_all
+          init_type = IDA_Y_INIT
+      else
+          init_type = IDA_YA_YDP_INIT
+      end
+      integrator.flag = IDACalcIC(integrator.mem, init_type, integrator.dt)
+  end
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator,t)

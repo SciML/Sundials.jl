@@ -1,4 +1,4 @@
-mutable struct DEOptions{SType,TstopType,CType}
+mutable struct DEOptions{SType,TstopType,CType,reltolType}
     saveat::SType
     tstops::TstopType
     save_everystep::Bool
@@ -8,6 +8,7 @@ mutable struct DEOptions{SType,TstopType,CType}
     save_on::Bool
     save_end::Bool
     callback::CType
+    reltol::reltolType
     verbose::Bool
     advance_to_tstop::Bool
     stop_at_next_tstop::Bool
