@@ -195,7 +195,7 @@ function DiffEqBase.__init(
         _LS = nothing
     end
 
-    if DiffEqBase.has_jac(prob.f)
+    if DiffEqBase.has_jac(prob.f) && Method == :Newton
       jac = old_cfunction(cvodejac,
                       Cint,
                       Tuple{realtype,
