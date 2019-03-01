@@ -226,7 +226,6 @@ function DiffEqBase.__init(
 
     sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   du = dures,
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
                                     DiffEqBase.LinearInterpolation(ts,ures),
                    timeseries_errors = timeseries_errors,
@@ -498,7 +497,6 @@ function DiffEqBase.__init(
 
     sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   du = dures,
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
                                     DiffEqBase.LinearInterpolation(ts,ures),
                    timeseries_errors = timeseries_errors,
@@ -769,7 +767,6 @@ function DiffEqBase.__init(
 
     sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   du = dures,
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
                                     DiffEqBase.LinearInterpolation(ts,ures),
                    calculate_error = false,
