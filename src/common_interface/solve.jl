@@ -864,6 +864,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     if integrator.sol.retcode != :Default
       return integrator.sol
     end
+    fill_destats!(integrator)
     integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
     nothing
 end
@@ -877,4 +878,14 @@ function handle_tstop!(integrator::AbstractSundialsIntegrator)
           integrator.just_hit_tstop = true
       end
     end
+end
+
+function fill_destats!(integrator::AbstractSundialsIntegrator)
+end
+
+function fill_destats!(integrator::CVODEIntegrator)
+    destats = integrator.sol.destats
+    mem = integrator.mem
+    tmp = Ref(-1)
+    destats.nf = CVodeGetNumRhsEvals(mem,tmp)
 end
