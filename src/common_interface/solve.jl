@@ -851,6 +851,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         end
     end
 
+    fill_destats!(integrator)
     empty!(integrator.mem)
     integrator.A != nothing && empty!(integrator.A)
     integrator.LS != nothing && empty!(integrator.LS)
@@ -864,7 +865,6 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     if integrator.sol.retcode != :Default
       return integrator.sol
     end
-    fill_destats!(integrator)
     integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
     nothing
 end
@@ -886,6 +886,21 @@ end
 function fill_destats!(integrator::CVODEIntegrator)
     destats = integrator.sol.destats
     mem = integrator.mem
-    tmp = Ref(-1)
-    destats.nf = CVodeGetNumRhsEvals(mem,tmp)
+    tmp = Ref(Clong(-1))
+    CVodeGetNumRhsEvals(mem,tmp)
+    destats.nf = tmp[]
+    CVodeGetNumLinSolvSetups(mem,tmp)
+    destats.nw = tmp[]
+    CVodeGetNumErrTestFails(mem,tmp)
+    destats.nreject = tmp[]
+    CVodeGetNumSteps(mem,tmp)
+    destats.naccept = tmp[] - destats.nreject
+    CVodeGetNumJacEvals(mem,tmp)
+    destats.njacs = tmp[]
+    CVodeGetNumNonlinSolvIters(mem,tmp)
+    destats.nnonliniter = tmp[]
+    CVodeGetNumNonlinSolvConvFails(mem,tmp)
+    destats.nnonlinconvfail = tmp[]
+    CVodeGetNumGEvals(mem,tmp)
+    destats.nrootfind = tmp[]
 end
