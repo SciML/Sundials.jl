@@ -895,12 +895,64 @@ function fill_destats!(integrator::CVODEIntegrator)
     destats.nreject = tmp[]
     CVodeGetNumSteps(mem,tmp)
     destats.naccept = tmp[] - destats.nreject
-    CVodeGetNumJacEvals(mem,tmp)
-    destats.njacs = tmp[]
     CVodeGetNumNonlinSolvIters(mem,tmp)
     destats.nnonliniter = tmp[]
     CVodeGetNumNonlinSolvConvFails(mem,tmp)
     destats.nnonlinconvfail = tmp[]
     CVodeGetNumGEvals(mem,tmp)
-    destats.nrootfind = tmp[]
+    destats.ncondition = tmp[]
+    if method_choice(integrator.alg) == :Newton
+        CVDlsGetNumJacEvals(mem,tmp)
+        destats.njacs = tmp[]
+    end
+end
+
+function fill_destats!(integrator::ARKODEIntegrator)
+    destats = integrator.sol.destats
+    mem = integrator.mem
+    tmp = Ref(Clong(-1))
+    tmp2 = Ref(Clong(-1))
+    ARKodeGetNumRhsEvals(mem,tmp,tmp2)
+    destats.nf = tmp[]
+    destats.nf2 = tmp2[]
+    ARKodeGetNumLinSolvSetups(mem,tmp)
+    destats.nw = tmp[]
+    ARKodeGetNumErrTestFails(mem,tmp)
+    destats.nreject = tmp[]
+    ARKodeGetNumSteps(mem,tmp)
+    destats.naccept = tmp[] - destats.nreject
+    ARKodeGetNumNonlinSolvIters(mem,tmp)
+    destats.nnonliniter = tmp[]
+    ARKodeGetNumNonlinSolvConvFails(mem,tmp)
+    destats.nnonlinconvfail = tmp[]
+    ARKodeGetNumGEvals(mem,tmp)
+    destats.ncondition = tmp[]
+    if method_choice(integrator.alg) == :Newton
+        ARKDlsGetNumJacEvals(mem,tmp)
+        destats.njacs = tmp[]
+    end
+end
+
+function fill_destats!(integrator::IDAIntegrator)
+    destats = integrator.sol.destats
+    mem = integrator.mem
+    tmp = Ref(Clong(-1))
+    IDAGetNumResEvals(mem,tmp)
+    destats.nf = tmp[]
+    IDAGetNumLinSolvSetups(mem,tmp)
+    destats.nw = tmp[]
+    IDAGetNumErrTestFails(mem,tmp)
+    destats.nreject = tmp[]
+    IDAGetNumSteps(mem,tmp)
+    destats.naccept = tmp[] - destats.nreject
+    IDAGetNumNonlinSolvIters(mem,tmp)
+    destats.nnonliniter = tmp[]
+    IDAGetNumNonlinSolvConvFails(mem,tmp)
+    destats.nnonlinconvfail = tmp[]
+    IDAGetNumGEvals(mem,tmp)
+    destats.ncondition = tmp[]
+    if method_choice(integrator.alg) == :Newton
+        IDADlsGetNumJacEvals(mem,tmp)
+        destats.njacs = tmp[]
+    end
 end
