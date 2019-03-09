@@ -896,8 +896,6 @@ function fill_destats!(integrator::CVODEIntegrator)
     destats.nnonliniter = tmp[]
     CVodeGetNumNonlinSolvConvFails(mem,tmp)
     destats.nnonlinconvfail = tmp[]
-    CVodeGetNumGEvals(mem,tmp)
-    destats.ncondition = tmp[]
     if method_choice(integrator.alg) == :Newton
         CVDlsGetNumJacEvals(mem,tmp)
         destats.njacs = tmp[]
@@ -922,8 +920,6 @@ function fill_destats!(integrator::ARKODEIntegrator)
     destats.nnonliniter = tmp[]
     ARKodeGetNumNonlinSolvConvFails(mem,tmp)
     destats.nnonlinconvfail = tmp[]
-    ARKodeGetNumGEvals(mem,tmp)
-    destats.ncondition = tmp[]
     if method_choice(integrator.alg) == :Newton
         ARKDlsGetNumJacEvals(mem,tmp)
         destats.njacs = tmp[]
@@ -946,8 +942,6 @@ function fill_destats!(integrator::IDAIntegrator)
     destats.nnonliniter = tmp[]
     IDAGetNumNonlinSolvConvFails(mem,tmp)
     destats.nnonlinconvfail = tmp[]
-    IDAGetNumGEvals(mem,tmp)
-    destats.ncondition = tmp[]
     if method_choice(integrator.alg) == :Newton
         IDADlsGetNumJacEvals(mem,tmp)
         destats.njacs = tmp[]
