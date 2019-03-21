@@ -30,4 +30,5 @@ end
     @testset "Callbacks" begin include("common_interface/callbacks.jl") end
     @testset "Iterator" begin include("common_interface/iterators.jl") end
     @testset "Errors" begin include("common_interface/errors.jl") end
+    @testset "Mass Matrix" begin include("common_interface/mass_matrix.jl") end
 end

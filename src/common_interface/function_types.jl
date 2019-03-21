@@ -1,10 +1,9 @@
 abstract type AbstactFunJac{J2} end
-mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2} <: AbstactFunJac{J2}
+mutable struct FunJac{F, F2, J, P, J2, uType, uType2} <: AbstactFunJac{J2}
     fun::F
     fun2::F2
     jac::J
     p::P
-    mass_matrix::M
     jac_prototype::J2
     u::uType
     du::uType
@@ -201,13 +200,13 @@ function massmat(t::Float64,
                  mmf::AbstactFunJac,
                  tmp1::N_Vector,
                  tmp2::N_Vector,
-                 tmp3::N_Vector) where M
-  if mmf.mass_matrix <: Array
+                 tmp3::N_Vector)
+  if mmf.fun.mass_matrix <: Array
     M = convert(Matrix, _M)
   else
     M = convert(SparseMatrixCSC, _M)
   end
-  M .= mmf.mass_matrix
+  M .= mmf.fun.mass_matrix
 
   return IDA_SUCCESS
 end
