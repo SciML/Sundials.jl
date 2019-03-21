@@ -122,7 +122,7 @@ function DiffEqBase.__init(
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,u0,_u0)
 
     flag = CVodeInit(mem,
                      old_cfunction(cvodefunjac, Cint,
@@ -361,7 +361,7 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.mass_matrix,
                          prob.f.f1.jac_prototype,u0,_u0,nothing)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
@@ -372,7 +372,7 @@ function DiffEqBase.__init(
                              N_Vector, Ref{typeof(userfun)}}),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.mass_matrix,prob.f.jac_prototype,u0,_u0)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         old_cfunction(cvodefunjac, Cint,
@@ -482,6 +482,35 @@ function DiffEqBase.__init(
         _LS = nothing
     end
 
+    if prob.mass_matrix != nothing
+        if LinearSolver == :Dense
+            M = SUNDenseMatrix(length(u0),length(u0))
+            ARKDlsSetMassLinearSolver(mem,LS,M,false)
+            _M = MatrixHandle(M,DenseMatrix())
+        elseif LinearSolver == :Band
+            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
+                                       alg.stored_upper)
+            ARKDlsSetMassLinearSolver(mem,LS,M,false)
+            _M = MatrixHandle(M,BandMatrix())
+        elseif LinearSolver == :KLU
+            nnz = length(nonzeros(prob.f.mass_matrix))
+            A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
+            ARKDlsSetMassLinearSolver(mem,LS,M,false)
+            _M = MatrixHandle(M,SparseMatrix())
+        else
+            ARKSpilsSetMassLinearSolver(mem,LS,false)
+        end
+        matfun = old_cfunction(massmat,
+                        Cint,
+                        Tuple{realtype,
+                         SUNMatrix,
+                         Ref{typeof(userfun)},
+                         N_Vector,
+                         N_Vector,
+                         N_Vector})
+        ARKDlsSetMassFn(mem,matfun)
+    end
+
     if DiffEqBase.has_jac(prob.f)
       jac = old_cfunction(cvodejac,
                       Cint,
@@ -520,7 +549,7 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
-    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_M,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
 end # function solve
 
@@ -655,7 +684,7 @@ function DiffEqBase.__init(
     dutmp = NVector(_du0)
     rtest = zeros(length(u0))
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,_u0,_du0,rtest)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,_u0,_du0,rtest)
 
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,
