@@ -57,7 +57,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_sav
       save_value!(integrator.sol.interp.du,tmp,uType,integrator.sizeu)
     end
   end
-  savedexactly = last(integrator.sol.t) == integrator.t
+  savedexactly = !isempty(integrator.sol.t) && last(integrator.sol.t) == integrator.t
   return saved, savedexactly
 end
 
