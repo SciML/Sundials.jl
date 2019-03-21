@@ -666,7 +666,7 @@ function DiffEqBase.__init(
     dt != nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
-    if typeof(absotl) <: Array
+    if typeof(abstol) <: Array
         flag = IDASVtolerances(mem, reltol, abstol)
     else
         flag = IDASStolerances(mem, reltol, abstol)
