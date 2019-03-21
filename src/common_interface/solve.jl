@@ -278,10 +278,6 @@ function DiffEqBase.__init(
         warned && warn_compat()
     end
 
-    if prob.f.mass_matrix != I
-        error("This solver is not able to use mass matrices.")
-    end
-
     if typeof(reltol) <: AbstractArray
         error("Sundials only allows scalar reltol.")
     end
