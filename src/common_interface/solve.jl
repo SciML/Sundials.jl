@@ -122,7 +122,7 @@ function DiffEqBase.__init(
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,u0,_u0)
 
     flag = CVodeInit(mem,
                      old_cfunction(cvodefunjac, Cint,
@@ -357,7 +357,7 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.mass_matrix,
                          prob.f.f1.jac_prototype,u0,_u0,nothing)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
@@ -368,7 +368,7 @@ function DiffEqBase.__init(
                              N_Vector, Ref{typeof(userfun)}}),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,u0,_u0)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         old_cfunction(cvodefunjac, Cint,
@@ -478,7 +478,7 @@ function DiffEqBase.__init(
         _LS = nothing
     end
 
-    if prob.f.mass_matrix != nothing
+    if prob.f.mass_matrix != I
         if MassLinearSolver == :Dense
             M = SUNDenseMatrix(length(u0),length(u0))
             MLS = SUNDenseLinearSolver(u0,M)
@@ -714,7 +714,7 @@ function DiffEqBase.__init(
     dutmp = NVector(_du0)
     rtest = zeros(length(u0))
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,_u0,_du0,rtest)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,_u0,_du0,rtest)
 
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,

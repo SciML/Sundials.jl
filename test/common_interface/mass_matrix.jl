@@ -1,4 +1,4 @@
-using Sundials, Test
+using Sundials, Test, LinearAlgebra
 
 # create mass matrix problems
 function make_mm_probs(mm_A, ::Type{Val{iip}}) where iip
