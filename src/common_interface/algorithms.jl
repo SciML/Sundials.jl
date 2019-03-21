@@ -78,12 +78,16 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                                       max_convergence_failures)
 end
 
-struct ARKODE{Method,LinearSolver,T,T1,T2} <: SundialsODEAlgorithm{Method,LinearSolver}
+struct ARKODE{Method,LinearSolver,MassLinearSolver,T,T1,T2} <: SundialsODEAlgorithm{Method,LinearSolver}
     stiffness::T
     jac_upper::Int
     jac_lower::Int
     stored_upper::Int
+    mass_upper::Int
+    mass_lower::Int
+    mass_stored_upper::Int
     krylov_dim::Int
+    mass_krylov_dim::Int
     max_hnil_warns::Int
     max_error_test_failures::Int
     max_nonlinear_iters::Int
@@ -102,7 +106,10 @@ struct ARKODE{Method,LinearSolver,T,T1,T2} <: SundialsODEAlgorithm{Method,Linear
 end
 
 Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:Dense,
-                    jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower, non_zero=0,krylov_dim=0,
+                           mass_linear_solver=:Dense,
+                    jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower,
+                    mass_upper=0,mass_lower=0,mass_stored_upper = mass_upper+mass_lower,
+                    non_zero=0,krylov_dim=0,mass_krylov_dim=0,
                     max_hnil_warns = 10,
                     max_error_test_failures = 7,
                     max_nonlinear_iters = 3,
@@ -126,11 +133,18 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
     if linear_solver != :None && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
         error("Linear solver choice not accepted.")
     end
-    ARKODE{method,linear_solver,typeof(stiffness),
+    if mass_linear_solver != :Dense && mass_linear_solver != :Band && mass_linear_solver != :BCG && mass_linear_solver != :GMRES && mass_linear_solver != :FGMRES && mass_linear_solver != :PCG && mass_linear_solver != :TFQMR
+        error("Mass Matrix Linear solver choice not accepted.")
+    end
+    ARKODE{method,linear_solver,mass_linear_solver,
+                    typeof(stiffness),
                     typeof(itable),typeof(etable)}(
                                     stiffness,
                                     jac_upper,jac_lower,
-                                    stored_upper,krylov_dim,
+                                    stored_upper,
+                                    mass_upper,mass_lower,
+                                    mass_stored_upper,
+                                    krylov_dim,mass_krylov_dim,
                                     max_hnil_warns,
                                     max_error_test_failures,
                                     max_nonlinear_iters,

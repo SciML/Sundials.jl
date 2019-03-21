@@ -247,7 +247,7 @@ end # function solve
 
 function DiffEqBase.__init(
     prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-    alg::ARKODE{Method,LinearSolver},
+    alg::ARKODE{Method,LinearSolver,MassLinearSolver},
     timeseries=[], ts=[], ks=[];
 
     verbose=true,
@@ -263,7 +263,7 @@ function DiffEqBase.__init(
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
     alias_u0=false,
-    kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
+    kwargs...) where {uType, tupType, isinplace, Method, LinearSolver, MassLinearSolver}
 
     tType = eltype(tupType)
 
@@ -479,22 +479,53 @@ function DiffEqBase.__init(
     end
 
     if prob.mass_matrix != nothing
-        if LinearSolver == :Dense
+        if MassLinearSolver == :Dense
             M = SUNDenseMatrix(length(u0),length(u0))
-            ARKDlsSetMassLinearSolver(mem,LS,M,false)
+            MLS = SUNDenseLinearSolver(u0,M)
+            ARKDlsSetMassLinearSolver(mem,MLS,M,false)
             _M = MatrixHandle(M,DenseMatrix())
-        elseif LinearSolver == :Band
-            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
-                                       alg.stored_upper)
-            ARKDlsSetMassLinearSolver(mem,LS,M,false)
+            _MLS = LinSolHandle(MLS,Dense())
+        elseif MassLinearSolver == :Band
+            M = SUNBandMatrix(length(u0), alg.mass_upper, alg.mass_lower,
+                                       alg.mass_stored_upper)
+            MLS = SUNBandLinearSolver(u0,M)
+            ARKDlsSetMassLinearSolver(mem,MLS,M,false)
             _M = MatrixHandle(M,BandMatrix())
-        elseif LinearSolver == :KLU
+            _MLS = LinSolHandle(MLS,Band())
+        elseif MassLinearSolver == :GMRES
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,SPGMR())
+        elseif MassLinearSolver == :FGMRES
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,SPFGMR())
+        elseif MassLinearSolver == :BCG
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,SPBCGS())
+        elseif MassLinearSolver == :PCG
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,PCG())
+        elseif MassLinearSolver == :TFQMR
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,PTFQMR())
+        elseif MassLinearSolver == :KLU
             nnz = length(nonzeros(prob.f.mass_matrix))
-            A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
-            ARKDlsSetMassLinearSolver(mem,LS,M,false)
+            M = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
+            MLS = SUNKLU(u0, M)
+            ARKDlsSetMassLinearSolver(mem,MLS,M,false)
             _M = MatrixHandle(M,SparseMatrix())
+            _MLS = LinSolHandle(MLS,KLU())
         else
-            ARKSpilsSetMassLinearSolver(mem,LS,false)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
         end
         matfun = old_cfunction(massmat,
                         Cint,
@@ -505,6 +536,9 @@ function DiffEqBase.__init(
                          N_Vector,
                          N_Vector})
         ARKDlsSetMassFn(mem,matfun)
+    else
+        _M = nothing
+        _MLS = nothing
     end
 
     if DiffEqBase.has_jac(prob.f)
@@ -545,7 +579,7 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
-    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_M,sol,alg,f!,userfun,jac,opts,
+    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_MLS,_M,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
 end # function solve
 
