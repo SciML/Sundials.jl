@@ -7,6 +7,7 @@ prob = prob_dae_resrob
 dt = 1000
 saveat = float(collect(0:dt:100000))
 sol = solve(prob,IDA())
+sol = solve(prob,IDA(),abstol=[1e-9,1e-8,1e-7])
 sol2 = solve(prob,IDA(linear_solver=:Band,jac_upper=2,jac_lower=2))
 sol3 = solve(prob,IDA(linear_solver=:GMRES))
 #sol4 = solve(prob,IDA(linear_solver=:BCG)) # Fails but doesn't throw an error?

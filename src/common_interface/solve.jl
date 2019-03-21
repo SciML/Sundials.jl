@@ -54,6 +54,10 @@ function DiffEqBase.__init(
         error("This solver is not able to use mass matrices.")
     end
 
+    if typeof(reltol) <: AbstractArray
+        error("Sundials only allows scalar reltol.")
+    end
+
     callbacks_internal = CallbackSet(callback,prob.callback)
 
     tspan = prob.tspan
@@ -130,7 +134,11 @@ function DiffEqBase.__init(
     flag = CVodeSetMinStep(mem, dtmin)
     flag = CVodeSetMaxStep(mem, dtmax)
     flag = CVodeSetUserData(mem, userfun)
-    flag = CVodeSStolerances(mem, reltol, abstol)
+    if typeof(abstol) <: Array
+        flag = CVodeSVtolerances(mem, reltol, abstol)
+    else
+        flag = CVodeSStolerances(mem, reltol, abstol)
+    end
     flag = CVodeSetMaxNumSteps(mem, maxiters)
     flag = CVodeSetMaxOrd(mem, alg.max_order)
     flag = CVodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
@@ -274,6 +282,10 @@ function DiffEqBase.__init(
         error("This solver is not able to use mass matrices.")
     end
 
+    if typeof(reltol) <: AbstractArray
+        error("Sundials only allows scalar reltol.")
+    end
+
     callbacks_internal = CallbackSet(callback,prob.callback)
 
     tspan = prob.tspan
@@ -382,7 +394,11 @@ function DiffEqBase.__init(
     flag = ARKodeSetMinStep(mem, dtmin)
     flag = ARKodeSetMaxStep(mem, dtmax)
     flag = ARKodeSetUserData(mem, userfun)
-    flag = ARKodeSStolerances(mem, reltol, abstol)
+    if typeof(abstol) <: Array
+        flag = ARKodeSVtolerances(mem, reltol, abstol)
+    else
+        flag = ARKodeSStolerances(mem, reltol, abstol)
+    end
     flag = ARKodeSetMaxNumSteps(mem, maxiters)
     flag = ARKodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
     flag = ARKodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
@@ -576,6 +592,10 @@ function DiffEqBase.__init(
         warned && warn_compat()
     end
 
+    if typeof(reltol) <: AbstractArray
+        error("Sundials only allows scalar reltol.")
+    end
+
     callbacks_internal = CallbackSet(callback,prob.callback)
 
     tspan = prob.tspan
@@ -646,7 +666,11 @@ function DiffEqBase.__init(
     dt != nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
-    flag = IDASStolerances(mem, reltol, abstol)
+    if typeof(absotl) <: Array
+        flag = IDASVtolerances(mem, reltol, abstol)
+    else
+        flag = IDASStolerances(mem, reltol, abstol)
+    end
     flag = IDASetMaxNumSteps(mem, maxiters)
     flag = IDASetMaxOrd(mem,alg.max_order)
     flag = IDASetMaxErrTestFails(mem,alg.max_error_test_failures)
