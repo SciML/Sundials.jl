@@ -220,6 +220,19 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
+    if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
+        jtimes = old_cfunction(jactimes,
+                        Cint,
+                        Tuple{N_Vector,
+                         N_Vector,
+                         realtype,
+                         N_Vector,
+                         N_Vector,
+                         Ref{typeof(userfun)},
+                         N_Vector})
+        CVSpilsSetJacTimes(mem, C_NULL, jtimes)
+    end
+
     callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
     callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
@@ -476,6 +489,19 @@ function DiffEqBase.__init(
     else
         _A = nothing
         _LS = nothing
+    end
+
+    if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
+        jtimes = old_cfunction(jactimes,
+                        Cint,
+                        Tuple{N_Vector,
+                         N_Vector,
+                         realtype,
+                         N_Vector,
+                         N_Vector,
+                         Ref{typeof(userfun)},
+                         N_Vector})
+        ARKodeSpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
     if prob.f.mass_matrix != I
@@ -788,6 +814,19 @@ function DiffEqBase.__init(
         flag = IDADlsSetLinearSolver(mem, LS, A)
         _A = MatrixHandle(A,SparseMatrix())
         _LS = LinSolHandle(LS,KLU())
+    end
+
+    if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
+        jtimes = old_cfunction(jactimes,
+                        Cint,
+                        Tuple{N_Vector,
+                         N_Vector,
+                         realtype,
+                         N_Vector,
+                         N_Vector,
+                         Ref{typeof(userfun)},
+                         N_Vector})
+        IDASpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
     if DiffEqBase.has_jac(prob.f)

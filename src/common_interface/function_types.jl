@@ -150,3 +150,15 @@ function massmat(t::Float64,
 
   return IDA_SUCCESS
 end
+
+function jactimes(v::N_Vector,
+                 Jv::N_Vector,
+                 t::Float64,
+                 y::N_Vector,
+                 fy::N_Vector,
+                 fj::AbstactFunJac,
+                 tmp::N_Vector)
+    DiffEqBase.update_coefficients!(fj.jac_prototype,y,fj.p,t)
+    mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
+    return CV_SUCCESS
+end
