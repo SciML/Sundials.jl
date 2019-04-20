@@ -122,7 +122,7 @@ function DiffEqBase.__init(
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,u0,_u0)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,u0,_u0)
 
     flag = CVodeInit(mem,
                      old_cfunction(cvodefunjac, Cint,
@@ -166,27 +166,27 @@ function DiffEqBase.__init(
             _A = nothing
             _LS = nothing
         elseif LinearSolver == :GMRES
-            LS = SUNSPGMR(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPGMR(u0, alg.prec_side, alg.krylov_dim)
             flag = CVSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS,Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNSPFGMR(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPFGMR(u0, alg.prec_side, alg.krylov_dim)
             flag = CVSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNSPBCGS(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPBCGS(u0, alg.prec_side, alg.krylov_dim)
             flag = CVSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNPCG(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNPCG(u0, alg.prec_side, alg.krylov_dim)
             flag = CVSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNSPTFQMR(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPTFQMR(u0, alg.prec_side, alg.krylov_dim)
             flag = CVSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
@@ -233,7 +233,7 @@ function DiffEqBase.__init(
         CVSpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
-    if alg.prec !=== nothing
+    if alg.prec !== nothing
         precfun = old_cfunction(precsolve,
                         Cint,
                         Tuple{Float64,
@@ -241,7 +241,7 @@ function DiffEqBase.__init(
                          N_Vector,
                          N_Vector,
                          N_Vector,Float64,Float64,Int,
-                         Ref{typeof(userfun)})
+                         Ref{typeof(userfun)}})
         CVSpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
@@ -383,7 +383,7 @@ function DiffEqBase.__init(
         end
 
         userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.mass_matrix,
-                         prob.f.f1.jac_prototype,u0,_u0,nothing)
+                         prob.f.f1.jac_prototype,alg.prec,u0,_u0,nothing)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
                              Tuple{realtype, N_Vector,
@@ -393,7 +393,7 @@ function DiffEqBase.__init(
                              N_Vector, Ref{typeof(userfun)}}),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,u0,_u0)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,alg.prec,u0,_u0)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         old_cfunction(cvodefunjac, Cint,
@@ -464,27 +464,27 @@ function DiffEqBase.__init(
             _A = MatrixHandle(A,BandMatrix())
             _LS = LinSolHandle(LS,Band())
         elseif LinearSolver == :GMRES
-            LS = SUNSPGMR(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPGMR(u0, alg.prec_side, alg.krylov_dim)
             flag = ARKSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS,Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNSPFGMR(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPFGMR(u0, alg.prec_side, alg.krylov_dim)
             flag = ARKSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNSPBCGS(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPBCGS(u0, alg.prec_side, alg.krylov_dim)
             flag = ARKSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNPCG(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNPCG(u0, alg.prec_side, alg.krylov_dim)
             flag = ARKSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNSPTFQMR(u0, PREC_NONE, alg.krylov_dim)
+            LS = SUNSPTFQMR(u0, alg.prec_side, alg.krylov_dim)
             flag = ARKSpilsSetLinearSolver(mem, LS)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
@@ -531,27 +531,27 @@ function DiffEqBase.__init(
             _M = MatrixHandle(M,BandMatrix())
             _MLS = LinSolHandle(MLS,Band())
         elseif MassLinearSolver == :GMRES
-            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            MLS = SUNSPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
             ARKSpilsSetMassLinearSolver(mem,MLS,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,SPGMR())
         elseif MassLinearSolver == :FGMRES
-            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            MLS = SUNSPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
             ARKSpilsSetMassLinearSolver(mem,MLS,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,SPFGMR())
         elseif MassLinearSolver == :BCG
-            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            MLS = SUNSPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
             ARKSpilsSetMassLinearSolver(mem,MLS,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,SPBCGS())
         elseif MassLinearSolver == :PCG
-            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            MLS = SUNSPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
             ARKSpilsSetMassLinearSolver(mem,MLS,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,PCG())
         elseif MassLinearSolver == :TFQMR
-            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            MLS = SUNSPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
             ARKSpilsSetMassLinearSolver(mem,MLS,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,PTFQMR())
@@ -596,7 +596,7 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
-    if alg.prec !=== nothing
+    if alg.prec !== nothing
         precfun = old_cfunction(precsolve,
                         Cint,
                         Tuple{Float64,
@@ -604,7 +604,7 @@ function DiffEqBase.__init(
                          N_Vector,
                          N_Vector,
                          N_Vector,Float64,Float64,Int,
-                         Ref{typeof(userfun)})
+                         Ref{typeof(userfun)}})
         ARKSpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
@@ -764,7 +764,7 @@ function DiffEqBase.__init(
     dutmp = NVector(_du0)
     rtest = zeros(length(u0))
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,_u0,_du0,rtest)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,_u0,_du0,rtest)
 
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,
@@ -807,27 +807,27 @@ function DiffEqBase.__init(
         _A = MatrixHandle(A,BandMatrix())
         _LS = LinSolHandle(LS,Band())
     elseif LinearSolver == :GMRES
-        LS = SUNSPGMR(u0, PREC_NONE, alg.krylov_dim)
+        LS = SUNSPGMR(u0, alg.prec_side, alg.krylov_dim)
         flag = IDASpilsSetLinearSolver(mem, LS)
         _A = nothing
         _LS = LinSolHandle(LS,SPGMR())
     elseif LinearSolver == :FGMRES
-        LS = SUNSPFGMR(u0, PREC_NONE, alg.krylov_dim)
+        LS = SUNSPFGMR(u0, alg.prec_side, alg.krylov_dim)
         flag = IDASpilsSetLinearSolver(mem, LS)
         _A = nothing
         _LS = LinSolHandle(LS,SPFGMR())
     elseif LinearSolver == :BCG
-        LS = SUNSPBCGS(u0, PREC_NONE, alg.krylov_dim)
+        LS = SUNSPBCGS(u0, alg.prec_side, alg.krylov_dim)
         flag = IDASpilsSetLinearSolver(mem, LS)
         _A = nothing
         _LS = LinSolHandle(LS,SPBCGS())
     elseif LinearSolver == :PCG
-        LS = SUNPCG(u0, PREC_NONE, alg.krylov_dim)
+        LS = SUNPCG(u0, alg.prec_side, alg.krylov_dim)
         flag = IDASpilsSetLinearSolver(mem, LS)
         _A = nothing
         _LS = LinSolHandle(LS,PCG())
     elseif LinearSolver == :TFQMR
-        LS = SUNSPTFQMR(u0, PREC_NONE, alg.krylov_dim)
+        LS = SUNSPTFQMR(u0, alg.prec_side, alg.krylov_dim)
         flag = IDASpilsSetLinearSolver(mem, LS)
         _A = nothing
         _LS = LinSolHandle(LS,PTFQMR())
@@ -851,7 +851,7 @@ function DiffEqBase.__init(
         IDASpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
-    if alg.prec !=== nothing
+    if alg.prec !== nothing
         precfun = old_cfunction(idaprecsolve,
                         Cint,
                         Tuple{Float64,
@@ -859,7 +859,7 @@ function DiffEqBase.__init(
                          N_Vector,
                          N_Vector,
                          N_Vector,N_Vector,Float64,Float64,Int,
-                         Ref{typeof(userfun)})
+                         Ref{typeof(userfun)}})
         IDASpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
