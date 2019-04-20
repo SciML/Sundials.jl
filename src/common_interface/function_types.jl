@@ -1,5 +1,5 @@
-abstract type AbstactFunJac{J2} end
-mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2, Prec} <: AbstactFunJac{J2}
+abstract type AbstractFunJac{J2} end
+mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2, Prec} <: AbstractFunJac{J2}
     fun::F
     fun2::F2
     jac::J
@@ -42,7 +42,7 @@ function cvodejac(t::realtype,
                   u::N_Vector,
                   du::N_Vector,
                   J::SUNMatrix,
-                  funjac::AbstactFunJac{Nothing},
+                  funjac::AbstractFunJac{Nothing},
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
@@ -57,7 +57,7 @@ function cvodejac(t::realtype,
                   u::N_Vector,
                   du::N_Vector,
                   _J::SUNMatrix,
-                  funjac::AbstactFunJac{<:SparseMatrixCSC},
+                  funjac::AbstractFunJac{<:SparseMatrixCSC},
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
@@ -92,7 +92,7 @@ function idajac(t::realtype,
                 du::N_Vector,
                 res::N_Vector,
                 J::SUNMatrix,
-                funjac::AbstactFunJac{Nothing},
+                funjac::AbstractFunJac{Nothing},
                 tmp1::N_Vector,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
@@ -114,7 +114,7 @@ function idajac(t::realtype,
                 du::N_Vector,
                 res::N_Vector,
                 _J::SUNMatrix,
-                funjac::AbstactFunJac{<:SparseMatrixCSC},
+                funjac::AbstractFunJac{<:SparseMatrixCSC},
                 tmp1::N_Vector,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
@@ -138,7 +138,7 @@ end
 
 function massmat(t::Float64,
                  _M::SUNMatrix,
-                 mmf::AbstactFunJac,
+                 mmf::AbstractFunJac,
                  tmp1::N_Vector,
                  tmp2::N_Vector,
                  tmp3::N_Vector)
@@ -157,7 +157,7 @@ function jactimes(v::N_Vector,
                  t::Float64,
                  y::N_Vector,
                  fy::N_Vector,
-                 fj::AbstactFunJac,
+                 fj::AbstractFunJac,
                  tmp::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype,y,fj.p,t)
     mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
@@ -172,7 +172,7 @@ function idajactimes(
                  v::N_Vector,
                  Jv::N_Vector,
                  cj::Float64,
-                 fj::AbstactFunJac,
+                 fj::AbstractFunJac,
                  tmp1::N_Vector,
                  tmp2::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype,y,fj.p,t)
