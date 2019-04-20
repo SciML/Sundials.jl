@@ -17,6 +17,7 @@ struct CVODE_BDF{Method,LinearSolver,P} <: SundialsODEAlgorithm{Method,LinearSol
     max_nonlinear_iters::Int
     max_convergence_failures::Int
     prec::P
+    prec_side::Int
 end
 Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
                     jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower, non_zero=0,krylov_dim=0,
@@ -25,8 +26,8 @@ Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
                     max_order = 5,
                     max_error_test_failures = 7,
                     max_nonlinear_iters = 3,
-                    max_convergence_failures = 10
-                    prec = nothing)
+                    max_convergence_failures = 10,
+                    prec = nothing, prec_side = 0)
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
@@ -40,7 +41,7 @@ Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
                                     max_order,
                                     max_error_test_failures,
                                     max_nonlinear_iters,
-                                    max_convergence_failures, prec)
+                                    max_convergence_failures, prec, prec_side)
 end
 
 struct CVODE_Adams{Method,LinearSolver,P} <: SundialsODEAlgorithm{Method,LinearSolver}
@@ -55,6 +56,7 @@ struct CVODE_Adams{Method,LinearSolver,P} <: SundialsODEAlgorithm{Method,LinearS
     max_nonlinear_iters::Int
     max_convergence_failures::Int
     prec::P
+    prec_side::Int
 end
 Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                       jac_upper=0,jac_lower=0,
@@ -66,7 +68,7 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                       max_error_test_failures = 7,
                       max_nonlinear_iters = 3,
                       max_convergence_failures = 10,
-                      prec = nothing
+                      prec = nothing, prec_side = 0
                       )
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
@@ -81,7 +83,7 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                                       max_order,
                                       max_error_test_failures,
                                       max_nonlinear_iters,
-                                      max_convergence_failures,prec)
+                                      max_convergence_failures,prec,prec_side)
 end
 
 struct ARKODE{Method,LinearSolver,MassLinearSolver,T,T1,T2,P} <: SundialsODEAlgorithm{Method,LinearSolver}
@@ -110,6 +112,7 @@ struct ARKODE{Method,LinearSolver,MassLinearSolver,T,T1,T2,P} <: SundialsODEAlgo
     itable::T1
     etable::T2
     prec::P
+    prec_side::Int
 end
 
 Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:Dense,
@@ -133,7 +136,7 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
                     adaptivity_method = 0,
                     itable = nothing,
                     etable = nothing,
-                    prec = nothing
+                    prec = nothing, prec_side = 0
                     )
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
@@ -169,7 +172,7 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
                                     msbp,
                                     itable,
                                     etable,
-                                    prec)
+                                    prec, prec_side)
 end
 
 # DAE Algorithms
@@ -191,6 +194,7 @@ struct IDA{LinearSolver,P} <: SundialsDAEAlgorithm{LinearSolver}
   use_linesearch_ic::Bool
   init_all::Bool
   prec::P
+  prec_side::Int
 end
 Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
                         stored_upper = jac_upper+jac_lower,
@@ -207,7 +211,7 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
                         use_linesearch_ic = true,
                         init_all = false,
                         max_convergence_failures = 10,
-                        prec = nothing)
+                        prec = nothing, prec_side = 0)
   if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
       error("Banded solver must set the jac_upper and jac_lower")
   end
@@ -226,7 +230,7 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
                       max_num_iters_ic,
                       max_num_backs_ic,
                       use_linesearch_ic,
-                      init_all,prec)
+                      init_all,prec, prec_side)
 end
 
 method_choice(alg::SundialsODEAlgorithm{Method}) where Method = Method
