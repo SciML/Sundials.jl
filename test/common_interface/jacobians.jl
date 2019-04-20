@@ -1,4 +1,4 @@
-using Sundials, Test, SparseArrays
+using Sundials, Test, SparseArrays, DiffEqOperators
 
 # Test for Jacobian usage
 function Lotka(du, u, p, t)
@@ -30,6 +30,12 @@ prob = ODEProblem(Lotka_f,ones(2),(0.0,10.0))
 jac_called = false
 sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU))
 @test jac_called == true
+
+Lotka_fj = ODEFunction(Lotka,
+                      jac_prototype = JacVecOperator{Float64}(Lotka,ones(2)))
+
+prob = ODEProblem(Lotka_fj,ones(2),(0.0,10.0))
+sol9 = solve(prob,CVODE_BDF(linear_solver=:GMRES))
 
 function f2!(res, du, u, p, t)
     res[1] = 1.01du[1]
