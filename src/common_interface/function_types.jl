@@ -1,17 +1,18 @@
 abstract type AbstactFunJac{J2} end
-mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2} <: AbstactFunJac{J2}
+mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2, Prec} <: AbstactFunJac{J2}
     fun::F
     fun2::F2
     jac::J
     p::P
     mass_matrix::M
     jac_prototype::J2
+    prec::Prec
     u::uType
     du::uType
     resid::uType2
 end
-FunJac(fun,jac,p,m,jac_prototype,u,du) = FunJac(fun,nothing,jac,p,m,jac_prototype,u,du,nothing)
-FunJac(fun,jac,p,m,jac_prototype,u,du,resid) = FunJac(fun,nothing,jac,p,m,jac_prototype,u,du,resid)
+FunJac(fun,jac,p,m,jac_prototype,prec,u,du) = FunJac(fun,nothing,jac,p,m,jac_prototype,prec,u,du,nothing)
+FunJac(fun,jac,p,m,jac_prototype,prec,u,du,resid) = FunJac(fun,nothing,jac,p,m,jac_prototype,prec,u,du,resid)
 
 function cvodefunjac(t::Float64,
                      u::N_Vector,
@@ -161,4 +162,47 @@ function jactimes(v::N_Vector,
     DiffEqBase.update_coefficients!(fj.jac_prototype,y,fj.p,t)
     mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
     return CV_SUCCESS
+end
+
+function idajactimes(
+                 t::Float64,
+                 y::N_Vector,
+                 fy::N_Vector,
+                 r::N_Vector,
+                 v::N_Vector,
+                 Jv::N_Vector,
+                 cj::Float64,
+                 fj::AbstactFunJac,
+                 tmp1::N_Vector,
+                 tmp2::N_Vector)
+    DiffEqBase.update_coefficients!(fj.jac_prototype,y,fj.p,t)
+    mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
+    return IDA_SUCCESS
+end
+
+function precsolve(t::Float64,
+                   y::N_Vector,
+                   fy::N_Vector,
+                   r::N_Vector,
+                   z::N_Vector,
+                   gamma::Float64,
+                   delta::Float64,
+                   lr::Int,
+                   fj::AbstractFunJac)
+    fj.prec(convert(Vector,z),convert(Vector,r),fj.p,t,convert(Vector,y),convert(Vector,fy),gamma,delta,lr)
+    return CV_SUCCESS
+end
+
+function idaprecsolve(t::Float64,
+                   y::N_Vector,
+                   fy::N_Vector,
+                   resid::N_Vector,
+                   r::N_Vector,
+                   z::N_Vector,
+                   gamma::Float64,
+                   delta::Float64,
+                   lr::Int,
+                   fj::AbstractFunJac)
+    fj.prec(convert(Vector,z),convert(Vector,r),fj.p,t,convert(Vector,y),convert(Vector,fy),convert(Vector,resid),gamma,delta,lr)
+    return IDA_SUCCESS
 end

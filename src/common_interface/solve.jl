@@ -233,6 +233,18 @@ function DiffEqBase.__init(
         CVSpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
+    if alg.prec !=== nothing
+        precfun = old_cfunction(precsolve,
+                        Cint,
+                        Tuple{Float64,
+                         N_Vector,
+                         N_Vector,
+                         N_Vector,
+                         N_Vector,Float64,Float64,Int,
+                         Ref{typeof(userfun)})
+        CVSpilsSetPreconditioner(mem, C_NULL, precfun)
+    end
+
     callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
     callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
@@ -584,6 +596,18 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
+    if alg.prec !=== nothing
+        precfun = old_cfunction(precsolve,
+                        Cint,
+                        Tuple{Float64,
+                         N_Vector,
+                         N_Vector,
+                         N_Vector,
+                         N_Vector,Float64,Float64,Int,
+                         Ref{typeof(userfun)})
+        ARKSpilsSetPreconditioner(mem, C_NULL, precfun)
+    end
+
     callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
     callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
@@ -817,16 +841,26 @@ function DiffEqBase.__init(
     end
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-        jtimes = old_cfunction(jactimes,
+        jtimes = old_cfunction(idajactimes,
                         Cint,
-                        Tuple{N_Vector,
-                         N_Vector,
+                        Tuple{realtype,
+                         N_Vector,N_Vector,N_Vector,N_Vector,N_Vector,
                          realtype,
-                         N_Vector,
-                         N_Vector,
                          Ref{typeof(userfun)},
-                         N_Vector})
+                         N_Vector,N_Vector})
         IDASpilsSetJacTimes(mem, C_NULL, jtimes)
+    end
+
+    if alg.prec !=== nothing
+        precfun = old_cfunction(idaprecsolve,
+                        Cint,
+                        Tuple{Float64,
+                         N_Vector,
+                         N_Vector,
+                         N_Vector,
+                         N_Vector,N_Vector,Float64,Float64,Int,
+                         Ref{typeof(userfun)})
+        IDASpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
     if DiffEqBase.has_jac(prob.f)
