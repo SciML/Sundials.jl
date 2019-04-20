@@ -15,6 +15,14 @@ sol5 = solve(prob,IDA(linear_solver=:TFQMR))
 sol6 = solve(prob,IDA(linear_solver=:FGMRES))
 sol7 = solve(prob,IDA(linear_solver=:PCG)) # Requires symmetric linear
 
+# Test identity preconditioner
+global prec_used = false
+sol4 = solve(prob,IDA(linear_solver=:GMRES,
+             prec_side = 3,
+             prec=(z,r,p,t,y,fy,resid,gamma,delta,lr)->(global prec_used=true;z.=r)))
+@test prec_used
+
+
 sol = solve(prob,IDA(),saveat=saveat)
 
 @test sol.t == saveat
