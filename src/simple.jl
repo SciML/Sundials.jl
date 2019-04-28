@@ -15,9 +15,9 @@ macro checkflag(ex,throw_error=false)
         flag = $(esc(ex))
         if flag < 0
             if $(esc(throw_error))
-                error($(string(fname, " failed with error code = ")), flag)
+                @error($(string(fname, " failed with error code = ")), flag)
             else
-                warn($(string(fname, " failed with error code = ")), flag)
+                @warn($(string(fname, " failed with error code = ")), flag)
             end
         end
         flag
