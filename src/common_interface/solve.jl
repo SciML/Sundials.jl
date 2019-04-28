@@ -503,7 +503,9 @@ function DiffEqBase.__init(
         _LS = nothing
     end
 
-    if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
+    if (typeof(prob) <: SplitODEProblem &&
+       typeof(prob.f.f1.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator) ||
+       typeof(f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
         jtimes = old_cfunction(jactimes,
                         Cint,
                         Tuple{N_Vector,
