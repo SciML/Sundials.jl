@@ -21,4 +21,4 @@ Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 DiffEqOperators = "9fdde737-9c7f-55bf-ade8-46b3f136cc48"
 
 [targets]
-test = [DiffEqProblemLibrary, ForwardDiff, Compat, DiffEqOperators]
+test = ["DiffEqProblemLibrary", "ForwardDiff", "Compat", "DiffEqOperators"]
