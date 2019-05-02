@@ -1,16 +1,17 @@
 abstract type AbstactFunJac{J2} end
-mutable struct FunJac{F, F2, J, P, J2, uType, uType2} <: AbstactFunJac{J2}
+mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2} <: AbstactFunJac{J2}
     fun::F
     fun2::F2
     jac::J
     p::P
+    mass_matrix::M
     jac_prototype::J2
     u::uType
     du::uType
     resid::uType2
 end
-FunJac(fun,jac,p,jac_prototype,u,du) = FunJac(fun,nothing,jac,p,jac_prototype,u,du,nothing)
-FunJac(fun,jac,p,jac_prototype,u,du,resid) = FunJac(fun,nothing,jac,p,jac_prototype,u,du,resid)
+FunJac(fun,jac,p,m,jac_prototype,u,du) = FunJac(fun,nothing,jac,p,m,jac_prototype,u,du,nothing)
+FunJac(fun,jac,p,m,jac_prototype,u,du,resid) = FunJac(fun,nothing,jac,p,m,jac_prototype,u,du,resid)
 
 function cvodefunjac(t::Float64,
                      u::N_Vector,
@@ -130,6 +131,22 @@ function idajac(t::realtype,
   # Sundials resets the value pointers each time, so reset it too
   @. J.rowval = jac_prototype.rowval - 1
   @. J.colptr = jac_prototype.colptr - 1
+
+  return IDA_SUCCESS
+end
+
+function massmat(t::Float64,
+                 _M::SUNMatrix,
+                 mmf::AbstactFunJac,
+                 tmp1::N_Vector,
+                 tmp2::N_Vector,
+                 tmp3::N_Vector)
+  if typeof(mmf.mass_matrix) <: Array
+    M = convert(Matrix, _M)
+  else
+    M = convert(SparseMatrixCSC, _M)
+  end
+  M .= mmf.mass_matrix
 
   return IDA_SUCCESS
 end

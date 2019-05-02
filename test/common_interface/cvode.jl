@@ -11,6 +11,7 @@ sol = solve(prob,CVODE_Adams())
 @test sol.errors[:l2] < 1e-3
 sol = solve(prob,CVODE_Adams(),reltol=1e-5)
 @test sol.errors[:l2] < 1e-5
+sol = solve(prob,CVODE_Adams(),reltol=1e-5,abstol=[1e-7])
 sol = solve(prob,CVODE_Adams(),saveat=saveat)
 
 @test sol.t == saveat

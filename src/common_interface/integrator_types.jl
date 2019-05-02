@@ -1,4 +1,4 @@
-mutable struct DEOptions{SType,TstopType,CType,reltolType}
+mutable struct DEOptions{SType,TstopType,CType,reltolType,abstolType}
     saveat::SType
     tstops::TstopType
     save_everystep::Bool
@@ -8,6 +8,7 @@ mutable struct DEOptions{SType,TstopType,CType,reltolType}
     save_on::Bool
     save_end::Bool
     callback::CType
+    abstol::abstolType
     reltol::reltolType
     verbose::Bool
     advance_to_tstop::Bool
@@ -53,7 +54,7 @@ function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};
     return idxs == nothing ? out : @view out[idx]
 end
 
-mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator{ARKODE}
+mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype} <: AbstractSundialsIntegrator{ARKODE}
     u::uType
     p::pType
     t::Float64
@@ -61,6 +62,8 @@ mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType
     mem::memType
     LS::LStype
     A::Atype
+    MLS::MLStype
+    M::Mtype
     sol::solType
     alg::algType
     f::fType

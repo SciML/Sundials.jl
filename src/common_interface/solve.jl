@@ -54,6 +54,10 @@ function DiffEqBase.__init(
         error("This solver is not able to use mass matrices.")
     end
 
+    if typeof(reltol) <: AbstractArray
+        error("Sundials only allows scalar reltol.")
+    end
+
     callbacks_internal = CallbackSet(callback,prob.callback)
 
     tspan = prob.tspan
@@ -118,7 +122,7 @@ function DiffEqBase.__init(
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,u0,_u0)
 
     flag = CVodeInit(mem,
                      old_cfunction(cvodefunjac, Cint,
@@ -130,7 +134,11 @@ function DiffEqBase.__init(
     flag = CVodeSetMinStep(mem, dtmin)
     flag = CVodeSetMaxStep(mem, dtmax)
     flag = CVodeSetUserData(mem, userfun)
-    flag = CVodeSStolerances(mem, reltol, abstol)
+    if typeof(abstol) <: Array
+        flag = CVodeSVtolerances(mem, reltol, abstol)
+    else
+        flag = CVodeSStolerances(mem, reltol, abstol)
+    end
     flag = CVodeSetMaxNumSteps(mem, maxiters)
     flag = CVodeSetMaxOrd(mem, alg.max_order)
     flag = CVodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
@@ -232,14 +240,14 @@ function DiffEqBase.__init(
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
-                     callbacks_internal,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
+                     callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
     CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
 end # function solve
 
 function DiffEqBase.__init(
     prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-    alg::ARKODE{Method,LinearSolver},
+    alg::ARKODE{Method,LinearSolver,MassLinearSolver},
     timeseries=[], ts=[], ks=[];
 
     verbose=true,
@@ -255,7 +263,7 @@ function DiffEqBase.__init(
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
     alias_u0=false,
-    kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
+    kwargs...) where {uType, tupType, isinplace, Method, LinearSolver, MassLinearSolver}
 
     tType = eltype(tupType)
 
@@ -270,8 +278,8 @@ function DiffEqBase.__init(
         warned && warn_compat()
     end
 
-    if prob.f.mass_matrix != I
-        error("This solver is not able to use mass matrices.")
+    if typeof(reltol) <: AbstractArray
+        error("Sundials only allows scalar reltol.")
     end
 
     callbacks_internal = CallbackSet(callback,prob.callback)
@@ -349,7 +357,7 @@ function DiffEqBase.__init(
                                   du=vec(du); Cint(0))
         end
 
-        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,
+        userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.mass_matrix,
                          prob.f.f1.jac_prototype,u0,_u0,nothing)
         flag = ARKodeInit(mem,
                     old_cfunction(cvodefunjac, Cint,
@@ -360,7 +368,7 @@ function DiffEqBase.__init(
                              N_Vector, Ref{typeof(userfun)}}),
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,u0,_u0)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,u0,_u0)
         if alg.stiffness == Explicit()
             flag = ARKodeInit(mem,
                         old_cfunction(cvodefunjac, Cint,
@@ -382,7 +390,11 @@ function DiffEqBase.__init(
     flag = ARKodeSetMinStep(mem, dtmin)
     flag = ARKodeSetMaxStep(mem, dtmax)
     flag = ARKodeSetUserData(mem, userfun)
-    flag = ARKodeSStolerances(mem, reltol, abstol)
+    if typeof(abstol) <: Array
+        flag = ARKodeSVtolerances(mem, reltol, abstol)
+    else
+        flag = ARKodeSStolerances(mem, reltol, abstol)
+    end
     flag = ARKodeSetMaxNumSteps(mem, maxiters)
     flag = ARKodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
     flag = ARKodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
@@ -466,6 +478,69 @@ function DiffEqBase.__init(
         _LS = nothing
     end
 
+    if prob.f.mass_matrix != I
+        if MassLinearSolver == :Dense
+            M = SUNDenseMatrix(length(u0),length(u0))
+            MLS = SUNDenseLinearSolver(u0,M)
+            ARKDlsSetMassLinearSolver(mem,MLS,M,false)
+            _M = MatrixHandle(M,DenseMatrix())
+            _MLS = LinSolHandle(MLS,Dense())
+        elseif MassLinearSolver == :Band
+            M = SUNBandMatrix(length(u0), alg.mass_upper, alg.mass_lower,
+                                       alg.mass_stored_upper)
+            MLS = SUNBandLinearSolver(u0,M)
+            ARKDlsSetMassLinearSolver(mem,MLS,M,false)
+            _M = MatrixHandle(M,BandMatrix())
+            _MLS = LinSolHandle(MLS,Band())
+        elseif MassLinearSolver == :GMRES
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,SPGMR())
+        elseif MassLinearSolver == :FGMRES
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,SPFGMR())
+        elseif MassLinearSolver == :BCG
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,SPBCGS())
+        elseif MassLinearSolver == :PCG
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,PCG())
+        elseif MassLinearSolver == :TFQMR
+            MLS = SUNSPGMR(u0, PREC_NONE, alg.mass_krylov_dim)
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+            _M = nothing
+            _MLS = LinSolHandle(MLS,PTFQMR())
+        elseif MassLinearSolver == :KLU
+            nnz = length(nonzeros(prob.f.mass_matrix))
+            M = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
+            MLS = SUNKLU(u0, M)
+            ARKDlsSetMassLinearSolver(mem,MLS,M,false)
+            _M = MatrixHandle(M,SparseMatrix())
+            _MLS = LinSolHandle(MLS,KLU())
+        else
+            ARKSpilsSetMassLinearSolver(mem,MLS,false)
+        end
+        matfun = old_cfunction(massmat,
+                        Cint,
+                        Tuple{realtype,
+                         SUNMatrix,
+                         Ref{typeof(userfun)},
+                         N_Vector,
+                         N_Vector,
+                         N_Vector})
+        ARKDlsSetMassFn(mem,matfun)
+    else
+        _M = nothing
+        _MLS = nothing
+    end
+
     if DiffEqBase.has_jac(prob.f)
       jac = old_cfunction(cvodejac,
                       Cint,
@@ -503,8 +578,8 @@ function DiffEqBase.__init(
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
-                     callbacks_internal,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
-    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+                     callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
+    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_MLS,_M,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
 end # function solve
 
@@ -576,6 +651,10 @@ function DiffEqBase.__init(
         warned && warn_compat()
     end
 
+    if typeof(reltol) <: AbstractArray
+        error("Sundials only allows scalar reltol.")
+    end
+
     callbacks_internal = CallbackSet(callback,prob.callback)
 
     tspan = prob.tspan
@@ -635,7 +714,7 @@ function DiffEqBase.__init(
     dutmp = NVector(_du0)
     rtest = zeros(length(u0))
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.jac_prototype,_u0,_du0,rtest)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,_u0,_du0,rtest)
 
     u0nv = NVector(u0)
     flag = IDAInit(mem, old_cfunction(idasolfun,
@@ -646,7 +725,11 @@ function DiffEqBase.__init(
     dt != nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
-    flag = IDASStolerances(mem, reltol, abstol)
+    if typeof(abstol) <: Array
+        flag = IDASVtolerances(mem, reltol, abstol)
+    else
+        flag = IDASStolerances(mem, reltol, abstol)
+    end
     flag = IDASetMaxNumSteps(mem, maxiters)
     flag = IDASetMaxOrd(mem,alg.max_order)
     flag = IDASetMaxErrTestFails(mem,alg.max_error_test_failures)
@@ -776,7 +859,7 @@ function DiffEqBase.__init(
 
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                     timeseries_errors,dense_errors,save_on,save_end,
-                    callbacks_internal,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
+                    callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
 
     IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                    tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,0,0.)
@@ -848,6 +931,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         end
     end
 
+    fill_destats!(integrator)
     empty!(integrator.mem)
     integrator.A != nothing && empty!(integrator.A)
     integrator.LS != nothing && empty!(integrator.LS)
@@ -873,5 +957,76 @@ function handle_tstop!(integrator::AbstractSundialsIntegrator)
           t = integrator.t
           integrator.just_hit_tstop = true
       end
+    end
+end
+
+function fill_destats!(integrator::AbstractSundialsIntegrator)
+end
+
+function fill_destats!(integrator::CVODEIntegrator)
+    destats = integrator.sol.destats
+    mem = integrator.mem
+    tmp = Ref(Clong(-1))
+    CVodeGetNumRhsEvals(mem,tmp)
+    destats.nf = tmp[]
+    CVodeGetNumLinSolvSetups(mem,tmp)
+    destats.nw = tmp[]
+    CVodeGetNumErrTestFails(mem,tmp)
+    destats.nreject = tmp[]
+    CVodeGetNumSteps(mem,tmp)
+    destats.naccept = tmp[] - destats.nreject
+    CVodeGetNumNonlinSolvIters(mem,tmp)
+    destats.nnonliniter = tmp[]
+    CVodeGetNumNonlinSolvConvFails(mem,tmp)
+    destats.nnonlinconvfail = tmp[]
+    if method_choice(integrator.alg) == :Newton
+        CVDlsGetNumJacEvals(mem,tmp)
+        destats.njacs = tmp[]
+    end
+end
+
+function fill_destats!(integrator::ARKODEIntegrator)
+    destats = integrator.sol.destats
+    mem = integrator.mem
+    tmp = Ref(Clong(-1))
+    tmp2 = Ref(Clong(-1))
+    ARKodeGetNumRhsEvals(mem,tmp,tmp2)
+    destats.nf = tmp[]
+    destats.nf2 = tmp2[]
+    ARKodeGetNumLinSolvSetups(mem,tmp)
+    destats.nw = tmp[]
+    ARKodeGetNumErrTestFails(mem,tmp)
+    destats.nreject = tmp[]
+    ARKodeGetNumSteps(mem,tmp)
+    destats.naccept = tmp[] - destats.nreject
+    ARKodeGetNumNonlinSolvIters(mem,tmp)
+    destats.nnonliniter = tmp[]
+    ARKodeGetNumNonlinSolvConvFails(mem,tmp)
+    destats.nnonlinconvfail = tmp[]
+    if method_choice(integrator.alg) == :Newton
+        ARKDlsGetNumJacEvals(mem,tmp)
+        destats.njacs = tmp[]
+    end
+end
+
+function fill_destats!(integrator::IDAIntegrator)
+    destats = integrator.sol.destats
+    mem = integrator.mem
+    tmp = Ref(Clong(-1))
+    IDAGetNumResEvals(mem,tmp)
+    destats.nf = tmp[]
+    IDAGetNumLinSolvSetups(mem,tmp)
+    destats.nw = tmp[]
+    IDAGetNumErrTestFails(mem,tmp)
+    destats.nreject = tmp[]
+    IDAGetNumSteps(mem,tmp)
+    destats.naccept = tmp[] - destats.nreject
+    IDAGetNumNonlinSolvIters(mem,tmp)
+    destats.nnonliniter = tmp[]
+    IDAGetNumNonlinSolvConvFails(mem,tmp)
+    destats.nnonlinconvfail = tmp[]
+    if method_choice(integrator.alg) == :Newton
+        IDADlsGetNumJacEvals(mem,tmp)
+        destats.njacs = tmp[]
     end
 end

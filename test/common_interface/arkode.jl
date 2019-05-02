@@ -7,6 +7,7 @@ prob = prob_ode_linear
 dt = 1//2^(4)
 sol = solve(prob,ARKODE())
 @test sol.errors[:l2] < 5e-2
+sol = solve(prob,ARKODE(),abstol=[1e-7])
 
 f1 = (du,u,p,t) -> du .= u
 f2 = (du,u,p,t) -> du .= u
