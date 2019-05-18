@@ -266,8 +266,11 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
-    CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+    integrator = CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
+
+    initialize_callbacks!(integrator)
+    integrator
 end # function solve
 
 function DiffEqBase.__init(
@@ -632,8 +635,11 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
-    ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_MLS,_M,sol,alg,f!,userfun,jac,opts,
+    integrator = ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_MLS,_M,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
+
+    initialize_callbacks!(integrator)
+    integrator
 end # function solve
 
 function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
@@ -937,8 +943,11 @@ function DiffEqBase.__init(
                     timeseries_errors,dense_errors,save_on,save_end,
                     callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop)
 
-    IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
+    integrator = IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                    tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,0,0.)
+
+    initialize_callbacks!(integrator)
+    integrator
 end # function solve
 
 ## Common calls
@@ -1105,4 +1114,28 @@ function fill_destats!(integrator::IDAIntegrator)
         IDADlsGetNumJacEvals(mem,tmp)
         destats.njacs = tmp[]
     end
+end
+
+function initialize_callbacks!(integrator, initialize_save = true)
+  t = integrator.t
+  u = integrator.u
+  callbacks = integrator.opts.callback
+  integrator.u_modified = true
+
+  u_modified = initialize!(callbacks,u,t,integrator)
+
+  # if the user modifies u, we need to fix current values
+  if u_modified
+
+    handle_callback_modifiers!(integrator)
+
+    if initialize_save &&
+      (any((c)->c.save_positions[2],callbacks.discrete_callbacks) ||
+      any((c)->c.save_positions[2],callbacks.continuous_callbacks))
+      savevalues!(integrator,true)
+    end
+  end
+
+  # reset this as it is now handled so the integrators should proceed as normal
+  integrator.u_modified = false
 end
