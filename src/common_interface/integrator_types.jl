@@ -1,4 +1,4 @@
-mutable struct DEOptions{SType,TstopType,CType,reltolType,abstolType}
+mutable struct DEOptions{SType,TstopType,CType,reltolType,abstolType,F5}
     saveat::SType
     tstops::TstopType
     save_everystep::Bool
@@ -13,6 +13,9 @@ mutable struct DEOptions{SType,TstopType,CType,reltolType,abstolType}
     verbose::Bool
     advance_to_tstop::Bool
     stop_at_next_tstop::Bool
+    progress::Bool
+    progress_name::String
+    progress_message::F5
 end
 
 abstract type AbstractSundialsIntegrator{algType} <: DiffEqBase.AbstractODEIntegrator{algType,true,Vector{Float64},Float64} end
