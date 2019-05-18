@@ -2,15 +2,14 @@ __precompile__()
 
 module Sundials
 
-using Reexport, DataStructures
+using Reexport, DataStructures, Logging
 @reexport using DiffEqBase
 using DiffEqBase: check_error!
 using SparseArrays, LinearAlgebra
 
 const warnkeywords =
     (:save_idxs, :d_discontinuities, :isoutofdomain, :unstable_check,
-     :calck, :progress, :timeseries_steps,
-     :internalnorm, :gamma, :beta1, :beta2, :qmax, :qmin, :qoldinit)
+     :calck, :internalnorm, :gamma, :beta1, :beta2, :qmax, :qmin, :qoldinit)
 
 function __init__()
     global warnlist = Set(warnkeywords)
