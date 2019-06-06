@@ -64,6 +64,13 @@ function DiffEqBase.__init(
 
     callbacks_internal = CallbackSet(callback,prob.callback)
 
+    max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
+    if max_len_cb isa VectorContinuousCallback
+      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,uBottomEltype,uBottomEltype)
+    else
+      callback_cache = nothing
+    end
+
     tspan = prob.tspan
     t0 = tspan[1]
 
@@ -272,7 +279,7 @@ function DiffEqBase.__init(
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop,
                      progress,progress_name,progress_message)
     integrator = CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,1,callback_cache,0.)
 
     initialize_callbacks!(integrator)
     integrator
@@ -320,6 +327,13 @@ function DiffEqBase.__init(
     progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
     callbacks_internal = CallbackSet(callback,prob.callback)
+
+    max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
+    if max_len_cb isa VectorContinuousCallback
+      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,uBottomEltype,uBottomEltype)
+    else
+      callback_cache = nothing
+    end
 
     tspan = prob.tspan
     t0 = tspan[1]
@@ -646,7 +660,7 @@ function DiffEqBase.__init(
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop,
                      progress,progress_name,progress_message)
     integrator = ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_MLS,_M,sol,alg,f!,userfun,jac,opts,
-                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,0.)
+                       tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,1,callback_cache,0.)
 
     initialize_callbacks!(integrator)
     integrator
@@ -729,6 +743,13 @@ function DiffEqBase.__init(
     progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
     callbacks_internal = CallbackSet(callback,prob.callback)
+
+    max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
+    if max_len_cb isa VectorContinuousCallback
+      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,uBottomEltype,uBottomEltype)
+    else
+      callback_cache = nothing
+    end
 
     tspan = prob.tspan
     t0 = tspan[1]
@@ -959,7 +980,7 @@ function DiffEqBase.__init(
                     progress,progress_name,progress_message)
 
     integrator = IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
-                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,0,0.)
+                   tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,0,1,callback_cache,0.)
 
     initialize_callbacks!(integrator)
     integrator

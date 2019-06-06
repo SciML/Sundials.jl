@@ -20,7 +20,7 @@ end
 
 abstract type AbstractSundialsIntegrator{algType} <: DiffEqBase.AbstractODEIntegrator{algType,true,Vector{Float64},Float64} end
 
-mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator{algType}
+mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,CallbackCacheType} <: AbstractSundialsIntegrator{algType}
     u::uType
     p::pType
     t::Float64
@@ -43,6 +43,8 @@ mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
+    vector_event_last_time::Int
+    callback_cache::CallbackCacheType
     last_event_error::Float64
 end
 
@@ -57,7 +59,7 @@ function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};
     return idxs == nothing ? out : @view out[idx]
 end
 
-mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype} <: AbstractSundialsIntegrator{ARKODE}
+mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype,CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
     u::uType
     p::pType
     t::Float64
@@ -82,6 +84,8 @@ mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
+    vector_event_last_time::Int
+    callback_cache::CallbackCacheType
     last_event_error::Float64
 end
 
@@ -96,7 +100,7 @@ function (integrator::ARKODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0}
     return idxs == nothing ? out : @view out[idx]
 end
 
-mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype} <: AbstractSundialsIntegrator{IDA}
+mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype,CallbackCacheType} <: AbstractSundialsIntegrator{IDA}
     u::uType
     du::duType
     p::pType
@@ -121,6 +125,8 @@ mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UF
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
+    vector_event_last_time::Int
+    callback_cache::CallbackCacheType
     last_event_error::Float64
 end
 
