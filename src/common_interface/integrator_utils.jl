@@ -97,6 +97,7 @@ function handle_callback_modifiers!(integrator::IDAIntegrator)
           init_type = IDA_Y_INIT
       else
           init_type = IDA_YA_YDP_INIT
+          integrator.flag = IDASetId(integrator.mem, integrator.sol.prob.differential_vars)
       end
       integrator.flag = IDACalcIC(integrator.mem, init_type, integrator.dt)
   end
