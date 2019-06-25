@@ -273,6 +273,7 @@ function DiffEqBase.__init(
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
                                     DiffEqBase.LinearInterpolation(ts,ures),
                    timeseries_errors = timeseries_errors,
+                   destats = DiffEqBase.DEStats(0),
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
@@ -654,6 +655,7 @@ function DiffEqBase.__init(
                    interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
                                     DiffEqBase.LinearInterpolation(ts,ures),
                    timeseries_errors = timeseries_errors,
+                   destats = DiffEqBase.DEStats(0),
                    calculate_error = false)
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
@@ -972,6 +974,7 @@ function DiffEqBase.__init(
                    calculate_error = false,
                    timeseries_errors = timeseries_errors,
                    retcode = retcode,
+                   destats = DiffEqBase.DEStats(0),
                    dense_errors = dense_errors)
 
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
