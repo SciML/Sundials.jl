@@ -92,9 +92,12 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
 
     neq = length(y0)
     mem = Sundials.IDACreate()
-    Sundials.@checkflag Sundials.IDAInit(mem, Sundials.old_cfunction(
-                                         Sundials.idasolfun, Cint,
-                                         (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function}}),
+
+    function getcfunband(f::T) where T
+        @cfunction(Sundials.idasolfun, Cint,
+                   (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{T}})
+     end
+    Sundials.@checkflag Sundials.IDAInit(mem, getcfunband(f),
                                          t[1], y0, yp0)
     Sundials.@checkflag Sundials.IDASetId(mem, id)
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
