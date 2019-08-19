@@ -135,10 +135,11 @@ function DiffEqBase.__init(
 
     userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,u0,_u0)
 
-    flag = CVodeInit(mem,
-                     old_cfunction(cvodefunjac, Cint,
-                                   Tuple{realtype, N_Vector,
-                                   N_Vector, Ref{typeof(userfun)}}),
+    function getcfunf(userfun::T) where T
+        @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
+    end
+
+    flag = CVodeInit(mem,getcfunf(userfun),
                      t0, convert(N_Vector, utmp))
 
     dt != nothing && (flag = CVodeSetInitStep(mem, dt))
@@ -215,16 +216,19 @@ function DiffEqBase.__init(
     end
 
     if DiffEqBase.has_jac(prob.f) && Method == :Newton
-      jac = old_cfunction(cvodejac,
-                      Cint,
-                      Tuple{realtype,
-                       N_Vector,
-                       N_Vector,
-                       SUNMatrix,
-                       Ref{typeof(userfun)},
-                       N_Vector,
-                       N_Vector,
-                       N_Vector})
+      function getcfunjac(userfun::T) where T
+          @cfunction(cvodejac,
+                          Cint,
+                           (realtype,
+                           N_Vector,
+                           N_Vector,
+                           SUNMatrix,
+                           Ref{T},
+                           N_Vector,
+                           N_Vector,
+                           N_Vector))
+      end
+      jac = getcfunjac(userfun)
       flag = CVodeSetUserData(mem, userfun)
       flag = CVDlsSetJacFn(mem, jac)
     else
@@ -232,27 +236,33 @@ function DiffEqBase.__init(
     end
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-        jtimes = old_cfunction(jactimes,
-                        Cint,
-                        Tuple{N_Vector,
-                         N_Vector,
-                         realtype,
-                         N_Vector,
-                         N_Vector,
-                         Ref{typeof(userfun)},
-                         N_Vector})
+        function getcfunjtimes(userfun::T) where T
+            @cfunction(jactimes,
+                            Cint,
+                            (N_Vector,
+                             N_Vector,
+                             realtype,
+                             N_Vector,
+                             N_Vector,
+                             Ref{T},
+                             N_Vector))
+        end
+        jtimes = getcfunjtimes(userfun)
         CVSpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
     if alg.prec !== nothing
-        precfun = old_cfunction(precsolve,
-                        Cint,
-                        Tuple{Float64,
-                         N_Vector,
-                         N_Vector,
-                         N_Vector,
-                         N_Vector,Float64,Float64,Int,
-                         Ref{typeof(userfun)}})
+        function getpercfun(userfun::T) where T
+            @cfunction(precsolve,
+                            Cint,
+                            (Float64,
+                             N_Vector,
+                             N_Vector,
+                             N_Vector,
+                             N_Vector,Float64,Float64,Int,
+                             Ref{T}))
+         end
+        precfun = getpercfun(userfun)
         CVSpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
@@ -411,29 +421,45 @@ function DiffEqBase.__init(
 
         userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.mass_matrix,
                          prob.f.f1.jac_prototype,alg.prec,u0,_u0,nothing)
+
+        function getcfunjac(userfun::T) where T
+            @cfunction(cvodefunjac, Cint,
+                     (realtype, N_Vector,
+                     N_Vector, Ref{T}))
+        end
+        function getcfunjac2(userfun::T) where T
+            @cfunction(cvodefunjac2, Cint,
+                     (realtype, N_Vector,
+                     N_Vector, Ref{T}))
+        end
+        cfj1 = getcfunjac(userfun)
+        cfj2 = getcfunjac2(userfun)
+
         flag = ARKodeInit(mem,
-                    old_cfunction(cvodefunjac, Cint,
-                             Tuple{realtype, N_Vector,
-                             N_Vector, Ref{typeof(userfun)}}),
-                    old_cfunction(cvodefunjac2, Cint,
-                             Tuple{realtype, N_Vector,
-                             N_Vector, Ref{typeof(userfun)}}),
+                    cfj1,cfj2,
                     t0, convert(N_Vector, u0nv))
     else
         userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,alg.prec,u0,_u0)
         if alg.stiffness == Explicit()
+            function getcfun1(userfun::T) where T
+                @cfunction(cvodefunjac, Cint,
+                         (realtype, N_Vector,
+                         N_Vector, Ref{T}))
+            end
+            cfj1 = getcfun1(userfun)
             flag = ARKodeInit(mem,
-                        old_cfunction(cvodefunjac, Cint,
-                                 Tuple{realtype, N_Vector,
-                                 N_Vector, Ref{typeof(userfun)}}),
+                        cfj1,
                         C_NULL,
                         t0, convert(N_Vector, u0nv))
         elseif alg.stiffness == Implicit()
+            function getcfun2(userfun::T) where T
+                @cfunction(cvodefunjac, Cint,
+                         (realtype, N_Vector,
+                         N_Vector, Ref{T}))
+            end
+            cfj2 = getcfun2(userfun)
             flag = ARKodeInit(mem,
-                        C_NULL,
-                        old_cfunction(cvodefunjac, Cint,
-                                  Tuple{realtype, N_Vector,
-                                   N_Vector, Ref{typeof(userfun)}}),
+                        C_NULL,cfj2,
                         t0, convert(N_Vector, u0nv))
         end
     end
@@ -534,15 +560,18 @@ function DiffEqBase.__init(
        typeof(prob.f.f1.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator) ||
        (!(typeof(prob.problem_type) <: SplitODEProblem) &&
        typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator)
-        jtimes = old_cfunction(jactimes,
-                        Cint,
-                        Tuple{N_Vector,
-                         N_Vector,
-                         realtype,
-                         N_Vector,
-                         N_Vector,
-                         Ref{typeof(userfun)},
-                         N_Vector})
+       function getcfunjtimes(userfun::T) where T
+           @cfunction(jactimes,
+                           Cint,
+                           (N_Vector,
+                            N_Vector,
+                            realtype,
+                            N_Vector,
+                            N_Vector,
+                            Ref{T},
+                            N_Vector))
+        end
+        jtimes = getcfunjtimes(userfun)
         ARKodeSpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
@@ -595,14 +624,17 @@ function DiffEqBase.__init(
         else
             ARKSpilsSetMassLinearSolver(mem,MLS,false)
         end
-        matfun = old_cfunction(massmat,
-                        Cint,
-                        Tuple{realtype,
-                         SUNMatrix,
-                         Ref{typeof(userfun)},
-                         N_Vector,
-                         N_Vector,
-                         N_Vector})
+        function getmatfun(userfun::T) where T
+            @cfunction(massmat,
+                            Cint,
+                            (realtype,
+                             SUNMatrix,
+                             Ref{T},
+                             N_Vector,
+                             N_Vector,
+                             N_Vector))
+        end
+        matfun = getmatfun(userfun)
         ARKDlsSetMassFn(mem,matfun)
     else
         _M = nothing
@@ -610,16 +642,19 @@ function DiffEqBase.__init(
     end
 
     if DiffEqBase.has_jac(prob.f)
-      jac = old_cfunction(cvodejac,
-                      Cint,
-                      Tuple{realtype,
-                       N_Vector,
-                       N_Vector,
-                       SUNMatrix,
-                       Ref{typeof(userfun)},
-                       N_Vector,
-                       N_Vector,
-                       N_Vector})
+      function getfunjac(userfun::T) where T
+          @cfunction(cvodejac,
+                          Cint,
+                          (realtype,
+                           N_Vector,
+                           N_Vector,
+                           SUNMatrix,
+                           Ref{T},
+                           N_Vector,
+                           N_Vector,
+                           N_Vector))
+      end
+      jac = getfunjac(userfun)
       flag = ARKodeSetUserData(mem, userfun)
       flag = ARKDlsSetJacFn(mem, jac)
     else
@@ -627,14 +662,17 @@ function DiffEqBase.__init(
     end
 
     if alg.prec !== nothing
-        precfun = old_cfunction(precsolve,
-                        Cint,
-                        Tuple{Float64,
-                         N_Vector,
-                         N_Vector,
-                         N_Vector,
-                         N_Vector,Float64,Float64,Int,
-                         Ref{typeof(userfun)}})
+        function getpercfun(userfun::T) where T
+            @cfunction(precsolve,
+                            Cint,
+                            (Float64,
+                             N_Vector,
+                             N_Vector,
+                             N_Vector,
+                             N_Vector,Float64,Float64,Int,
+                             Ref{T}))
+         end
+        precfun = getpercfun(userfun)
         ARKSpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
@@ -813,11 +851,16 @@ function DiffEqBase.__init(
     userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,_u0,_du0,rtest)
 
     u0nv = NVector(u0)
-    flag = IDAInit(mem, old_cfunction(idasolfun,
-                     Cint, Tuple{realtype, N_Vector, N_Vector,
-                            N_Vector, Ref{typeof(userfun)}}),
-                              t0, convert(N_Vector, u0),
-                              convert(N_Vector, du0))
+
+    function getcfun(userfun::T) where T
+        @cfunction(idasolfun,
+                         Cint, (realtype, N_Vector, N_Vector,
+                                N_Vector, Ref{T}))
+    end
+    cfun = getcfun(userfun)
+    flag = IDAInit(mem, cfun,
+                    t0, convert(N_Vector, u0),
+                    convert(N_Vector, du0))
     dt != nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
@@ -887,41 +930,50 @@ function DiffEqBase.__init(
     end
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-        jtimes = old_cfunction(idajactimes,
-                        Cint,
-                        Tuple{realtype,
-                         N_Vector,N_Vector,N_Vector,N_Vector,N_Vector,
-                         realtype,
-                         Ref{typeof(userfun)},
-                         N_Vector,N_Vector})
+        function getcfunjtimes(userfun::T) where T
+            @cfunction(idajactimes,
+                           Cint,
+                           (realtype,
+                            N_Vector,N_Vector,N_Vector,N_Vector,N_Vector,
+                            realtype,
+                            Ref{T},
+                            N_Vector,N_Vector))
+        end
+        jtimes = getcfunjtimes(userfun)
         IDASpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
     if alg.prec !== nothing
-        precfun = old_cfunction(idaprecsolve,
-                        Cint,
-                        Tuple{Float64,
-                         N_Vector,
-                         N_Vector,
-                         N_Vector,
-                         N_Vector,N_Vector,Float64,Float64,Int,
-                         Ref{typeof(userfun)}})
+        function getpercfun(userfun::T) where T
+            @cfunction(idaprecsolve,
+                            Cint,
+                            (Float64,
+                             N_Vector,
+                             N_Vector,
+                             N_Vector,
+                             N_Vector,N_Vector,Float64,Float64,Int,
+                             Ref{T}))
+        end
+        precfun = getpercfun(userfun)
         IDASpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
     if DiffEqBase.has_jac(prob.f)
-      jac = old_cfunction(idajac,
-                      Cint,
-                      Tuple{realtype,
-                       realtype,
-                       N_Vector,
-                       N_Vector,
-                       N_Vector,
-                       SUNMatrix,
-                       Ref{typeof(userfun)},
-                       N_Vector,
-                       N_Vector,
-                       N_Vector})
+      function getcfunjacc(userfun::T) where T
+          @cfunction(idajac,
+                     Cint,
+                     (realtype,
+                      realtype,
+                      N_Vector,
+                      N_Vector,
+                      N_Vector,
+                      SUNMatrix,
+                      Ref{T},
+                      N_Vector,
+                      N_Vector,
+                      N_Vector))
+      end
+      jac = getcfunjacc(userfun)
       flag = IDASetUserData(mem, userfun)
       flag = IDADlsSetJacFn(mem, jac)
     else

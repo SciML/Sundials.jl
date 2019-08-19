@@ -55,9 +55,13 @@ cvode_mem = Sundials.Handle(mem_ptr)
 userfun = Sundials.UserFunctionAndData(f, userdata)
 Sundials.CVodeSetUserData(cvode_mem, userfun)
 
-Sundials.CVodeInit(cvode_mem, Sundials.old_cfunction(Sundials.cvodefun,
-                    Cint, Tuple{Sundials.realtype, Sundials.N_Vector,
-                    Sundials.N_Vector, Ref{typeof(userfun)}}), t1,
+function getcfunrob(userfun::T) where T
+    @cfunction(Sundials.cvodefun,
+                    Cint, (Sundials.realtype, Sundials.N_Vector,
+                    Sundials.N_Vector, Ref{T}))
+end
+
+Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1,
                     convert(Sundials.N_Vector, y0))
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, f, t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)

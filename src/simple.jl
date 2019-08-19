@@ -61,7 +61,10 @@ function kinsol(f, y0::Vector{Float64};
     # use the user_data field to pass a function
     #   see: https://github.com/JuliaLang/julia/issues/2554
     userfun = UserFunctionAndData(f, userdata)
-    flag = @checkflag KINInit(kmem, old_cfunction(kinsolfun, Cint, Tuple{N_Vector, N_Vector, Ref{typeof(userfun)}}), NVector(y0)) true
+    function getcfun(userfun::T) where {T}
+        @cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{T}))
+    end
+    flag = @checkflag KINInit(kmem, getcfun(userfun), NVector(y0)) true
     if linear_solver == :Dense
         A = Sundials.SUNDenseMatrix(length(y0),length(y0))
         LS = Sundials.SUNDenseLinearSolver(y0,A)
@@ -136,7 +139,11 @@ function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::Abstrac
 
     userfun = UserFunctionAndData(f, userdata)
     y0nv = NVector(y0)
-    flag = @checkflag CVodeInit(mem, old_cfunction(cvodefun, Cint, Tuple{realtype, N_Vector, N_Vector, Ref{typeof(userfun)}}), t[1], convert(N_Vector, y0nv)) true
+
+    function getcfun(userfun::T) where {T}
+        @cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
+    end
+    flag = @checkflag CVodeInit(mem, getcfun(userfun), t[1], convert(N_Vector, y0nv)) true
 
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
@@ -200,7 +207,11 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
     ypres = zeros(length(t), length(y0))
 
     userfun = UserFunctionAndData(f, userdata)
-    flag = @checkflag IDAInit(mem, old_cfunction(idasolfun, Cint, Tuple{realtype, N_Vector, N_Vector, N_Vector, Ref{typeof(userfun)}}),
+
+    function getcfun(userfun::T) where {T}
+        @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
+    end
+    flag = @checkflag IDAInit(mem, getcfun(userfun),
                               t[1], y0, yp0) true
     flag = @checkflag IDASetUserData(mem, userfun) true
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
