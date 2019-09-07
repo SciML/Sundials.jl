@@ -62,7 +62,7 @@ function DiffEqBase.__init(
 
     progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
-    callbacks_internal = CallbackSet(callback,prob.callback)
+    callbacks_internal = CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
@@ -337,7 +337,7 @@ function DiffEqBase.__init(
 
     progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
-    callbacks_internal = CallbackSet(callback,prob.callback)
+    callbacks_internal = CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
@@ -782,7 +782,7 @@ function DiffEqBase.__init(
 
     progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
-    callbacks_internal = CallbackSet(callback,prob.callback)
+    callbacks_internal = CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
