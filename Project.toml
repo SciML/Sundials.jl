@@ -17,7 +17,9 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 [compat]
 julia = "1"
 DiffEqBase = "6"
-DataStructures = ">= 0.17.0"
+DataStructures = "0.17.0"
+BinaryProvider = "0.5"
+Reexport = "0.2"
 
 [extras]
 DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
