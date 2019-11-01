@@ -79,7 +79,8 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
     if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
         error("Linear solver choice not accepted.")
     end
-    CVODE_Adams{method,linear_solver,typeof(prec)}(jac_upper,jac_lower,
+    CVODE_Adams{method,linear_solver,typeof(prec),typeof(psetup)}(
+                                      jac_upper,jac_lower,
                                       stored_upper,krylov_dim,
                                       stability_limit_detect,
                                       max_hnil_warns,
@@ -155,7 +156,7 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
     ARKODE{method,linear_solver,mass_linear_solver,
                     typeof(stiffness),
                     typeof(itable),typeof(etable),
-                    typeof(prec)}(
+                    typeof(prec),typeof(psetup)}(
                                     stiffness,
                                     jac_upper,jac_lower,
                                     stored_upper,
@@ -224,7 +225,8 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
   if linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR && linear_solver != :KLU
       error("Linear solver choice not accepted.")
   end
-  IDA{linear_solver,typeof(prec)}(jac_upper,jac_lower,stored_upper,krylov_dim,
+  IDA{linear_solver,typeof(prec),typeof(psetup)}(
+                      jac_upper,jac_lower,stored_upper,krylov_dim,
                       max_order,
                       max_error_test_failures,
                       nonlinear_convergence_coefficient,

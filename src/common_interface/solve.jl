@@ -133,7 +133,7 @@ function DiffEqBase.__init(
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,u0,_u0)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,alg.psetup,u0,_u0)
 
     function getcfunf(userfun::T) where T
         @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
@@ -432,7 +432,7 @@ function DiffEqBase.__init(
         end
 
         userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.mass_matrix,
-                         prob.f.f1.jac_prototype,alg.prec,u0,_u0,nothing)
+                         prob.f.f1.jac_prototype,alg.prec,alg.psetup,u0,_u0,nothing)
 
         function getcfunjac(userfun::T) where T
             @cfunction(cvodefunjac, Cint,
@@ -451,7 +451,7 @@ function DiffEqBase.__init(
                     cfj1,cfj2,
                     t0, convert(N_Vector, u0nv))
     else
-        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,alg.prec,u0,_u0)
+        userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,alg.prec,alg.psetup,u0,_u0)
         if alg.stiffness == Explicit()
             function getcfun1(userfun::T) where T
                 @cfunction(cvodefunjac, Cint,
@@ -872,7 +872,7 @@ function DiffEqBase.__init(
     dutmp = NVector(_du0)
     rtest = zeros(length(u0))
 
-    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,_u0,_du0,rtest)
+    userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,alg.psetup,_u0,_du0,rtest)
 
     u0nv = NVector(u0)
 
@@ -991,7 +991,7 @@ function DiffEqBase.__init(
         end
         psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
 
-        IDASpilsSetPreconditioner(mem, C_NULL, precfun)
+        IDASpilsSetPreconditioner(mem, psetupfun, precfun)
     end
 
     if DiffEqBase.has_jac(prob.f)

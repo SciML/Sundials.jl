@@ -79,9 +79,15 @@ sol8 = solve(prob,CVODE_BDF(linear_solver=:TFQMR))
 
 # Test identity preconditioner
 global prec_used = false
-sol4 = solve(prob,CVODE_BDF(linear_solver=:GMRES, prec_side = 3, prec=(z,r,p,t,y,fy,gamma,delta,lr)->(global prec_used=true;z.=r)))
+global psetup_used = false
+prec = (z,r,p,t,y,fy,gamma,delta,lr)->(global prec_used=true;z.=r)
+psetup = (p,t,u,du,jok,jcurPtr,gamma) -> (global psetup_used = true; jcurPtr[]=false)
+sol4 = solve(prob,CVODE_BDF(linear_solver=:GMRES, prec_side = 3, prec=prec))
 @test isapprox(sol1[end],sol4[end],rtol=1e-3)
 @test prec_used
+sol4 = solve(prob,CVODE_BDF(linear_solver=:GMRES, prec_side = 3, prec=prec, psetup=psetup))
+@test isapprox(sol1[end],sol4[end],rtol=1e-3)
+@test psetup_used
 
 # Backwards
 prob = deepcopy(prob_ode_2Dlinear)

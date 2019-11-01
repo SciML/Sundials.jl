@@ -1,5 +1,5 @@
 abstract type AbstractFunJac{J2} end
-mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2, Prec} <: AbstractFunJac{J2}
+mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2, Prec, PS} <: AbstractFunJac{J2}
     fun::F
     fun2::F2
     jac::J
@@ -7,12 +7,13 @@ mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2, Prec} <: AbstractFunJac
     mass_matrix::M
     jac_prototype::J2
     prec::Prec
+    psetup::PS
     u::uType
     du::uType
     resid::uType2
 end
-FunJac(fun,jac,p,m,jac_prototype,prec,u,du) = FunJac(fun,nothing,jac,p,m,jac_prototype,prec,u,du,nothing)
-FunJac(fun,jac,p,m,jac_prototype,prec,u,du,resid) = FunJac(fun,nothing,jac,p,m,jac_prototype,prec,u,du,resid)
+FunJac(fun,jac,p,m,jac_prototype,prec,psetup,u,du) = FunJac(fun,nothing,jac,p,m,jac_prototype,prec,psetup,u,du,nothing)
+FunJac(fun,jac,p,m,jac_prototype,prec,psetup,u,du,resid) = FunJac(fun,nothing,jac,p,m,jac_prototype,prec,psetup,u,du,resid)
 
 function cvodefunjac(t::Float64,
                      u::N_Vector,
@@ -200,7 +201,7 @@ function precsetup(t::Float64,
                    jcurPtr::Ref{Int},
                    gamma::Float64,
                    fj::AbstractFunJac)
-    fj.psetup(fj.p,t,convert(Vector,y),convert(Vector,fy),jok==1,jcurPtr,gamma)
+    fj.psetup(fj.p,t,convert(Vector,y),convert(Vector,fy),jok==1,Base.unsafe_wrap(Vector{Int}, jcurPtr, 1),gamma)
     return CV_SUCCESS
 end
 
@@ -221,9 +222,9 @@ end
 function idaprecsetup(t::Float64,
                       y::N_Vector,
                       fy::N_Vector,
-                      rr::N_Vector
+                      rr::N_Vector,
                       gamma::Float64,
                       fj::AbstractFunJac)
-    fj.psetup(fj.p,t,convert(Vector,r),convert(Vector,y),convert(Vector,fy),gamma)
+    fj.psetup(fj.p,t,convert(Vector,rr),convert(Vector,y),convert(Vector,fy),gamma)
     return IDA_SUCCESS
 end

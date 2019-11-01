@@ -17,11 +17,18 @@ sol7 = solve(prob,IDA(linear_solver=:PCG)) # Requires symmetric linear
 
 # Test identity preconditioner
 global prec_used = false
+global psetup_used = false
+prec = (z,r,p,t,y,fy,resid,gamma,delta,lr)->(global prec_used=true;z.=r)
+psetup = (p,t,resid,u,du,gamma) -> (global psetup_used = true)
 sol4 = solve(prob,IDA(linear_solver=:GMRES,
              prec_side = 3,
-             prec=(z,r,p,t,y,fy,resid,gamma,delta,lr)->(global prec_used=true;z.=r)))
+             prec=prec))
 @test prec_used
-
+sol4 = solve(prob,IDA(linear_solver=:GMRES,
+             prec_side = 3,
+             prec=prec,
+             psetup=psetup))
+@test psetup_used
 
 sol = solve(prob,IDA(),saveat=saveat)
 
