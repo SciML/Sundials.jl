@@ -126,7 +126,7 @@ function idajac(t::realtype,
   _u = funjac.u
   funjac.du = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(du),length(funjac.du))
   _du = funjac.du
-  
+
   funjac.jac(jac_prototype, _du, convert(Vector, _u), funjac.p, cj, t)
   J.nzval .= jac_prototype.nzval
   # Sundials resets the value pointers each time, so reset it too
@@ -193,6 +193,17 @@ function precsolve(t::Float64,
     return CV_SUCCESS
 end
 
+function precsetup(t::Float64,
+                   y::N_Vector,
+                   fy::N_Vector,
+                   jok::Int,
+                   jcurPtr::Ref{Int},
+                   gamma::Float64,
+                   fj::AbstractFunJac)
+    fj.psetup(fj.p,t,convert(Vector,y),convert(Vector,fy),jok==1,jcurPtr,gamma)
+    return CV_SUCCESS
+end
+
 function idaprecsolve(t::Float64,
                    y::N_Vector,
                    fy::N_Vector,
@@ -204,5 +215,15 @@ function idaprecsolve(t::Float64,
                    lr::Int,
                    fj::AbstractFunJac)
     fj.prec(convert(Vector,z),convert(Vector,r),fj.p,t,convert(Vector,y),convert(Vector,fy),convert(Vector,resid),gamma,delta,lr)
+    return IDA_SUCCESS
+end
+
+function idaprecsetup(t::Float64,
+                      y::N_Vector,
+                      fy::N_Vector,
+                      rr::N_Vector
+                      gamma::Float64,
+                      fj::AbstractFunJac)
+    fj.psetup(fj.p,t,convert(Vector,r),convert(Vector,y),convert(Vector,fy),gamma)
     return IDA_SUCCESS
 end

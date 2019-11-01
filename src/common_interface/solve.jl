@@ -261,9 +261,21 @@ function DiffEqBase.__init(
                              N_Vector,
                              N_Vector,Float64,Float64,Int,
                              Ref{T}))
-         end
+        end
         precfun = getpercfun(userfun)
-        CVSpilsSetPreconditioner(mem, C_NULL, precfun)
+
+        function getpsetupfun(userfun::T) where T
+            @cfunction(precsetup,
+                            Cint,
+                            (Float64,
+                             N_Vector,
+                             N_Vector,
+                             Int,
+                             Ref{Int},Float64,Ref{T}))
+        end
+        psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
+
+        CVSpilsSetPreconditioner(mem, psetupfun, precfun)
     end
 
     callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
@@ -671,9 +683,21 @@ function DiffEqBase.__init(
                              N_Vector,
                              N_Vector,Float64,Float64,Int,
                              Ref{T}))
-         end
+        end
         precfun = getpercfun(userfun)
-        ARKSpilsSetPreconditioner(mem, C_NULL, precfun)
+
+        function getpsetupfun(userfun::T) where T
+            @cfunction(precsetup,
+                            Cint,
+                            (Float64,
+                             N_Vector,
+                             N_Vector,
+                             Int,
+                             Ref{Int},Float64,Ref{T}))
+        end
+        psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
+
+        ARKSpilsSetPreconditioner(mem, psetupfun, precfun)
     end
 
     callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
@@ -955,6 +979,18 @@ function DiffEqBase.__init(
                              Ref{T}))
         end
         precfun = getpercfun(userfun)
+
+        function getpsetupfun(userfun::T) where T
+            @cfunction(idaprecsetup,
+                            Cint,
+                            (Float64,
+                             N_Vector,
+                             N_Vector,
+                             N_Vector,
+                             Float64,Ref{T}))
+        end
+        psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
+
         IDASpilsSetPreconditioner(mem, C_NULL, precfun)
     end
 
