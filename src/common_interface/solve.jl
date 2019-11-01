@@ -271,7 +271,7 @@ function DiffEqBase.__init(
                              N_Vector,
                              N_Vector,
                              Int,
-                             Ref{Int},Float64,Ref{T}))
+                             Ptr{Int},Float64,Ref{T}))
         end
         psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
 
@@ -693,7 +693,7 @@ function DiffEqBase.__init(
                              N_Vector,
                              N_Vector,
                              Int,
-                             Ref{Int},Float64,Ref{T}))
+                             Ptr{Int},Float64,Ref{T}))
         end
         psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
 
