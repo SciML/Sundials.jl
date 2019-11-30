@@ -883,8 +883,8 @@ function DiffEqBase.__init(
     end
     cfun = getcfun(userfun)
     flag = IDAInit(mem, cfun,
-                    t0, convert(N_Vector, u0),
-                    convert(N_Vector, du0))
+                    t0, convert(N_Vector, utmp),
+                    convert(N_Vector, dutmp))
     dt != nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
