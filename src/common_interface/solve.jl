@@ -1155,7 +1155,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         handle_tstop!(integrator)
     end
 
-    if integrator.opts.save_end && integrator.sol.t[end] != integrator.t
+    if integrator.opts.save_end && (isempty(integrator.sol.t) || integrator.sol.t[end] != integrator.t)
         save_value!(integrator.sol.u,integrator.u,uType,integrator.sizeu)
         push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense

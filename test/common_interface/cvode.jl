@@ -39,6 +39,10 @@ sol = solve(prob,CVODE_Adams(),saveat=saveat)
 
 @test sol.t == saveat
 
+sol = solve(prob,CVODE_Adams(),saveat=[prob.tspan[2]])
+
+@test sol.t = [prob.tspan[2]]
+
 sol = solve(prob,CVODE_Adams(),saveat=saveat,save_everystep=false)
 
 @test sol.t == saveat
