@@ -1,7 +1,7 @@
 name = "Sundials"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "v3.8.1"
+version = "v3.8.2"
 
 [deps]
 BinaryProvider = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
