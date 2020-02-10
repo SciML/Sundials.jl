@@ -38,12 +38,21 @@ function CVodeSetUserData(cvode_mem, user_data)
     ccall((:CVodeSetUserData, libsundials_cvode), Cint, (CVODEMemPtr, Any), cvode_mem, user_data)
 end
 
-function CVodeSetMaxOrd(cvode_mem, maxord)
+function CVodeSetMaxOrd(cvode_mem, maxord::Cint)
     ccall((:CVodeSetMaxOrd, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxord)
 end
 
-function CVodeSetMaxNumSteps(cvode_mem, mxsteps)
+function CVodeSetMaxOrd(cvode_mem, maxord)
+    CVodeSetMaxOrd(cvode_mem, convert(Cint, maxord))
+end
+
+
+function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Clong)
     ccall((:CVodeSetMaxNumSteps, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, mxsteps)
+end
+
+function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Int)
+    CVodeSetMaxNumSteps(cvode_mem, convert(Clong, mxsteps))
 end
 
 function CVodeSetMaxHnilWarns(cvode_mem, mxhnil)
