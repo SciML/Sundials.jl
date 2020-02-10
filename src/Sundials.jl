@@ -22,7 +22,7 @@ end
 #else
 #    error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
 #end
-using Sundials_jll
+using Sundials-5_jll
 
 export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
 
