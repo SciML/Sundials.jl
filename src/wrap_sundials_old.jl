@@ -5,37 +5,38 @@
 # To run the script from Julia console:
 # include(joinpath(Pkg.dir("Sundials"), "src", "wrap_sundials.jl"));
 
-using Clang
-using Sundials-5_jll.jl
+using Clang.wrap_c
 
 # `outpath` specifies, where the julian wrappers would be generated.
 # If the generated .jl files are ok, they have to be copied to the "src" folder
 # overwriting the old ones
-const outpath = normpath(joinpath(dirname(@__FILE__), "wrapped_api"))
+const outpath = normpath(joinpath(dirname(@__FILE__), "..", "new"))
 mkpath(outpath)
 
 # Find all relevant Sundials headers
-const incpath = normpath(Sundials-5_jll.jl.artifact_dir, "include")
+const incpath = normpath(joinpath(dirname(@__FILE__), "..", "deps", "usr", "include"))
 if !isdir(incpath)
-    error("Sundials C headers not found.")
+    error("Sundials C headers not found. Run Pkg.build(\"Sundials\") before trying to wrap C headers.")
 end
 
-@info("Scanning Sundials headers in $incpath...")
-const sundials_folders = filter!(isdir,
-								 map(x->joinpath(incpath, x),
-                                     ["nvector", "sundials", "cvode", "cvodes",
-                                  	  "ida", "idas", "kinsol", "arkode",
-                                  	  "sunlinsol", "sunmatrix"]))
+info("Scanning Sundials headers in $incpath...")
+const sundials_folders = filter!(isdir, map!(folder -> joinpath(incpath, folder),
+                                 ["nvector", "sundials", "cvode", "cvodes",
+                                  "ida", "idas", "kinsol", "arkode",
+                                  "sunlinsol","sunmatrix"]))
 const sundials_headers = similar(sundials_folders, 0)
 for folder in sundials_folders
-    @info("Processing $folder...")
-	headers = [joinpath(folder, header) for header in readdir(folder) if endswith(header, ".h")]
-    append!(sundials_headers, headers)
+    info("Processing $folder...")
+    append!(sundials_headers,
+            map(x->joinpath(folder, x),
+                sort!(convert(typeof(sundials_headers), readdir(folder)))))
 end
+# @show sundials_headers
 
-@show sundials_headers
-
-const clang_includes = [CLANG_INCLUDE]
+const clang_path = "/usr/lib/clang/3.8.0" # change to your clang location
+const clang_includes = [
+    joinpath(clang_path, "include"),
+]
 
 # check_use_header(path) = true
 # Callback to test if a header should actually be wrapped (for exclusion)
@@ -45,7 +46,7 @@ function wrap_header(top_hdr::AbstractString, cursor_header::AbstractString)
 end
 
 function wrap_cursor(name::AbstractString, cursor)
-    if typeof(cursor) == Clang.CLFunctionDecl
+    if typeof(cursor) == Clang.cindex.FunctionDecl
         # only wrap API functions
         return occursin(r"^(CV|KIN|IDA|ARK|N_V|SUN)", name)
     else
@@ -70,14 +71,12 @@ function library_file(header::AbstractString)
     end
 end
 
-const context = init(
+const context = wrap_c.init(
     common_file = joinpath(outpath, "types_and_consts.jl"),
     clang_args = [
         "-D", "__STDC_LIMIT_MACROS",
         "-D", "__STDC_CONSTANT_MACROS",
-		"-I", find_std_headers()[1],
-		"-I", find_std_headers()[2],
-        #"-v"
+        "-v"
     ],
     clang_diagnostics = true,
     clang_includes = [clang_includes; incpath],
@@ -109,18 +108,17 @@ const linear_solvers_and_matrices = [
     "spgmr",
     "sptfqmr",
     "sparse",
-    "klu",
-
+    "klu"
     ]
 
 # substitute Ptr{Void} with the typed pointer
 const ctor_return_type = Dict(
-    "ARKCreate" => :(ARKODEMemPtr),
-    "ARKStepCreate" => :(ARKStepMemPtr),
+    "ARKodeCreate" => :(ARKODEMemPtr),
     "CVodeCreate" => :(CVODEMemPtr),
     "IDACreate" => :(IDAMemPtr),
     "KINCreate" => :(KINMemPtr)
 )
+
 # signatures for C function pointer types
 const FnTypeSignatures = Dict(
     :ARKRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
@@ -140,9 +138,9 @@ function wrap_sundials_api(expr::Expr)
         convert_required = false
         if occursin(r"^(ARK|CV|KIN|IDA|SUN|N_V)", func_name)
 	        @show func_name
-            if occursin(r"Create$", func_name) && !occursin(r"Butcher", func_name)
+            if occursin(r"Create$", func_name)
                 # create functions return typed pointers
-		        @assert expr.args[2].args[1].args[3] == :(Ptr{Cvoid})
+		        @assert expr.args[2].args[1].args[3] == :(Ptr{Void})
                 expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
 		        arg1_type = expr.args[2].args[1].args[4].args[1]
@@ -175,7 +173,7 @@ function wrap_sundials_api(expr::Expr)
                     Symbol(string(expr.args[2].args[1].args[2].args[2])*
                     lowercase(split(func_name,"_")[end]))
                 else
-                    name_i = findfirst(lsmn -> occursin(lsmn, lowercase(func_name)),linear_solvers_and_matrices)
+                    name_i = findfirst(lsmn -> contains(lowercase(func_name),lsmn),linear_solvers_and_matrices)
 
                     @assert name_i > 0
                     name = linear_solvers_and_matrices[name_i]
@@ -280,6 +278,6 @@ context.rewriter = function(exprs)
     mod_exprs
 end
 
-@info("Generating .jl wrappers for Sundials in $outpath...")
+info("Generating .jl wrappers for Sundials in $outpath...")
 run(context)
-@info("Done generating .jl wrappers for Sundials in $outpath")
+info("Done generating .jl wrappers for Sundials in $outpath")

@@ -16,12 +16,13 @@ function __init__()
     global warnida  = union(warnlist, Set((:dtmin,)))
 end
 
-const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
-if isfile(depsfile)
-    include(depsfile)
-else
-    error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
-end
+#const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
+#if isfile(depsfile)
+#    include(depsfile)
+#else
+#    error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
+#end
+using Sundials_jll
 
 export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
 
