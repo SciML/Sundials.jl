@@ -6,7 +6,7 @@
 # include(joinpath(Pkg.dir("Sundials"), "src", "wrap_sundials.jl"));
 
 using Clang
-using Sundials-5_jll.jl
+#using Sundials-5_jll.jl
 
 # `outpath` specifies, where the julian wrappers would be generated.
 # If the generated .jl files are ok, they have to be copied to the "src" folder
@@ -15,7 +15,8 @@ const outpath = normpath(joinpath(dirname(@__FILE__), "wrapped_api"))
 mkpath(outpath)
 
 # Find all relevant Sundials headers
-const incpath = normpath(Sundials-5_jll.jl.artifact_dir, "include")
+#const incpath = normpath(Sundials-5_jll.jl.artifact_dir, "include")
+const incpath = "/usr/local/Cellar/sundials/5.1.0/include"
 if !isdir(incpath)
     error("Sundials C headers not found.")
 end
@@ -23,9 +24,17 @@ end
 @info("Scanning Sundials headers in $incpath...")
 const sundials_folders = filter!(isdir,
 								 map(x->joinpath(incpath, x),
-                                     ["nvector", "sundials", "cvode", "cvodes",
-                                  	  "ida", "idas", "kinsol", "arkode",
-                                  	  "sunlinsol", "sunmatrix"]))
+                                     ["arkode",
+                                      "cvode",
+                                      "cvodes",
+                                      "ida",
+                                      "idas",
+                                      "kinsol",
+                                      "nvector",
+                                      "sundials",
+                                      "sunlinsol",
+                                      "sunmatrix",
+                                      "sunnonlinsol"]))
 const sundials_headers = similar(sundials_folders, 0)
 for folder in sundials_folders
     @info("Processing $folder...")
@@ -101,16 +110,23 @@ const arg1_name2type = Dict(
 )
 
 const linear_solvers_and_matrices = [
-    "dense",
+    # Linear Solvers
     "band",
+    "dense",
+    "klu",
+    "lapackend",
+    "lapackdense",
     "pcg",
     "spbcgs",
     "spfgmr",
     "spgmr",
     "sptfqmr",
+    # Matrices
     "sparse",
-    "klu",
-
+    #band and dense names are already in the list
+    #Non linear solvers
+    "fixedpoint",
+    "newton"
     ]
 
 # substitute Ptr{Void} with the typed pointer
@@ -169,7 +185,7 @@ function wrap_sundials_api(expr::Expr)
 			        end
                 end
             end
-            if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix)
+            if !(typeof(expr)<:Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix || expr.args[2].args[1].args[2].args[2] == :libsundials_sunnonlinsol)
                 if func_name[1:6] == "SUNMAT"
                     expr.args[2].args[1].args[2].args[2] =
                     Symbol(string(expr.args[2].args[1].args[2].args[2])*
