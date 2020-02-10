@@ -1,640 +1,526 @@
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: arkode.h
+# Automatically generated using Clang.jl
 
+# Julia wrapper for header: arkode_arkstep.h
+# Automatically generated using Clang.jl
 
-function ARKodeCreate()
-    ccall((:ARKodeCreate, libsundials_arkode), ARKODEMemPtr, ())
-end
-
-function ARKodeSetDefaults(arkode_mem)
-    ccall((:ARKodeSetDefaults, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
-end
-
-function ARKodeSetOptimalParams(arkode_mem)
-    ccall((:ARKodeSetOptimalParams, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
-end
-
-function ARKodeSetErrHandlerFn(arkode_mem, ehfun::ARKErrHandlerFn, eh_data)
-    ccall((:ARKodeSetErrHandlerFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
-end
-
-function ARKodeSetErrFile(arkode_mem, errfp)
-    ccall((:ARKodeSetErrFile, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, errfp)
-end
-
-function ARKodeSetUserData(arkode_mem, user_data)
-    ccall((:ARKodeSetUserData, libsundials_arkode), Cint, (ARKODEMemPtr, Any), arkode_mem, user_data)
-end
-
-function ARKodeSetDiagnostics(arkode_mem, diagfp)
-    ccall((:ARKodeSetDiagnostics, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, diagfp)
-end
-
-function __ARKodeSetOrder(arkode_mem, maxord::Cint)
-    ccall((:ARKodeSetOrder, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxord)
-end
-
-function ARKodeSetOrder(arkode_mem, maxord)
-    __ARKodeSetOrder(arkode_mem, convert(Cint, maxord))
-end
-
-function __ARKodeSetDenseOrder(arkode_mem, dord::Cint)
-    ccall((:ARKodeSetDenseOrder, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, dord)
-end
-
-function ARKodeSetDenseOrder(arkode_mem, dord)
-    __ARKodeSetDenseOrder(arkode_mem, convert(Cint, dord))
-end
-
-function __ARKodeSetLinear(arkode_mem, timedepend::Cint)
-    ccall((:ARKodeSetLinear, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, timedepend)
-end
-
-function ARKodeSetLinear(arkode_mem, timedepend)
-    __ARKodeSetLinear(arkode_mem, convert(Cint, timedepend))
-end
-
-function ARKodeSetNonlinear(arkode_mem)
-    ccall((:ARKodeSetNonlinear, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
-end
-
-function __ARKodeSetFixedPoint(arkode_mem, fp_m::Clong)
-    ccall((:ARKodeSetFixedPoint, libsundials_arkode), Cint, (ARKODEMemPtr, Clong), arkode_mem, fp_m)
-end
-
-function ARKodeSetFixedPoint(arkode_mem, fp_m)
-    __ARKodeSetFixedPoint(arkode_mem, convert(Clong, fp_m))
-end
-
-function ARKodeSetNewton(arkode_mem)
-    ccall((:ARKodeSetNewton, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
-end
-
-function ARKodeSetExplicit(arkode_mem)
-    ccall((:ARKodeSetExplicit, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
-end
-
-function ARKodeSetImplicit(arkode_mem)
-    ccall((:ARKodeSetImplicit, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
-end
-
-function ARKodeSetImEx(arkode_mem)
-    ccall((:ARKodeSetImEx, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
-end
 
-function __ARKodeSetERKTable(arkode_mem, s::Cint, q::Cint, p::Cint, c, A, b, bembed)
-    ccall((:ARKodeSetERKTable, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, Cint, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), arkode_mem, s, q, p, c, A, b, bembed)
+function ARKStepCreate(fe, fi, t0, y0)
+    ccall((:ARKStepCreate, libsundials_arkode), ARKStepMemPtr, (ARKRhsFn, ARKRhsFn, realtype, N_Vector), fe, fi, t0, y0)
 end
 
-function ARKodeSetERKTable(arkode_mem, s, q, p, c, A, b, bembed)
-    __ARKodeSetERKTable(arkode_mem, convert(Cint, s), convert(Cint, q), convert(Cint, p), c, A, b, bembed)
+function ARKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
+    ccall((:ARKStepResize, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, hscale, t0, resize, resize_data)
 end
 
-function __ARKodeSetIRKTable(arkode_mem, s::Cint, q::Cint, p::Cint, c, A, b, bembed)
-    ccall((:ARKodeSetIRKTable, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, Cint, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), arkode_mem, s, q, p, c, A, b, bembed)
+function ARKStepReInit(arkode_mem, fe, fi, t0, y0)
+    ccall((:ARKStepReInit, libsundials_arkode), Cint, (ARKODEMemPtr, ARKRhsFn, ARKRhsFn, realtype, N_Vector), arkode_mem, fe, fi, t0, y0)
 end
 
-function ARKodeSetIRKTable(arkode_mem, s, q, p, c, A, b, bembed)
-    __ARKodeSetIRKTable(arkode_mem, convert(Cint, s), convert(Cint, q), convert(Cint, p), c, A, b, bembed)
+function ARKStepSStolerances(arkode_mem, reltol, abstol)
+    ccall((:ARKStepSStolerances, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, realtype), arkode_mem, reltol, abstol)
 end
 
-function __ARKodeSetARKTables(arkode_mem, s::Cint, q::Cint, p::Cint, ci, ce, Ai, Ae, bi, be, b2i, b2e)
-    ccall((:ARKodeSetARKTables, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, Cint, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), arkode_mem, s, q, p, ci, ce, Ai, Ae, bi, be, b2i, b2e)
+function ARKStepSVtolerances(arkode_mem, reltol, abstol)
+    ccall((:ARKStepSVtolerances, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
 end
 
-function ARKodeSetARKTables(arkode_mem, s, q, p, ci, ce, Ai, Ae, bi, be, b2i, b2e)
-    __ARKodeSetARKTables(arkode_mem, convert(Cint, s), convert(Cint, q), convert(Cint, p), ci, ce, Ai, Ae, bi, be, b2i, b2e)
+function ARKStepWFtolerances(arkode_mem, efun)
+    ccall((:ARKStepWFtolerances, libsundials_arkode), Cint, (ARKODEMemPtr, ARKEwtFn), arkode_mem, efun)
 end
 
-function __ARKodeSetERKTableNum(arkode_mem, itable::Cint)
-    ccall((:ARKodeSetERKTableNum, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, itable)
+function ARKStepResStolerance(arkode_mem, rabstol)
+    ccall((:ARKStepResStolerance, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, rabstol)
 end
 
-function ARKodeSetERKTableNum(arkode_mem, itable)
-    __ARKodeSetERKTableNum(arkode_mem, convert(Cint, itable))
+function ARKStepResVtolerance(arkode_mem, rabstol)
+    ccall((:ARKStepResVtolerance, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, rabstol)
 end
 
-function __ARKodeSetIRKTableNum(arkode_mem, itable::Cint)
-    ccall((:ARKodeSetIRKTableNum, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, itable)
+function ARKStepResFtolerance(arkode_mem, rfun)
+    ccall((:ARKStepResFtolerance, libsundials_arkode), Cint, (ARKODEMemPtr, ARKRwtFn), arkode_mem, rfun)
 end
 
-function ARKodeSetIRKTableNum(arkode_mem, itable)
-    __ARKodeSetIRKTableNum(arkode_mem, convert(Cint, itable))
+function ARKStepSetLinearSolver(arkode_mem, LS, A)
+    ccall((:ARKStepSetLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver, SUNMatrix), arkode_mem, LS, A)
 end
 
-function __ARKodeSetARKTableNum(arkode_mem, itable::Cint, etable::Cint)
-    ccall((:ARKodeSetARKTableNum, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint), arkode_mem, itable, etable)
+function ARKStepSetMassLinearSolver(arkode_mem, LS, M, time_dep)
+    ccall((:ARKStepSetMassLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver, SUNMatrix, Cint), arkode_mem, LS, M, time_dep)
 end
 
-function ARKodeSetARKTableNum(arkode_mem, itable, etable)
-    __ARKodeSetARKTableNum(arkode_mem, convert(Cint, itable), convert(Cint, etable))
+function ARKStepRootInit(arkode_mem, nrtfn, g)
+    ccall((:ARKStepRootInit, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, ARKRootFn), arkode_mem, nrtfn, g)
 end
 
-function __ARKodeSetMaxNumSteps(arkode_mem, mxsteps::Clong)
-    ccall((:ARKodeSetMaxNumSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Clong), arkode_mem, mxsteps)
+function ARKStepSetDefaults(arkode_mem)
+    ccall((:ARKStepSetDefaults, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
 end
 
-function ARKodeSetMaxNumSteps(arkode_mem, mxsteps)
-    __ARKodeSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
+function ARKStepSetOptimalParams(arkode_mem)
+    ccall((:ARKStepSetOptimalParams, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
 end
 
-function __ARKodeSetMaxHnilWarns(arkode_mem, mxhnil::Cint)
-    ccall((:ARKodeSetMaxHnilWarns, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, mxhnil)
+function ARKStepSetOrder(arkode_mem, maxord)
+    ccall((:ARKStepSetOrder, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxord)
 end
 
-function ARKodeSetMaxHnilWarns(arkode_mem, mxhnil)
-    __ARKodeSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
+function ARKStepSetDenseOrder(arkode_mem, dord)
+    ccall((:ARKStepSetDenseOrder, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, dord)
 end
 
-function ARKodeSetInitStep(arkode_mem, hin::realtype)
-    ccall((:ARKodeSetInitStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hin)
+function ARKStepSetNonlinearSolver(arkode_mem, NLS)
+    ccall((:ARKStepSetNonlinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNNonlinearSolver), arkode_mem, NLS)
 end
 
-function ARKodeSetMinStep(arkode_mem, hmin::realtype)
-    ccall((:ARKodeSetMinStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hmin)
+function ARKStepSetLinear(arkode_mem, timedepend)
+    ccall((:ARKStepSetLinear, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, timedepend)
 end
 
-function ARKodeSetMaxStep(arkode_mem, hmax::realtype)
-    ccall((:ARKodeSetMaxStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hmax)
+function ARKStepSetNonlinear(arkode_mem)
+    ccall((:ARKStepSetNonlinear, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
 end
 
-function ARKodeSetStopTime(arkode_mem, tstop::realtype)
-    ccall((:ARKodeSetStopTime, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, tstop)
+function ARKStepSetExplicit(arkode_mem)
+    ccall((:ARKStepSetExplicit, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
 end
 
-function ARKodeSetFixedStep(arkode_mem, hfixed::realtype)
-    ccall((:ARKodeSetFixedStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hfixed)
+function ARKStepSetImplicit(arkode_mem)
+    ccall((:ARKStepSetImplicit, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
 end
 
-function ARKodeSetCFLFraction(arkode_mem, cfl_frac::realtype)
-    ccall((:ARKodeSetCFLFraction, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, cfl_frac)
+function ARKStepSetImEx(arkode_mem)
+    ccall((:ARKStepSetImEx, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
 end
 
-function ARKodeSetSafetyFactor(arkode_mem, safety::realtype)
-    ccall((:ARKodeSetSafetyFactor, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, safety)
+function ARKStepSetTables(arkode_mem, q, p, Bi, Be)
+    ccall((:ARKStepSetTables, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, ARKodeButcherTable, ARKodeButcherTable), arkode_mem, q, p, Bi, Be)
 end
 
-function ARKodeSetErrorBias(arkode_mem, bias::realtype)
-    ccall((:ARKodeSetErrorBias, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, bias)
+function ARKStepSetTableNum(arkode_mem, itable, etable)
+    ccall((:ARKStepSetTableNum, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint), arkode_mem, itable, etable)
 end
 
-function ARKodeSetMaxGrowth(arkode_mem, mx_growth::realtype)
-    ccall((:ARKodeSetMaxGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, mx_growth)
+function ARKStepSetCFLFraction(arkode_mem, cfl_frac)
+    ccall((:ARKStepSetCFLFraction, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, cfl_frac)
 end
 
-function ARKodeSetFixedStepBounds(arkode_mem, lb::realtype, ub::realtype)
-    ccall((:ARKodeSetFixedStepBounds, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, realtype), arkode_mem, lb, ub)
+function ARKStepSetSafetyFactor(arkode_mem, safety)
+    ccall((:ARKStepSetSafetyFactor, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, safety)
 end
 
-function __ARKodeSetAdaptivityMethod(arkode_mem, imethod::Cint, idefault::Cint, pq::Cint, adapt_params)
-    ccall((:ARKodeSetAdaptivityMethod, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, Cint, Ptr{realtype}), arkode_mem, imethod, idefault, pq, adapt_params)
+function ARKStepSetErrorBias(arkode_mem, bias)
+    ccall((:ARKStepSetErrorBias, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, bias)
 end
 
-function ARKodeSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
-    __ARKodeSetAdaptivityMethod(arkode_mem, convert(Cint, imethod), convert(Cint, idefault), convert(Cint, pq), adapt_params)
+function ARKStepSetMaxGrowth(arkode_mem, mx_growth)
+    ccall((:ARKStepSetMaxGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, mx_growth)
 end
 
-function ARKodeSetAdaptivityFn(arkode_mem, hfun::ARKAdaptFn, h_data)
-    ccall((:ARKodeSetAdaptivityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data)
+function ARKStepSetFixedStepBounds(arkode_mem, lb, ub)
+    ccall((:ARKStepSetFixedStepBounds, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, realtype), arkode_mem, lb, ub)
 end
 
-function ARKodeSetMaxFirstGrowth(arkode_mem, etamx1::realtype)
-    ccall((:ARKodeSetMaxFirstGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, etamx1)
+function ARKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
+    ccall((:ARKStepSetAdaptivityMethod, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, Cint, Ptr{realtype}), arkode_mem, imethod, idefault, pq, adapt_params)
 end
 
-function ARKodeSetMaxEFailGrowth(arkode_mem, etamxf::realtype)
-    ccall((:ARKodeSetMaxEFailGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, etamxf)
+function ARKStepSetAdaptivityFn(arkode_mem, hfun, h_data)
+    ccall((:ARKStepSetAdaptivityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data)
 end
 
-function __ARKodeSetSmallNumEFails(arkode_mem, small_nef::Cint)
-    ccall((:ARKodeSetSmallNumEFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, small_nef)
+function ARKStepSetMaxFirstGrowth(arkode_mem, etamx1)
+    ccall((:ARKStepSetMaxFirstGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, etamx1)
 end
 
-function ARKodeSetSmallNumEFails(arkode_mem, small_nef)
-    __ARKodeSetSmallNumEFails(arkode_mem, convert(Cint, small_nef))
+function ARKStepSetMaxEFailGrowth(arkode_mem, etamxf)
+    ccall((:ARKStepSetMaxEFailGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, etamxf)
 end
 
-function ARKodeSetMaxCFailGrowth(arkode_mem, etacf::realtype)
-    ccall((:ARKodeSetMaxCFailGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, etacf)
+function ARKStepSetSmallNumEFails(arkode_mem, small_nef)
+    ccall((:ARKStepSetSmallNumEFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, small_nef)
 end
 
-function ARKodeSetNonlinCRDown(arkode_mem, crdown::realtype)
-    ccall((:ARKodeSetNonlinCRDown, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, crdown)
+function ARKStepSetMaxCFailGrowth(arkode_mem, etacf)
+    ccall((:ARKStepSetMaxCFailGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, etacf)
 end
 
-function ARKodeSetNonlinRDiv(arkode_mem, rdiv::realtype)
-    ccall((:ARKodeSetNonlinRDiv, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, rdiv)
+function ARKStepSetNonlinCRDown(arkode_mem, crdown)
+    ccall((:ARKStepSetNonlinCRDown, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, crdown)
 end
 
-function ARKodeSetDeltaGammaMax(arkode_mem, dgmax::realtype)
-    ccall((:ARKodeSetDeltaGammaMax, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, dgmax)
+function ARKStepSetNonlinRDiv(arkode_mem, rdiv)
+    ccall((:ARKStepSetNonlinRDiv, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, rdiv)
 end
 
-function __ARKodeSetMaxStepsBetweenLSet(arkode_mem, msbp::Cint)
-    ccall((:ARKodeSetMaxStepsBetweenLSet, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, msbp)
+function ARKStepSetDeltaGammaMax(arkode_mem, dgmax)
+    ccall((:ARKStepSetDeltaGammaMax, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, dgmax)
 end
 
-function ARKodeSetMaxStepsBetweenLSet(arkode_mem, msbp)
-    __ARKodeSetMaxStepsBetweenLSet(arkode_mem, convert(Cint, msbp))
+function ARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp)
+    ccall((:ARKStepSetMaxStepsBetweenLSet, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, msbp)
 end
 
-function __ARKodeSetPredictorMethod(arkode_mem, method::Cint)
-    ccall((:ARKodeSetPredictorMethod, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, method)
+function ARKStepSetPredictorMethod(arkode_mem, method)
+    ccall((:ARKStepSetPredictorMethod, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, method)
 end
 
-function ARKodeSetPredictorMethod(arkode_mem, method)
-    __ARKodeSetPredictorMethod(arkode_mem, convert(Cint, method))
+function ARKStepSetStabilityFn(arkode_mem, EStab, estab_data)
+    ccall((:ARKStepSetStabilityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data)
 end
 
-function ARKodeSetStabilityFn(arkode_mem, EStab::ARKExpStabFn, estab_data)
-    ccall((:ARKodeSetStabilityFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data)
+function ARKStepSetMaxErrTestFails(arkode_mem, maxnef)
+    ccall((:ARKStepSetMaxErrTestFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxnef)
 end
 
-function __ARKodeSetMaxErrTestFails(arkode_mem, maxnef::Cint)
-    ccall((:ARKodeSetMaxErrTestFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxnef)
+function ARKStepSetMaxNonlinIters(arkode_mem, maxcor)
+    ccall((:ARKStepSetMaxNonlinIters, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxcor)
 end
 
-function ARKodeSetMaxErrTestFails(arkode_mem, maxnef)
-    __ARKodeSetMaxErrTestFails(arkode_mem, convert(Cint, maxnef))
+function ARKStepSetMaxConvFails(arkode_mem, maxncf)
+    ccall((:ARKStepSetMaxConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxncf)
 end
 
-function __ARKodeSetMaxNonlinIters(arkode_mem, maxcor::Cint)
-    ccall((:ARKodeSetMaxNonlinIters, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxcor)
+function ARKStepSetNonlinConvCoef(arkode_mem, nlscoef)
+    ccall((:ARKStepSetNonlinConvCoef, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, nlscoef)
 end
 
-function ARKodeSetMaxNonlinIters(arkode_mem, maxcor)
-    __ARKodeSetMaxNonlinIters(arkode_mem, convert(Cint, maxcor))
+function ARKStepSetConstraints(arkode_mem, constraints)
+    ccall((:ARKStepSetConstraints, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, constraints)
 end
 
-function __ARKodeSetMaxConvFails(arkode_mem, maxncf::Cint)
-    ccall((:ARKodeSetMaxConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxncf)
+function ARKStepSetMaxNumSteps(arkode_mem, mxsteps)
+    ccall((:ARKStepSetMaxNumSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Clong), arkode_mem, mxsteps)
 end
 
-function ARKodeSetMaxConvFails(arkode_mem, maxncf)
-    __ARKodeSetMaxConvFails(arkode_mem, convert(Cint, maxncf))
+function ARKStepSetMaxHnilWarns(arkode_mem, mxhnil)
+    ccall((:ARKStepSetMaxHnilWarns, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, mxhnil)
 end
 
-function ARKodeSetNonlinConvCoef(arkode_mem, nlscoef::realtype)
-    ccall((:ARKodeSetNonlinConvCoef, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, nlscoef)
+function ARKStepSetInitStep(arkode_mem, hin)
+    ccall((:ARKStepSetInitStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hin)
 end
 
-function ARKodeSetRootDirection(arkode_mem, rootdir)
-    ccall((:ARKodeSetRootDirection, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Cint}), arkode_mem, rootdir)
+function ARKStepSetMinStep(arkode_mem, hmin)
+    ccall((:ARKStepSetMinStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hmin)
 end
 
-function ARKodeSetNoInactiveRootWarn(arkode_mem)
-    ccall((:ARKodeSetNoInactiveRootWarn, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
+function ARKStepSetMaxStep(arkode_mem, hmax)
+    ccall((:ARKStepSetMaxStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hmax)
 end
 
-function ARKodeSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessStepFn)
-    ccall((:ARKodeSetPostprocessStepFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKPostProcessStepFn), arkode_mem, ProcessStep)
+function ARKStepSetStopTime(arkode_mem, tstop)
+    ccall((:ARKStepSetStopTime, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, tstop)
 end
 
-function __ARKodeInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype, y0::N_Vector)
-    ccall((:ARKodeInit, libsundials_arkode), Cint, (ARKODEMemPtr, ARKRhsFn, ARKRhsFn, realtype, N_Vector), arkode_mem, fe, fi, t0, y0)
+function ARKStepSetFixedStep(arkode_mem, hfixed)
+    ccall((:ARKStepSetFixedStep, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, hfixed)
 end
 
-function ARKodeInit(arkode_mem, fe, fi, t0, y0)
-    __y0 = convert(NVector, y0)
-    __ARKodeInit(arkode_mem, ARKRhsFn_wrapper(fe), ARKRhsFn_wrapper(fi), t0, convert(N_Vector, __y0))
+function ARKStepSetMaxNumConstrFails(arkode_mem, maxfails)
+    ccall((:ARKStepSetMaxNumConstrFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxfails)
 end
 
-function __ARKodeReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype, y0::N_Vector)
-    ccall((:ARKodeReInit, libsundials_arkode), Cint, (ARKODEMemPtr, ARKRhsFn, ARKRhsFn, realtype, N_Vector), arkode_mem, fe, fi, t0, y0)
+function ARKStepSetRootDirection(arkode_mem, rootdir)
+    ccall((:ARKStepSetRootDirection, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Cint}), arkode_mem, rootdir)
 end
 
-function ARKodeReInit(arkode_mem, fe, fi, t0, y0)
-    __y0 = convert(NVector, y0)
-    __ARKodeReInit(arkode_mem, ARKRhsFn_wrapper(fe), ARKRhsFn_wrapper(fi), t0, convert(N_Vector, __y0))
+function ARKStepSetNoInactiveRootWarn(arkode_mem)
+    ccall((:ARKStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ARKODEMemPtr,), arkode_mem)
 end
 
-function __ARKodeResize(arkode_mem, ynew::N_Vector, hscale::realtype, t0::realtype, resize::ARKVecResizeFn, resize_data)
-    ccall((:ARKodeResize, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, hscale, t0, resize, resize_data)
+function ARKStepSetErrHandlerFn(arkode_mem, ehfun, eh_data)
+    ccall((:ARKStepSetErrHandlerFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
 end
 
-function ARKodeResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
-    __ynew = convert(NVector, ynew)
-    __ARKodeResize(arkode_mem, convert(N_Vector, __ynew), hscale, t0, resize, resize_data)
+function ARKStepSetErrFile(arkode_mem, errfp)
+    ccall((:ARKStepSetErrFile, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, errfp)
 end
 
-function ARKodeSStolerances(arkode_mem, reltol::realtype, abstol::realtype)
-    ccall((:ARKodeSStolerances, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, realtype), arkode_mem, reltol, abstol)
+function ARKStepSetUserData(arkode_mem, user_data)
+    ccall((:ARKStepSetUserData, libsundials_arkode), Cint, (ARKODEMemPtr, Any), arkode_mem, user_data)
 end
 
-function __ARKodeSVtolerances(arkode_mem, reltol::realtype, abstol::N_Vector)
-    ccall((:ARKodeSVtolerances, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
+function ARKStepSetDiagnostics(arkode_mem, diagfp)
+    ccall((:ARKStepSetDiagnostics, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, diagfp)
 end
 
-function ARKodeSVtolerances(arkode_mem, reltol, abstol)
-    __abstol = convert(NVector, abstol)
-    __ARKodeSVtolerances(arkode_mem, reltol, convert(N_Vector, __abstol))
+function ARKStepSetPostprocessStepFn(arkode_mem, ProcessStep)
+    ccall((:ARKStepSetPostprocessStepFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKPostProcessStepFn), arkode_mem, ProcessStep)
 end
 
-function ARKodeWFtolerances(arkode_mem, efun::ARKEwtFn)
-    ccall((:ARKodeWFtolerances, libsundials_arkode), Cint, (ARKODEMemPtr, ARKEwtFn), arkode_mem, efun)
+function ARKStepSetStagePredictFn(arkode_mem, PredictStage)
+    ccall((:ARKStepSetStagePredictFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKStepStagePredictFn), arkode_mem, PredictStage)
 end
 
-function ARKodeResStolerance(arkode_mem, rabstol::realtype)
-    ccall((:ARKodeResStolerance, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, rabstol)
+function ARKStepSetJacFn(arkode_mem, jac)
+    ccall((:ARKStepSetJacFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKLsJacFn), arkode_mem, jac)
 end
 
-function __ARKodeResVtolerance(arkode_mem, rabstol::N_Vector)
-    ccall((:ARKodeResVtolerance, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, rabstol)
+function ARKStepSetMassFn(arkode_mem, mass)
+    ccall((:ARKStepSetMassFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKLsMassFn), arkode_mem, mass)
 end
 
-function ARKodeResVtolerance(arkode_mem, rabstol)
-    __rabstol = convert(NVector, rabstol)
-    __ARKodeResVtolerance(arkode_mem, convert(N_Vector, __rabstol))
+function ARKStepSetMaxStepsBetweenJac(arkode_mem, msbj)
+    ccall((:ARKStepSetMaxStepsBetweenJac, libsundials_arkode), Cint, (ARKODEMemPtr, Clong), arkode_mem, msbj)
 end
 
-function ARKodeResFtolerance(arkode_mem, rfun::ARKRwtFn)
-    ccall((:ARKodeResFtolerance, libsundials_arkode), Cint, (ARKODEMemPtr, ARKRwtFn), arkode_mem, rfun)
+function ARKStepSetEpsLin(arkode_mem, eplifac)
+    ccall((:ARKStepSetEpsLin, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, eplifac)
 end
 
-function __ARKodeRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
-    ccall((:ARKodeRootInit, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, ARKRootFn), arkode_mem, nrtfn, g)
+function ARKStepSetMassEpsLin(arkode_mem, eplifac)
+    ccall((:ARKStepSetMassEpsLin, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, eplifac)
 end
 
-function ARKodeRootInit(arkode_mem, nrtfn, g)
-    __ARKodeRootInit(arkode_mem, convert(Cint, nrtfn), g)
+function ARKStepSetPreconditioner(arkode_mem, psetup, psolve)
+    ccall((:ARKStepSetPreconditioner, libsundials_arkode), Cint, (ARKODEMemPtr, ARKLsPrecSetupFn, ARKLsPrecSolveFn), arkode_mem, psetup, psolve)
 end
 
-function __ARKode(arkode_mem, tout::realtype, yout::N_Vector, tret, itask::Cint)
-    ccall((:ARKode, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout, tret, itask)
+function ARKStepSetMassPreconditioner(arkode_mem, psetup, psolve)
+    ccall((:ARKStepSetMassPreconditioner, libsundials_arkode), Cint, (ARKODEMemPtr, ARKLsMassPrecSetupFn, ARKLsMassPrecSolveFn), arkode_mem, psetup, psolve)
 end
 
-function ARKode(arkode_mem, tout, yout, tret, itask)
-    __yout = convert(NVector, yout)
-    __ARKode(arkode_mem, tout, convert(N_Vector, __yout), tret, convert(Cint, itask))
+function ARKStepSetJacTimes(arkode_mem, jtsetup, jtimes)
+    ccall((:ARKStepSetJacTimes, libsundials_arkode), Cint, (ARKODEMemPtr, ARKLsJacTimesSetupFn, ARKLsJacTimesVecFn), arkode_mem, jtsetup, jtimes)
 end
 
-function __ARKodeGetDky(arkode_mem, t::realtype, k::Cint, dky::N_Vector)
-    ccall((:ARKodeGetDky, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
+function ARKStepSetMassTimes(arkode_mem, msetup, mtimes, mtimes_data)
+    ccall((:ARKStepSetMassTimes, libsundials_arkode), Cint, (ARKODEMemPtr, ARKLsMassTimesSetupFn, ARKLsMassTimesVecFn, Ptr{Cvoid}), arkode_mem, msetup, mtimes, mtimes_data)
 end
 
-function ARKodeGetDky(arkode_mem, t, k, dky)
-    __dky = convert(NVector, dky)
-    __ARKodeGetDky(arkode_mem, t, convert(Cint, k), convert(N_Vector, __dky))
+function ARKStepSetLinSysFn(arkode_mem, linsys)
+    ccall((:ARKStepSetLinSysFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKLsLinSysFn), arkode_mem, linsys)
 end
 
-function ARKodeGetWorkSpace(arkode_mem, lenrw, leniw)
-    ccall((:ARKodeGetWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
+function ARKStepEvolve(arkode_mem, tout, yout, tret, itask)
+    ccall((:ARKStepEvolve, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout, tret, itask)
 end
 
-function ARKodeGetNumSteps(arkode_mem, nsteps)
-    ccall((:ARKodeGetNumSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nsteps)
+function ARKStepGetDky(arkode_mem, t, k, dky)
+    ccall((:ARKStepGetDky, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
 end
 
-function ARKodeGetNumExpSteps(arkode_mem, expsteps)
-    ccall((:ARKodeGetNumExpSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, expsteps)
+function ARKStepGetNumExpSteps(arkode_mem, expsteps)
+    ccall((:ARKStepGetNumExpSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, expsteps)
 end
 
-function ARKodeGetNumAccSteps(arkode_mem, accsteps)
-    ccall((:ARKodeGetNumAccSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, accsteps)
+function ARKStepGetNumAccSteps(arkode_mem, accsteps)
+    ccall((:ARKStepGetNumAccSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, accsteps)
 end
 
-function ARKodeGetNumStepAttempts(arkode_mem, step_attempts)
-    ccall((:ARKodeGetNumStepAttempts, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, step_attempts)
+function ARKStepGetNumStepAttempts(arkode_mem, step_attempts)
+    ccall((:ARKStepGetNumStepAttempts, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, step_attempts)
 end
 
-function ARKodeGetNumRhsEvals(arkode_mem, nfe_evals, nfi_evals)
-    ccall((:ARKodeGetNumRhsEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nfe_evals, nfi_evals)
+function ARKStepGetNumRhsEvals(arkode_mem, nfe_evals, nfi_evals)
+    ccall((:ARKStepGetNumRhsEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nfe_evals, nfi_evals)
 end
 
-function ARKodeGetNumLinSolvSetups(arkode_mem, nlinsetups)
-    ccall((:ARKodeGetNumLinSolvSetups, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nlinsetups)
+function ARKStepGetNumLinSolvSetups(arkode_mem, nlinsetups)
+    ccall((:ARKStepGetNumLinSolvSetups, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nlinsetups)
 end
 
-function ARKodeGetNumMassSolves(arkode_mem, nMassSolves)
-    ccall((:ARKodeGetNumMassSolves, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nMassSolves)
+function ARKStepGetNumErrTestFails(arkode_mem, netfails)
+    ccall((:ARKStepGetNumErrTestFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, netfails)
 end
 
-function ARKodeGetNumMassMultiplies(arkode_mem, nMassMult)
-    ccall((:ARKodeGetNumMassMultiplies, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nMassMult)
+function ARKStepGetCurrentButcherTables(arkode_mem, Bi, Be)
+    ccall((:ARKStepGetCurrentButcherTables, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{ARKodeButcherTable}, Ptr{ARKodeButcherTable}), arkode_mem, Bi, Be)
 end
 
-function ARKodeGetNumErrTestFails(arkode_mem, netfails)
-    ccall((:ARKodeGetNumErrTestFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, netfails)
+function ARKStepGetEstLocalErrors(arkode_mem, ele)
+    ccall((:ARKStepGetEstLocalErrors, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, ele)
 end
 
-function ARKodeGetActualInitStep(arkode_mem, hinused)
-    ccall((:ARKodeGetActualInitStep, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, hinused)
+function ARKStepGetWorkSpace(arkode_mem, lenrw, leniw)
+    ccall((:ARKStepGetWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
 end
 
-function ARKodeGetLastStep(arkode_mem, hlast)
-    ccall((:ARKodeGetLastStep, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, hlast)
+function ARKStepGetNumSteps(arkode_mem, nsteps)
+    ccall((:ARKStepGetNumSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nsteps)
 end
 
-function ARKodeGetCurrentStep(arkode_mem, hcur)
-    ccall((:ARKodeGetCurrentStep, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, hcur)
+function ARKStepGetActualInitStep(arkode_mem, hinused)
+    ccall((:ARKStepGetActualInitStep, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, hinused)
 end
 
-function ARKodeGetCurrentTime(arkode_mem, tcur)
-    ccall((:ARKodeGetCurrentTime, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, tcur)
+function ARKStepGetLastStep(arkode_mem, hlast)
+    ccall((:ARKStepGetLastStep, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, hlast)
 end
 
-function ARKodeGetCurrentButcherTables(arkode_mem, s, q, p, Ai, Ae, ci, ce, bi, be, b2i, b2e)
-    ccall((:ARKodeGetCurrentButcherTables, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), arkode_mem, s, q, p, Ai, Ae, ci, ce, bi, be, b2i, b2e)
+function ARKStepGetCurrentStep(arkode_mem, hcur)
+    ccall((:ARKStepGetCurrentStep, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, hcur)
 end
 
-function ARKodeGetTolScaleFactor(arkode_mem, tolsfac)
-    ccall((:ARKodeGetTolScaleFactor, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, tolsfac)
+function ARKStepGetCurrentTime(arkode_mem, tcur)
+    ccall((:ARKStepGetCurrentTime, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, tcur)
 end
 
-function __ARKodeGetErrWeights(arkode_mem, eweight::N_Vector)
-    ccall((:ARKodeGetErrWeights, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, eweight)
+function ARKStepGetCurrentState(arkode_mem, ycur)
+    ccall((:ARKStepGetCurrentState, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{N_Vector}), arkode_mem, ycur)
 end
 
-function ARKodeGetErrWeights(arkode_mem, eweight)
-    __eweight = convert(NVector, eweight)
-    __ARKodeGetErrWeights(arkode_mem, convert(N_Vector, __eweight))
+function ARKStepGetCurrentGamma(arkode_mem, gamma)
+    ccall((:ARKStepGetCurrentGamma, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, gamma)
 end
 
-function __ARKodeGetResWeights(arkode_mem, rweight::N_Vector)
-    ccall((:ARKodeGetResWeights, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, rweight)
+function ARKStepGetTolScaleFactor(arkode_mem, tolsfac)
+    ccall((:ARKStepGetTolScaleFactor, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{realtype}), arkode_mem, tolsfac)
 end
 
-function ARKodeGetResWeights(arkode_mem, rweight)
-    __rweight = convert(NVector, rweight)
-    __ARKodeGetResWeights(arkode_mem, convert(N_Vector, __rweight))
+function ARKStepGetErrWeights(arkode_mem, eweight)
+    ccall((:ARKStepGetErrWeights, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, eweight)
 end
 
-function __ARKodeGetEstLocalErrors(arkode_mem, ele::N_Vector)
-    ccall((:ARKodeGetEstLocalErrors, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, ele)
+function ARKStepGetResWeights(arkode_mem, rweight)
+    ccall((:ARKStepGetResWeights, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, rweight)
 end
 
-function ARKodeGetEstLocalErrors(arkode_mem, ele)
-    __ele = convert(NVector, ele)
-    __ARKodeGetEstLocalErrors(arkode_mem, convert(N_Vector, __ele))
+function ARKStepGetNumGEvals(arkode_mem, ngevals)
+    ccall((:ARKStepGetNumGEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, ngevals)
 end
 
-function ARKodeGetNumGEvals(arkode_mem, ngevals)
-    ccall((:ARKodeGetNumGEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, ngevals)
+function ARKStepGetRootInfo(arkode_mem, rootsfound)
+    ccall((:ARKStepGetRootInfo, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Cint}), arkode_mem, rootsfound)
 end
 
-function ARKodeGetRootInfo(arkode_mem, rootsfound)
-    ccall((:ARKodeGetRootInfo, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Cint}), arkode_mem, rootsfound)
+function ARKStepGetNumConstrFails(arkode_mem, nconstrfails)
+    ccall((:ARKStepGetNumConstrFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nconstrfails)
 end
 
-function ARKodeGetIntegratorStats(arkode_mem, nsteps, expsteps, accsteps, step_attempts, nfe_evals, nfi_evals, nlinsetups, netfails, hinused, hlast, hcur, tcur)
-    ccall((:ARKodeGetIntegratorStats, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), arkode_mem, nsteps, expsteps, accsteps, step_attempts, nfe_evals, nfi_evals, nlinsetups, netfails, hinused, hlast, hcur, tcur)
+function ARKStepGetReturnFlagName(flag)
+    ccall((:ARKStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
-function ARKodeGetNumNonlinSolvIters(arkode_mem, nniters)
-    ccall((:ARKodeGetNumNonlinSolvIters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nniters)
+function ARKStepWriteParameters(arkode_mem, fp)
+    ccall((:ARKStepWriteParameters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, fp)
 end
 
-function ARKodeGetNumNonlinSolvConvFails(arkode_mem, nncfails)
-    ccall((:ARKodeGetNumNonlinSolvConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nncfails)
+function ARKStepWriteButcher(arkode_mem, fp)
+    ccall((:ARKStepWriteButcher, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, fp)
 end
 
-function ARKodeGetNonlinSolvStats(arkode_mem, nniters, nncfails)
-    ccall((:ARKodeGetNonlinSolvStats, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nniters, nncfails)
+function ARKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, step_attempts, nfe_evals, nfi_evals, nlinsetups, netfails)
+    ccall((:ARKStepGetTimestepperStats, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}), arkode_mem, expsteps, accsteps, step_attempts, nfe_evals, nfi_evals, nlinsetups, netfails)
 end
 
-function __ARKodeLoadButcherTable(imethod::Cint, s, q, p, A, b, c, b2)
-    ccall((:ARKodeLoadButcherTable, libsundials_arkode), Cint, (Cint, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), imethod, s, q, p, A, b, c, b2)
+function ARKStepGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur)
+    ccall((:ARKStepGetStepStats, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), arkode_mem, nsteps, hinused, hlast, hcur, tcur)
 end
-
-function ARKodeLoadButcherTable(imethod, s, q, p, A, b, c, b2)
-    __ARKodeLoadButcherTable(convert(Cint, imethod), s, q, p, A, b, c, b2)
-end
-
-function __ARKodeGetReturnFlagName(flag::Clong)
-    ccall((:ARKodeGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
-end
-
-function ARKodeGetReturnFlagName(flag)
-    __ARKodeGetReturnFlagName(convert(Clong, flag))
-end
-
-function ARKodeWriteParameters(arkode_mem, fp)
-    ccall((:ARKodeWriteParameters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, fp)
-end
-
-function ARKodeWriteButcher(arkode_mem, fp)
-    ccall((:ARKodeWriteButcher, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, fp)
-end
-
-function ARKodeFree(arkode_mem)
-    ccall((:ARKodeFree, libsundials_arkode), Cvoid, (Ref{ARKODEMemPtr},), arkode_mem)
-end
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode_spils.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
-
 
-function ARKSpilsSetLinearSolver(arkode_mem, LS::SUNLinearSolver)
-    ccall((:ARKSpilsSetLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver), arkode_mem, LS)
+function ARKStepGetNumNonlinSolvIters(arkode_mem, nniters)
+    ccall((:ARKStepGetNumNonlinSolvIters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nniters)
 end
 
-function __ARKSpilsSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, time_dep::Cint)
-    ccall((:ARKSpilsSetMassLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver, Cint), arkode_mem, LS, time_dep)
+function ARKStepGetNumNonlinSolvConvFails(arkode_mem, nncfails)
+    ccall((:ARKStepGetNumNonlinSolvConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nncfails)
 end
 
-function ARKSpilsSetMassLinearSolver(arkode_mem, LS, time_dep)
-    __ARKSpilsSetMassLinearSolver(arkode_mem, LS, convert(Cint, time_dep))
+function ARKStepGetNonlinSolvStats(arkode_mem, nniters, nncfails)
+    ccall((:ARKStepGetNonlinSolvStats, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nniters, nncfails)
 end
 
-function ARKSpilsSetEpsLin(arkode_mem, eplifac::realtype)
-    ccall((:ARKSpilsSetEpsLin, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, eplifac)
+function ARKStepGetLinWorkSpace(arkode_mem, lenrwLS, leniwLS)
+    ccall((:ARKStepGetLinWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS)
 end
 
-function ARKSpilsSetMassEpsLin(arkode_mem, eplifac::realtype)
-    ccall((:ARKSpilsSetMassEpsLin, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, eplifac)
+function ARKStepGetNumJacEvals(arkode_mem, njevals)
+    ccall((:ARKStepGetNumJacEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, njevals)
 end
 
-function ARKSpilsSetPreconditioner(arkode_mem, psetup::ARKSpilsPrecSetupFn, psolve::ARKSpilsPrecSolveFn)
-    ccall((:ARKSpilsSetPreconditioner, libsundials_arkode), Cint, (ARKODEMemPtr, ARKSpilsPrecSetupFn, ARKSpilsPrecSolveFn), arkode_mem, psetup, psolve)
+function ARKStepGetNumPrecEvals(arkode_mem, npevals)
+    ccall((:ARKStepGetNumPrecEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, npevals)
 end
 
-function ARKSpilsSetMassPreconditioner(arkode_mem, psetup::ARKSpilsMassPrecSetupFn, psolve::ARKSpilsMassPrecSolveFn)
-    ccall((:ARKSpilsSetMassPreconditioner, libsundials_arkode), Cint, (ARKODEMemPtr, ARKSpilsMassPrecSetupFn, ARKSpilsMassPrecSolveFn), arkode_mem, psetup, psolve)
+function ARKStepGetNumPrecSolves(arkode_mem, npsolves)
+    ccall((:ARKStepGetNumPrecSolves, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, npsolves)
 end
 
-function ARKSpilsSetJacTimes(arkode_mem, jtsetup::ARKSpilsJacTimesSetupFn, jtimes::ARKSpilsJacTimesVecFn)
-    ccall((:ARKSpilsSetJacTimes, libsundials_arkode), Cint, (ARKODEMemPtr, ARKSpilsJacTimesSetupFn, ARKSpilsJacTimesVecFn), arkode_mem, jtsetup, jtimes)
+function ARKStepGetNumLinIters(arkode_mem, nliters)
+    ccall((:ARKStepGetNumLinIters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nliters)
 end
 
-function ARKSpilsSetMassTimes(arkode_mem, msetup::ARKSpilsMassTimesSetupFn, mtimes::ARKSpilsMassTimesVecFn, mtimes_data)
-    ccall((:ARKSpilsSetMassTimes, libsundials_arkode), Cint, (ARKODEMemPtr, ARKSpilsMassTimesSetupFn, ARKSpilsMassTimesVecFn, Ptr{Cvoid}), arkode_mem, msetup, mtimes, mtimes_data)
+function ARKStepGetNumLinConvFails(arkode_mem, nlcfails)
+    ccall((:ARKStepGetNumLinConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nlcfails)
 end
 
-function ARKSpilsGetWorkSpace(arkode_mem, lenrwLS, leniwLS)
-    ccall((:ARKSpilsGetWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS)
+function ARKStepGetNumJTSetupEvals(arkode_mem, njtsetups)
+    ccall((:ARKStepGetNumJTSetupEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, njtsetups)
 end
 
-function ARKSpilsGetNumPrecEvals(arkode_mem, npevals)
-    ccall((:ARKSpilsGetNumPrecEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, npevals)
+function ARKStepGetNumJtimesEvals(arkode_mem, njvevals)
+    ccall((:ARKStepGetNumJtimesEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, njvevals)
 end
 
-function ARKSpilsGetNumPrecSolves(arkode_mem, npsolves)
-    ccall((:ARKSpilsGetNumPrecSolves, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, npsolves)
+function ARKStepGetNumLinRhsEvals(arkode_mem, nfevalsLS)
+    ccall((:ARKStepGetNumLinRhsEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nfevalsLS)
 end
 
-function ARKSpilsGetNumLinIters(arkode_mem, nliters)
-    ccall((:ARKSpilsGetNumLinIters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nliters)
+function ARKStepGetLastLinFlag(arkode_mem, flag)
+    ccall((:ARKStepGetLastLinFlag, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, flag)
 end
 
-function ARKSpilsGetNumConvFails(arkode_mem, nlcfails)
-    ccall((:ARKSpilsGetNumConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nlcfails)
+function ARKStepGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)
+    ccall((:ARKStepGetMassWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwMLS, leniwMLS)
 end
 
-function ARKSpilsGetNumJTSetupEvals(arkode_mem, njtsetups)
-    ccall((:ARKSpilsGetNumJTSetupEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, njtsetups)
+function ARKStepGetNumMassSetups(arkode_mem, nmsetups)
+    ccall((:ARKStepGetNumMassSetups, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmsetups)
 end
 
-function ARKSpilsGetNumJtimesEvals(arkode_mem, njvevals)
-    ccall((:ARKSpilsGetNumJtimesEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, njvevals)
+function ARKStepGetNumMassMultSetups(arkode_mem, nmvsetups)
+    ccall((:ARKStepGetNumMassMultSetups, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmvsetups)
 end
 
-function ARKSpilsGetNumRhsEvals(arkode_mem, nfevalsLS)
-    ccall((:ARKSpilsGetNumRhsEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nfevalsLS)
+function ARKStepGetNumMassMult(arkode_mem, nmvevals)
+    ccall((:ARKStepGetNumMassMult, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmvevals)
 end
 
-function ARKSpilsGetLastFlag(arkode_mem, flag)
-    ccall((:ARKSpilsGetLastFlag, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, flag)
+function ARKStepGetNumMassSolves(arkode_mem, nmsolves)
+    ccall((:ARKStepGetNumMassSolves, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmsolves)
 end
 
-function ARKSpilsGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)
-    ccall((:ARKSpilsGetMassWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwMLS, leniwMLS)
+function ARKStepGetNumMassPrecEvals(arkode_mem, nmpevals)
+    ccall((:ARKStepGetNumMassPrecEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmpevals)
 end
 
-function ARKSpilsGetNumMassPrecEvals(arkode_mem, nmpevals)
-    ccall((:ARKSpilsGetNumMassPrecEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmpevals)
+function ARKStepGetNumMassPrecSolves(arkode_mem, nmpsolves)
+    ccall((:ARKStepGetNumMassPrecSolves, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmpsolves)
 end
 
-function ARKSpilsGetNumMassPrecSolves(arkode_mem, nmpsolves)
-    ccall((:ARKSpilsGetNumMassPrecSolves, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmpsolves)
+function ARKStepGetNumMassIters(arkode_mem, nmiters)
+    ccall((:ARKStepGetNumMassIters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmiters)
 end
 
-function ARKSpilsGetNumMassIters(arkode_mem, nmiters)
-    ccall((:ARKSpilsGetNumMassIters, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmiters)
+function ARKStepGetNumMassConvFails(arkode_mem, nmcfails)
+    ccall((:ARKStepGetNumMassConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmcfails)
 end
 
-function ARKSpilsGetNumMassConvFails(arkode_mem, nmcfails)
-    ccall((:ARKSpilsGetNumMassConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmcfails)
+function ARKStepGetNumMTSetups(arkode_mem, nmtsetups)
+    ccall((:ARKStepGetNumMTSetups, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmtsetups)
 end
 
-function ARKSpilsGetNumMtimesEvals(arkode_mem, nmvevals)
-    ccall((:ARKSpilsGetNumMtimesEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmvevals)
+function ARKStepGetLastMassFlag(arkode_mem, flag)
+    ccall((:ARKStepGetLastMassFlag, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, flag)
 end
 
-function ARKSpilsGetLastMassFlag(arkode_mem, flag)
-    ccall((:ARKSpilsGetLastMassFlag, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, flag)
+function ARKStepGetLinReturnFlagName(flag)
+    ccall((:ARKStepGetLinReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
-function __ARKSpilsGetReturnFlagName(flag::Clong)
-    ccall((:ARKSpilsGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
+function ARKStepFree(arkode_mem)
+    ccall((:ARKStepFree, libsundials_arkode), Cvoid, (Ref{ARKODEMemPtr},), arkode_mem)
 end
 
-function ARKSpilsGetReturnFlagName(flag)
-    __ARKSpilsGetReturnFlagName(convert(Clong, flag))
+function ARKStepPrintMem(arkode_mem, outfile)
+    ccall((:ARKStepPrintMem, libsundials_arkode), Cvoid, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, outfile)
 end
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode_bandpre.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: arkode_bandpre.h
+# Automatically generated using Clang.jl
 
 
-function ARKBandPrecInit(arkode_mem, N::sunindextype, mu::sunindextype, ml::sunindextype)
+function ARKBandPrecInit(arkode_mem, N, mu, ml)
     ccall((:ARKBandPrecInit, libsundials_arkode), Cint, (ARKODEMemPtr, sunindextype, sunindextype, sunindextype), arkode_mem, N, mu, ml)
 end
 
@@ -645,92 +531,80 @@ end
 function ARKBandPrecGetNumRhsEvals(arkode_mem, nfevalsBP)
     ccall((:ARKBandPrecGetNumRhsEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nfevalsBP)
 end
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode_bbdpre.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: arkode_bbdpre.h
+# Automatically generated using Clang.jl
 
 
-function ARKBBDPrecInit(arkode_mem, Nlocal::sunindextype, mudq::sunindextype, mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype, dqrely::realtype, gloc::ARKLocalFn, cfn::ARKCommFn)
+function ARKBBDPrecInit(arkode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn)
     ccall((:ARKBBDPrecInit, libsundials_arkode), Cint, (ARKODEMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, ARKLocalFn, ARKCommFn), arkode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn)
 end
 
-function ARKBBDPrecReInit(arkode_mem, mudq::sunindextype, mldq::sunindextype, dqrely::realtype)
+function ARKBBDPrecReInit(arkode_mem, mudq, mldq, dqrely)
     ccall((:ARKBBDPrecReInit, libsundials_arkode), Cint, (ARKODEMemPtr, sunindextype, sunindextype, realtype), arkode_mem, mudq, mldq, dqrely)
 end
 
-function ARKBBDPrecGetWorkSpace(arkode_mem, lenrwLS, leniwLS)
-    ccall((:ARKBBDPrecGetWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS)
+function ARKBBDPrecGetWorkSpace(arkode_mem, lenrwBBDP, leniwBBDP)
+    ccall((:ARKBBDPrecGetWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwBBDP, leniwBBDP)
 end
 
 function ARKBBDPrecGetNumGfnEvals(arkode_mem, ngevalsBBDP)
     ccall((:ARKBBDPrecGetNumGfnEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, ngevalsBBDP)
 end
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode_direct.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: arkode_butcher.h
+# Automatically generated using Clang.jl
 
 
-function ARKDlsSetLinearSolver(arkode_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:ARKDlsSetLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver, SUNMatrix), arkode_mem, LS, A)
+function ARKodeButcherTable_Alloc(stages, embedded)
+    ccall((:ARKodeButcherTable_Alloc, libsundials_arkode), ARKodeButcherTable, (Cint, Cint), stages, embedded)
 end
 
-function __ARKDlsSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, time_dep::Cint)
-    ccall((:ARKDlsSetMassLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver, SUNMatrix, Cint), arkode_mem, LS, M, time_dep)
+function ARKodeButcherTable_Create(s, q, p, c, A, b, d)
+    ccall((:ARKodeButcherTable_Create, libsundials_arkode), ARKodeButcherTable, (Cint, Cint, Cint, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), s, q, p, c, A, b, d)
 end
 
-function ARKDlsSetMassLinearSolver(arkode_mem, LS, M, time_dep)
-    __ARKDlsSetMassLinearSolver(arkode_mem, LS, M, convert(Cint, time_dep))
+function ARKodeButcherTable_Copy(B)
+    ccall((:ARKodeButcherTable_Copy, libsundials_arkode), ARKodeButcherTable, (ARKodeButcherTable,), B)
 end
 
-function ARKDlsSetJacFn(arkode_mem, jac::ARKDlsJacFn)
-    ccall((:ARKDlsSetJacFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKDlsJacFn), arkode_mem, jac)
+function ARKodeButcherTable_Space(B, liw, lrw)
+    ccall((:ARKodeButcherTable_Space, libsundials_arkode), Cvoid, (ARKodeButcherTable, Ptr{sunindextype}, Ptr{sunindextype}), B, liw, lrw)
 end
 
-function ARKDlsSetMassFn(arkode_mem, mass::ARKDlsMassFn)
-    ccall((:ARKDlsSetMassFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKDlsMassFn), arkode_mem, mass)
+function ARKodeButcherTable_Free(B)
+    ccall((:ARKodeButcherTable_Free, libsundials_arkode), Cvoid, (ARKodeButcherTable,), B)
 end
 
-function ARKDlsGetWorkSpace(arkode_mem, lenrwLS, leniwLS)
-    ccall((:ARKDlsGetWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS)
+function ARKodeButcherTable_Write(B, outfile)
+    ccall((:ARKodeButcherTable_Write, libsundials_arkode), Cvoid, (ARKodeButcherTable, Ptr{Cint}), B, outfile)
 end
 
-function ARKDlsGetNumJacEvals(arkode_mem, njevals)
-    ccall((:ARKDlsGetNumJacEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, njevals)
+function ARKodeButcherTable_CheckOrder(B, q, p, outfile)
+    ccall((:ARKodeButcherTable_CheckOrder, libsundials_arkode), Cint, (ARKodeButcherTable, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), B, q, p, outfile)
 end
 
-function ARKDlsGetNumRhsEvals(arkode_mem, nfevalsLS)
-    ccall((:ARKDlsGetNumRhsEvals, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nfevalsLS)
+function ARKodeButcherTable_CheckARKOrder(B1, B2, q, p, outfile)
+    ccall((:ARKodeButcherTable_CheckARKOrder, libsundials_arkode), Cint, (ARKodeButcherTable, ARKodeButcherTable, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), B1, B2, q, p, outfile)
 end
+# Julia wrapper for header: arkode_butcher_dirk.h
+# Automatically generated using Clang.jl
 
-function ARKDlsGetLastFlag(arkode_mem, flag)
-    ccall((:ARKDlsGetLastFlag, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, flag)
-end
 
-function ARKDlsGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)
-    ccall((:ARKDlsGetMassWorkSpace, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwMLS, leniwMLS)
+function ARKodeButcherTable_LoadDIRK(imethod)
+    ccall((:ARKodeButcherTable_LoadDIRK, libsundials_arkode), ARKodeButcherTable, (Cint,), imethod)
 end
+# Julia wrapper for header: arkode_butcher_erk.h
+# Automatically generated using Clang.jl
 
-function ARKDlsGetNumMassSetups(arkode_mem, nmsetups)
-    ccall((:ARKDlsGetNumMassSetups, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmsetups)
-end
 
-function ARKDlsGetNumMassSolves(arkode_mem, nmsolves)
-    ccall((:ARKDlsGetNumMassSolves, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmsolves)
+function ARKodeButcherTable_LoadERK(imethod)
+    ccall((:ARKodeButcherTable_LoadERK, libsundials_arkode), ARKodeButcherTable, (Cint,), imethod)
 end
+# Julia wrapper for header: arkode_erkstep.h
+# Automatically generated using Clang.jl
 
-function ARKDlsGetNumMassMult(arkode_mem, nmmults)
-    ccall((:ARKDlsGetNumMassMult, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, nmmults)
-end
+# Julia wrapper for header: arkode_ls.h
+# Automatically generated using Clang.jl
 
-function ARKDlsGetLastMassFlag(arkode_mem, flag)
-    ccall((:ARKDlsGetLastMassFlag, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{Clong}), arkode_mem, flag)
-end
-
-function __ARKDlsGetReturnFlagName(flag::Clong)
-    ccall((:ARKDlsGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
-end
-
-function ARKDlsGetReturnFlagName(flag)
-    __ARKDlsGetReturnFlagName(convert(Clong, flag))
-end
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/arkode/arkode_impl.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: arkode_mristep.h
+# Automatically generated using Clang.jl
 
