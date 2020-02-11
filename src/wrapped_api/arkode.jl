@@ -5,24 +5,44 @@
 # Automatically generated using Clang.jl
 
 
-function ARKStepCreate(fe, fi, t0, y0)
+function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype, y0::N_Vector)
     ccall((:ARKStepCreate, libsundials_arkode), ARKStepMemPtr, (ARKRhsFn, ARKRhsFn, realtype, N_Vector), fe, fi, t0, y0)
+end
+
+function ARKStepCreate(fe, fi, t0, y0)
+    __y0 = convert(NVector, y0)
+    ARKStepCreate(ARKRhsFn_wrapper(fe), ARKRhsFn_wrapper(fi), t0, convert(N_vector, __y0))
 end
 
 function ARKStepResize(arkode_mem, ynew::N_Vector, hscale::realtype, t0::realtype, resize::ARKVecResizeFn, resize_data)
     ccall((:ARKStepResize, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, hscale, t0, resize, resize_data)
 end
 
+function ARKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
+    __ynew = convert(NVector, ynew)
+    ARKStepResize(arkode_mem, convert(N_Vector, __ynew), hscale, t0, resize, resize_data)
+end
+
 function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype, y0::N_Vector)
     ccall((:ARKStepReInit, libsundials_arkode), Cint, (ARKODEMemPtr, ARKRhsFn, ARKRhsFn, realtype, N_Vector), arkode_mem, fe, fi, t0, y0)
 end
 
-function ARKStepSStolerances(arkode_mem, reltol::realtype, abstol::N_Vector)
+function ARKStepReInit(arkode_mem, fe, fi, t0, y0)
+    __y0 = convert(NVector, y0)
+    ARKStepReInit(arkode_mem, ARKRhsFn_wrapper(fe), ARKRhsFn_wrapper(fi), t0, convert(N_Vector, __y0))
+end
+
+function ARKStepSStolerances(arkode_mem, reltol::realtype, abstol::realtype)
     ccall((:ARKStepSStolerances, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, realtype), arkode_mem, reltol, abstol)
 end
 
 function ARKStepSVtolerances(arkode_mem, reltol::realtype, abstol::N_Vector)
     ccall((:ARKStepSVtolerances, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
+end
+
+function ARKStepSVtolerances(arkode_mem, reltol, abstol)
+    __abstol = convert(NVector, abstol)
+    ARKStepSVtolerances(arkode_mem, reltol, convert(N_Vector, __abstol))
 end
 
 function ARKStepWFtolerances(arkode_mem, efun::ARKEwtFn)
@@ -33,8 +53,13 @@ function ARKStepResStolerance(arkode_mem, rabstol::realtype)
     ccall((:ARKStepResStolerance, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, rabstol)
 end
 
-function ARKStepResVtolerance(arkode_mem, rabstol::realtype)
+function ARKStepResVtolerance(arkode_mem, rabstol::N_Vector)
     ccall((:ARKStepResVtolerance, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, rabstol)
+end
+
+function ARKStepResVtolerance(arkode_mem, rabstol)
+    __rabstol = convert(NVector, rabstol)
+    ARKStepResVtolerance(arkode_mem, convert(N_Vector, __rabstol))
 end
 
 function ARKStepResFtolerance(arkode_mem, rfun::ARKRwtFn)
@@ -49,7 +74,7 @@ function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatri
     ccall((:ARKStepSetMassLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver, SUNMatrix, Cint), arkode_mem, LS, M, time_dep)
 end
 
-function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, time_dep)
+function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, time_dep::Int)
     ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, convert(Cint,time_dep))
 end
 
@@ -129,19 +154,19 @@ function ARKStepSetTableNum(arkode_mem, itable::Int, etable::Int)
     ARKStepSetTableNum(arkode_mem, convert(Cint, itable), convert(Cint, etable))
 end
 
-function ARKStepSetCFLFraction(arkode_mem, cfl_frac)
+function ARKStepSetCFLFraction(arkode_mem, cfl_frac::realtype)
     ccall((:ARKStepSetCFLFraction, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, cfl_frac)
 end
 
-function ARKStepSetSafetyFactor(arkode_mem, safety)
+function ARKStepSetSafetyFactor(arkode_mem, safety::realtype)
     ccall((:ARKStepSetSafetyFactor, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, safety)
 end
 
-function ARKStepSetErrorBias(arkode_mem, bias)
+function ARKStepSetErrorBias(arkode_mem, bias::realtype)
     ccall((:ARKStepSetErrorBias, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, bias)
 end
 
-function ARKStepSetMaxGrowth(arkode_mem, mx_growth)
+function ARKStepSetMaxGrowth(arkode_mem, mx_growth::realtype)
     ccall((:ARKStepSetMaxGrowth, libsundials_arkode), Cint, (ARKODEMemPtr, realtype), arkode_mem, mx_growth)
 end
 
@@ -243,6 +268,11 @@ end
 
 function ARKStepSetConstraints(arkode_mem, constraints::N_Vector)
     ccall((:ARKStepSetConstraints, libsundials_arkode), Cint, (ARKODEMemPtr, N_Vector), arkode_mem, constraints)
+end
+
+function ARKStepSetConstraints(arkode_mem, constraints)
+    __constraints = convert(NVector, constraints)
+    ARKStepSetConstraints(arkode_mem, convert(N_Vector, __constraints))
 end
 
 function ARKStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
@@ -370,7 +400,8 @@ function ARKStepEvolve(arkode_mem, tout::realtype, yout::N_Vector, tret, itask::
 end
 
 function ARKStepEvolve(arkode_mem, tout, yout, tret, itask::Int)
-    ARKStepEvolve(arkode_mem, tout, convert(N_Vector, yout), tret, convert(Cint, itask))
+    __yout = convert(NVector, yout)
+    ARKStepEvolve(arkode_mem, tout, convert(N_Vector, __yout), tret, convert(Cint, itask))
 end
 
 
@@ -379,7 +410,8 @@ function ARKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::N_Vector)
 end
 
 function ARKStepGetDky(arkode_mem, t::realtype, k::Int, dky)
-    ARKStepGetDky(arkode_mem, t, convert(Cint, k), convert(N_Vector, dky))
+    __dky = convert(NVector, dky)
+    ARKStepGetDky(arkode_mem, t, convert(Cint, k), convert(N_Vector, __dky))
 end
 
 function ARKStepGetNumExpSteps(arkode_mem, expsteps)
@@ -415,7 +447,8 @@ function ARKStepGetEstLocalErrors(arkode_mem, ele::N_Vector)
 end
 
 function ARKStepGetEstLocalErrors(arkode_mem, ele)
-    ARKStepGetEstLocalErrors(arkode_mem, convert(N_Vector, ele))
+    __ele = convert(NVector, ele)
+    ARKStepGetEstLocalErrors(arkode_mem, convert(N_Vector, __ele))
 end
 
 function ARKStepGetWorkSpace(arkode_mem, lenrw, leniw)
@@ -459,7 +492,8 @@ function ARKStepGetErrWeights(arkode_mem, eweight::N_Vector)
 end
 
 function ARKStepGetErrWeights(arkode_mem, eweight)
-    ARKStepGetErrWeights(arkode_mem, eweightconvert(N_vector, eweight))
+    __eweight = convert(NVector, eweight)
+    ARKStepGetErrWeights(arkode_mem, eweightconvert(N_vector, __eweight))
 end
 
 function ARKStepGetResWeights(arkode_mem, rweight::N_Vector)
@@ -467,7 +501,8 @@ function ARKStepGetResWeights(arkode_mem, rweight::N_Vector)
 end
 
 function ARKStepGetResWeights(arkode_mem, rweight)
-    ARKStepGetResWeights(arkode_mem, convert(N_Vector, rweight))
+    __rweight = convert(NVector, rweight)
+    ARKStepGetResWeights(arkode_mem, convert(N_Vector, __rweight))
 end
 
 function ARKStepGetNumGEvals(arkode_mem, ngevals)
