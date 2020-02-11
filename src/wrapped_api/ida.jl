@@ -6,56 +6,88 @@ function IDACreate()
     ccall((:IDACreate, libsundials_ida), IDAMemPtr, ())
 end
 
-function IDAInit(ida_mem, res, t0, yy0, yp0)
+function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::N_Vector, yp0::N_Vector)
     ccall((:IDAInit, libsundials_ida), Cint, (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
 end
 
-function IDAReInit(ida_mem, t0, yy0, yp0)
-    ccall((:IDAReInit, libsundials_ida), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector), ida_mem, t0, yy0, yp0)
+function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0, yp0)
+    __yy0 = convert(NVector, yy0)
+    __yp0 = convert(NVector, yp0)
+    IDAInit(ida_mem, res, t0, convert(N_vector, __yy0), convert(N_vector, __yp0))
 end
 
-function IDASStolerances(ida_mem, reltol, abstol)
+function IDASStolerances(ida_mem, reltol::realtype, abstol::realtype)
     ccall((:IDASStolerances, libsundials_ida), Cint, (IDAMemPtr, realtype, realtype), ida_mem, reltol, abstol)
 end
 
-function IDASVtolerances(ida_mem, reltol, abstol)
+function IDASVtolerances(ida_mem, reltol::realtype, abstol::N_vector)
     ccall((:IDASVtolerances, libsundials_ida), Cint, (IDAMemPtr, realtype, N_Vector), ida_mem, reltol, abstol)
 end
 
-function IDAWFtolerances(ida_mem, efun)
+function IDASVtolerances(ida_mem, reltol::realtype, abstol)
+    __abstol = Convert(NVector, abstol)
+    IDASVtolerances(ida_mem, reltol::realtype, convert(N_vector, __abstol))
+end
+
+function IDAWFtolerances(ida_mem, efun::IDAEwtFn)
     ccall((:IDAWFtolerances, libsundials_ida), Cint, (IDAMemPtr, IDAEwtFn), ida_mem, efun)
 end
 
-function IDACalcIC(ida_mem, icopt, tout1)
+function IDACalcIC(ida_mem, icopt::Cint, tout1::realtype)
     ccall((:IDACalcIC, libsundials_ida), Cint, (IDAMemPtr, Cint, realtype), ida_mem, icopt, tout1)
 end
 
-function IDASetNonlinConvCoefIC(ida_mem, epiccon)
+function IDACalcIC(ida_mem, icopt::Int, tout1::realtype)
+    IDACalcIC(ida_mem, convert(Cint, icopt), tout1)
+end
+
+
+function IDASetNonlinConvCoefIC(ida_mem, epiccon::realtype)
     ccall((:IDASetNonlinConvCoefIC, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, epiccon)
 end
 
-function IDASetMaxNumStepsIC(ida_mem, maxnh)
+function IDASetMaxNumStepsIC(ida_mem, maxnh::Cint)
     ccall((:IDASetMaxNumStepsIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnh)
 end
 
-function IDASetMaxNumJacsIC(ida_mem, maxnj)
+function IDASetMaxNumStepsIC(ida_mem, maxnh::Int)
+    IDASetMaxNumStepsIC(ida_mem, convert(Cint, maxnh))
+end
+
+function IDASetMaxNumJacsIC(ida_mem, maxnj::Cint)
     ccall((:IDASetMaxNumJacsIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnj)
 end
 
-function IDASetMaxNumItersIC(ida_mem, maxnit)
+function IDASetMaxNumJacsIC(ida_mem, maxnj::Int)
+    IDASetMaxNumJacsIC(ida_mem, convert(Cint, maxnj))
+end
+
+function IDASetMaxNumItersIC(ida_mem, maxnit::Cint)
     ccall((:IDASetMaxNumItersIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnit)
 end
 
-function IDASetLineSearchOffIC(ida_mem, lsoff)
+function IDASetMaxNumItersIC(ida_mem, maxnit::Int)
+    IDASetMaxNumItersIC(ida_mem, convert(Cint, maxnit))
+end
+
+function IDASetLineSearchOffIC(ida_mem, lsoff::Cint)
     ccall((:IDASetLineSearchOffIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, lsoff)
 end
 
-function IDASetStepToleranceIC(ida_mem, steptol)
+function IDASetLineSearchOffIC(ida_mem, lsoff::Int)
+    IDASetLineSearchOffIC(ida_mem, convert(Cint, lsoff))
+end
+
+function IDASetStepToleranceIC(ida_mem, steptol::realtype)
     ccall((:IDASetStepToleranceIC, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, steptol)
 end
 
-function IDASetMaxBacksIC(ida_mem, maxbacks)
+function IDASetMaxBacksIC(ida_mem, maxbacks::Cint)
     ccall((:IDASetMaxBacksIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxbacks)
+end
+
+function IDASetMaxBacksIC(ida_mem, maxbacks::Int)
+    IDASetMaxBacksIC(ida_mem, convert(Cint, maxbacks))
 end
 
 function IDASetErrHandlerFn(ida_mem, ehfun, eh_data)
@@ -70,60 +102,98 @@ function IDASetUserData(ida_mem, user_data)
     ccall((:IDASetUserData, libsundials_ida), Cint, (IDAMemPtr, Any), ida_mem, user_data)
 end
 
-function IDASetMaxOrd(ida_mem, maxord)
+function IDASetMaxOrd(ida_mem, maxord::Cint)
     ccall((:IDASetMaxOrd, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxord)
 end
 
-function IDASetMaxNumSteps(ida_mem, mxsteps)
+function IDASetMaxOrd(ida_mem, maxord::Int)
+    IDASetMaxOrd(ida_mem, convert(Cint, maxord))
+end
+
+function IDASetMaxNumSteps(ida_mem, mxsteps::Clong)
     ccall((:IDASetMaxNumSteps, libsundials_ida), Cint, (IDAMemPtr, Clong), ida_mem, mxsteps)
 end
 
-function IDASetInitStep(ida_mem, hin)
+function IDASetMaxNumSteps(ida_mem, mxsteps::Int)
+    IDASetMaxNumSteps(ida_mem, convert(Cint, mxsteps))
+end
+
+function IDASetInitStep(ida_mem, hin::realtype)
     ccall((:IDASetInitStep, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, hin)
 end
 
-function IDASetMaxStep(ida_mem, hmax)
+function IDASetMaxStep(ida_mem, hmax::realtype)
     ccall((:IDASetMaxStep, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, hmax)
 end
 
-function IDASetStopTime(ida_mem, tstop)
+function IDASetStopTime(ida_mem, tstop::realtype)
     ccall((:IDASetStopTime, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, tstop)
 end
 
-function IDASetNonlinConvCoef(ida_mem, epcon)
+function IDASetNonlinConvCoef(ida_mem, epcon::realtype)
     ccall((:IDASetNonlinConvCoef, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, epcon)
 end
 
-function IDASetMaxErrTestFails(ida_mem, maxnef)
+function IDASetMaxErrTestFails(ida_mem, maxnef::Cint)
     ccall((:IDASetMaxErrTestFails, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnef)
 end
 
-function IDASetMaxNonlinIters(ida_mem, maxcor)
+function IDASetMaxErrTestFails(ida_mem, maxnef::Int)
+    IDASetMaxErrTestFails(ida_mem, convert(Cint, maxnef))
+end
+
+function IDASetMaxNonlinIters(ida_mem, maxcor::Cint)
     ccall((:IDASetMaxNonlinIters, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxcor)
 end
 
-function IDASetMaxConvFails(ida_mem, maxncf)
+function IDASetMaxNonlinIters(ida_mem, maxcor::Int)
+    IDASetMaxNonlinIters(ida_mem, convert(Cint,maxcor))
+end
+
+function IDASetMaxConvFails(ida_mem, maxncf::Cint)
     ccall((:IDASetMaxConvFails, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxncf)
 end
 
-function IDASetSuppressAlg(ida_mem, suppressalg)
+function IDASetMaxConvFails(ida_mem, maxncf::Int)
+    IDASetMaxConvFails(ida_mem, convert(Cint, maxncf))
+end
+
+function IDASetSuppressAlg(ida_mem, suppressalg::Cint)
     ccall((:IDASetSuppressAlg, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, suppressalg)
 end
 
-function IDASetId(ida_mem, id)
+function IDASetSuppressAlg(ida_mem, suppressalg::Int)
+    IDASetSuppressAlg(ida_mem, convert(Cint, suppressalg))
+end
+
+function IDASetId(ida_mem, id::N_Vector)
     ccall((:IDASetId, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, id)
 end
 
-function IDASetConstraints(ida_mem, constraints)
+function IDASetId(ida_mem, id)
+    __id = convert(NVector, id)
+    IDASetId(ida_mem, convert(N_Vector, __id))
+end
+
+function IDASetConstraints(ida_mem, constraints::N_Vector)
     ccall((:IDASetConstraints, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, constraints)
 end
 
-function IDASetNonlinearSolver(ida_mem, NLS)
+function IDASetConstraints(ida_mem, constraints)
+    __constraints = convert(NVector, constraints)
+    IDASetConstraints(ida_mem, convert(N_Vector, constraints))
+end
+
+function IDASetNonlinearSolver(ida_mem, NLS::SUNNonlinearSolver)
     ccall((:IDASetNonlinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNNonlinearSolver), ida_mem, NLS)
 end
 
-function IDARootInit(ida_mem, nrtfn, g)
+function IDARootInit(ida_mem, nrtfn::Cint, g::IDARootFn)
     ccall((:IDARootInit, libsundials_ida), Cint, (IDAMemPtr, Cint, IDARootFn), ida_mem, nrtfn, g)
+end
+
+function IDARootInit(ida_mem, nrtfn::Int, g::IDARootFn)
+    IDARootInit(ida_mem, convert(Cint, nrtfn), g)
 end
 
 function IDASetRootDirection(ida_mem, rootdir)
@@ -134,13 +204,27 @@ function IDASetNoInactiveRootWarn(ida_mem)
     ccall((:IDASetNoInactiveRootWarn, libsundials_ida), Cint, (IDAMemPtr,), ida_mem)
 end
 
-function IDASolve(ida_mem, tout, tret, yret, ypret, itask)
+function IDASolve(ida_mem, tout::realtype, tret, yret::N_Vector, ypret::N_Vector, itask::Cint)
     ccall((:IDASolve, libsundials_ida), Cint, (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint), ida_mem, tout, tret, yret, ypret, itask)
 end
 
-function IDAComputeY(ida_mem, ycor, y)
+function IDASolve(ida_mem, tout::realtype, tret, yret, ypret, itask::Int)
+    __yret = convert(NVector, yret)
+    __ypret = convert(NVector, ypret)
+    IDASolve(ida_mem, tout::realtype, tret, convert(N_Vector, yret), convert(N_Vector, ypret), convert(Cint, itask))
+end
+
+function IDAComputeY(ida_mem, ycor::N_Vector, y::N_Vector)
     ccall((:IDAComputeY, libsundials_ida), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, ycor, y)
 end
+
+function IDAComputeY(ida_mem, ycor, y)
+    __ycor = convert(NVector, ycor)
+    __y = convert(NVector, y)
+    IDAComputeY(ida_mem, convert(N_Vector, ycor), convert(N_Vector, y))
+end
+
+
 
 function IDAComputeYp(ida_mem, ycor, yp)
     ccall((:IDAComputeYp, libsundials_ida), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, ycor, yp)
