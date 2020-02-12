@@ -382,180 +382,418 @@ function N_VGetLength(v)
     N_VGetLength(convert(N_Vector, __v))
 end
 
-function N_VLinearSum(a, x, b, y, z)
+function N_VLinearSum(a::realtype, x::N_Vector, b::realtype, y::N_Vector, z::N_Vector)
     ccall((:N_VLinearSum, libsundials_sundials), Cvoid, (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
 
-function N_VConst(c, z)
+function N_VLinearSum(a, x, b, y, z)
+    __x = convert(NVector, x)
+    __y = convert(NVector, y)
+    __z = convert(NVector, z)
+    N_VLinearSum(a, convert(N_Vector, __x), b, convert(N_Vector, __y), convert(N_Vector, __z))
+end
+
+function N_VConst(c::realtype, z::N_Vector)
     ccall((:N_VConst, libsundials_sundials), Cvoid, (realtype, N_Vector), c, z)
 end
 
-function N_VProd(x, y, z)
+function N_VConst(c, z)
+    __z = convert(NVector, z)
+    N_VConst(c, convert(N_Vector, __z))
+end
+
+function N_VProd(x::N_Vector, y::N_Vector, z::N_Vector)
     ccall((:N_VProd, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
-function N_VDiv(x, y, z)
+function N_VProd(x, y, z)
+    __x = convert(NVector, x)
+    __y = convert(NVector, y)
+    __z = convert(NVector, z)
+    N_VProd(convert(N_Vector, __x), convert(N_Vector, __y), convert(N_Vector, __z))
+end
+
+function N_VDiv(x::N_Vector, y::N_Vector, z::N_Vector)
     ccall((:N_VDiv, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
-function N_VScale(c, x, z)
+function N_VDiv(x, y, z)
+    __x = convert(NVector, x)
+    __y = convert(NVector, y)
+    __z = convert(NVector, z)
+    N_VDiv(convert(N_Vector, __x), convert(N_Vector, __y), convert(N_Vector, __z))
+end
+
+function N_VScale(c::realtype, x::N_Vector, z::N_Vector)
     ccall((:N_VScale, libsundials_sundials), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
-function N_VAbs(x, z)
+function N_VScale(c, x, z)
+    __x = convert(NVector, x)
+    __z = convert(NVector, z)
+    N_VScale(c, convert(N_Vector, __x), convert(N_Vector, __z))
+end
+
+function N_VAbs(x::N_Vector, z::N_Vector)
     ccall((:N_VAbs, libsundials_sundials), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VInv(x, z)
+function N_VAbs(x, z)
+    __x = convert(NVector, x)
+    __z = convert(NVector, z)
+    N_VAbs(convert(N_Vector, __x), convert(N_Vector, __z))
+end
+
+function N_VInv(x::N_Vector, z::N_Vector)
     ccall((:N_VInv, libsundials_sundials), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VAddConst(x, b, z)
+function N_VInv(x, z)
+    __x = convert(NVector, x)
+    __z = convert(NVector, z)
+    N_VInv(convert(N_Vector, __x), convert(N_Vector, __z))
+end
+
+function N_VAddConst(x::N_Vector, b::realtype, z::N_Vector)
     ccall((:N_VAddConst, libsundials_sundials), Cvoid, (N_Vector, realtype, N_Vector), x, b, z)
+end
+
+function N_VAddConst(x, b, z)
+    __x = convert(NVector, x)
+    __z = convert(NVector, z)
+    N_VAddConst(convert(N_Vector, x), b, convert(N_Vector, z))
 end
 
 function N_VDotProd(x, y)
     ccall((:N_VDotProd, libsundials_sundials), realtype, (N_Vector, N_Vector), x, y)
 end
 
-function N_VMaxNorm(x)
+function N_VDotProd(x, y)
+    __x = convert(NVector, x)
+    __y = convert(NVector, y)
+    N_VDotProd(convert(N_Vector, __x), convert(N_Vector, __y))
+end
+
+function N_VMaxNorm(x::N_Vector)
     ccall((:N_VMaxNorm, libsundials_sundials), realtype, (N_Vector,), x)
 end
 
-function N_VWrmsNorm(x, w)
+function N_VMaxNorm(x)
+    __x = convert(NVector, x)
+    N_VMaxNorm(convert(N_Vector, __x))
+end
+
+function N_VWrmsNorm(x::N_Vector, w::N_Vector)
     ccall((:N_VWrmsNorm, libsundials_sundials), realtype, (N_Vector, N_Vector), x, w)
 end
 
-function N_VWrmsNormMask(x, w, id)
+function N_VWrmsNorm(x, w)
+    __x = convert(NVector, x)
+    __w = convert(NVector, w)
+    N_VWrmsNorm(convert(N_Vector, __x), convert(N_Vector, __w))
+end
+
+function N_VWrmsNormMask(x::N_Vector, w::N_Vector, id::N_Vector)
     ccall((:N_VWrmsNormMask, libsundials_sundials), realtype, (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VMin(x)
+function N_VWrmsNormMask(x, w, id)
+    __x = convert(NVector, x)
+    __w = convert(NVector, w)
+    __id = convert(NVector, id)
+    N_VWrmsNormMask(convert(N_Vector, __x), convert(N_Vector, __w), convert(N_Vector, __id))
+end
+
+function N_VMin(x::N_Vector)
     ccall((:N_VMin, libsundials_sundials), realtype, (N_Vector,), x)
 end
 
-function N_VWL2Norm(x, w)
+function N_VMin(x)
+    __x = convert(NVector, x)
+    N_VMin(convert(N_Vector, __x))
+end
+
+function N_VWL2Norm(x::N_Vector, w::N_Vector)
     ccall((:N_VWL2Norm, libsundials_sundials), realtype, (N_Vector, N_Vector), x, w)
 end
 
-function N_VL1Norm(x)
+function N_VWL2Norm(x, w)
+    __x = convert(NVector, x)
+    __w = convert(NVector, w)
+    N_VWL2Norm(convert(N_Vector, __x), convert(N_Vector, __w))
+end
+
+function N_VL1Norm(x::N_Vector)
     ccall((:N_VL1Norm, libsundials_sundials), realtype, (N_Vector,), x)
 end
 
-function N_VCompare(c, x, z)
+function N_VL1Norm(x)
+    __x = convert(NVector, x)
+    N_VL1Norm(convert(N_Vector, __x))
+end
+
+function N_VCompare(c::realtype, x::N_Vector, z::N_Vector)
     ccall((:N_VCompare, libsundials_sundials), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
-function N_VInvTest(x, z)
+function N_VCompare(c, x, z)
+    __x = convert(NVector, x)
+    __z = convert(NVector, z)
+    N_VCompare(c, convert(N_Vector, __x), convert(N_Vector, __z))
+end
+
+function N_VInvTest(x::N_Vector, z::N_Vector)
     ccall((:N_VInvTest, libsundials_sundials), Cint, (N_Vector, N_Vector), x, z)
 end
 
-function N_VConstrMask(c, x, m)
+function N_VInvTest(x, z)
+    __x = convert(NVector, x)
+    __z = convert(NVector, z)
+    N_VInvTest(convert(N_Vector, __x), convert(N_Vector, __z))
+end
+
+function N_VConstrMask(c::N_Vector, x::N_Vector, m::N_Vector)
     ccall((:N_VConstrMask, libsundials_sundials), Cint, (N_Vector, N_Vector, N_Vector), c, x, m)
 end
 
-function N_VMinQuotient(num, denom)
+function N_VConstrMask(c, x, m)
+    __c = convert(NVector, c)
+    __x = convert(NVector, x)
+    __m = convert(NVector, m)
+    N_VConstrMask(convert(N_Vector, __c), convert(N_Vector, __x), convert(N_Vector, __m))
+end
+
+function N_VMinQuotient(num::N_Vector, denom::N_Vector)
     ccall((:N_VMinQuotient, libsundials_sundials), realtype, (N_Vector, N_Vector), num, denom)
 end
 
-function N_VLinearCombination(nvec, c, X, z)
+function N_VMinQuotient(num, denom)
+    __num = convert(NVector, num)
+    __denom = convert(NVector, denom)
+    N_VMinQuotient(convert(N_Vector, __num), convert(N_Vector, __denom))
+end
+
+function N_VLinearCombination(nvec::Cint, c, X, z)
     ccall((:N_VLinearCombination, libsundials_sundials), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, X, z)
 end
 
-function N_VScaleAddMulti(nvec, a, x, Y, Z)
+function N_VLinearCombination(nvec::Int, c, X, z)
+    N_VLinearCombination(convert(Cint, nvec), c, X, z)
+end
+
+function N_VScaleAddMulti(nvec::Cint, a, x::N_Vector, Y, Z)
     ccall((:N_VScaleAddMulti, libsundials_sundials), Cint, (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z)
 end
 
-function N_VDotProdMulti(nvec, x, Y, dotprods)
+function N_VScaleAddMulti(nvec::Int, a, x, Y, Z)
+    __x = convert(NVector, x)
+    N_VScaleAddMulti(convert(Cint, nvec), a, convert(N_Vector, __x), Y, Z)
+end
+
+function N_VDotProdMulti(nvec::Cint, x::N_Vector, Y, dotprods)
     ccall((:N_VDotProdMulti, libsundials_sundials), Cint, (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods)
 end
 
-function N_VLinearSumVectorArray(nvec, a, X, b, Y, Z)
+function N_VDotProdMulti(nvec::Int, x, Y, dotprods)
+    __x = convert(NVector, x)
+    N_VDotProdMulti(convert(Cint, nvec), convert(N_Vector, __x), Y, dotprods)
+end
+
+function N_VLinearSumVectorArray(nvec::Cint, a::realtype, X, b::realtype, Y, Z)
     ccall((:N_VLinearSumVectorArray, libsundials_sundials), Cint, (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, X, b, Y, Z)
 end
 
-function N_VScaleVectorArray(nvec, c, X, Z)
+function N_VLinearSumVectorArray(nvec::Int, a, X, b, Y, Z)
+    N_VLinearSumVectorArray(convert(Cint, nvec), a, X, b, Y, Z)
+end
+
+function N_VScaleVectorArray(nvec::Cint, c, X, Z)
     ccall((:N_VScaleVectorArray, libsundials_sundials), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z)
 end
 
-function N_VConstVectorArray(nvec, c, Z)
+function N_VScaleVectorArray(nvec::Int, c, X, Z)
+    N_VScaleVectorArray(convert(Cint, nvec), c, X, Z)
+end
+
+function N_VConstVectorArray(nvec::Cint, c::realtype, Z)
     ccall((:N_VConstVectorArray, libsundials_sundials), Cint, (Cint, realtype, Ptr{N_Vector}), nvec, c, Z)
 end
 
-function N_VWrmsNormVectorArray(nvec, X, W, nrm)
+function N_VConstVectorArray(nvec::Int, c, Z)
+    N_VConstVectorArray(convert(Cint, nvec), c, Z)
+end
+
+function N_VWrmsNormVectorArray(nvec::Cint, X, W, nrm)
     ccall((:N_VWrmsNormVectorArray, libsundials_sundials), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvec, X, W, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm)
+function N_VWrmsNormVectorArray(nvec::Int, X, W, nrm)
+    N_VWrmsNormVectorArray(convert(Cint, nvec), X, W, nrm)
+end
+
+function N_VWrmsNormMaskVectorArray(nvec::Cint, X, W, id::N_Vector, nrm)
     ccall((:N_VWrmsNormMaskVectorArray, libsundials_sundials), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvec, X, W, id, nrm)
 end
 
-function N_VScaleAddMultiVectorArray(nvec, nsum, a, X, Y, Z)
+function N_VWrmsNormMaskVectorArray(nvec::Int, X, W, id, nrm)
+    __id = convert(NVector, id)
+    N_VWrmsNormMaskVectorArray(convert(Cint, nvec), X, W, convert(N_Vector, __id), nrm)
+end
+
+function N_VScaleAddMultiVectorArray(nvec::Cint, nsum::Cint, a, X, Y, Z)
     ccall((:N_VScaleAddMultiVectorArray, libsundials_sundials), Cint, (Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}}, Ptr{Ptr{N_Vector}}), nvec, nsum, a, X, Y, Z)
 end
 
-function N_VLinearCombinationVectorArray(nvec, nsum, c, X, Z)
+function N_VScaleAddMultiVectorArray(nvec::Int, nsum::Int, a, X, Y, Z)
+    N_VScaleAddMultiVectorArray(convert(Cint, nvec), convert(Cint, nsum), a, X, Y, Z)
+end
+
+function N_VLinearCombinationVectorArray(nvec::Cint, nsum::Cint, c, X, Z)
     ccall((:N_VLinearCombinationVectorArray, libsundials_sundials), Cint, (Cint, Cint, Ptr{realtype}, Ptr{Ptr{N_Vector}}, Ptr{N_Vector}), nvec, nsum, c, X, Z)
 end
 
-function N_VDotProdLocal(x, y)
+function N_VLinearCombinationVectorArray(nvec::Int, nsum::Int, c, X, Z)
+    N_VLinearCombinationVectorArray(convert(Cint, nvec), convert(Cint, nsum), c, X, Z)
+end
+
+function N_VDotProdLocal(x::N_Vector, y::N_Vector)
     ccall((:N_VDotProdLocal, libsundials_sundials), realtype, (N_Vector, N_Vector), x, y)
 end
 
-function N_VMaxNormLocal(x)
+function N_VDotProdLocal(x, y)
+    __x = convert(NVector, x)
+    __y = convert(NVector, y)
+    N_VDotProdLocal(convert(N_Vector, __x), convert(N_Vector, __y))
+end
+
+function N_VMaxNormLocal(x::N_Vector)
     ccall((:N_VMaxNormLocal, libsundials_sundials), realtype, (N_Vector,), x)
 end
 
-function N_VMinLocal(x)
+function N_VMaxNormLocal(x)
+    __x = convert(NVector, x)
+    N_VMaxNormLocal(convert(N_Vector, __x))
+end
+
+function N_VMinLocal(x::N_Vector)
     ccall((:N_VMinLocal, libsundials_sundials), realtype, (N_Vector,), x)
+end
+
+function N_VMinLocal(x)
+    __x = convert(NVector, x)
+    N_VMinLocal(convert(N_Vector, __x))
 end
 
 function N_VL1NormLocal(x)
     ccall((:N_VL1NormLocal, libsundials_sundials), realtype, (N_Vector,), x)
 end
 
-function N_VWSqrSumLocal(x, w)
+function N_VL1NormLocal(x)
+    __x = convert(NVector, x)
+    N_VL1NormLocal(convert(N_Vector, __x))
+end
+
+function N_VWSqrSumLocal(x::N_Vector, w::N_Vector)
     ccall((:N_VWSqrSumLocal, libsundials_sundials), realtype, (N_Vector, N_Vector), x, w)
 end
 
-function N_VWSqrSumMaskLocal(x, w, id)
+function N_VWSqrSumLocal(x, w)
+    __x = convert(NVector, x)
+    __w = convert(NVector, w)
+    N_VWSqrSumLocal(convert(N_Vector, __x), convert(N_Vector, __w))
+end
+
+function N_VWSqrSumMaskLocal(x::N_Vector, w::N_Vector, id::N_Vector)
     ccall((:N_VWSqrSumMaskLocal, libsundials_sundials), realtype, (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VInvTestLocal(x, z)
+function N_VWSqrSumMaskLocal(x, w, id)
+    __x = convert(NVector, x)
+    __w = convert(NVector, w)
+    __id = convert(NVector, id)
+    N_VWSqrSumMaskLocal(convert(N_Vector, __x), convert(N_Vector, __w), convert(N_Vector, __id))
+end
+
+function N_VInvTestLocal(x::N_Vector, z::N_Vector)
     ccall((:N_VInvTestLocal, libsundials_sundials), Cint, (N_Vector, N_Vector), x, z)
 end
 
-function N_VConstrMaskLocal(c, x, m)
+function N_VInvTestLocal(x, z)
+    __x = convert(NVector, x)
+    __z = convert(NVector, z)
+    N_VInvTestLocal(convert(N_Vector, __x), convert(N_Vector, __z))
+end
+
+function N_VConstrMaskLocal(c::N_Vector, x::N_Vector, m::N_Vector)
     ccall((:N_VConstrMaskLocal, libsundials_sundials), Cint, (N_Vector, N_Vector, N_Vector), c, x, m)
 end
 
-function N_VMinQuotientLocal(num, denom)
+function N_VConstrMaskLocal(c, x, m)
+    __c = convert(NVector, c)
+    __x = convert(NVector, x)
+    __m = convert(NVector, m)
+    N_VConstrMaskLocal(convert(N_Vector, __c), convert(N_Vector, __x), convert(N_Vector, __m))
+end
+
+function N_VMinQuotientLocal(num::N_Vector, denom::N_Vector)
     ccall((:N_VMinQuotientLocal, libsundials_sundials), realtype, (N_Vector, N_Vector), num, denom)
 end
 
-function N_VNewVectorArray(count)
+function N_VMinQuotientLocal(num, denom)
+    __num = convert(NVector, num)
+    __denom = convert(NVector, denom)
+    N_VMinQuotientLocal(convert(N_Vector, __num), convert(N_Vector, __denom))
+end
+
+function N_VNewVectorArray(count::Cint)
     ccall((:N_VNewVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint,), count)
 end
 
-function N_VCloneEmptyVectorArray(count, w)
+function N_VNewVectorArray(count::Int)
+    N_VNewVectorArray(convert(Cint, count))
+end
+
+function N_VCloneEmptyVectorArray(count::Cint, w::N_Vector)
     ccall((:N_VCloneEmptyVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint, N_Vector), count, w)
 end
 
-function N_VCloneVectorArray(count, w)
+function N_VCloneEmptyVectorArray(count::Int, w)
+    __w = convert(NVector, w)
+    N_VCloneEmptyVectorArray(convert(Cint, count), convert(N_Vector, __w))
+end
+
+function N_VCloneVectorArray(count::Cint, w::N_Vector)
     ccall((:N_VCloneVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint, N_Vector), count, w)
 end
 
-function N_VDestroyVectorArray(vs, count)
+function N_VCloneVectorArray(count::Int, w)
+    __w = convert(NVector, w)
+    N_VCloneVectorArray(convert(Cint, count), convert(N_Vector, __w))
+end
+
+function N_VDestroyVectorArray(vs, count::Cint)
     ccall((:N_VDestroyVectorArray, libsundials_sundials), Cvoid, (Ptr{N_Vector}, Cint), vs, count)
 end
 
-function N_VGetVecAtIndexVectorArray(vs, index)
+function N_VDestroyVectorArray(vs, count::Int)
+    N_VDestroyVectorArray(vs, convert(Cint, count))
+end
+
+function N_VGetVecAtIndexVectorArray(vs, index::Cint)
     ccall((:N_VGetVecAtIndexVectorArray, libsundials_sundials), N_Vector, (Ptr{N_Vector}, Cint), vs, index)
 end
 
-function N_VSetVecAtIndexVectorArray(vs, index, w)
+function N_VGetVecAtIndexVectorArray(vs, index::Int)
+    N_VGetVecAtIndexVectorArray(vs, convert(Cint, index))
+end
+
+function N_VSetVecAtIndexVectorArray(vs, index::Cint, w::N_Vector)
     ccall((:N_VSetVecAtIndexVectorArray, libsundials_sundials), Cvoid, (Ptr{N_Vector}, Cint, N_Vector), vs, index, w)
+end
+
+function N_VSetVecAtIndexVectorArray(vs, index::Int, w)
+    __w = convert(NVector, w)
+    N_VSetVecAtIndexVectorArray(vs, convert(Cint, index, convert(N_Vector, __w))
 end
 # Julia wrapper for header: sundials_types.h
 # Automatically generated using Clang.jl
@@ -564,10 +802,18 @@ end
 # Automatically generated using Clang.jl
 
 
-function SUNDIALSGetVersion(version, len)
+function SUNDIALSGetVersion(version, len::Cint)
     ccall((:SUNDIALSGetVersion, libsundials_sundials), Cint, (Cstring, Cint), version, len)
 end
 
-function SUNDIALSGetVersionNumber(major, minor, patch, label, len)
+function SUNDIALSGetVersion(version, len::Int)
+    SUNDIALSGetVersion(version, convert(Cint, len))
+end
+
+function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Cint)
     ccall((:SUNDIALSGetVersionNumber, libsundials_sundials), Cint, (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cstring, Cint), major, minor, patch, label, len)
+end
+
+function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Int)
+    SUNDIALSGetVersionNumber(major, minor, patch, label, convert(Cint, len))
 end
