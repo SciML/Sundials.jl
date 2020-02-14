@@ -2,28 +2,53 @@
 # Automatically generated using Clang.jl
 
 
-function N_VNew_ManyVector(num_subvectors, vec_array)
+function N_VNew_ManyVector(num_subvectors::sunindextype, vec_array)
     ccall((:N_VNew_ManyVector, libsundials_nvecserial), N_Vector, (sunindextype, Ptr{N_Vector}), num_subvectors, vec_array)
 end
 
-function N_VGetSubvector_ManyVector(v, vec_num)
+function N_VGetSubvector_ManyVector(v::N_Vector, vec_num::sunindextype)
     ccall((:N_VGetSubvector_ManyVector, libsundials_nvecserial), N_Vector, (N_Vector, sunindextype), v, vec_num)
 end
 
-function N_VGetSubvectorArrayPointer_ManyVector(v, vec_num)
+function N_VGetSubvector_ManyVector(v, vec_num)
+    __v = convert(NVector, v)
+    N_VGetSubvector_ManyVector(convert(N_Vector, v), vec_num)
+end
+
+function N_VGetSubvectorArrayPointer_ManyVector(v::N_Vector, vec_num::sunindextype)
     ccall((:N_VGetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Ptr{realtype}, (N_Vector, sunindextype), v, vec_num)
 end
 
-function N_VSetSubvectorArrayPointer_ManyVector(v_data, v, vec_num)
+function N_VGetSubvectorArrayPointer_ManyVector(v, vec_num)
+    __v = convert(NVector, v)
+    N_VGetSubvectorArrayPointer_ManyVector(convert(N_Vector, __v), vec_num)
+end
+
+function N_VSetSubvectorArrayPointer_ManyVector(v_data, v::N_Vector, vec_num::sunindextype)
     ccall((:N_VSetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Cint, (Ptr{realtype}, N_Vector, sunindextype), v_data, v, vec_num)
 end
 
-function N_VGetNumSubvectors_ManyVector(v)
+function N_VSetSubvectorArrayPointer_ManyVector(v_data, v, vec_num)
+    __v = convert(NVector, v)
+    N_VSetSubvectorArrayPointer_ManyVector(v_data, convert(N_Vector, __v), vec_num)
+end
+
+function N_VGetNumSubvectors_ManyVector(v::N_Vector)
     ccall((:N_VGetNumSubvectors_ManyVector, libsundials_nvecserial), sunindextype, (N_Vector,), v)
 end
 
-function N_VGetVectorID_ManyVector(v)
+function N_VGetNumSubvectors_ManyVector(v)
+    __v = convert(NVector, v)
+    N_VGetNumSubvectors_ManyVector(convert(N_Vector, __v))
+end
+
+function N_VGetVectorID_ManyVector(v::N_Vector)
     ccall((:N_VGetVectorID_ManyVector, libsundials_nvecserial), N_Vector_ID, (N_Vector,), v)
+end
+
+function N_VGetVectorID_ManyVector(v)
+    __v = convert(NVector, v)
+    N_VGetVectorID_ManyVector(convert(N_Vector, __v))
 end
 
 function N_VCloneEmpty_ManyVector(w)
