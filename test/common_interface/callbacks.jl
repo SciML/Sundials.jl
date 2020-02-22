@@ -25,6 +25,23 @@ sol = solve(prob,CVODE_Adams(),callback=callback)
 sol = solve(prob,CVODE_BDF(),callback=callback)
 @test sol(4.0)[1] > 0
 
+condition = function (out,u,t,integrator)
+	out[1] = u[1]
+end
+
+affect! = nothing
+affect_neg! = function (integrator, idx)
+	if idx == 1
+		integrator.u[2] = -integrator.u[2]
+	end
+end
+
+callback = VectorContinuousCallback(condition, affect!, affect_neg!, 1)
+sol = solve(prob,CVODE_Adams(),callback=callback)
+@test sol(4.0)[1] > 0
+sol = solve(prob,CVODE_BDF(),callback=callback)
+@test sol(4.0)[1] > 0
+
 u0 = [1.,0.]
 function fun2(du, u, p, t)
    du[2] = -u[1]
