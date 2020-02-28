@@ -124,7 +124,6 @@ const linear_solvers_and_matrices = [
     "sptfqmr",
     # Matrices
     "sparse",
-    #band and dense names are already in the list
     #Non linear solvers
     "fixedpoint",
     "newton"
