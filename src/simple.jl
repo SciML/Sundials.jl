@@ -127,9 +127,9 @@ end
 function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing;
                 integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
     if integrator==:BDF
-        mem_ptr = CVodeCreate(CV_BDF, CV_NEWTON)
+        mem_ptr = CVodeCreate(CV_BDF)
     elseif integrator==:Adams
-        mem_ptr = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
+        mem_ptr = CVodeCreate(CV_ADAMS)
     end
 
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
