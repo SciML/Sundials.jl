@@ -19,8 +19,8 @@ const CVODEMemPtr = Ptr{CVODEMem}
 struct ARKODEMem <: AbstractSundialsObject end
 const ARKODEMemPtr = Ptr{ARKODEMem}
 
-struct ARKODEStepMem <: AbstractSundialsObject end
-const ARKODESteMemPtr = Ptr{ARKODEStepMem}
+struct ARKStepMem <: AbstractSundialsObject end
+const ARKStepMemPtr = Ptr{ARKStepMem}
 
 struct IDAMem <: AbstractSundialsObject end
 const IDAMemPtr = Ptr{IDAMem}
