@@ -1,1 +1,13 @@
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
+*.log
+.DS_Store
+*.ipynb_checkpoints
+docs/build/
+docs/site/
 Manifest.toml
+.vscode
+*.h5
+tags
+*.txt
