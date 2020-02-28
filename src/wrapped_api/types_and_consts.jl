@@ -1,6 +1,28 @@
 # Automatically generated using Clang.jl
 
+############################# Manual Additions by jd-lara##################################
 
+@static if Int == Int64
+    const sunindextype = Int64
+else
+    const sunindextype = Int32
+end
+
+# begin enum ANONYMOUS_1
+const ANONYMOUS_1 = UInt32
+const PREC_NONE = (UInt32)(0)
+const PREC_LEFT = (UInt32)(1)
+const PREC_RIGHT = (UInt32)(2)
+const PREC_BOTH = (UInt32)(3)
+# end enum ANONYMOUS_1
+
+# begin enum ANONYMOUS_2
+const ANONYMOUS_2 = UInt32
+const MODIFIED_GS = (UInt32)(1)
+const CLASSICAL_GS = (UInt32)(2)
+# end enum ANONYMOUS_
+
+##########################################################################################
 const ARK_NORMAL = Cint(1)
 const ARK_ONE_STEP = Cint(2)
 const ARK_SUCCESS = Cint(0)
@@ -478,7 +500,7 @@ const KINLsJacTimesVecFn = Ptr{Cvoid}
 const KINSpilsPrecSetupFn = KINLsPrecSetupFn
 const KINSpilsPrecSolveFn = KINLsPrecSolveFn
 const KINSpilsJacTimesVecFn = KINLsJacTimesVecFn
-const sunindextype = Int64
+#const sunindextype = Int64
 
 struct _generic_N_Vector_Ops
     nvgetvectorid::Ptr{Cvoid}
@@ -546,19 +568,8 @@ struct _N_VectorContent_ManyVector
     own_data::Cint
 end
 
-#= Not implemented yet. Unclear about what MPI_Comm is supposed to be
 const N_VectorContent_ManyVector = Ptr{_N_VectorContent_ManyVector}
 
-struct _N_VectorContent_MPIManyVector
-    comm::MPI_Comm
-    num_subvectors::sunindextype
-    global_length::sunindextype
-    subvec_array::Ptr{N_Vector}
-    own_data::Cint
-end
-
-const N_VectorContent_MPIManyVector = Ptr{_N_VectorContent_MPIManyVector}
-=#
 # Skipping MacroDefinition: NV_CONTENT_S ( v ) ( ( N_VectorContent_Serial ) ( v -> content ) )
 # Skipping MacroDefinition: NV_LENGTH_S ( v ) ( NV_CONTENT_S ( v ) -> length )
 # Skipping MacroDefinition: NV_OWN_DATA_S ( v ) ( NV_CONTENT_S ( v ) -> own_data )
@@ -578,14 +589,13 @@ const SUNDIALS_VERSION_MINOR = Cint(1)
 const SUNDIALS_VERSION_PATCH = Cint(0)
 const SUNDIALS_VERSION_LABEL = ""
 
-# Skipping MacroDefinition: SUNDIALS_F77_FUNC ( name , NAME ) name ## _
-# Skipping MacroDefinition: SUNDIALS_F77_FUNC_ ( name , NAME ) name ## _
+# Skipping MacroDefinition: SUNDIALS_F77_FUNC ( name , NAME ) name ## _64_
+# Skipping MacroDefinition: SUNDIALS_F77_FUNC_ ( name , NAME ) name ## _64_
 
 const SUNDIALS_DOUBLE_PRECISION = Cint(1)
 const SUNDIALS_INT64_T = Cint(1)
-# const SUNDIALS_INDEX_TYPE = int64_t
-const SUNDIALS_MPI_ENABLED = Cint(1)
-const SUNDIALS_MPI_COMM_F2C = Cint(1)
+#const SUNDIALS_INDEX_TYPE = int64_t
+const SUNDIALS_MPI_COMM_F2C = Cint(0)
 const SUNDIALS_DENSE = Cint(1)
 const SUNDIALS_BAND = Cint(2)
 
@@ -690,6 +700,7 @@ CEnum.@cenum SUNLinearSolver_ID::UInt32 begin
 end
 
 
+
 struct _generic_SUNLinearSolver_Ops
     gettype::Ptr{Cvoid}
     getid::Ptr{Cvoid}
@@ -729,6 +740,7 @@ const SUNMAT_ILL_INPUT = Cint(-701)
 const SUNMAT_MEM_FAIL = Cint(-702)
 const SUNMAT_OPERATION_FAIL = Cint(-703)
 const SUNMAT_MATVEC_SETUP_REQUIRED = Cint(-704)
+
 
 CEnum.@cenum SUNMatrix_ID::UInt32 begin
     SUNMATRIX_DENSE = 0
@@ -853,19 +865,19 @@ const SUNLinearSolverContent_Dense = Ptr{_SUNLinearSolverContent_Dense}
 const SUNKLU_ORDERING_DEFAULT = Cint(1)
 const SUNKLU_REINIT_FULL = Cint(1)
 const SUNKLU_REINIT_PARTIAL = Cint(2)
-const sun_klu_symbolic = klu_l_symbolic
-const sun_klu_numeric = klu_l_numeric
-const sun_klu_common = klu_l_common
-const sun_klu_analyze = klu_l_analyze
-const sun_klu_factor = klu_l_factor
-const sun_klu_refactor = klu_l_refactor
-const sun_klu_rcond = klu_l_rcond
-const sun_klu_condest = klu_l_condest
-const sun_klu_defaults = klu_l_defaults
-const sun_klu_free_symbolic = klu_l_free_symbolic
-const sun_klu_free_numeric = klu_l_free_numeric
+#const sun_klu_symbolic = klu_l_symbolic
+#const sun_klu_numeric = klu_l_numeric
+#const sun_klu_common = klu_l_common
+#const sun_klu_analyze = klu_l_analyze
+#const sun_klu_factor = klu_l_factor
+#const sun_klu_refactor = klu_l_refactor
+#const sun_klu_rcond = klu_l_rcond
+#const sun_klu_condest = klu_l_condest
+#const sun_klu_defaults = klu_l_defaults
+#const sun_klu_free_symbolic = klu_l_free_symbolic
+#const sun_klu_free_numeric = klu_l_free_numeric
 const KLUSolveFn = Ptr{Cvoid}
-
+#=
 struct _SUNLinearSolverContent_KLU
     last_flag::Cint
     first_factorize::Cint
@@ -874,10 +886,10 @@ struct _SUNLinearSolverContent_KLU
     common::klu_l_common
     klu_solver::KLUSolveFn
 end
-
-const SUNLinearSolverContent_KLU = Ptr{_SUNLinearSolverContent_KLU}
-const xgbtrf_f77 = dgbtrf_f77
-const xgbtrs_f77 = dgbtrs_f77
+=#
+#const SUNLinearSolverContent_KLU = Ptr{_SUNLinearSolverContent_KLU}
+#const xgbtrf_f77 = dgbtrf_f77
+#const xgbtrs_f77 = dgbtrs_f77
 
 struct _SUNLinearSolverContent_LapackBand
     N::sunindextype
@@ -886,8 +898,8 @@ struct _SUNLinearSolverContent_LapackBand
 end
 
 const SUNLinearSolverContent_LapackBand = Ptr{_SUNLinearSolverContent_LapackBand}
-const xgetrf_f77 = dgetrf_f77
-const xgetrs_f77 = dgetrs_f77
+#const xgetrf_f77 = dgetrf_f77
+#const xgetrs_f77 = dgetrs_f77
 
 struct _SUNLinearSolverContent_LapackDense
     N::sunindextype
