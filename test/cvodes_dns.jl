@@ -109,8 +109,8 @@ function cvodes(f,fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
 
   ##
 
-  mem_ptr = Sundials.CVodeCreate(Sundials.CV_ADAMS, Sundials.CV_FUNCTIONAL)
-  #mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
+  mem_ptr = Sundials.CVodeCreate(Sundials.CV_ADAMS)
+  #mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF)
   cvode_mem = Sundials.Handle(mem_ptr)
   Sundials.CVodeSetUserData(cvode_mem, CVSData(f, fS, p, size(yS0)...))
 
