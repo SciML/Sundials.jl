@@ -60,7 +60,7 @@ function DiffEqBase.__init(
         error("Sundials only allows scalar reltol.")
     end
 
-    progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
+    progress && Logging.@logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
     callbacks_internal = CallbackSet(callback)
 
@@ -347,7 +347,7 @@ function DiffEqBase.__init(
         error("Sundials only allows scalar reltol.")
     end
 
-    progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
+    progress && Logging.@logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
     callbacks_internal = CallbackSet(callback)
 
@@ -804,7 +804,7 @@ function DiffEqBase.__init(
         error("Sundials only allows scalar reltol.")
     end
 
-    progress && @logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
+    progress && Logging.@logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
     callbacks_internal = CallbackSet(callback)
 
@@ -1090,7 +1090,7 @@ end
 function solver_step(integrator::CVODEIntegrator,tstop)
     integrator.flag = CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
     if integrator.opts.progress
-      @logmsg(-1,
+      Logging.@logmsg(-1,
       integrator.opts.progress_name,
       _id = :Sundials,
       message=integrator.opts.progress_message(integrator.dt,integrator.u,integrator.p,integrator.t),
@@ -1100,7 +1100,7 @@ end
 function solver_step(integrator::ARKODEIntegrator,tstop)
     integrator.flag = ARKode(integrator.mem, tstop, integrator.u, integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
-      @logmsg(-1,
+      Logging.@logmsg(-1,
       integrator.opts.progress_name,
       _id = :Sundials,
       message=integrator.opts.progress_message(integrator.dt,integrator.u,integrator.p,integrator.t),
@@ -1111,7 +1111,7 @@ function solver_step(integrator::IDAIntegrator,tstop)
     integrator.flag = IDASolve(integrator.mem, tstop, integrator.tout,
                                integrator.u, integrator.du, IDA_ONE_STEP)
     if integrator.opts.progress
-      @logmsg(-1,
+      Logging.@logmsg(-1,
       integrator.opts.progress_name,
       _id = :Sundials,
       message=integrator.opts.progress_message(integrator.dt,integrator.u,integrator.p,integrator.t),
@@ -1165,7 +1165,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     end
 
     if integrator.opts.progress
-      @logmsg(-1,
+      Logging.@logmsg(-1,
       integrator.opts.progress_name,
       _id = :Sundials,
       message=integrator.opts.progress_message(integrator.dt,integrator.u,integrator.p,integrator.t),
