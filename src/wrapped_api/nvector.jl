@@ -459,10 +459,11 @@ end
 # Julia wrapper for header: nvector_mpimanyvector.h
 # Automatically generated using Clang.jl
 
-
+#= Unclear use yet
 function N_VMake_MPIManyVector(comm::MPI_Comm, num_subvectors::sunindextype, vec_array)
     ccall((:N_VMake_MPIManyVector, libsundials_nvecserial), N_Vector, (MPI_Comm, sunindextype, Ptr{N_Vector}), comm, num_subvectors, vec_array)
 end
+=#
 
 function N_VNew_MPIManyVector(num_subvectors::sunindextype, vec_array)
     ccall((:N_VNew_MPIManyVector, libsundials_nvecserial), N_Vector, (sunindextype, Ptr{N_Vector}), num_subvectors, vec_array)
@@ -997,10 +998,11 @@ end
 # Julia wrapper for header: nvector_mpiplusx.h
 # Automatically generated using Clang.jl
 
-
+#= Unclear Use yet
 function N_VMake_MPIPlusX(comm::MPI_Comm, X::N_Vector)
     ccall((:N_VMake_MPIPlusX, libsundials_nvecserial), N_Vector, (MPI_Comm, N_Vector), comm, X)
 end
+=#
 
 function N_VMake_MPIPlusX(comm, X)
     __X = convert(NVector, X)

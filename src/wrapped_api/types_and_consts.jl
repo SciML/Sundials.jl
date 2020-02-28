@@ -546,6 +546,7 @@ struct _N_VectorContent_ManyVector
     own_data::Cint
 end
 
+#= Not implemented yet. Unclear about what MPI_Comm is supposed to be
 const N_VectorContent_ManyVector = Ptr{_N_VectorContent_ManyVector}
 
 struct _N_VectorContent_MPIManyVector
@@ -557,7 +558,7 @@ struct _N_VectorContent_MPIManyVector
 end
 
 const N_VectorContent_MPIManyVector = Ptr{_N_VectorContent_MPIManyVector}
-
+=#
 # Skipping MacroDefinition: NV_CONTENT_S ( v ) ( ( N_VectorContent_Serial ) ( v -> content ) )
 # Skipping MacroDefinition: NV_LENGTH_S ( v ) ( NV_CONTENT_S ( v ) -> length )
 # Skipping MacroDefinition: NV_OWN_DATA_S ( v ) ( NV_CONTENT_S ( v ) -> own_data )
