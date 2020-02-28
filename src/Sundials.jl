@@ -43,22 +43,22 @@ const DBL_EPSILON = eps(Cdouble)
 const FILE = Nothing
 const __builtin_va_list = Ptr{Cvoid}
 
-include("wrapped_api/types_and_consts.jl")
+include("API/types_and_consts.jl")
 include("types_and_consts_additions.jl")
 
 include("handle.jl")
 include("nvector_wrapper.jl")
 
-include("wrapped_api/nvector.jl")
-include("wrapped_api/libsundials.jl")
-include("wrapped_api/sunmatrix.jl")
-include("wrapped_api/sunlinsol.jl")
-include("wrapped_api/cvodes.jl")
-#include("wrapped_api/cvode.jl")
-include("wrapped_api/arkode.jl")
-include("wrapped_api/idas.jl")
-#include("wrapped_api/ida.jl")
-include("wrapped_api/kinsol.jl")
+include("API/nvector.jl")
+include("API/libsundials.jl")
+include("API/sunmatrix.jl")
+include("API/sunlinsol.jl")
+include("API/cvodes.jl")
+#include("API/cvode.jl")
+include("API/arkode.jl")
+include("API/idas.jl")
+#include("API/ida.jl")
+include("API/kinsol.jl")
 
 include("simple.jl")
 include("common_interface/function_types.jl")
