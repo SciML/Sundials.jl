@@ -7,7 +7,7 @@ Reexport.@reexport using DiffEqBase
 import DataStructures
 import Logging
 import DiffEqBase
-import SparseArrays,
+import SparseArrays
 import LinearAlgebra
 
 import Libdl
