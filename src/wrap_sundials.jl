@@ -45,6 +45,7 @@ end
 @show sundials_headers
 
 const clang_includes = [CLANG_INCLUDE]
+push!(sundials_headers, joinpath(Sundials_jll.SuiteSparse_jll.artifact_dir, "include", "klu.h"))
 
 # check_use_header(path) = true
 # Callback to test if a header should actually be wrapped (for exclusion)
