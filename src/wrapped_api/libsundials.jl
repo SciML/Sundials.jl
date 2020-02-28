@@ -793,7 +793,7 @@ end
 
 function N_VSetVecAtIndexVectorArray(vs, index::Int, w)
     __w = convert(NVector, w)
-    N_VSetVecAtIndexVectorArray(vs, convert(Cint, index, convert(N_Vector, __w))
+    N_VSetVecAtIndexVectorArray(vs, convert(Cint, index, convert(N_Vector, __w)))
 end
 # Julia wrapper for header: sundials_types.h
 # Automatically generated using Clang.jl
