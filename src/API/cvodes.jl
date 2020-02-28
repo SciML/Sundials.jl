@@ -14,7 +14,7 @@ function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::N_Vector)
     ccall((:CVodeInit, libsundials_cvodes), Cint, (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0)
 end
 
-function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0)
+function CVodeInit(cvode_mem, f, t0::realtype, y0)
     __y0 = convert(NVector, y0)
     CVodeInit(cvode_mem, CVRhsFn_wrapper(f), t0, convert(N_Vector, __y0))
 end
