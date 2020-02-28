@@ -35,7 +35,7 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
     unsafe_wrap(Array, mat.data, (mat.M, mat.N), own=false)
 end
 
-function Base.convert(::Type{SparseMatrixCSC}, J::SUNMatrix)
+function Base.convert(::Type{SparseArrays.SparseMatrixCSC}, J::SUNMatrix)
     _sunmat = unsafe_load(J)
     _mat = convert(SUNMatrixContent_Sparse, _sunmat.content)
     mat = unsafe_load(_mat)
@@ -46,7 +46,7 @@ function Base.convert(::Type{SparseMatrixCSC}, J::SUNMatrix)
     m = mat.M
     n = mat.N
     nzval = unsafe_wrap(Array,mat.data, (mat.NNZ), own=false)
-    SparseMatrixCSC(m,n,colptr,rowval,nzval)
+    SparseArrays.SparseMatrixCSC(m,n,colptr,rowval,nzval)
 end
 
 abstract type SundialsMatrix end
@@ -66,8 +66,8 @@ struct KLU <: SundialsLinearSolver end
 struct LapackBand <: SundialsLinearSolver end
 struct LapackDense <: SundialsLinearSolver end
 
-abstract type SundialsNonlinearSolver end
-struct RootFind <: SundialsNonLinearSolver end
+abstract type SundialsNonLinearSolver end
+struct Newton <: SundialsNonLinearSolver end
 struct FixedPoint <: SundialsNonLinearSolver end
 
 abstract type StiffnessChoice end
