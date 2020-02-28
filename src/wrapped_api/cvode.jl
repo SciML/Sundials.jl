@@ -6,7 +6,7 @@ function CVodeCreate(lmm::Cint)
     ccall((:CVodeCreate, libsundials_cvode), CVODEMemPtr, (Cint,), lmm)
 end
 
-function CVodeCreate(lmm::Int)
+function CVodeCreate(lmm)
     CVodeCreate(convert(Cint, lmm))
 end
 
@@ -69,7 +69,7 @@ function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Clong)
     ccall((:CVodeSetMaxNumSteps, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, mxsteps)
 end
 
-function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Int)
+function CVodeSetMaxNumSteps(cvode_mem, mxsteps)
     CVodeSetMaxNumSteps(cvode_mem, convert(Clong, mxsteps))
 end
 
@@ -77,7 +77,7 @@ function CVodeSetMaxHnilWarns(cvode_mem, mxhnil::Clong)
     ccall((:CVodeSetMaxHnilWarns, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, mxhnil)
 end
 
-function CVodeSetMaxHnilWarns(cvode_mem, mxhnil::Int)
+function CVodeSetMaxHnilWarns(cvode_mem, mxhnil)
     CVodeSetMaxHnilWarns(cvode_mem, convert(Clong, mxhnil))
 end
 
@@ -85,7 +85,7 @@ function CVodeSetStabLimDet(cvode_mem, stldet::Cint)
     ccall((:CVodeSetStabLimDet, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, stldet)
 end
 
-function CVodeSetStabLimDet(cvode_mem, stldet::Int)
+function CVodeSetStabLimDet(cvode_mem, stldet)
     CVodeSetStabLimDet(cvode_mem, convert(Cint, stldet))
 end
 
@@ -109,7 +109,7 @@ function CVodeSetMaxErrTestFails(cvode_mem, maxnef::Cint)
     ccall((:CVodeSetMaxErrTestFails, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxnef)
 end
 
-function CVodeSetMaxErrTestFails(cvode_mem, maxnef::Int)
+function CVodeSetMaxErrTestFails(cvode_mem, maxnef)
     CVodeSetMaxErrTestFails(cvode_mem, convert(Cint, maxnef))
 end
 
@@ -117,7 +117,7 @@ function CVodeSetMaxNonlinIters(cvode_mem, maxcor::Cint)
     ccall((:CVodeSetMaxNonlinIters, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxcor)
 end
 
-function CVodeSetMaxNonlinIters(cvode_mem, maxcor::Int)
+function CVodeSetMaxNonlinIters(cvode_mem, maxcor)
     CVodeSetMaxNonlinIters(cvode_mem, convert(Cint, maxcor))
 end
 
@@ -125,7 +125,7 @@ function CVodeSetMaxConvFails(cvode_mem, maxncf::Cint)
     ccall((:CVodeSetMaxConvFails, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxncf)
 end
 
-function CVodeSetMaxConvFails(cvode_mem, maxncf::Int)
+function CVodeSetMaxConvFails(cvode_mem, maxncf)
     CVodeSetMaxConvFails(cvode_mem, convert(Cint, maxncf))
 end
 
@@ -150,7 +150,7 @@ function CVodeRootInit(cvode_mem, nrtfn::Cint, g::CVRootFn)
     ccall((:CVodeRootInit, libsundials_cvode), Cint, (CVODEMemPtr, Cint, CVRootFn), cvode_mem, nrtfn, g)
 end
 
-function CVodeRootInit(cvode_mem, nrtfn::Int, g)
+function CVodeRootInit(cvode_mem, nrtfn, g)
     CVodeRootInit(cvode_mem, convert(Cint, nrtfn), CVRootFn_wrapper(g))
 end
 
@@ -166,7 +166,7 @@ function CVode(cvode_mem, tout::realtype, yout::N_Vector, tret, itask::Cint)
     ccall((:CVode, libsundials_cvode), Cint, (CVODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), cvode_mem, tout, yout, tret, itask)
 end
 
-function CVode(cvode_mem, tout, yout::N_Vector, tret, itask::Int)
+function CVode(cvode_mem, tout, yout::N_Vector, tret, itask)
     __yout = convert(NVector, yout)
     CVode(cvode_mem, tout, convert(N_Vector, __yout), tret, convert(Cint, itask))
 end
@@ -175,7 +175,7 @@ function CVodeGetDky(cvode_mem, t::realtype, k::Cint, dky::N_Vector)
     ccall((:CVodeGetDky, libsundials_cvode), Cint, (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky)
 end
 
-function CVodeGetDky(cvode_mem, t, k::Int, dky)
+function CVodeGetDky(cvode_mem, t, k, dky)
     __dky = convert(NVector, dky)
     CVodeGetDky(cvode_mem, t, convert(Cint, k), convert(N_Vector, __dky))
 end
@@ -405,7 +405,7 @@ function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj::Clong)
     ccall((:CVodeSetMaxStepsBetweenJac, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, msbj)
 end
 
-function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj::Int)
+function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj)
     CVodeSetMaxStepsBetweenJac(cvode_mem, convert(Clong, msbj))
 end
 
@@ -469,7 +469,7 @@ function CVodeGetLinReturnFlagName(flag::Clong)
     ccall((:CVodeGetLinReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
 end
 
-function CVodeGetLinReturnFlagName(flag::Int)
+function CVodeGetLinReturnFlagName(flag)
     CVodeGetLinReturnFlagName(convert(Cint, flag))
 end
 # Julia wrapper for header: cvode_spils.h
@@ -532,6 +532,6 @@ function CVSpilsGetReturnFlagName(flag::Clong)
     ccall((:CVSpilsGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
 end
 
-function CVSpilsGetReturnFlagName(flag::Int)
+function CVSpilsGetReturnFlagName(flag)
     CVSpilsGetReturnFlagName(convert(Clong, flag))
 end

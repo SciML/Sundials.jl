@@ -74,7 +74,7 @@ function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatri
     ccall((:ARKStepSetMassLinearSolver, libsundials_arkode), Cint, (ARKODEMemPtr, SUNLinearSolver, SUNMatrix, Cint), arkode_mem, LS, M, time_dep)
 end
 
-function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, time_dep::Int)
+function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, time_dep)
     ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, convert(Cint,time_dep))
 end
 
@@ -82,7 +82,7 @@ function ARKStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
     ccall((:ARKStepRootInit, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, ARKRootFn), arkode_mem, nrtfn, g)
 end
 
-function ARKStepRootInit(arkode_mem, nrtfn::Int, g::ARKRootFn)
+function ARKStepRootInit(arkode_mem, nrtfn, g::ARKRootFn)
     ARKStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
 end
 
@@ -98,7 +98,7 @@ function ARKStepSetOrder(arkode_mem, maxord::Cint)
     ccall((:ARKStepSetOrder, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxord)
 end
 
-function ARKStepSetOrder(arkode_mem, maxord::Int)
+function ARKStepSetOrder(arkode_mem, maxord)
     ARKStepSetOrder(arkode_mem, convert(Cint, maxord))
 end
 
@@ -106,7 +106,7 @@ function ARKStepSetDenseOrder(arkode_mem, dord::Cint)
     ccall((:ARKStepSetDenseOrder, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, dord)
 end
 
-function ARKStepSetDenseOrder(arkode_mem, dord::Int)
+function ARKStepSetDenseOrder(arkode_mem, dord)
     ARKStepSetDenseOrder(arkode_mem, convert(Cint, dord))
 end
 
@@ -118,7 +118,7 @@ function ARKStepSetLinear(arkode_mem, timedepend::Cint)
     ccall((:ARKStepSetLinear, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, timedepend)
 end
 
-function ARKStepSetLinear(arkode_mem, timedepend::Int)
+function ARKStepSetLinear(arkode_mem, timedepend)
     ARKStepSetLinear(arkode_mem, convert(Cint, timedepend))
 end
 
@@ -142,7 +142,7 @@ function ARKStepSetTables(arkode_mem, q::Cint, p::Cint, Bi, Be)
     ccall((:ARKStepSetTables, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, ARKodeButcherTable, ARKodeButcherTable), arkode_mem, q, p, Bi, Be)
 end
 
-function ARKStepSetTables(arkode_mem, q::Int, p::Int, Bi, Be)
+function ARKStepSetTables(arkode_mem, q, p, Bi, Be)
     ARKStepSetTables(arkode_mem, convert(Cint, q), convert(Cint, p), Bi, Be)
 end
 
@@ -150,7 +150,7 @@ function ARKStepSetTableNum(arkode_mem, itable::Cint, etable::Cint)
     ccall((:ARKStepSetTableNum, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint), arkode_mem, itable, etable)
 end
 
-function ARKStepSetTableNum(arkode_mem, itable::Int, etable::Int)
+function ARKStepSetTableNum(arkode_mem, itable, etable)
     ARKStepSetTableNum(arkode_mem, convert(Cint, itable), convert(Cint, etable))
 end
 
@@ -178,7 +178,7 @@ function ARKStepSetAdaptivityMethod(arkode_mem, imethod::Cint, idefault::Cint, p
     ccall((:ARKStepSetAdaptivityMethod, libsundials_arkode), Cint, (ARKODEMemPtr, Cint, Cint, Cint, Ptr{realtype}), arkode_mem, imethod, idefault, pq, adapt_params)
 end
 
-function ARKStepSetAdaptivityMethod(arkode_mem, imethod::Int, idefault::Int, pq::Int, adapt_params)
+function ARKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
     ARKStepSetAdaptivityMethod(arkode_mem, convert(Cint, imethod), convert(Cint, idefault), convert(Cint, pq), adapt_params)
 end
 
@@ -198,7 +198,7 @@ function ARKStepSetSmallNumEFails(arkode_mem, small_nef::Cint)
     ccall((:ARKStepSetSmallNumEFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, small_nef)
 end
 
-function ARKStepSetSmallNumEFails(arkode_mem, small_nef::Int)
+function ARKStepSetSmallNumEFails(arkode_mem, small_nef)
     ARKStepSetSmallNumEFails(arkode_mem, convert(Cint, small_nef))
 end
 
@@ -222,7 +222,7 @@ function ARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp::Cint)
     ccall((:ARKStepSetMaxStepsBetweenLSet, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, msbp)
 end
 
-function ARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp::Int)
+function ARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp)
     ARKStepSetMaxStepsBetweenLSet(arkode_mem, convert(Cint,msbp))
 end
 
@@ -230,7 +230,7 @@ function ARKStepSetPredictorMethod(arkode_mem, method::Cint)
     ccall((:ARKStepSetPredictorMethod, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, method)
 end
 
-function ARKStepSetPredictorMethod(arkode_mem, method::Int)
+function ARKStepSetPredictorMethod(arkode_mem, method)
     ARKStepSetPredictorMethod(arkode_mem, convert(Cint, method))
 end
 
@@ -242,7 +242,7 @@ function ARKStepSetMaxErrTestFails(arkode_mem, maxnef::Cint)
     ccall((:ARKStepSetMaxErrTestFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxnef)
 end
 
-function ARKStepSetMaxErrTestFails(arkode_mem, maxnef::Int)
+function ARKStepSetMaxErrTestFails(arkode_mem, maxnef)
     ARKStepSetMaxErrTestFails(arkode_mem, convert(Cint, maxnef))
 end
 
@@ -250,7 +250,7 @@ function ARKStepSetMaxNonlinIters(arkode_mem, maxcor::Cint)
     ccall((:ARKStepSetMaxNonlinIters, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxcor)
 end
 
-function ARKStepSetMaxNonlinIters(arkode_mem, maxcor::Int)
+function ARKStepSetMaxNonlinIters(arkode_mem, maxcor)
     ARKStepSetMaxNonlinIters(arkode_mem, convert(Cint, maxcor))
 end
 
@@ -258,7 +258,7 @@ function ARKStepSetMaxConvFails(arkode_mem, maxncf::Cint)
     ccall((:ARKStepSetMaxConvFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxncf)
 end
 
-function ARKStepSetMaxConvFails(arkode_mem, maxncf::Int)
+function ARKStepSetMaxConvFails(arkode_mem, maxncf)
     ARKStepSetMaxConvFails(arkode_mem, convert(Cint, maxncf))
 end
 
@@ -279,7 +279,7 @@ function ARKStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
     ccall((:ARKStepSetMaxNumSteps, libsundials_arkode), Cint, (ARKODEMemPtr, Clong), arkode_mem, mxsteps)
 end
 
-function ARKStepSetMaxNumSteps(arkode_mem, mxsteps::Int)
+function ARKStepSetMaxNumSteps(arkode_mem, mxsteps)
     ARKStepSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
 end
 
@@ -287,7 +287,7 @@ function ARKStepSetMaxHnilWarns(arkode_mem, mxhnil::Cint)
     ccall((:ARKStepSetMaxHnilWarns, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, mxhnil)
 end
 
-function ARKStepSetMaxHnilWarns(arkode_mem, mxhnil::Int)
+function ARKStepSetMaxHnilWarns(arkode_mem, mxhnil)
     ARKStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
 end
 
@@ -315,7 +315,7 @@ function ARKStepSetMaxNumConstrFails(arkode_mem, maxfails::Cint)
     ccall((:ARKStepSetMaxNumConstrFails, libsundials_arkode), Cint, (ARKODEMemPtr, Cint), arkode_mem, maxfails)
 end
 
-function ARKStepSetMaxNumConstrFails(arkode_mem, maxfails::Int)
+function ARKStepSetMaxNumConstrFails(arkode_mem, maxfails)
     ARKStepSetMaxNumConstrFails(arkode_mem, convert(Cint, maxfails))
 end
 
@@ -343,7 +343,7 @@ function ARKStepSetDiagnostics(arkode_mem, diagfp)
     ccall((:ARKStepSetDiagnostics, libsundials_arkode), Cint, (ARKODEMemPtr, Ptr{FILE}), arkode_mem, diagfp)
 end
 
-function ARKStepSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessStepFnc)
+function ARKStepSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessStepFn)
     ccall((:ARKStepSetPostprocessStepFn, libsundials_arkode), Cint, (ARKODEMemPtr, ARKPostProcessStepFn), arkode_mem, ProcessStep)
 end
 
@@ -363,7 +363,7 @@ function ARKStepSetMaxStepsBetweenJac(arkode_mem, msbj::Clong)
     ccall((:ARKStepSetMaxStepsBetweenJac, libsundials_arkode), Cint, (ARKODEMemPtr, Clong), arkode_mem, msbj)
 end
 
-function ARKStepSetMaxStepsBetweenJac(arkode_mem, msbj::Int)
+function ARKStepSetMaxStepsBetweenJac(arkode_mem, msbj)
     ARKStepSetMaxStepsBetweenJac(arkode_mem, convert(Clong, msbj))
 end
 
@@ -399,7 +399,7 @@ function ARKStepEvolve(arkode_mem, tout::realtype, yout::N_Vector, tret, itask::
     ccall((:ARKStepEvolve, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout, tret, itask)
 end
 
-function ARKStepEvolve(arkode_mem, tout, yout, tret, itask::Int)
+function ARKStepEvolve(arkode_mem, tout, yout, tret, itask)
     __yout = convert(NVector, yout)
     ARKStepEvolve(arkode_mem, tout, convert(N_Vector, __yout), tret, convert(Cint, itask))
 end
@@ -409,7 +409,7 @@ function ARKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::N_Vector)
     ccall((:ARKStepGetDky, libsundials_arkode), Cint, (ARKODEMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
 end
 
-function ARKStepGetDky(arkode_mem, t::realtype, k::Int, dky)
+function ARKStepGetDky(arkode_mem, t::realtype, k, dky)
     __dky = convert(NVector, dky)
     ARKStepGetDky(arkode_mem, t, convert(Cint, k), convert(N_Vector, __dky))
 end
@@ -521,7 +521,7 @@ function ARKStepGetReturnFlagName(flag::Clong)
     ccall((:ARKStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
-function ARKStepGetReturnFlagName(flag::Int)
+function ARKStepGetReturnFlagName(flag)
     ARKStepGetReturnFlagName(convert(Clong, flag))
 end
 
@@ -641,7 +641,7 @@ function ARKStepGetLinReturnFlagName(flag::Clong)
     ccall((:ARKStepGetLinReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
-function ARKStepGetLinReturnFlagName(flag::Int)
+function ARKStepGetLinReturnFlagName(flag)
     ARKStepGetLinReturnFlagName(convert(Clong, flag))
 end
 
@@ -698,7 +698,7 @@ function ARKodeButcherTable_Create(s, q::Cint, p::Cint, c::Cint, A, b, d)
     ccall((:ARKodeButcherTable_Create, libsundials_arkode), ARKodeButcherTable, (Cint, Cint, Cint, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), s, q, p, c, A, b, d)
 end
 
-function ARKodeButcherTable_Create(s, q::Int, p::Int, c::Int, A, b, d)
+function ARKodeButcherTable_Create(s, q, p, c, A, b, d)
     ARKodeButcherTable_Create(convert(Cint,s), convert(Cint,q), convert(Cint,p), convert(Cint, c), A, b, d)
 end
 
@@ -733,7 +733,7 @@ function ARKodeButcherTable_LoadDIRK(imethod::Cint)
     ccall((:ARKodeButcherTable_LoadDIRK, libsundials_arkode), ARKodeButcherTable, (Cint,), imethod)
 end
 
-function ARKodeButcherTable_LoadDIRK(imethod::Int)
+function ARKodeButcherTable_LoadDIRK(imethod)
     ARKodeButcherTable_LoadDIRK(convert(Cint, imethod))
 end
 
@@ -745,7 +745,7 @@ function ARKodeButcherTable_LoadERK(imethod::Cint)
     ccall((:ARKodeButcherTable_LoadERK, libsundials_arkode), ARKodeButcherTable, (Cint,), imethod)
 end
 
-function ARKodeButcherTable_LoadERK(imethod::Int)
+function ARKodeButcherTable_LoadERK(imethod)
     ARKodeButcherTable_LoadERK(convert(Cint,imethod))
 end
 # Julia wrapper for header: arkode_erkstep.h

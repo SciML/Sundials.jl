@@ -37,7 +37,7 @@ function IDACalcIC(ida_mem, icopt::Cint, tout1::realtype)
     ccall((:IDACalcIC, libsundials_ida), Cint, (IDAMemPtr, Cint, realtype), ida_mem, icopt, tout1)
 end
 
-function IDACalcIC(ida_mem, icopt::Int, tout1::realtype)
+function IDACalcIC(ida_mem, icopt, tout1::realtype)
     IDACalcIC(ida_mem, convert(Cint, icopt), tout1)
 end
 
@@ -50,7 +50,7 @@ function IDASetMaxNumStepsIC(ida_mem, maxnh::Cint)
     ccall((:IDASetMaxNumStepsIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnh)
 end
 
-function IDASetMaxNumStepsIC(ida_mem, maxnh::Int)
+function IDASetMaxNumStepsIC(ida_mem, maxnh)
     IDASetMaxNumStepsIC(ida_mem, convert(Cint, maxnh))
 end
 
@@ -58,7 +58,7 @@ function IDASetMaxNumJacsIC(ida_mem, maxnj::Cint)
     ccall((:IDASetMaxNumJacsIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnj)
 end
 
-function IDASetMaxNumJacsIC(ida_mem, maxnj::Int)
+function IDASetMaxNumJacsIC(ida_mem, maxnj)
     IDASetMaxNumJacsIC(ida_mem, convert(Cint, maxnj))
 end
 
@@ -66,7 +66,7 @@ function IDASetMaxNumItersIC(ida_mem, maxnit::Cint)
     ccall((:IDASetMaxNumItersIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnit)
 end
 
-function IDASetMaxNumItersIC(ida_mem, maxnit::Int)
+function IDASetMaxNumItersIC(ida_mem, maxnit)
     IDASetMaxNumItersIC(ida_mem, convert(Cint, maxnit))
 end
 
@@ -74,7 +74,7 @@ function IDASetLineSearchOffIC(ida_mem, lsoff::Cint)
     ccall((:IDASetLineSearchOffIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, lsoff)
 end
 
-function IDASetLineSearchOffIC(ida_mem, lsoff::Int)
+function IDASetLineSearchOffIC(ida_mem, lsoff)
     IDASetLineSearchOffIC(ida_mem, convert(Cint, lsoff))
 end
 
@@ -86,7 +86,7 @@ function IDASetMaxBacksIC(ida_mem, maxbacks::Cint)
     ccall((:IDASetMaxBacksIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxbacks)
 end
 
-function IDASetMaxBacksIC(ida_mem, maxbacks::Int)
+function IDASetMaxBacksIC(ida_mem, maxbacks)
     IDASetMaxBacksIC(ida_mem, convert(Cint, maxbacks))
 end
 
@@ -106,7 +106,7 @@ function IDASetMaxOrd(ida_mem, maxord::Cint)
     ccall((:IDASetMaxOrd, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxord)
 end
 
-function IDASetMaxOrd(ida_mem, maxord::Int)
+function IDASetMaxOrd(ida_mem, maxord)
     IDASetMaxOrd(ida_mem, convert(Cint, maxord))
 end
 
@@ -114,7 +114,7 @@ function IDASetMaxNumSteps(ida_mem, mxsteps::Clong)
     ccall((:IDASetMaxNumSteps, libsundials_ida), Cint, (IDAMemPtr, Clong), ida_mem, mxsteps)
 end
 
-function IDASetMaxNumSteps(ida_mem, mxsteps::Int)
+function IDASetMaxNumSteps(ida_mem, mxsteps)
     IDASetMaxNumSteps(ida_mem, convert(Cint, mxsteps))
 end
 
@@ -138,7 +138,7 @@ function IDASetMaxErrTestFails(ida_mem, maxnef::Cint)
     ccall((:IDASetMaxErrTestFails, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnef)
 end
 
-function IDASetMaxErrTestFails(ida_mem, maxnef::Int)
+function IDASetMaxErrTestFails(ida_mem, maxnef)
     IDASetMaxErrTestFails(ida_mem, convert(Cint, maxnef))
 end
 
@@ -146,7 +146,7 @@ function IDASetMaxNonlinIters(ida_mem, maxcor::Cint)
     ccall((:IDASetMaxNonlinIters, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxcor)
 end
 
-function IDASetMaxNonlinIters(ida_mem, maxcor::Int)
+function IDASetMaxNonlinIters(ida_mem, maxcor)
     IDASetMaxNonlinIters(ida_mem, convert(Cint,maxcor))
 end
 
@@ -154,7 +154,7 @@ function IDASetMaxConvFails(ida_mem, maxncf::Cint)
     ccall((:IDASetMaxConvFails, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxncf)
 end
 
-function IDASetMaxConvFails(ida_mem, maxncf::Int)
+function IDASetMaxConvFails(ida_mem, maxncf)
     IDASetMaxConvFails(ida_mem, convert(Cint, maxncf))
 end
 
@@ -162,7 +162,7 @@ function IDASetSuppressAlg(ida_mem, suppressalg::Cint)
     ccall((:IDASetSuppressAlg, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, suppressalg)
 end
 
-function IDASetSuppressAlg(ida_mem, suppressalg::Int)
+function IDASetSuppressAlg(ida_mem, suppressalg)
     IDASetSuppressAlg(ida_mem, convert(Cint, suppressalg))
 end
 
@@ -192,7 +192,7 @@ function IDARootInit(ida_mem, nrtfn::Cint, g::IDARootFn)
     ccall((:IDARootInit, libsundials_ida), Cint, (IDAMemPtr, Cint, IDARootFn), ida_mem, nrtfn, g)
 end
 
-function IDARootInit(ida_mem, nrtfn::Int, g::IDARootFn)
+function IDARootInit(ida_mem, nrtfn, g::IDARootFn)
     IDARootInit(ida_mem, convert(Cint, nrtfn), g)
 end
 
@@ -208,7 +208,7 @@ function IDASolve(ida_mem, tout::realtype, tret, yret::N_Vector, ypret::N_Vector
     ccall((:IDASolve, libsundials_ida), Cint, (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint), ida_mem, tout, tret, yret, ypret, itask)
 end
 
-function IDASolve(ida_mem, tout::realtype, tret, yret, ypret, itask::Int)
+function IDASolve(ida_mem, tout::realtype, tret, yret, ypret, itask)
     __yret = convert(NVector, yret)
     __ypret = convert(NVector, ypret)
     IDASolve(ida_mem, tout::realtype, tret, convert(N_Vector, __yret), convert(N_Vector, __ypret), convert(Cint, itask))
@@ -238,7 +238,7 @@ function IDAGetDky(ida_mem, t::realtype, k::Cint, dky::N_Vector)
     ccall((:IDAGetDky, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint, N_Vector), ida_mem, t, k, dky)
 end
 
-function IDAGetDky(ida_mem, t, k::Int, dky)
+function IDAGetDky(ida_mem, t, k, dky)
     __dky = convert(NVector, dky)
     IDAGetDky(ida_mem, t, convert(Cint, k), convert(N_Vector, __dky))
 end
@@ -364,7 +364,7 @@ function IDAGetReturnFlagName(flag::Clong)
     ccall((:IDAGetReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
 end
 
-function IDAGetReturnFlagName(flag::Int)
+function IDAGetReturnFlagName(flag)
     IDAGetReturnFlagName(convert(Clong, flag))
 end
 
@@ -493,7 +493,7 @@ function IDAGetLinReturnFlagName(flag::Clong)
     ccall((:IDAGetLinReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
 end
 
-function IDAGetLinReturnFlagName(flag::Int)
+function IDAGetLinReturnFlagName(flag)
     IDAGetLinReturnFlagName(convert(Clong,flag))
 end
 
@@ -561,6 +561,6 @@ function IDASpilsGetReturnFlagName(flag::Clong)
     ccall((:IDASpilsGetReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
 end
 
-function IDASpilsGetReturnFlagName(flag::Int)
+function IDASpilsGetReturnFlagName(flag)
     IDASpilsGetReturnFlagName(convert(Clong, flag))
 end

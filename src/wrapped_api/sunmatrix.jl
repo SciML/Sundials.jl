@@ -176,7 +176,7 @@ function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype, sp
     ccall((:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix, (sunindextype, sunindextype, sunindextype, Cint), M, N, NNZ, sparsetype)
 end
 
-function SUNSparseMatrix(M, N, NNZ, sparsetype::Int)
+function SUNSparseMatrix(M, N, NNZ, sparsetype)
     SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
 end
 

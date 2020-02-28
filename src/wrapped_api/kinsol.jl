@@ -19,7 +19,7 @@ function KINSol(kinmem, uu::N_Vector, strategy::Cint, u_scale::N_Vector, f_scale
     ccall((:KINSol, libsundials_kinsol), Cint, (KINMemPtr, N_Vector, Cint, N_Vector, N_Vector), kinmem, uu, strategy, u_scale, f_scale)
 end
 
-function KINSol(kinmem, uu, strategy::Int, u_scale, f_scale)
+function KINSol(kinmem, uu, strategy, u_scale, f_scale)
     __uu = convert(NVector, uu)
     __u_scale = convert(NVector, u_scale)
     __f_scale = convert(NVector, f_scale)
@@ -50,7 +50,7 @@ function KINSetPrintLevel(kinmemm, printfl::Cint)
     ccall((:KINSetPrintLevel, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmemm, printfl)
 end
 
-function KINSetPrintLevel(kinmemm, printfl::Int)
+function KINSetPrintLevel(kinmemm, printfl)
     KINSetPrintLevel(kinmemm, convert(Cint, printfl))
 end
 
@@ -58,7 +58,7 @@ function KINSetMAA(kinmem, maa::Clong)
     ccall((:KINSetMAA, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem, maa)
 end
 
-function KINSetMAA(kinmem, maa::Int)
+function KINSetMAA(kinmem, maa)
     KINSetMAA(kinmem, convert(Clong, maa))
 end
 
@@ -70,7 +70,7 @@ function KINSetNumMaxIters(kinmem, mxiter::Clong)
     ccall((:KINSetNumMaxIters, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem, mxiter)
 end
 
-function KINSetNumMaxIters(kinmem, mxiter::Int)
+function KINSetNumMaxIters(kinmem, mxiter)
     KINSetNumMaxIters(kinmem, convert(Clong, mxiter))
 end
 
@@ -78,7 +78,7 @@ function KINSetNoInitSetup(kinmem, noInitSetup::Cint)
     ccall((:KINSetNoInitSetup, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, noInitSetup)
 end
 
-function KINSetNoInitSetup(kinmem, noInitSetup::Int)
+function KINSetNoInitSetup(kinmem, noInitSetup)
     KINSetNoInitSetup(kinmem, convert(Cint, noInitSetup))
 end
 
@@ -86,7 +86,7 @@ function KINSetNoResMon(kinmem, noNNIResMon::Cint)
     ccall((:KINSetNoResMon, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, noNNIResMon)
 end
 
-function KINSetNoResMon(kinmem, noNNIResMon::Int)
+function KINSetNoResMon(kinmem, noNNIResMon)
     KINSetNoResMon(kinmem, convert(Cint, noNNIResMon))
 end
 
@@ -94,7 +94,7 @@ function KINSetMaxSetupCalls(kinmem, msbset::Clong)
     ccall((:KINSetMaxSetupCalls, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem, msbset)
 end
 
-function KINSetMaxSetupCalls(kinmem, msbset::Int)
+function KINSetMaxSetupCalls(kinmem, msbset)
     KINSetMaxSetupCalls(kinmem, convert(Clong, msbset))
 end
 
@@ -102,7 +102,7 @@ function KINSetMaxSubSetupCalls(kinmem, msbsetsub::Clong)
     ccall((:KINSetMaxSubSetupCalls, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem, msbsetsub)
 end
 
-function KINSetMaxSubSetupCalls(kinmem, msbsetsub::Int)
+function KINSetMaxSubSetupCalls(kinmem, msbsetsub)
     KINSetMaxSubSetupCalls(kinmem, convert(Clong, msbsetsub))
 end
 
@@ -110,7 +110,7 @@ function KINSetEtaForm(kinmem, etachoice::Cint)
     ccall((:KINSetEtaForm, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, etachoice)
 end
 
-function KINSetEtaForm(kinmem, etachoice::Int)
+function KINSetEtaForm(kinmem, etachoice)
     KINSetEtaForm(kinmem, convert(Cint, etachoice))
 end
 
@@ -134,7 +134,7 @@ function KINSetNoMinEps(kinmem, noMinEps::Cint)
     ccall((:KINSetNoMinEps, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, noMinEps)
 end
 
-function KINSetNoMinEps(kinmem, noMinEps::Int)
+function KINSetNoMinEps(kinmem, noMinEps)
     KINSetNoMinEps(kinmem, convert(Cint, noMinEps))
 end
 
@@ -146,7 +146,7 @@ function KINSetMaxBetaFails(kinmem, mxnbcf::Clong)
     ccall((:KINSetMaxBetaFails, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem, mxnbcf)
 end
 
-function KINSetMaxBetaFails(kinmem, mxnbcf::Int)
+function KINSetMaxBetaFails(kinmem, mxnbcf)
     KINSetMaxBetaFails(kinmem, convert(Clong, mxnbcf))
 end
 
@@ -207,7 +207,7 @@ function KINGetReturnFlagName(flag::Clong)
     ccall((:KINGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
-function KINGetReturnFlagName(flag::Int)
+function KINGetReturnFlagName(flag)
     KINGetReturnFlagName(convert(Clong, flag))
 end
 
@@ -261,7 +261,7 @@ function KINDlsGetReturnFlagName(flag::Clong)
     ccall((:KINDlsGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
-function KINDlsGetReturnFlagName(flag::Int)
+function KINDlsGetReturnFlagName(flag)
     KINDlsGetReturnFlagName(convert(Clong, flag))
 end
 # Julia wrapper for header: kinsol_ls.h
@@ -316,10 +316,6 @@ function KINGetNumJtimesEvals(kinmem, njvevals)
     ccall((:KINGetNumJtimesEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem, njvevals)
 end
 
-function KINGetNumLinFuncEvals(kinmem, nfevals)
-    ccall((:KINGetNumLinFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem, nfevals)
-end
-
 function KINGetLastLinFlag(kinmem, flag)
     ccall((:KINGetLastLinFlag, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem, flag)
 end
@@ -328,7 +324,7 @@ function KINGetLinReturnFlagName(flag::Clong)
     ccall((:KINGetLinReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
-function KINGetLinReturnFlagName(flag::Int)
+function KINGetLinReturnFlagName(flag)
     KINGetLinReturnFlagName(convert(Clong, flag))
 end
 # Julia wrapper for header: kinsol_spils.h
@@ -383,6 +379,6 @@ function KINSpilsGetReturnFlagName(flag::Clong)
     ccall((:KINSpilsGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
-function KINSpilsGetReturnFlagName(flag::Int)
+function KINSpilsGetReturnFlagName(flag)
     KINSpilsGetReturnFlagName(convert(Clong, flag))
 end

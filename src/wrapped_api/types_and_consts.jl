@@ -865,9 +865,87 @@ const SUNLinearSolverContent_Dense = Ptr{_SUNLinearSolverContent_Dense}
 const SUNKLU_ORDERING_DEFAULT = Cint(1)
 const SUNKLU_REINIT_FULL = Cint(1)
 const SUNKLU_REINIT_PARTIAL = Cint(2)
-#const sun_klu_symbolic = klu_l_symbolic
-#const sun_klu_numeric = klu_l_numeric
-#const sun_klu_common = klu_l_common
+
+struct klu_l_symbolic
+    symmetry::Cdouble
+    est_flops::Cdouble
+    lnz::Cdouble
+    unz::Cdouble
+    Lnz::Ptr{Cdouble}
+    n::Clong
+    nz::Clong
+    P::Ptr{Clong}
+    Q::Ptr{Clong}
+    R::Ptr{Clong}
+    nzoff::Clong
+    nblocks::Clong
+    maxblock::Clong
+    ordering::Clong
+    do_btf::Clong
+    structural_rank::Clong
+end
+
+const sun_klu_symbolic = klu_l_symbolic
+
+struct klu_l_numeric
+    n::Clong
+    nblocks::Clong
+    lnz::Clong
+    unz::Clong
+    max_lnz_block::Clong
+    max_unz_block::Clong
+    Pnum::Ptr{Clong}
+    Pinv::Ptr{Clong}
+    Lip::Ptr{Clong}
+    Uip::Ptr{Clong}
+    Llen::Ptr{Clong}
+    Ulen::Ptr{Clong}
+    LUbx::Ptr{Ptr{Cvoid}}
+    LUsize::Ptr{Csize_t}
+    Udiag::Ptr{Cvoid}
+    Rs::Ptr{Cdouble}
+    worksize::Csize_t
+    Work::Ptr{Cvoid}
+    Xwork::Ptr{Cvoid}
+    Iwork::Ptr{Clong}
+    Offp::Ptr{Clong}
+    Offi::Ptr{Clong}
+    Offx::Ptr{Cvoid}
+    nzoff::Clong
+end
+
+const sun_klu_numeric = klu_l_numeric
+
+struct klu_l_common
+    tol::Cdouble
+    memgrow::Cdouble
+    initmem_amd::Cdouble
+    initmem::Cdouble
+    maxwork::Cdouble
+    btf::Clong
+    ordering::Clong
+    scale::Clong
+    user_order::Ptr{Cvoid}
+    user_data::Ptr{Cvoid}
+    halt_if_singular::Clong
+    status::Clong
+    nrealloc::Clong
+    structural_rank::Clong
+    numerical_rank::Clong
+    singular_col::Clong
+    noffdiag::Clong
+    flops::Cdouble
+    rcond::Cdouble
+    condest::Cdouble
+    rgrowth::Cdouble
+    work::Cdouble
+    memusage::Csize_t
+    mempeak::Csize_t
+end
+const sun_klu_common = klu_l_common
+
+# These are function names in klu.h
+
 #const sun_klu_analyze = klu_l_analyze
 #const sun_klu_factor = klu_l_factor
 #const sun_klu_refactor = klu_l_refactor
@@ -876,8 +954,9 @@ const SUNKLU_REINIT_PARTIAL = Cint(2)
 #const sun_klu_defaults = klu_l_defaults
 #const sun_klu_free_symbolic = klu_l_free_symbolic
 #const sun_klu_free_numeric = klu_l_free_numeric
+
 const KLUSolveFn = Ptr{Cvoid}
-#=
+
 struct _SUNLinearSolverContent_KLU
     last_flag::Cint
     first_factorize::Cint
@@ -886,8 +965,9 @@ struct _SUNLinearSolverContent_KLU
     common::klu_l_common
     klu_solver::KLUSolveFn
 end
-=#
-#const SUNLinearSolverContent_KLU = Ptr{_SUNLinearSolverContent_KLU}
+
+const SUNLinearSolverContent_KLU = Ptr{_SUNLinearSolverContent_KLU}
+
 #const xgbtrf_f77 = dgbtrf_f77
 #const xgbtrs_f77 = dgbtrs_f77
 

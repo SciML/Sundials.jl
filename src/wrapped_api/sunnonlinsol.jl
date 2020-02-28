@@ -6,7 +6,7 @@ function SUNNonlinSol_FixedPoint(y::N_Vector, m::Cint)
     ccall((:SUNNonlinSol_FixedPoint, libsundials_sunnonlinsolfixedpoint), SUNNonlinearSolver, (N_Vector, Cint), y, m)
 end
 
-function SUNNonlinSol_FixedPoint(y, m::Int)
+function SUNNonlinSol_FixedPoint(y, m)
     __y = convert(NVector, y)
     SUNNonlinSol_FixedPoint(convert(N_Vector, __y), convert(Cint, m))
 end
@@ -15,7 +15,7 @@ function SUNNonlinSol_FixedPointSens(count::Cint, y::N_Vector, m::Cint)
     ccall((:SUNNonlinSol_FixedPointSens, libsundials_sunnonlinsolfixedpoint), SUNNonlinearSolver, (Cint, N_Vector, Cint), count, y, m)
 end
 
-function SUNNonlinSol_FixedPointSens(count::Int, y, m::Int)
+function SUNNonlinSol_FixedPointSens(count, y, m)
     __y = convert(NVector, y)
     SUNNonlinSol_FixedPointSens(convert(Cint, count), convert(N_Vector, __y), convert(Cint, m))
 end
@@ -55,7 +55,7 @@ function SUNNonlinSolSetMaxIters_FixedPoint(NLS::SUNNonlinearSolver, maxiters::C
     ccall((:SUNNonlinSolSetMaxIters_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint, (SUNNonlinearSolver, Cint), NLS, maxiters)
 end
 
-function SUNNonlinSolSetMaxIters_FixedPoint(NLS, maxiters::Int)
+function SUNNonlinSolSetMaxIters_FixedPoint(NLS, maxiters)
     SUNNonlinSolSetMaxIters_FixedPoint(NLS, convert(Cint, maxiters))
 end
 
@@ -95,7 +95,7 @@ function SUNNonlinSol_NewtonSens(count::Cint, y::N_Vector)
     ccall((:SUNNonlinSol_NewtonSens, libsundials_sunnonlinsolnewton), SUNNonlinearSolver, (Cint, N_Vector), count, y)
 end
 
-function SUNNonlinSol_NewtonSens(count::Int, y)
+function SUNNonlinSol_NewtonSens(count, y)
     __y = convert(NVector, y)
     SUNNonlinSol_NewtonSens(convert(Cint, count), convert(N_Vector, __y))
 end
@@ -143,7 +143,7 @@ function SUNNonlinSolSetMaxIters_Newton(NLS::SUNNonlinearSolver, maxiters::Cint)
     ccall((:SUNNonlinSolSetMaxIters_Newton, libsundials_sunnonlinsolnewton), Cint, (SUNNonlinearSolver, Cint), NLS, maxiters)
 end
 
-function SUNNonlinSolSetMaxIters_Newton(NLS, maxiters::Int)
+function SUNNonlinSolSetMaxIters_Newton(NLS, maxiters)
     SUNNonlinSolSetMaxIters_Newton(NLS, convert(Cint, maxiters))
 end
 

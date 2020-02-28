@@ -6,7 +6,7 @@ function CVodeCreate(lmm::Cint)
     ccall((:CVodeCreate, libsundials_cvodes), CVODEMemPtr, (Cint,), lmm)
 end
 
-function CVodeCreate(lmm::Int)
+function CVodeCreate(lmm)
     CVodeCreate(convert(Cint, lmm))
 end
 
@@ -14,7 +14,7 @@ function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::N_Vector)
     ccall((:CVodeInit, libsundials_cvodes), Cint, (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0)
 end
 
-function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::N_Vector)
+function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0)
     __y0 = convert(NVector, y0)
     CVodeInit(cvode_mem, CVRhsFn_wrapper(f), t0, convert(N_Vector, __y0))
 end
@@ -23,7 +23,7 @@ function CVodeReInit(cvode_mem, t0::realtype, y0::N_Vector)
     ccall((:CVodeReInit, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector), cvode_mem, t0, y0)
 end
 
-function CVodeReInit(cvode_mem, t0::realtype, y0::N_Vector)
+function CVodeReInit(cvode_mem, t0::realtype, y0)
     __y0 = convert(NVector, y0)
     CVodeReInit(cvode_mem, t0, convert(N_Vector, __y0))
 end
@@ -61,7 +61,7 @@ function CVodeSetMaxOrd(cvode_mem, maxord::Cint)
     ccall((:CVodeSetMaxOrd, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxord)
 end
 
-function CVodeSetMaxOrd(cvode_mem, maxord::Int)
+function CVodeSetMaxOrd(cvode_mem, maxord)
     CVodeSetMaxOrd(cvode_mem, convert(Cint, maxord))
 end
 
@@ -69,7 +69,7 @@ function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Clong)
     ccall((:CVodeSetMaxNumSteps, libsundials_cvodes), Cint, (CVODEMemPtr, Clong), cvode_mem, mxsteps)
 end
 
-function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Int)
+function CVodeSetMaxNumSteps(cvode_mem, mxsteps)
     CVodeSetMaxNumSteps(cvode_mem, convert(Clong, mxsteps))
 end
 
@@ -77,7 +77,7 @@ function CVodeSetMaxHnilWarns(cvode_mem, mxhnil::Cint)
     ccall((:CVodeSetMaxHnilWarns, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, mxhnil)
 end
 
-function CVodeSetMaxHnilWarns(cvode_mem, mxhnil::Int)
+function CVodeSetMaxHnilWarns(cvode_mem, mxhnil)
     CVodeSetMaxHnilWarns(cvode_mem, convert(Cint, mxhnil))
 end
 
@@ -85,7 +85,7 @@ function CVodeSetStabLimDet(cvode_mem, stldet::Cint)
     ccall((:CVodeSetStabLimDet, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, stldet)
 end
 
-function CVodeSetStabLimDet(cvode_mem, stldet::Int)
+function CVodeSetStabLimDet(cvode_mem, stldet)
     CVodeSetStabLimDet(cvode_mem, convert(Cint, stldet))
 end
 
@@ -109,7 +109,7 @@ function CVodeSetMaxErrTestFails(cvode_mem, maxnef::Cint)
     ccall((:CVodeSetMaxErrTestFails, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxnef)
 end
 
-function CVodeSetMaxErrTestFails(cvode_mem, maxnef::Int)
+function CVodeSetMaxErrTestFails(cvode_mem, maxnef)
     CVodeSetMaxErrTestFails(cvode_mem, convert(Cint, maxnef))
 end
 
@@ -117,7 +117,7 @@ function CVodeSetMaxNonlinIters(cvode_mem, maxcor::Cint)
     ccall((:CVodeSetMaxNonlinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxcor)
 end
 
-function CVodeSetMaxNonlinIters(cvode_mem, maxcor::Int)
+function CVodeSetMaxNonlinIters(cvode_mem, maxcor)
     CVodeSetMaxNonlinIters(cvode_mem, convert(Cint, maxcor))
 end
 
@@ -125,7 +125,7 @@ function CVodeSetMaxConvFails(cvode_mem, maxncf::Cint)
     ccall((:CVodeSetMaxConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxncf)
 end
 
-function CVodeSetMaxConvFails(cvode_mem, maxncf::Int)
+function CVodeSetMaxConvFails(cvode_mem, maxncf)
     CVodeSetMaxConvFails(cvode_mem, convert(Cint, maxncf))
 end
 
@@ -294,7 +294,7 @@ function CVodeGetReturnFlagName(flag::Clong)
     ccall((:CVodeGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
-function CVodeGetReturnFlagName(flag::Int)
+function CVodeGetReturnFlagName(flag)
     CVodeGetReturnFlagName(convert(Clong, flag))
 end
 
@@ -337,7 +337,7 @@ function CVodeSetQuadErrCon(cvode_mem, errconQ::Cint)
     ccall((:CVodeSetQuadErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, errconQ)
 end
 
-function CVodeSetQuadErrCon(cvode_mem, errconQ::Int)
+function CVodeSetQuadErrCon(cvode_mem, errconQ)
     CVodeSetQuadErrCon(cvode_mem, convert(Cint, errconQ))
 end
 
@@ -432,7 +432,7 @@ function CVodeSetSensErrCon(cvode_mem, errconS::Cint)
     ccall((:CVodeSetSensErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, errconS)
 end
 
-function CVodeSetSensErrCon(cvode_mem, errconS::Int)
+function CVodeSetSensErrCon(cvode_mem, errconS)
     CVodeSetSensErrCon(cvode_mem, convert(Cint, errconS))
 end
 
@@ -566,7 +566,7 @@ function CVodeSetQuadSensErrCon(cvode_mem, errconQS::Cint)
     ccall((:CVodeSetQuadSensErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, errconQS)
 end
 
-function CVodeSetQuadSensErrCon(cvode_mem, errconQS::Int)
+function CVodeSetQuadSensErrCon(cvode_mem, errconQS)
     CVodeSetQuadSensErrCon(cvode_mem, convert(Cint, errconQS))
 end
 
@@ -624,7 +624,7 @@ function CVodeAdjInit(cvode_mem, steps::Clong, interp::Cint)
     ccall((:CVodeAdjInit, libsundials_cvodes), Cint, (CVODEMemPtr, Clong, Cint), cvode_mem, steps, interp)
 end
 
-function CVodeAdjInit(cvode_mem, steps::Int, interp::Int)
+function CVodeAdjInit(cvode_mem, steps, interp)
     CVodeAdjInit(cvode_mem, convert(Clong, steps), convert(Cint, interp))
 end
 
@@ -640,7 +640,7 @@ function CVodeCreateB(cvode_mem, lmmB::Cint, which)
     ccall((:CVodeCreateB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{Cint}), cvode_mem, lmmB, which)
 end
 
-function CVodeCreateB(cvode_mem, lmmB::Int, which)
+function CVodeCreateB(cvode_mem, lmmB, which)
     CVodeCreateB(cvode_mem, convert(Cint, lmmB), which)
 end
 
@@ -757,7 +757,7 @@ function CVodeSetUserDataB(cvode_mem, which::Cint, user_dataB)
     ccall((:CVodeSetUserDataB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Any), cvode_mem, which, user_dataB)
 end
 
-function CVodeSetUserDataB(cvode_mem, which::Int, user_dataB)
+function CVodeSetUserDataB(cvode_mem, which, user_dataB)
     CVodeSetUserDataB(cvode_mem, convert(Cint, which), user_dataB)
 end
 
@@ -765,7 +765,7 @@ function CVodeSetMaxOrdB(cvode_mem, which::Cint, maxordB::Cint)
     ccall((:CVodeSetMaxOrdB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint), cvode_mem, which, maxordB)
 end
 
-function CVodeSetMaxOrdB(cvode_mem, which::Int, maxordB)
+function CVodeSetMaxOrdB(cvode_mem, which, maxordB)
     CVodeSetMaxOrdB(cvode_mem, convert(Cint, which), convert(Cint, maxordB))
 end
 
@@ -773,7 +773,7 @@ function CVodeSetMaxNumStepsB(cvode_mem, which::Cint, mxstepsB::Clong)
     ccall((:CVodeSetMaxNumStepsB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Clong), cvode_mem, which, mxstepsB)
 end
 
-function CVodeSetMaxNumStepsB(cvode_mem, which::Int, mxstepsB::Int)
+function CVodeSetMaxNumStepsB(cvode_mem, whichs, mxstepsB)
     CVodeSetMaxNumStepsB(cvode_mem, convert(Cint, which), convert(Clong, mxstepsB))
 end
 
@@ -781,7 +781,7 @@ function CVodeSetStabLimDetB(cvode_mem, which::Cint, stldetB::Cint)
     ccall((:CVodeSetStabLimDetB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint), cvode_mem, which, stldetB)
 end
 
-function CVodeSetStabLimDetB(cvode_mem, which::Int, stldetB::Int)
+function CVodeSetStabLimDetB(cvode_mem, which, stldetB)
     CVodeSetStabLimDetB(cvode_mem, convert(Cint, which), convert(Cint, stldetB))
 end
 
@@ -789,7 +789,7 @@ function CVodeSetInitStepB(cvode_mem, which::Cint, hinB::realtype)
     ccall((:CVodeSetInitStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype), cvode_mem, which, hinB)
 end
 
-function CVodeSetInitStepB(cvode_mem, which::Int, hinB)
+function CVodeSetInitStepB(cvode_mem, which, hinB)
     CVodeSetInitStepB(cvode_mem, convert(Cint, which), hinB)
 end
 
@@ -797,7 +797,7 @@ function CVodeSetMinStepB(cvode_mem, which::Cint, hminB::realtype)
     ccall((:CVodeSetMinStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype), cvode_mem, which, hminB)
 end
 
-function CVodeSetMinStepB(cvode_mem, which::Int, hminB)
+function CVodeSetMinStepB(cvode_mem, which, hminB)
     CVodeSetMinStepB(cvode_mem, convert(Cint, which), hminB)
 end
 
@@ -813,7 +813,7 @@ function CVodeSetConstraintsB(cvode_mem, which::Cint, constraintsB::N_Vector)
     ccall((:CVodeSetConstraintsB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, N_Vector), cvode_mem, which, constraintsB)
 end
 
-function CVodeSetConstraintsB(cvode_mem, which::Int, constraintsB)
+function CVodeSetConstraintsB(cvode_mem, which, constraintsB)
     __constraintsB = convert(NVector, constraintsB)
     CVodeSetConstraintsB(cvode_mem, convert(Cint, which), convert(N_Vector, __constraintsB))
 end
@@ -822,7 +822,7 @@ function CVodeSetQuadErrConB(cvode_mem, which::Cint, errconQB::Cint)
     ccall((:CVodeSetQuadErrConB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint), cvode_mem, which, errconQB)
 end
 
-function CVodeSetQuadErrConB(cvode_mem, which::Int, errconQB)
+function CVodeSetQuadErrConB(cvode_mem, which, errconQB)
     CVodeSetQuadErrConB(cvode_mem, convert(Cint, which), convert(Cint, errconQB))
 end
 
@@ -830,7 +830,7 @@ function CVodeSetNonlinearSolverB(cvode_mem, which::Cint, NLS::SUNNonlinearSolve
     ccall((:CVodeSetNonlinearSolverB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, SUNNonlinearSolver), cvode_mem, which, NLS)
 end
 
-function CVodeSetNonlinearSolverB(cvode_mem, which::Int, NLS)
+function CVodeSetNonlinearSolverB(cvode_mem, which, NLS)
     CVodeSetNonlinearSolverB(cvode_mem, convert(Cint, which), NLS)
 end
 
@@ -838,7 +838,7 @@ function CVodeGetB(cvode_mem, which::Cint, tBret, yB::N_Vector)
     ccall((:CVodeGetB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector), cvode_mem, which, tBret, yB)
 end
 
-function CVodeGetB(cvode_mem, which::Int, tBret, yB)
+function CVodeGetB(cvode_mem, which, tBret, yB)
     __yB = convert(NVector, yB)
     CVodeGetB(cvode_mem, convert(Cint, which), tBret, convert(N_Vector, __yB))
 end
@@ -856,7 +856,7 @@ function CVodeGetAdjCVodeBmem(cvode_mem, which::Cint)
     ccall((:CVodeGetAdjCVodeBmem, libsundials_cvodes), Ptr{Cvoid}, (CVODEMemPtr, Cint), cvode_mem, which)
 end
 
-function CVodeGetAdjCVodeBmem(cvode_mem, which::Int)
+function CVodeGetAdjCVodeBmem(cvode_mem, which)
     CVodeGetAdjCVodeBmem(cvode_mem, convert(Cint, which))
 end
 
@@ -877,7 +877,7 @@ function CVodeGetAdjDataPointHermite(cvode_mem, which::Cint, t, y::N_Vector, yd:
     ccall((:CVodeGetAdjDataPointHermite, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), cvode_mem, which, t, y, yd)
 end
 
-function CVodeGetAdjDataPointHermite(cvode_mem, which::Int, t, y, yd)
+function CVodeGetAdjDataPointHermite(cvode_mem, which, t, y, yd)
     __y = convert(NVector, y)
     __yd = convert(NVector, yd)
     CVodeGetAdjDataPointHermite(cvode_mem, convert(Cint, which), t, convert(N_Vector, __y), convert(N_Vector, __yd))
@@ -887,7 +887,7 @@ function CVodeGetAdjDataPointPolynomial(cvode_mem, which::Cint, t, order, y::N_V
     ccall((:CVodeGetAdjDataPointPolynomial, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{realtype}, Ptr{Cint}, N_Vector), cvode_mem, which, t, order, y)
 end
 
-function CVodeGetAdjDataPointPolynomial(cvode_mem, which::Int, t, order, y)
+function CVodeGetAdjDataPointPolynomial(cvode_mem, which, t, order, y)
     __y = convert(NVector, y)
     CVodeGetAdjDataPointPolynomial(cvode_mem, convert(Cint, which), t, order, convert(N_Vector, __y))
 end
@@ -915,7 +915,7 @@ function CVBandPrecInitB(cvode_mem, which::Cint, nB::sunindextype, muB::sunindex
     ccall((:CVBandPrecInitB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, sunindextype, sunindextype, sunindextype), cvode_mem, which, nB, muB, mlB)
 end
 
-function CVBandPrecInitB(cvode_mem, which::Int, nB::sunindextype, muB::sunindextype, mlB::sunindextype)
+function CVBandPrecInitB(cvode_mem, which, nB::sunindextype, muB::sunindextype, mlB::sunindextype)
     CVBandPrecInitB(cvode_mem, convert(Cint, which), nB, muB, mlB)
 end
 # Julia wrapper for header: cvodes_bbdpre.h
@@ -942,7 +942,7 @@ function CVBBDPrecInitB(cvode_mem, which::Cint, NlocalB::sunindextype, mudqB::su
     ccall((:CVBBDPrecInitB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, CVLocalFnB, CVCommFnB), cvode_mem, which, NlocalB, mudqB, mldqB, mukeepB, mlkeepB, dqrelyB, glocB, cfnB)
 end
 
-function CVBBDPrecInitB(cvode_mem, which::Int, NlocalB::sunindextype, mudqB::sunindextype, mldqB::sunindextype, mukeepB::sunindextype, mlkeepB::sunindextype, dqrelyB::realtype, glocB::CVLocalFnB, cfnB::CVCommFnB)
+function CVBBDPrecInitB(cvode_mem, which, NlocalB::sunindextype, mudqB::sunindextype, mldqB::sunindextype, mukeepB::sunindextype, mlkeepB::sunindextype, dqrelyB::realtype, glocB::CVLocalFnB, cfnB::CVCommFnB)
     CVBBDPrecInitB(cvode_mem, convert(Cint, which), NlocalB, mudqB, mldqB, mukeepB, mlkeepB, dqrelyB, glocB, cfnB)
 end
 
@@ -950,7 +950,7 @@ function CVBBDPrecReInitB(cvode_mem, which::Cint, mudqB::sunindextype, mldqB::su
     ccall((:CVBBDPrecReInitB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, sunindextype, sunindextype, realtype), cvode_mem, which, mudqB, mldqB, dqrelyB)
 end
 
-function CVBBDPrecReInitB(cvode_mem, which::Int, mudqB::sunindextype, mldqB::sunindextype, dqrelyB::realtype)
+function CVBBDPrecReInitB(cvode_mem, which, mudqB::sunindextype, mldqB::sunindextype, dqrelyB::realtype)
     CVBBDPrecReInitB(cvode_mem, convert(Cint, which), mudqB, mldqB, dqrelyB)
 end
 # Julia wrapper for header: cvodes_diag.h
@@ -977,7 +977,7 @@ function CVDiagGetReturnFlagName(flag::Clong)
     ccall((:CVDiagGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
-function CVDiagGetReturnFlagName(flag::Int)
+function CVDiagGetReturnFlagName(flag)
     CVDiagGetReturnFlagName(convert(Clong, flag))
 end
 
@@ -986,7 +986,7 @@ function CVDiagB(cvode_mem, which::Cint)
     ccall((:CVDiagB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, which)
 end
 
-function CVDiagB(cvode_mem, which::Int)
+function CVDiagB(cvode_mem, which)
     CVDiagB(cvode_mem, convert(Cint, which))
 end
 # Julia wrapper for header: cvodes_direct.h
@@ -1021,7 +1021,7 @@ function CVDlsGetReturnFlagName(flag::Clong)
     ccall((:CVDlsGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
-function CVDlsGetReturnFlagName(flag::Int)
+function CVDlsGetReturnFlagName(flag)
     CVDlsGetReturnFlagName(convert(Clong, flag))
 end
 
@@ -1029,7 +1029,7 @@ function CVDlsSetLinearSolverB(cvode_mem, which::Cint, LS::SUNLinearSolver, A::S
     ccall((:CVDlsSetLinearSolverB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, SUNLinearSolver, SUNMatrix), cvode_mem, which, LS, A)
 end
 
-function CVDlsSetLinearSolverB(cvode_mem, which::Int, LS::SUNLinearSolver, A::SUNMatrix)
+function CVDlsSetLinearSolverB(cvode_mem, which, LS::SUNLinearSolver, A::SUNMatrix)
     CVDlsSetLinearSolverB(cvode_mem, convert(Cint, which), LS, A)
 end
 
@@ -1037,7 +1037,7 @@ function CVDlsSetJacFnB(cvode_mem, which::Cint, jacB::CVDlsJacFnB)
     ccall((:CVDlsSetJacFnB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVDlsJacFnB), cvode_mem, which, jacB)
 end
 
-function CVDlsSetJacFnB(cvode_mem, which::Int, jacB::CVDlsJacFnB)
+function CVDlsSetJacFnB(cvode_mem, which, jacB::CVDlsJacFnB)
     CVDlsSetJacFnB(cvode_mem, convert(Cint, which), jacB)
 end
 
@@ -1045,7 +1045,7 @@ function CVDlsSetJacFnBS(cvode_mem, which::Cint, jacBS::CVDlsJacFnBS)
     ccall((:CVDlsSetJacFnBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVDlsJacFnBS), cvode_mem, which, jacBS)
 end
 
-function CVDlsSetJacFnBS(cvode_mem, which::Int, jacBS::CVDlsJacFnBS)
+function CVDlsSetJacFnBS(cvode_mem, which, jacBS::CVDlsJacFnBS)
     CVDlsSetJacFnBS(cvode_mem, convert(Cint, which), jacBS)
 end
 # Julia wrapper for header: cvodes_ls.h
@@ -1064,7 +1064,7 @@ function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj::Clong)
     ccall((:CVodeSetMaxStepsBetweenJac, libsundials_cvodes), Cint, (CVODEMemPtr, Clong), cvode_mem, msbj)
 end
 
-function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj::Int)
+function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj)
     CVodeSetMaxStepsBetweenJac(cvode_mem, convert(Clong, msbj))
 end
 
@@ -1128,7 +1128,7 @@ function CVodeGetLinReturnFlagName(flag::Clong)
     ccall((:CVodeGetLinReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
-function CVodeGetLinReturnFlagName(flag::Int)
+function CVodeGetLinReturnFlagName(flag)
     CVodeGetLinReturnFlagName(convert(Clong, flag))
 end
 
@@ -1136,7 +1136,7 @@ function CVodeSetLinearSolverB(cvode_mem, which::Cint, LS::SUNLinearSolver, A::S
     ccall((:CVodeSetLinearSolverB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, SUNLinearSolver, SUNMatrix), cvode_mem, which, LS, A)
 end
 
-function CVodeSetLinearSolverB(cvode_mem, which::Int, LS::SUNLinearSolver, A::SUNMatrix)
+function CVodeSetLinearSolverB(cvode_mem, which, LS::SUNLinearSolver, A::SUNMatrix)
     CVodeSetLinearSolverB(cvode_mem, convert(Cint, which), LS, A)
 end
 
@@ -1144,7 +1144,7 @@ function CVodeSetJacFnB(cvode_mem, which::Cint, jacB::CVLsJacFnB)
     ccall((:CVodeSetJacFnB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacFnB), cvode_mem, which, jacB)
 end
 
-function CVodeSetJacFnB(cvode_mem, which::Int, jacB::CVLsJacFnB)
+function CVodeSetJacFnB(cvode_mem, which, jacB::CVLsJacFnB)
     CVodeSetJacFnB(cvode_mem, convert(Cint, which), jacB)
 end
 
@@ -1152,7 +1152,7 @@ function CVodeSetJacFnBS(cvode_mem, which::Cint, jacBS::CVLsJacFnBS)
     ccall((:CVodeSetJacFnBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacFnBS), cvode_mem, which, jacBS)
 end
 
-function CVodeSetJacFnBS(cvode_mem, which::Int, jacBS::CVLsJacFnBS)
+function CVodeSetJacFnBS(cvode_mem, which, jacBS::CVLsJacFnBS)
     CVodeSetJacFnBS(cvode_mem, convert(Cint, which), jacBS)
 end
 
@@ -1160,7 +1160,7 @@ function CVodeSetEpsLinB(cvode_mem, which::Cint, eplifacB::realtype)
     ccall((:CVodeSetEpsLinB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype), cvode_mem, which, eplifacB)
 end
 
-function CVodeSetEpsLinB(cvode_mem, which::Int, eplifacB::realtype)
+function CVodeSetEpsLinB(cvode_mem, which, eplifacB::realtype)
     CVodeSetEpsLinB(cvode_mem, convert(Cint, which), eplifacB)
 end
 
@@ -1168,7 +1168,7 @@ function CVodeSetPreconditionerB(cvode_mem, which::Cint, psetB::CVLsPrecSetupFnB
     ccall((:CVodeSetPreconditionerB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsPrecSetupFnB, CVLsPrecSolveFnB), cvode_mem, which, psetB, psolveB)
 end
 
-function CVodeSetPreconditionerB(cvode_mem, which::Int, psetB::CVLsPrecSetupFnB, psolveB::CVLsPrecSolveFnB)
+function CVodeSetPreconditionerB(cvode_mem, which, psetB::CVLsPrecSetupFnB, psolveB::CVLsPrecSolveFnB)
     CVodeSetPreconditionerB(cvode_mem, convert(Cint, which), psetB, psolveB)
 end
 
@@ -1176,7 +1176,7 @@ function CVodeSetPreconditionerBS(cvode_mem, which::Cint, psetBS::CVLsPrecSetupF
     ccall((:CVodeSetPreconditionerBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsPrecSetupFnBS, CVLsPrecSolveFnBS), cvode_mem, which, psetBS, psolveBS)
 end
 
-function CVodeSetPreconditionerBS(cvode_mem, which::Int, psetBS::CVLsPrecSetupFnBS, psolveBS::CVLsPrecSolveFnBS)
+function CVodeSetPreconditionerBS(cvode_mem, which, psetBS::CVLsPrecSetupFnBS, psolveBS::CVLsPrecSolveFnBS)
     CVodeSetPreconditionerBS(cvode_mem, convert(Cint, which), psetBS, psolveBS)
 end
 
@@ -1184,7 +1184,7 @@ function CVodeSetJacTimesB(cvode_mem, which::Cint, jtsetupB::CVLsJacTimesSetupFn
     ccall((:CVodeSetJacTimesB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacTimesSetupFnB, CVLsJacTimesVecFnB), cvode_mem, which, jtsetupB, jtimesB)
 end
 
-function CVodeSetJacTimesB(cvode_mem, which::Int, jtsetupB::CVLsJacTimesSetupFnB, jtimesB::CVLsJacTimesVecFnB)
+function CVodeSetJacTimesB(cvode_mem, which, jtsetupB::CVLsJacTimesSetupFnB, jtimesB::CVLsJacTimesVecFnB)
     CVodeSetJacTimesB(cvode_mem, convert(Cint, which), jtsetupB, jtimesB)
 end
 
@@ -1192,7 +1192,7 @@ function CVodeSetJacTimesBS(cvode_mem, which::Cint, jtsetupBS::CVLsJacTimesSetup
     ccall((:CVodeSetJacTimesBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacTimesSetupFnBS, CVLsJacTimesVecFnBS), cvode_mem, which, jtsetupBS, jtimesBS)
 end
 
-function CVodeSetJacTimesBS(cvode_mem, which::Int, jtsetupBS::CVLsJacTimesSetupFnBS, jtimesBS::CVLsJacTimesVecFnBS)
+function CVodeSetJacTimesBS(cvode_mem, which, jtsetupBS::CVLsJacTimesSetupFnBS, jtimesBS::CVLsJacTimesVecFnBS)
     CVodeSetJacTimesBS(cvode_mem, convert(Cint, which), jtsetupBS, jtimesBS)
 end
 
@@ -1200,7 +1200,7 @@ function CVodeSetLinSysFnB(cvode_mem, which::Cint, linsys::CVLsLinSysFnB)
     ccall((:CVodeSetLinSysFnB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsLinSysFnB), cvode_mem, which, linsys)
 end
 
-function CVodeSetLinSysFnB(cvode_mem, which::Int, linsys::CVLsLinSysFnB)
+function CVodeSetLinSysFnB(cvode_mem, which, linsys::CVLsLinSysFnB)
     CVodeSetLinSysFnB(cvode_mem, convert(Cint, which), linsys)
 end
 
@@ -1208,7 +1208,7 @@ function CVodeSetLinSysFnBS(cvode_mem, which::Cint, linsys::CVLsLinSysFnBS)
     ccall((:CVodeSetLinSysFnBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsLinSysFnBS), cvode_mem, which, linsys)
 end
 
-function CVodeSetLinSysFnBS(cvode_mem, which::Int, linsys::CVLsLinSysFnBS)
+function CVodeSetLinSysFnBS(cvode_mem, which, linsys::CVLsLinSysFnBS)
     CVodeSetLinSysFnBS(cvode_mem, convert(Cint, which), linsys)
 end
 # Julia wrapper for header: cvodes_spils.h
@@ -1275,7 +1275,7 @@ function CVSpilsSetLinearSolverB(cvode_mem, which::Cint, LS::SUNLinearSolver)
     ccall((:CVSpilsSetLinearSolverB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, SUNLinearSolver), cvode_mem, which, LS)
 end
 
-function CVSpilsSetLinearSolverB(cvode_mem, which::Int, LS::SUNLinearSolver)
+function CVSpilsSetLinearSolverB(cvode_mem, which, LS::SUNLinearSolver)
     CVSpilsSetLinearSolverB(cvode_mem, convert(Cint, which), LS)
 end
 
@@ -1283,7 +1283,7 @@ function CVSpilsSetEpsLinB(cvode_mem, which::Cint, eplifacB::realtype)
     ccall((:CVSpilsSetEpsLinB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype), cvode_mem, which, eplifacB)
 end
 
-function CVSpilsSetEpsLinB(cvode_mem, which::Int, eplifacB::realtype)
+function CVSpilsSetEpsLinB(cvode_mem, which, eplifacB::realtype)
     CVSpilsSetEpsLinB(cvode_mem, convert(Cint, which), eplifacB)
 end
 
@@ -1299,7 +1299,7 @@ function CVSpilsSetPreconditionerBS(cvode_mem, which::Cint, psetBS::CVSpilsPrecS
     ccall((:CVSpilsSetPreconditionerBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVSpilsPrecSetupFnBS, CVSpilsPrecSolveFnBS), cvode_mem, which, psetBS, psolveBS)
 end
 
-function CVSpilsSetPreconditionerBS(cvode_mem, which::Int, psetBS::CVSpilsPrecSetupFnBS, psolveBS::CVSpilsPrecSolveFnBS)
+function CVSpilsSetPreconditionerBS(cvode_mem, which, psetBS::CVSpilsPrecSetupFnBS, psolveBS::CVSpilsPrecSolveFnBS)
     CVSpilsSetPreconditionerBS(cvode_mem, convert(Cint, which), psetBS, psolveBS)
 end
 
@@ -1307,7 +1307,7 @@ function CVSpilsSetJacTimesB(cvode_mem, which::Cint, jtsetupB::CVSpilsJacTimesSe
     ccall((:CVSpilsSetJacTimesB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVSpilsJacTimesSetupFnB, CVSpilsJacTimesVecFnB), cvode_mem, which, jtsetupB, jtimesB)
 end
 
-function CVSpilsSetJacTimesB(cvode_mem, which::Int, jtsetupB::CVSpilsJacTimesSetupFnB, jtimesB::CVSpilsJacTimesVecFnB)
+function CVSpilsSetJacTimesB(cvode_mem, which, jtsetupB::CVSpilsJacTimesSetupFnB, jtimesB::CVSpilsJacTimesVecFnB)
     CVSpilsSetJacTimesB(cvode_mem, convert(Cint, which), jtsetupB, jtimesB)
 end
 
@@ -1315,6 +1315,6 @@ function CVSpilsSetJacTimesBS(cvode_mem, which::Cint, jtsetupBS::CVSpilsJacTimes
     ccall((:CVSpilsSetJacTimesBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVSpilsJacTimesSetupFnBS, CVSpilsJacTimesVecFnBS), cvode_mem, which, jtsetupBS, jtimesBS)
 end
 
-function CVSpilsSetJacTimesBS(cvode_mem, which::Int, jtsetupBS::CVSpilsJacTimesSetupFnBS, jtimesBS::CVSpilsJacTimesVecFnBS)
+function CVSpilsSetJacTimesBS(cvode_mem, which, jtsetupBS::CVSpilsJacTimesSetupFnBS, jtimesBS::CVSpilsJacTimesVecFnBS)
     CVSpilsSetJacTimesBS(cvode_mem, convert(Cint, which), jtsetupBS, jtimesBS)
 end

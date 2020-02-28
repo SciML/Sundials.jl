@@ -223,7 +223,7 @@ function N_VLinearCombination_ManyVector(nvec::Cint, c, V, z::N_Vector)
     ccall((:N_VLinearCombination_ManyVector, libsundials_nvecserial), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, V, z)
 end
 
-function N_VLinearCombination_ManyVector(nvec::Int, c, V, z)
+function N_VLinearCombination_ManyVector(nvec, c, V, z)
     __z = convert(NVector, z)
     N_VLinearCombination_ManyVector(convert(Cint, nvec), c, V, convert(N_Vector, __z))
 end
@@ -232,7 +232,7 @@ function N_VScaleAddMulti_ManyVector(nvec::Cint, a, x::N_Vector, Y, Z)
     ccall((:N_VScaleAddMulti_ManyVector, libsundials_nvecserial), Cint, (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z)
 end
 
-function N_VScaleAddMulti_ManyVector(nvec::Int, a, x, Y, Z)
+function N_VScaleAddMulti_ManyVector(nvec, a, x, Y, Z)
     __x = convert(NVector, x)
     N_VScaleAddMulti_ManyVector(convert(Cint, nvec), a, convert(N_Vector, __x), Y, Z)
 end
@@ -250,7 +250,7 @@ function N_VLinearSumVectorArray_ManyVector(nvec::Cint, a::realtype, X, b::realt
     ccall((:N_VLinearSumVectorArray_ManyVector, libsundials_nvecserial), Cint, (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, X, b, Y, Z)
 end
 
-function N_VLinearSumVectorArray_ManyVector(nvec::Int, a, X, b, Y, Z)
+function N_VLinearSumVectorArray_ManyVector(nvec, a, X, b, Y, Z)
     N_VLinearSumVectorArray_ManyVector(convert(Cint, nvec), a, X, b, Y, Z)
 end
 
@@ -258,7 +258,7 @@ function N_VScaleVectorArray_ManyVector(nvec::Cint, c::realtype, X, Z)
     ccall((:N_VScaleVectorArray_ManyVector, libsundials_nvecserial), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z)
 end
 
-function N_VScaleVectorArray_ManyVector(nvec::Int, c, X, Z)
+function N_VScaleVectorArray_ManyVector(nvec, c, X, Z)
     N_VScaleVectorArray_ManyVector(convert(Cint, nvec), c, X, Z)
 end
 
@@ -266,7 +266,7 @@ function N_VConstVectorArray_ManyVector(nvecs::Cint, c::realtype, Z)
     ccall((:N_VConstVectorArray_ManyVector, libsundials_nvecserial), Cint, (Cint, realtype, Ptr{N_Vector}), nvecs, c, Z)
 end
 
-function N_VConstVectorArray_ManyVector(nvecs::Int, c, Z)
+function N_VConstVectorArray_ManyVector(nvecs, c, Z)
     N_VConstVectorArray_ManyVector(convert(Cint, nvecs), c, Z)
 end
 
@@ -274,15 +274,15 @@ function N_VWrmsNormVectorArray_ManyVector(nvecs::Cint, X, W, nrm)
     ccall((:N_VWrmsNormVectorArray_ManyVector, libsundials_nvecserial), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvecs, X, W, nrm)
 end
 
-function N_VWrmsNormVectorArray_ManyVector(nvecs::Int, X, W, nrm)
+function N_VWrmsNormVectorArray_ManyVector(nvecs, X, W, nrm)
     N_VWrmsNormVectorArray_ManyVector(convert(Cint, nvecs), X, W, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray_ManyVector(nvec, X, W, id, nrm)
+function N_VWrmsNormMaskVectorArray_ManyVector(nvec, X, W, id::N_Vector, nrm)
     ccall((:N_VWrmsNormMaskVectorArray_ManyVector, libsundials_nvecserial), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvec, X, W, id, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray_ManyVector(nvec::Int, X, W, id, nrm)
+function N_VWrmsNormMaskVectorArray_ManyVector(nvec, X, W, id, nrm)
     __id = convert(NVector, id)
     N_VWrmsNormMaskVectorArray_ManyVector(convert(Cint, nvec), X, W, convert(N_Vector, __id), nrm)
 end
@@ -380,7 +380,7 @@ function N_VEnableFusedOps_ManyVector(v::N_Vector, tf::Cint)
     ccall((:N_VEnableFusedOps_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableFusedOps_ManyVector(v, tf::Int)
+function N_VEnableFusedOps_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableFusedOps_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
@@ -389,7 +389,7 @@ function N_VEnableLinearCombination_ManyVector(v::N_Vector, tf::Cint)
     ccall((:N_VEnableLinearCombination_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableLinearCombination_ManyVector(v, tf::Int)
+function N_VEnableLinearCombination_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableLinearCombination_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
@@ -398,7 +398,7 @@ function N_VEnableScaleAddMulti_ManyVector(v::N_Vector, tf::Cint)
     ccall((:N_VEnableScaleAddMulti_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableScaleAddMulti_ManyVector(v, tf::Int)
+function N_VEnableScaleAddMulti_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableScaleAddMulti_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
@@ -407,7 +407,7 @@ function N_VEnableDotProdMulti_ManyVector(v::N_Vector, tf::Cint)
     ccall((:N_VEnableDotProdMulti_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableDotProdMulti_ManyVector(v, tf::Int)
+function N_VEnableDotProdMulti_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableDotProdMulti_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
@@ -416,43 +416,43 @@ function N_VEnableLinearSumVectorArray_ManyVector(v::N_Vector, tf::Cint)
     ccall((:N_VEnableLinearSumVectorArray_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableLinearSumVectorArray_ManyVector(v, tf::Int)
+function N_VEnableLinearSumVectorArray_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableLinearSumVectorArray_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
 
-function N_VEnableScaleVectorArray_ManyVector(v::N_Vector, tf::Int)
+function N_VEnableScaleVectorArray_ManyVector(v::N_Vector, tf)
     ccall((:N_VEnableScaleVectorArray_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableScaleVectorArray_ManyVector(v, tf::Int)
+function N_VEnableScaleVectorArray_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableScaleVectorArray_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
 
-function N_VEnableConstVectorArray_ManyVector(v::N_Vector, tf::Int)
+function N_VEnableConstVectorArray_ManyVector(v::N_Vector, tf)
     ccall((:N_VEnableConstVectorArray_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableConstVectorArray_ManyVector(v, tf::Int)
+function N_VEnableConstVectorArray_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableConstVectorArray_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
 
-function N_VEnableWrmsNormVectorArray_ManyVector(v::N_Vector, tf::Int)
+function N_VEnableWrmsNormVectorArray_ManyVector(v::N_Vector, tf)
     ccall((:N_VEnableWrmsNormVectorArray_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableWrmsNormVectorArray_ManyVector(v, tf::Int)
+function N_VEnableWrmsNormVectorArray_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableWrmsNormVectorArray_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end
 
-function N_VEnableWrmsNormMaskVectorArray_ManyVector(v::N_Vector, tf::Int)
+function N_VEnableWrmsNormMaskVectorArray_ManyVector(v::N_Vector, tf)
     ccall((:N_VEnableWrmsNormMaskVectorArray_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint), v, tf)
 end
 
-function N_VEnableWrmsNormMaskVectorArray_ManyVector(v, tf::Int)
+function N_VEnableWrmsNormMaskVectorArray_ManyVector(v, tf)
     __v = convert(NVector, v)
     N_VEnableWrmsNormMaskVectorArray_ManyVector(convert(N_Vector, __v), convert(Cint, tf))
 end

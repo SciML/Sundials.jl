@@ -120,7 +120,7 @@ function SUNRpowerI(base::realtype, exponent::Cint)
     ccall((:SUNRpowerI, libsundials_sundials), realtype, (realtype, Cint), base, exponent)
 end
 
-function SUNRpowerI(base::realtype, exponent::Int)
+function SUNRpowerI(base::realtype, exponent)
     SUNRpowerI(base, convert(Cint, exponent))
 end
 
@@ -128,7 +128,7 @@ function SUNRpowerR(base::realtype, exponent::Cint)
     ccall((:SUNRpowerR, libsundials_sundials), realtype, (realtype, realtype), base, exponent)
 end
 
-function SUNRpowerR(base::realtype, exponent::Int)
+function SUNRpowerR(base::realtype, exponent)
     SUNRpowerR(base, convert(Cint, exponent))
 end
 # Julia wrapper for header: sundials_matrix.h
@@ -464,7 +464,7 @@ function N_VAddConst(x, b, z)
     N_VAddConst(convert(N_Vector, x), b, convert(N_Vector, z))
 end
 
-function N_VDotProd(x, y)
+function N_VDotProd(x::N_Vector, y::N_Vector)
     ccall((:N_VDotProd, libsundials_sundials), realtype, (N_Vector, N_Vector), x, y)
 end
 
@@ -577,7 +577,7 @@ function N_VLinearCombination(nvec::Cint, c, X, z)
     ccall((:N_VLinearCombination, libsundials_sundials), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, X, z)
 end
 
-function N_VLinearCombination(nvec::Int, c, X, z)
+function N_VLinearCombination(nvec, c, X, z)
     N_VLinearCombination(convert(Cint, nvec), c, X, z)
 end
 
@@ -585,7 +585,7 @@ function N_VScaleAddMulti(nvec::Cint, a, x::N_Vector, Y, Z)
     ccall((:N_VScaleAddMulti, libsundials_sundials), Cint, (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z)
 end
 
-function N_VScaleAddMulti(nvec::Int, a, x, Y, Z)
+function N_VScaleAddMulti(nvec, a, x, Y, Z)
     __x = convert(NVector, x)
     N_VScaleAddMulti(convert(Cint, nvec), a, convert(N_Vector, __x), Y, Z)
 end
@@ -594,7 +594,7 @@ function N_VDotProdMulti(nvec::Cint, x::N_Vector, Y, dotprods)
     ccall((:N_VDotProdMulti, libsundials_sundials), Cint, (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods)
 end
 
-function N_VDotProdMulti(nvec::Int, x, Y, dotprods)
+function N_VDotProdMulti(nvec, x, Y, dotprods)
     __x = convert(NVector, x)
     N_VDotProdMulti(convert(Cint, nvec), convert(N_Vector, __x), Y, dotprods)
 end
@@ -603,7 +603,7 @@ function N_VLinearSumVectorArray(nvec::Cint, a::realtype, X, b::realtype, Y, Z)
     ccall((:N_VLinearSumVectorArray, libsundials_sundials), Cint, (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, X, b, Y, Z)
 end
 
-function N_VLinearSumVectorArray(nvec::Int, a, X, b, Y, Z)
+function N_VLinearSumVectorArray(nvec, a, X, b, Y, Z)
     N_VLinearSumVectorArray(convert(Cint, nvec), a, X, b, Y, Z)
 end
 
@@ -611,7 +611,7 @@ function N_VScaleVectorArray(nvec::Cint, c, X, Z)
     ccall((:N_VScaleVectorArray, libsundials_sundials), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z)
 end
 
-function N_VScaleVectorArray(nvec::Int, c, X, Z)
+function N_VScaleVectorArray(nvec, c, X, Z)
     N_VScaleVectorArray(convert(Cint, nvec), c, X, Z)
 end
 
@@ -619,7 +619,7 @@ function N_VConstVectorArray(nvec::Cint, c::realtype, Z)
     ccall((:N_VConstVectorArray, libsundials_sundials), Cint, (Cint, realtype, Ptr{N_Vector}), nvec, c, Z)
 end
 
-function N_VConstVectorArray(nvec::Int, c, Z)
+function N_VConstVectorArray(nvec, c, Z)
     N_VConstVectorArray(convert(Cint, nvec), c, Z)
 end
 
@@ -627,7 +627,7 @@ function N_VWrmsNormVectorArray(nvec::Cint, X, W, nrm)
     ccall((:N_VWrmsNormVectorArray, libsundials_sundials), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvec, X, W, nrm)
 end
 
-function N_VWrmsNormVectorArray(nvec::Int, X, W, nrm)
+function N_VWrmsNormVectorArray(nvec, X, W, nrm)
     N_VWrmsNormVectorArray(convert(Cint, nvec), X, W, nrm)
 end
 
@@ -635,7 +635,7 @@ function N_VWrmsNormMaskVectorArray(nvec::Cint, X, W, id::N_Vector, nrm)
     ccall((:N_VWrmsNormMaskVectorArray, libsundials_sundials), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvec, X, W, id, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray(nvec::Int, X, W, id, nrm)
+function N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm)
     __id = convert(NVector, id)
     N_VWrmsNormMaskVectorArray(convert(Cint, nvec), X, W, convert(N_Vector, __id), nrm)
 end
@@ -644,7 +644,7 @@ function N_VScaleAddMultiVectorArray(nvec::Cint, nsum::Cint, a, X, Y, Z)
     ccall((:N_VScaleAddMultiVectorArray, libsundials_sundials), Cint, (Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}}, Ptr{Ptr{N_Vector}}), nvec, nsum, a, X, Y, Z)
 end
 
-function N_VScaleAddMultiVectorArray(nvec::Int, nsum::Int, a, X, Y, Z)
+function N_VScaleAddMultiVectorArray(nvec, nsum, a, X, Y, Z)
     N_VScaleAddMultiVectorArray(convert(Cint, nvec), convert(Cint, nsum), a, X, Y, Z)
 end
 
@@ -652,7 +652,7 @@ function N_VLinearCombinationVectorArray(nvec::Cint, nsum::Cint, c, X, Z)
     ccall((:N_VLinearCombinationVectorArray, libsundials_sundials), Cint, (Cint, Cint, Ptr{realtype}, Ptr{Ptr{N_Vector}}, Ptr{N_Vector}), nvec, nsum, c, X, Z)
 end
 
-function N_VLinearCombinationVectorArray(nvec::Int, nsum::Int, c, X, Z)
+function N_VLinearCombinationVectorArray(nvec, nsum, c, X, Z)
     N_VLinearCombinationVectorArray(convert(Cint, nvec), convert(Cint, nsum), c, X, Z)
 end
 
@@ -684,7 +684,7 @@ function N_VMinLocal(x)
     N_VMinLocal(convert(N_Vector, __x))
 end
 
-function N_VL1NormLocal(x)
+function N_VL1NormLocal(x::N_Vector)
     ccall((:N_VL1NormLocal, libsundials_sundials), realtype, (N_Vector,), x)
 end
 
@@ -749,7 +749,7 @@ function N_VNewVectorArray(count::Cint)
     ccall((:N_VNewVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint,), count)
 end
 
-function N_VNewVectorArray(count::Int)
+function N_VNewVectorArray(count)
     N_VNewVectorArray(convert(Cint, count))
 end
 
@@ -757,7 +757,7 @@ function N_VCloneEmptyVectorArray(count::Cint, w::N_Vector)
     ccall((:N_VCloneEmptyVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint, N_Vector), count, w)
 end
 
-function N_VCloneEmptyVectorArray(count::Int, w)
+function N_VCloneEmptyVectorArray(count, w)
     __w = convert(NVector, w)
     N_VCloneEmptyVectorArray(convert(Cint, count), convert(N_Vector, __w))
 end
@@ -766,7 +766,7 @@ function N_VCloneVectorArray(count::Cint, w::N_Vector)
     ccall((:N_VCloneVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint, N_Vector), count, w)
 end
 
-function N_VCloneVectorArray(count::Int, w)
+function N_VCloneVectorArray(count, w)
     __w = convert(NVector, w)
     N_VCloneVectorArray(convert(Cint, count), convert(N_Vector, __w))
 end
@@ -775,7 +775,7 @@ function N_VDestroyVectorArray(vs, count::Cint)
     ccall((:N_VDestroyVectorArray, libsundials_sundials), Cvoid, (Ptr{N_Vector}, Cint), vs, count)
 end
 
-function N_VDestroyVectorArray(vs, count::Int)
+function N_VDestroyVectorArray(vs, count)
     N_VDestroyVectorArray(vs, convert(Cint, count))
 end
 
@@ -783,7 +783,7 @@ function N_VGetVecAtIndexVectorArray(vs, index::Cint)
     ccall((:N_VGetVecAtIndexVectorArray, libsundials_sundials), N_Vector, (Ptr{N_Vector}, Cint), vs, index)
 end
 
-function N_VGetVecAtIndexVectorArray(vs, index::Int)
+function N_VGetVecAtIndexVectorArray(vs, index)
     N_VGetVecAtIndexVectorArray(vs, convert(Cint, index))
 end
 
@@ -791,7 +791,7 @@ function N_VSetVecAtIndexVectorArray(vs, index::Cint, w::N_Vector)
     ccall((:N_VSetVecAtIndexVectorArray, libsundials_sundials), Cvoid, (Ptr{N_Vector}, Cint, N_Vector), vs, index, w)
 end
 
-function N_VSetVecAtIndexVectorArray(vs, index::Int, w)
+function N_VSetVecAtIndexVectorArray(vs, index, w)
     __w = convert(NVector, w)
     N_VSetVecAtIndexVectorArray(vs, convert(Cint, index, convert(N_Vector, __w)))
 end
@@ -806,7 +806,7 @@ function SUNDIALSGetVersion(version, len::Cint)
     ccall((:SUNDIALSGetVersion, libsundials_sundials), Cint, (Cstring, Cint), version, len)
 end
 
-function SUNDIALSGetVersion(version, len::Int)
+function SUNDIALSGetVersion(version, len)
     SUNDIALSGetVersion(version, convert(Cint, len))
 end
 
@@ -814,6 +814,6 @@ function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Cint)
     ccall((:SUNDIALSGetVersionNumber, libsundials_sundials), Cint, (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cstring, Cint), major, minor, patch, label, len)
 end
 
-function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Int)
+function SUNDIALSGetVersionNumber(major, minor, patch, label, len)
     SUNDIALSGetVersionNumber(major, minor, patch, label, convert(Cint, len))
 end
