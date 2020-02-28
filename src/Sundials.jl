@@ -16,12 +16,6 @@ function __init__()
     global warnida  = union(warnlist, Set((:dtmin,)))
 end
 
-#const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
-#if isfile(depsfile)
-#    include(depsfile)
-#else
-#    error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
-#end
 using Sundials_jll
 
 export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
@@ -44,17 +38,11 @@ include("wrapped_api/nvector.jl")
 include("wrapped_api/libsundials.jl")
 include("wrapped_api/sunmatrix.jl")
 include("wrapped_api/sunlinsol.jl")
-if @isdefined libsundials_cvodes
-    include("wrapped_api/cvodes.jl")
-else
-    include("wrapped_api/cvode.jl")
-end
+include("wrapped_api/cvodes.jl")
+include("wrapped_api/cvode.jl")
 include("wrapped_api/arkode.jl")
-if @isdefined libsundials_idas
-    include("wrapped_api/idas.jl")
-else
-    include("wrapped_api/ida.jl")
-end
+include("wrapped_api/idas.jl")
+include("wrapped_api/ida.jl")
 include("wrapped_api/kinsol.jl")
 
 include("simple.jl")
