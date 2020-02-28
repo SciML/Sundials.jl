@@ -211,7 +211,7 @@ end
 function IDASolve(ida_mem, tout::realtype, tret, yret, ypret, itask::Int)
     __yret = convert(NVector, yret)
     __ypret = convert(NVector, ypret)
-    IDASolve(ida_mem, tout::realtype, tret, convert(N_Vector, yret), convert(N_Vector, ypret), convert(Cint, itask))
+    IDASolve(ida_mem, tout::realtype, tret, convert(N_Vector, __yret), convert(N_Vector, __ypret), convert(Cint, itask))
 end
 
 function IDAComputeY(ida_mem, ycor::N_Vector, y::N_Vector)
@@ -221,18 +221,28 @@ end
 function IDAComputeY(ida_mem, ycor, y)
     __ycor = convert(NVector, ycor)
     __y = convert(NVector, y)
-    IDAComputeY(ida_mem, convert(N_Vector, ycor), convert(N_Vector, y))
+    IDAComputeY(ida_mem, convert(N_Vector, __ycor), convert(N_Vector, __y))
 end
 
-
-
-function IDAComputeYp(ida_mem, ycor, yp)
+function IDAComputeYp(ida_mem, ycor::N_Vector, yp::N_Vector)
     ccall((:IDAComputeYp, libsundials_ida), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, ycor, yp)
 end
 
-function IDAGetDky(ida_mem, t, k, dky)
-    ccall((:IDAGetDky, libsundials_ida), Cint, (IDAMemPtr, realtype, Cint, N_Vector), ida_mem, t, k, dky)
+function IDAComputeYp(ida_mem, ycor, yp)
+    __ycor = convert(NVector, ycor)
+    __yp = convert(NVector, yp)
+    IDAComputeY(ida_mem, convert(N_Vector, __ycor), convert(N_Vector, __y))
 end
+
+function IDAGetDky(ida_mem, t::realtype, k::Cint, dky::N_Vector)
+    ccall((:IDAGetDky, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint, N_Vector), ida_mem, t, k, dky)
+end
+
+function IDAGetDky(ida_mem, t, k::Int, dky)
+    __dky = convert(NVector, dky)
+    IDAGetDky(ida_mem, t, convert(Cint, k), convert(N_Vector, __dky))
+end
+
 
 function IDAGetWorkSpace(ida_mem, lenrw, leniw)
     ccall((:IDAGetWorkSpace, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrw, leniw)
@@ -258,8 +268,14 @@ function IDAGetNumBacktrackOps(ida_mem, nbacktr)
     ccall((:IDAGetNumBacktrackOps, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nbacktr)
 end
 
+function IDAGetConsistentIC(ida_mem, yy0_mod::N_Vector, yp0_mod::N_Vector)
+    ccall((:IDAGetConsistentIC, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, yy0_mod, yp0_mod)
+end
+
 function IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod)
-    ccall((:IDAGetConsistentIC, libsundials_ida), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, yy0_mod, yp0_mod)
+    __yy0_mod = convert(NVector, yy0_mod)
+    __yp0_mod = convert(NVector, yp0_mod)
+    IDAGetConsistentIC(ida_mem, convert(N_Vector, __yy0_mod), convert(N_Vector, __yp0_mod))
 end
 
 function IDAGetLastOrder(ida_mem, klast)
@@ -302,12 +318,22 @@ function IDAGetTolScaleFactor(ida_mem, tolsfact)
     ccall((:IDAGetTolScaleFactor, libsundials_ida), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, tolsfact)
 end
 
+function IDAGetErrWeights(ida_mem, eweight::N_Vector)
+    ccall((:IDAGetErrWeights, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, eweight)
+end
+
 function IDAGetErrWeights(ida_mem, eweight)
-    ccall((:IDAGetErrWeights, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, eweight)
+    __eweight = convert(NVector, eweight)
+    IDAGetErrWeights(ida_mem, convert(N_Vector, __eweight))
+end
+
+function IDAGetEstLocalErrors(ida_mem, ele::N_Vector)
+    ccall((:IDAGetEstLocalErrors, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, ele)
 end
 
 function IDAGetEstLocalErrors(ida_mem, ele)
-    ccall((:IDAGetEstLocalErrors, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, ele)
+    __ele = convert(NVector, ele)
+    IDAGetEstLocalErrors(ida_mem, convert(N_Vector, __ele))
 end
 
 function IDAGetNumGEvals(ida_mem, ngevals)
@@ -334,8 +360,12 @@ function IDAGetNonlinSolvStats(ida_mem, nniters, nncfails)
     ccall((:IDAGetNonlinSolvStats, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nniters, nncfails)
 end
 
-function IDAGetReturnFlagName(flag)
+function IDAGetReturnFlagName(flag::Clong)
     ccall((:IDAGetReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
+end
+
+function IDAGetReturnFlagName(flag::Int)
+    IDAGetReturnFlagName(convert(Clong, flag))
 end
 
 function IDAFree(ida_mem)
@@ -345,11 +375,11 @@ end
 # Automatically generated using Clang.jl
 
 
-function IDABBDPrecInit(ida_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_yy, Gres, Gcomm)
+function IDABBDPrecInit(ida_mem, Nlocal::sunindextype, mudq::sunindextype, mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype, dq_rel_yy::realtype, Gres::IDABBDLocalFn, Gcomm::IDABBDCommFn)
     ccall((:IDABBDPrecInit, libsundials_ida), Cint, (IDAMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, IDABBDLocalFn, IDABBDCommFn), ida_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_yy, Gres, Gcomm)
 end
 
-function IDABBDPrecReInit(ida_mem, mudq, mldq, dq_rel_yy)
+function IDABBDPrecReInit(ida_mem, mudq::sunindextype, mldq::sunindextype, dq_rel_yy::realtype)
     ccall((:IDABBDPrecReInit, libsundials_ida), Cint, (IDAMemPtr, sunindextype, sunindextype, realtype), ida_mem, mudq, mldq, dq_rel_yy)
 end
 
@@ -364,12 +394,12 @@ end
 # Automatically generated using Clang.jl
 
 
-function IDADlsSetLinearSolver(ida_mem, LS, A)
-    ccall((:IDADlsSetLinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
+function IDADlsSetLinearSolver(ida_mem, LS::SUNLinearSolver, A::SUNMatrix)
+    ccall((:IDADlsSetLinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
 end
 
-function IDADlsSetJacFn(ida_mem, jac)
-    ccall((:IDADlsSetJacFn, libsundials_ida), Cint, (IDAMemPtr, IDADlsJacFn), ida_mem, jac)
+function IDADlsSetJacFn(ida_mem, jac::IDADlsJacFn)
+    ccall((:IDADlsSetJacFn, libsundials_idas), Cint, (IDAMemPtr, IDADlsJacFn), ida_mem, jac)
 end
 
 function IDADlsGetWorkSpace(ida_mem, lenrwLS, leniwLS)
@@ -395,27 +425,27 @@ end
 # Automatically generated using Clang.jl
 
 
-function IDASetLinearSolver(ida_mem, LS, A)
+function IDASetLinearSolver(ida_mem, LS::SUNLinearSolver, A::SUNMatrix)
     ccall((:IDASetLinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
 end
 
-function IDASetJacFn(ida_mem, jac)
+function IDASetJacFn(ida_mem, jac::IDADlsJacFn)
     ccall((:IDASetJacFn, libsundials_ida), Cint, (IDAMemPtr, IDALsJacFn), ida_mem, jac)
 end
 
-function IDASetPreconditioner(ida_mem, pset, psolve)
+function IDASetPreconditioner(ida_mem, pset::IDALsPrecSetupFn, psolve::IDALsPrecSolveFn)
     ccall((:IDASetPreconditioner, libsundials_ida), Cint, (IDAMemPtr, IDALsPrecSetupFn, IDALsPrecSolveFn), ida_mem, pset, psolve)
 end
 
-function IDASetJacTimes(ida_mem, jtsetup, jtimes)
+function IDASetJacTimes(ida_mem, jtsetup::IDALsJacTimesSetupFn, jtimes::IDALsJacTimesVecFn)
     ccall((:IDASetJacTimes, libsundials_ida), Cint, (IDAMemPtr, IDALsJacTimesSetupFn, IDALsJacTimesVecFn), ida_mem, jtsetup, jtimes)
 end
 
-function IDASetEpsLin(ida_mem, eplifac)
+function IDASetEpsLin(ida_mem, eplifac::realtype)
     ccall((:IDASetEpsLin, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
 end
 
-function IDASetIncrementFactor(ida_mem, dqincfac)
+function IDASetIncrementFactor(ida_mem, dqincfac::realtype)
     ccall((:IDASetIncrementFactor, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, dqincfac)
 end
 
@@ -459,30 +489,35 @@ function IDAGetLastLinFlag(ida_mem, flag)
     ccall((:IDAGetLastLinFlag, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
 end
 
-function IDAGetLinReturnFlagName(flag)
+function IDAGetLinReturnFlagName(flag::Clong)
     ccall((:IDAGetLinReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
 end
+
+function IDAGetLinReturnFlagName(flag::Int)
+    IDAGetLinReturnFlagName(convert(Clong,flag))
+end
+
 # Julia wrapper for header: ida_spils.h
 # Automatically generated using Clang.jl
 
 
-function IDASpilsSetLinearSolver(ida_mem, LS)
+function IDASpilsSetLinearSolver(ida_mem, LS::SUNLinearSolver)
     ccall((:IDASpilsSetLinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNLinearSolver), ida_mem, LS)
 end
 
-function IDASpilsSetPreconditioner(ida_mem, pset, psolve)
+function IDASpilsSetPreconditioner(ida_mem, pset::IDASpilsPrecSetupFn, psolve::IDASpilsPrecSolveFn)
     ccall((:IDASpilsSetPreconditioner, libsundials_ida), Cint, (IDAMemPtr, IDASpilsPrecSetupFn, IDASpilsPrecSolveFn), ida_mem, pset, psolve)
 end
 
-function IDASpilsSetJacTimes(ida_mem, jtsetup, jtimes)
+function IDASpilsSetJacTimes(ida_mem, jtsetup::IDASpilsJacTimesSetupFn, jtimes::IDASpilsJacTimesVecFn)
     ccall((:IDASpilsSetJacTimes, libsundials_ida), Cint, (IDAMemPtr, IDASpilsJacTimesSetupFn, IDASpilsJacTimesVecFn), ida_mem, jtsetup, jtimes)
 end
 
-function IDASpilsSetEpsLin(ida_mem, eplifac)
+function IDASpilsSetEpsLin(ida_mem, eplifac::realtype)
     ccall((:IDASpilsSetEpsLin, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
 end
 
-function IDASpilsSetIncrementFactor(ida_mem, dqincfac)
+function IDASpilsSetIncrementFactor(ida_mem, dqincfac::realtype)
     ccall((:IDASpilsSetIncrementFactor, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, dqincfac)
 end
 
@@ -522,6 +557,10 @@ function IDASpilsGetLastFlag(ida_mem, flag)
     ccall((:IDASpilsGetLastFlag, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
 end
 
-function IDASpilsGetReturnFlagName(flag)
+function IDASpilsGetReturnFlagName(flag::Clong)
     ccall((:IDASpilsGetReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
+end
+
+function IDASpilsGetReturnFlagName(flag::Int)
+    IDASpilsGetReturnFlagName(convert(Clong, flag))
 end
