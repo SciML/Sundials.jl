@@ -147,7 +147,7 @@ DiffEqBase.check_error(integrator::AbstractSundialsIntegrator) =
     interpret_sundials_retcode(integrator.flag)
 
 DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
-# No-op postamble! to make check_error! (and hence iterator interface
+# No-op postamble! to make DiffEqBase.check_error! (and hence iterator interface
 # implemented in DiffEqBase) work.
 
 ### Iterator interface
@@ -163,9 +163,9 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
         end
         solver_step(integrator,tstop)
         integrator.t = first(integrator.tout)
-        check_error!(integrator) != :Success && return
+        DiffEqBase.check_error!(integrator) != :Success && return
         handle_callbacks!(integrator)
-        check_error!(integrator) != :Success && return
+        DiffEqBase.check_error!(integrator) != :Success && return
     end
  else
       integrator.tprev = integrator.t
@@ -180,9 +180,9 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
           solver_step(integrator,1.0) # fake tstop
       end
       integrator.t = first(integrator.tout)
-      check_error!(integrator) != :Success && return
+      DiffEqBase.check_error!(integrator) != :Success && return
       handle_callbacks!(integrator)
-      check_error!(integrator) != :Success && return
+      DiffEqBase.check_error!(integrator) != :Success && return
   end
   handle_tstop!(integrator)
   nothing

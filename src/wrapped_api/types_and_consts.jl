@@ -146,7 +146,7 @@ const ARKLsMassPrecSetupFn = Ptr{Cvoid}
 const ARKLsMassPrecSolveFn = Ptr{Cvoid}
 const DEFAULT_MRI_TABLE_3 = KNOTH_WOLKE_3_3
 
-@cenum MRISTEP_ID::UInt32 begin
+CEnum.@cenum MRISTEP_ID::UInt32 begin
     MRISTEP_ARKSTEP = 0
 end
 
@@ -665,13 +665,13 @@ const SUNLS_PACKAGE_FAIL_REC = Cint(806)
 const SUNLS_QRFACT_FAIL = Cint(807)
 const SUNLS_LUFACT_FAIL = Cint(808)
 
-@cenum SUNLinearSolver_Type::UInt32 begin
+CEnum.@cenum SUNLinearSolver_Type::UInt32 begin
     SUNLINEARSOLVER_DIRECT = 0
     SUNLINEARSOLVER_ITERATIVE = 1
     SUNLINEARSOLVER_MATRIX_ITERATIVE = 2
 end
 
-@cenum SUNLinearSolver_ID::UInt32 begin
+CEnum.@cenum SUNLinearSolver_ID::UInt32 begin
     SUNLINEARSOLVER_BAND = 0
     SUNLINEARSOLVER_DENSE = 1
     SUNLINEARSOLVER_KLU = 2
@@ -729,7 +729,7 @@ const SUNMAT_MEM_FAIL = Cint(-702)
 const SUNMAT_OPERATION_FAIL = Cint(-703)
 const SUNMAT_MATVEC_SETUP_REQUIRED = Cint(-704)
 
-@cenum SUNMatrix_ID::UInt32 begin
+CEnum.@cenum SUNMatrix_ID::UInt32 begin
     SUNMATRIX_DENSE = 0
     SUNMATRIX_BAND = 1
     SUNMATRIX_SPARSE = 2
@@ -801,12 +801,12 @@ const SUNNonlinSolLSetupFn = Ptr{Cvoid}
 const SUNNonlinSolLSolveFn = Ptr{Cvoid}
 const SUNNonlinSolConvTestFn = Ptr{Cvoid}
 
-@cenum SUNNonlinearSolver_Type::UInt32 begin
+CEnum.@cenum SUNNonlinearSolver_Type::UInt32 begin
     SUNNONLINEARSOLVER_ROOTFIND = 0
     SUNNONLINEARSOLVER_FIXEDPOINT = 1
 end
 
-@cenum N_Vector_ID::UInt32 begin
+CEnum.@cenum N_Vector_ID::UInt32 begin
     SUNDIALS_NVEC_SERIAL = 0
     SUNDIALS_NVEC_PARALLEL = 1
     SUNDIALS_NVEC_OPENMP = 2

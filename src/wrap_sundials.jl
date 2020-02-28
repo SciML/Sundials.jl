@@ -6,7 +6,7 @@
 # include(joinpath(Pkg.dir("Sundials"), "src", "wrap_sundials.jl"));
 
 using Clang
-#using Sundials-5_jll.jl
+using Sundials_jll
 
 # `outpath` specifies, where the julian wrappers would be generated.
 # If the generated .jl files are ok, they have to be copied to the "src" folder
