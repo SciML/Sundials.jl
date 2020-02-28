@@ -54,15 +54,21 @@ struct DenseMatrix <: SundialsMatrix end
 struct BandMatrix <: SundialsMatrix end
 struct SparseMatrix <: SundialsMatrix end
 
-abstract type SundialsLinSol end
-struct Dense <: SundialsLinSol end
-struct Band <: SundialsLinSol end
-struct SPGMR <: SundialsLinSol end
-struct SPFGMR <: SundialsLinSol end
-struct SPBCGS <: SundialsLinSol end
-struct PCG <: SundialsLinSol end
-struct PTFQMR <: SundialsLinSol end
-struct KLU <: SundialsLinSol end
+abstract type SundialsLinearSolver end
+struct Dense <: SundialsLinearSolver end
+struct Band <: SundialsLinearSolver end
+struct SPGMR <: SundialsLinearSolver end
+struct SPFGMR <: SundialsLinearSolver end
+struct SPBCGS <: SundialsLinearSolver end
+struct PCG <: SundialsLinearSolver end
+struct PTFQMR <: SundialsLinearSolver end
+struct KLU <: SundialsLinearSolver end
+struct LapackBand <: SundialsLinearSolver end
+struct LapackDense <: SundialsLinearSolver end
+
+abstract type SundialsNonlinearSolver end
+struct RootFind <: SundialsNonLinearSolver end
+struct FixedPoint <: SundialsNonLinearSolver end
 
 abstract type StiffnessChoice end
 struct Explicit <: StiffnessChoice end
