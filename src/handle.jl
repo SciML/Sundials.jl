@@ -54,10 +54,20 @@ mutable struct MatrixHandle{T<:SundialsMatrix} <: SundialsHandle
     end
 end
 
-mutable struct LinSolHandle{T<:SundialsLinSol} <: SundialsHandle
+mutable struct LinSolHandle{T<:SundialsLinearSolver} <: SundialsHandle
     ptr::SUNLinearSolver
     destroyed::Bool
-    function LinSolHandle(ptr::SUNLinearSolver,M::T) where T<:SundialsLinSol
+    function LinSolHandle(ptr::SUNLinearSolver,M::T) where T<:SundialsLinearSolver
+        h = new{T}(ptr,false)
+        finalizer(release_handle, h)
+        return h
+    end
+end
+
+mutable struct NonLinSolHandle{T<:SundialsNonLinearSolver} <: SundialsHandle
+    ptr::SUNNonlinearSolver
+    destroyed::Bool
+    function NonLinSolHandle(ptr::SUNNonlinearSolver,M::T) where T<:SundialsNonLinearSolver
         h = new{T}(ptr,false)
         finalizer(release_handle, h)
         return h
@@ -160,12 +170,38 @@ function release_handle(h::LinSolHandle{KLU})
     nothing
 end
 
+function release_handle(h::LinSolHandle{LapackBand})
+    if !isempty(h)
+        Sundials.SUNLinSolFree_LapackBand(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
+function release_handle(h::NonLinSolHandle{FixedPoint})
+    if !isempty(h)
+        Sundials.SUNNonlinSolFree_FixedPoint(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
+function release_handle(h::NonLinSolHandle{Newton})
+    if !isempty(h)
+        Sundials.SUNNonlinSolFree_Newton(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
 Base.empty!(h::LinSolHandle) = release_handle(h)
+Base.empty!(h::NonLinSolHandle) = release_handle(h)
 Base.empty!(h::MatrixHandle) = release_handle(h)
 Base.empty!(h::Handle{T}) where {T} = release_handle(h.ptr_ref)
 Base.isempty(h::Handle) = h.ptr_ref[] == C_NULL
 Base.isempty(h::MatrixHandle) = h.destroyed
 Base.isempty(h::LinSolHandle) = h.destroyed
+Base.isempty(h::NonLinSolHandle) = h.destroyed
 
 ##################################################################
 #
