@@ -16,7 +16,7 @@ mkpath(outpath)
 
 # Find all relevant Sundials headers
 #const incpath = normpath(Sundials-5_jll.jl.artifact_dir, "include")
-const incpath = "/usr/local/Cellar/sundials/5.1.0/include"
+const incpath = joinpath(Sundials_jll.artifact_dir, "include")
 if !isdir(incpath)
     error("Sundials C headers not found.")
 end
