@@ -169,7 +169,7 @@ end
 function SUNKLUSetOrdering(S, ordering_choice)
     SUNKLUSetOrdering(S, convert(Cint, ordering_choice))
 end
-
+#=
 function SUNLinSol_KLUGetSymbolic(S::SUNLinearSolver)
     ccall((:SUNLinSol_KLUGetSymbolic, libsundials_sunlinsolklu), Ptr{klu_l_symbolic}, (SUNLinearSolver,), S)
 end
@@ -181,7 +181,7 @@ end
 function SUNLinSol_KLUGetCommon(S::SUNLinearSolver)
     ccall((:SUNLinSol_KLUGetCommon, libsundials_sunlinsolklu), Ptr{klu_l_common}, (SUNLinearSolver,), S)
 end
-
+=#
 function SUNLinSolGetType_KLU(S::SUNLinearSolver)
     ccall((:SUNLinSolGetType_KLU, libsundials_sunlinsolklu), SUNLinearSolver_Type, (SUNLinearSolver,), S)
 end
