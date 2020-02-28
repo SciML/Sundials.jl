@@ -19,8 +19,8 @@ function cvodefunjac(t::Float64,
                      u::N_Vector,
                      du::N_Vector,
                      funjac::FunJac)
-    funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
-    funjac.du = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(du),length(funjac.du))
+    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u),length(funjac.u))
+    funjac.du = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(du),length(funjac.du))
     _du = funjac.du
     _u = funjac.u
     funjac.fun(_du, _u, funjac.p, t)
@@ -31,8 +31,8 @@ function cvodefunjac2(t::Float64,
                      u::N_Vector,
                      du::N_Vector,
                      funjac::FunJac)
-    funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
-    funjac.du = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(du),length(funjac.du))
+    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u),length(funjac.u))
+    funjac.du = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(du),length(funjac.du))
     _du = funjac.du
     _u = funjac.u
     funjac.fun2(_du, _u, funjac.p, t)
@@ -48,7 +48,7 @@ function cvodejac(t::realtype,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
 
-    funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
+    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u),length(funjac.u))
     _u = funjac.u
     funjac.jac(convert(Matrix, J), _u, funjac.p, t)
     return CV_SUCCESS
@@ -65,7 +65,7 @@ function cvodejac(t::realtype,
     jac_prototype = funjac.jac_prototype
     J = convert(SparseArrays.SparseMatrixCSC,_J)
 
-    funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
+    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u),length(funjac.u))
     _u = funjac.u
 
     funjac.jac(jac_prototype, _u, funjac.p, t)
@@ -77,11 +77,11 @@ function cvodejac(t::realtype,
 end
 
 function idasolfun(t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector, funjac::FunJac)
-    funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
+    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u),length(funjac.u))
     _u = funjac.u
-    funjac.du = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(du),length(funjac.du))
+    funjac.du = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(du),length(funjac.du))
     _du = funjac.du
-    funjac.resid = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(resid),length(funjac.resid))
+    funjac.resid = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(resid),length(funjac.resid))
     _resid = funjac.resid
     funjac.fun(_resid, _du, _u, funjac.p, t)
     return IDA_SUCCESS
@@ -99,9 +99,9 @@ function idajac(t::realtype,
                 tmp3::N_Vector)
 
 
-    funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
+    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u),length(funjac.u))
     _u = funjac.u
-    funjac.du = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(du),length(funjac.du))
+    funjac.du = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(du),length(funjac.du))
     _du = funjac.du
 
     funjac.jac(convert(Matrix, J), _du,
@@ -123,9 +123,9 @@ function idajac(t::realtype,
   jac_prototype = funjac.jac_prototype
   J = convert(SparseArrays.SparseMatrixCSC,_J)
 
-  funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
+  funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u),length(funjac.u))
   _u = funjac.u
-  funjac.du = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(du),length(funjac.du))
+  funjac.du = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(du),length(funjac.du))
   _du = funjac.du
 
   funjac.jac(jac_prototype, _du, convert(Vector, _u), funjac.p, cj, t)
