@@ -58,12 +58,12 @@ function cvodejac(t::realtype,
                   u::N_Vector,
                   du::N_Vector,
                   _J::SUNMatrix,
-                  funjac::AbstractFunJac{<:SparseMatrixCSC},
+                  funjac::AbstractFunJac{<:SparseArrays.SparseMatrixCSC},
                   tmp1::N_Vector,
                   tmp2::N_Vector,
                   tmp3::N_Vector)
     jac_prototype = funjac.jac_prototype
-    J = convert(SparseMatrixCSC,_J)
+    J = convert(SparseArrays.SparseMatrixCSC,_J)
 
     funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
     _u = funjac.u
@@ -115,13 +115,13 @@ function idajac(t::realtype,
                 du::N_Vector,
                 res::N_Vector,
                 _J::SUNMatrix,
-                funjac::AbstractFunJac{<:SparseMatrixCSC},
+                funjac::AbstractFunJac{<:SparseArrays.SparseMatrixCSC},
                 tmp1::N_Vector,
                 tmp2::N_Vector,
                 tmp3::N_Vector)
 
   jac_prototype = funjac.jac_prototype
-  J = convert(SparseMatrixCSC,_J)
+  J = convert(SparseArrays.SparseMatrixCSC,_J)
 
   funjac.u = unsafe_wrap(Vector{Float64}, __N_VGetArrayPointer_Serial(u),length(funjac.u))
   _u = funjac.u
@@ -146,7 +146,7 @@ function massmat(t::Float64,
   if typeof(mmf.mass_matrix) <: Array
     M = convert(Matrix, _M)
   else
-    M = convert(SparseMatrixCSC, _M)
+    M = convert(SparseArrays.SparseMatrixCSC, _M)
   end
   M .= mmf.mass_matrix
 
