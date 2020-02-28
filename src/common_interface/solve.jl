@@ -111,13 +111,13 @@ function DiffEqBase.__init(
         alg_code = CV_ADAMS
     end
 
-    if Method == :Newton
-        method_code = CV_NEWTON
-    elseif Method ==  :Functional
-        method_code = CV_FUNCTIONAL
-    end
+    #if Method == :Newton
+    #    method_code = CV_NEWTON
+    #elseif Method ==  :Functional
+    #    method_code = CV_FUNCTIONAL
+    #end
 
-    mem_ptr = CVodeCreate(alg_code, method_code)
+    mem_ptr = CVodeCreate(alg_code)
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
