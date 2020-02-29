@@ -10,10 +10,10 @@ function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::N_Vector, yp0::N_Vec
     ccall((:IDAInit, libsundials_idas), Cint, (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
 end
 
-function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0, yp0)
+function IDAInit(ida_mem, res, t0::realtype, yy0, yp0)
     __yy0 = convert(NVector, yy0)
     __yp0 = convert(NVector, yp0)
-    IDAInit(ida_mem, res, t0, convert(N_Vector, __yy0), convert(N_Vector, __yp0))
+    IDAInit(ida_mem, IDAResFn_wrapper(res), t0, convert(N_Vector, __yy0), convert(N_Vector, __yp0))
 end
 
 function IDAReInit(ida_mem, t0::realtype, yy0::N_Vector, yp0::N_Vector)
