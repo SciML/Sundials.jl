@@ -183,7 +183,7 @@ end
 
 function release_handle(h::LinSolHandle{LapackDense})
     if !isempty(h)
-        Sundials.SUNLinSolFree_LapackBand(h.ptr)
+        Sundials.SUNLinSolFree_LapackDense(h.ptr)
         h.destroyed = true
     end
     nothing
