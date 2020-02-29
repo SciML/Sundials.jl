@@ -7,13 +7,13 @@ function IDACreate()
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::N_Vector, yp0::N_Vector)
-    ccall((:IDAInit, libsundials_ida), Cint, (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
+    ccall((:IDAInit, libsundials_idas), Cint, (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0, yp0)
     __yy0 = convert(NVector, yy0)
     __yp0 = convert(NVector, yp0)
-    IDAInit(ida_mem, res, t0, convert(N_vector, __yy0), convert(N_vector, __yp0))
+    IDAInit(ida_mem, res, t0, convert(N_Vector, __yy0), convert(N_Vector, __yp0))
 end
 
 function IDAReInit(ida_mem, t0::realtype, yy0::N_Vector, yp0::N_Vector)
