@@ -181,6 +181,14 @@ function release_handle(h::LinSolHandle{LapackBand})
     nothing
 end
 
+function release_handle(h::LinSolHandle{LapackDense})
+    if !isempty(h)
+        Sundials.SUNLinSolFree_LapackDense(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
 function release_handle(h::NonLinSolHandle{FixedPoint})
     if !isempty(h)
         Sundials.SUNNonlinSolFree_FixedPoint(h.ptr)
