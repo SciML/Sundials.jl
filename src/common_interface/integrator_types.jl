@@ -59,7 +59,7 @@ function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};
     return idxs == nothing ? out : @view out[idx]
 end
 
-mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype,CallbackCacheType} <: AbstractSundialsIntegrator{ARKStep}
+mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype,CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
     u::uType
     p::pType
     t::Float64
