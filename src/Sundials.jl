@@ -20,7 +20,7 @@ import CEnum
 const Ctm = Base.Libc.TmStruct
 const Ctime_t = UInt
 const Cclock_t = UInt
-export Ctm, Ctime_t, Cclock_
+export Ctm, Ctime_t, Cclock_t
 
 const warnkeywords =
     (:save_idxs, :d_discontinuities, :isoutofdomain, :unstable_check,
@@ -33,7 +33,7 @@ end
 
 using Sundials_jll
 
-export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
+export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKStep, CVODE_BDF, CVODE_Adams, IDA
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)

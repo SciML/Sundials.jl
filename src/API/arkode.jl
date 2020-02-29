@@ -11,7 +11,7 @@ end
 
 function ARKStepCreate(fe, fi, t0, y0)
     __y0 = convert(NVector, y0)
-    ARKStepCreate(ARKRhsFn_wrapper(fe), ARKRhsFn_wrapper(fi), t0, convert(N_vector, __y0))
+    ARKStepCreate(ARKRhsFn_wrapper(fe), ARKRhsFn_wrapper(fi), t0, convert(N_Vector, __y0))
 end
 
 function ARKStepResize(arkode_mem, ynew::N_Vector, hscale::realtype, t0::realtype, resize::ARKVecResizeFn, resize_data)

@@ -59,7 +59,7 @@ function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};
     return idxs == nothing ? out : @view out[idx]
 end
 
-mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype,CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
+mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype,CallbackCacheType} <: AbstractSundialsIntegrator{ARKStep}
     u::uType
     p::pType
     t::Float64
@@ -154,8 +154,8 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
 
 @inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
   if integrator.opts.advance_to_tstop
-    while integrator.tdir*(integrator.t-top(integrator.opts.tstops)) < -1e6eps()
-        tstop = top(integrator.opts.tstops)
+    while integrator.tdir*(integrator.t-DiffEqBase.top(integrator.opts.tstops)) < -1e6eps()
+        tstop = DiffEqBase.top(integrator.opts.tstops)
         set_stop_time(integrator,tstop)
         integrator.tprev = integrator.t
         if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
@@ -173,7 +173,7 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
           integrator.uprev .= integrator.u
       end
       if !isempty(integrator.opts.tstops)
-          tstop = top(integrator.opts.tstops)
+          tstop = DiffEqBase.top(integrator.opts.tstops)
           set_stop_time(integrator,tstop)
           solver_step(integrator,tstop)
       else
