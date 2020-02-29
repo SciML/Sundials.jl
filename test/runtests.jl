@@ -18,9 +18,9 @@ end
 #    #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
 #end
 #@testset "Kinsol" begin
-#    @testset "Kinsol Simplified" begin include("kinsol_mkin_simplified.jl") end
-#    @testset "Kinsol MKin" begin include("kinsol_mkinTest.jl") end
-#    @testset "Kinsol Banded" begin include("kinsol_banded.jl") end
+    @testset "Kinsol Simplified" begin include("kinsol_mkin_simplified.jl") end
+    @testset "Kinsol MKin" begin include("kinsol_mkinTest.jl") end
+    @testset "Kinsol Banded" begin include("kinsol_banded.jl") end
 #end
 @testset "Handle Tests" begin include("handle_tests.jl") end
 

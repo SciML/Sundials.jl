@@ -10,9 +10,9 @@ function KINInit(kinmem, func::KINSysFn, tmpl::N_Vector)
     ccall((:KINInit, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn, N_Vector), kinmem, func, tmpl)
 end
 
-function KINInit(kinmem, func::KINSysFn, tmpl)
+function KINInit(kinmem, func, tmpl)
     __tmpl = convert(NVector, tmpl)
-    KINInit(kinmem, func, convert(N_Vector, __tmpl))
+    KINInit(kinmem, KINSysFn_wrapper(func), convert(N_Vector, __tmpl))
 end
 
 function KINSol(kinmem, uu::N_Vector, strategy::Cint, u_scale::N_Vector, f_scale::N_Vector)

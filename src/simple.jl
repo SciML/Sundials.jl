@@ -69,8 +69,7 @@ function kinsol(f, y0::Vector{Float64};
         A = Sundials.SUNDenseMatrix(length(y0),length(y0))
         LS = Sundials.SUNDenseLinearSolver(y0,A)
     elseif linear_solver == :Band
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower,
-                                   stored_upper)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
         LS = Sundials.SUNBandLinearSolver(y0,A)
     end
     flag = @checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A) true
