@@ -37,7 +37,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_sav
   !integrator.opts.save_on && return saved, savedexactly
   uType = eltype(integrator.sol.u)
   while !isempty(integrator.opts.saveat) &&
-    integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
+    integrator.tdir*DiffEqBase.top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
 
     saved = true
     curt = pop!(integrator.opts.saveat)
