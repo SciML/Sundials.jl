@@ -161,7 +161,7 @@ function jactimes(v::N_Vector,
                  fj::AbstractFunJac,
                  tmp::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype,y,fj.p,t)
-    mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
+    LinearAlgebra.mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
     return CV_SUCCESS
 end
 
@@ -177,7 +177,7 @@ function idajactimes(
                  tmp1::N_Vector,
                  tmp2::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype,y,fj.p,t)
-    mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
+    LinearAlgebra.mul!(convert(Vector,Jv),fj.jac_prototype,convert(Vector,v))
     return IDA_SUCCESS
 end
 
