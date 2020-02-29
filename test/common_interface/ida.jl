@@ -20,6 +20,8 @@ sol5 = solve(prob,IDA(linear_solver=:TFQMR))
 sol6 = solve(prob,IDA(linear_solver=:FGMRES))
 @info "PCG solver"
 sol7 = solve(prob,IDA(linear_solver=:PCG)) # Requires symmetric linear
+#@info "KLU solver"
+#sol8 = solve(prob,IDA(linear_solver=:KLU)) # Requires Jacobian
 
 # Test identity preconditioner
 global prec_used = false

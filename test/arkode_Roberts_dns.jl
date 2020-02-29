@@ -35,7 +35,7 @@ Sundials.@checkflag Sundials.ARKodeSetPredictorMethod(arkode_mem, 1)
 
 Sundials.@checkflag Sundials.ARKodeSStolerances(arkode_mem, reltol, abstol)
 A = Sundials.SUNDenseMatrix(neq,neq)
-LS = Sundials.SUNDenseLinearSolver(y0,A)
+LS = Sundials.SUNLinSol_Dense(y0,A)
 Sundials.@checkflag Sundials.ARKDlsSetLinearSolver(arkode_mem, LS, A)
 
 iout = 0

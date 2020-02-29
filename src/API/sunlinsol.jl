@@ -690,7 +690,7 @@ end
 function SUNLinSolSolve_SPFGMR(S, A, x, b, tol)
     __x = convert(NVector, x)
     __b = convert(NVector, b)
-    __SUNLinSolSolve_SPFGMR(S, A, convert(N_Vector, __x), convert(N_Vector, __b), tol)
+    SUNLinSolSolve_SPFGMR(S, A, convert(N_Vector, __x), convert(N_Vector, __b), tol)
 end
 
 function SUNLinSolNumIters_SPFGMR(S::SUNLinearSolver)

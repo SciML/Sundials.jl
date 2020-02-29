@@ -89,7 +89,7 @@ Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob)
 
 ## Call IDADense and set up the linear solver.
 A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-LS = Sundials.SUNDenseLinearSolver(y0,A)
+LS = Sundials.SUNLinSol_Dense(y0,A)
 Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
 iout = 0
