@@ -8,6 +8,8 @@ using Test
 end
 
 # Requires, recasting the problem in a different form
+#Arkode old: http://runge.math.smu.edu/arkode_dev/doc/guide/build/html/Mathematics.html
+#Arkode new: https://computing.llnl.gov/sites/default/files/public/ark_guide.pdf
 #@testset "ARK" begin
 #    @testset "Roberts ARKStep Direct" begin include("arkode_Roberts_dns.jl") end
 #end
@@ -28,10 +30,10 @@ end
 #@testset "Common Interface" begin
 #    @testset "CVODE" begin include("common_interface/cvode.jl") end
 #    @testset "ARKStep" begin include("common_interface/arkode.jl") end
-#    @testset "IDA" begin include("common_interface/ida.jl") end
-#    @testset "Jacobians" begin include("common_interface/jacobians.jl") end
+    @testset "IDA" begin include("common_interface/ida.jl") end
+    @testset "Jacobians" begin include("common_interface/jacobians.jl") end
 #    @testset "Callbacks" begin include("common_interface/callbacks.jl") end
-#    @testset "Iterator" begin include("common_interface/iterators.jl") end
-#    @testset "Errors" begin include("common_interface/errors.jl") end
+    @testset "Iterator" begin include("common_interface/iterators.jl") end
+    @testset "Errors" begin include("common_interface/errors.jl") end
 #    @testset "Mass Matrix" begin include("common_interface/mass_matrix.jl") end
 #end

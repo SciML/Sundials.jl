@@ -121,11 +121,11 @@ function cvodes(f,fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
   Sundials.CVodeSetSensParams(cvode_mem, C_NULL, pbar, C_NULL)
   Sundials.CVodeSensEEtolerances(cvode_mem)
   for i in 1:length(t)
-    @show "here1"
+    @info "here1"
     Sundials.CVode(cvode_mem, t[i], yret, tret, Sundials.CV_NORMAL)
-    @show "here2"
+    @info "here2"
     Sundials.CVodeGetSens(cvode_mem, tret, pyS0)
-    @show "here3"
+    @info "here3"
     mycopy!(pyS0, ysret)
     y[:,i] = yret
     ys[:,:,i] = ysret
