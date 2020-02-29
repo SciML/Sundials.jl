@@ -52,7 +52,7 @@ function DiffEqBase.__init(
         warned && warn_compat()
     end
 
-    if prob.f.mass_matrix != I
+    if prob.f.mass_matrix != LinearAlgebra.I
         error("This solver is not able to use mass matrices.")
     end
 
@@ -587,7 +587,7 @@ function DiffEqBase.__init(
         ARKodeSpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
-    if prob.f.mass_matrix != I
+    if prob.f.mass_matrix != LinearAlgebra.I
         if MassLinearSolver == :Dense
             M = SUNDenseMatrix(length(u0),length(u0))
             MLS = SUNDenseLinearSolver(u0,M)
@@ -739,9 +739,9 @@ function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
   end
 
   if tdir>0
-    tstops_internal = BinaryMinHeap(tstops_vec)
+    tstops_internal = DataStructures.BinaryMinHeap(tstops_vec)
   else
-    tstops_internal = BinaryMaxHeap(tstops_vec)
+    tstops_internal = DataStructures.BinaryMaxHeap(tstops_vec)
   end
 
   if typeof(saveat) <: Number
@@ -757,9 +757,9 @@ function tstop_saveat_disc_handling(tstops,saveat,tdir,tspan,tType)
   end
 
   if tdir>0
-    saveat_internal = BinaryMinHeap(saveat_vec)
+    saveat_internal = DataStructures.BinaryMinHeap(saveat_vec)
   else
-    saveat_internal = BinaryMaxHeap(saveat_vec)
+    saveat_internal = DataStructures.BinaryMaxHeap(saveat_vec)
   end
 
   tstops_internal,saveat_internal
@@ -1123,7 +1123,7 @@ function set_stop_time(integrator::CVODEIntegrator,tstop)
     CVodeSetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::ARKODEIntegrator,tstop)
-    ARKodeSetStopTime(integrator.mem,tstop)
+    ARKStepSetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::IDAIntegrator,tstop)
     IDASetStopTime(integrator.mem,tstop)
@@ -1134,8 +1134,8 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     while !isempty(integrator.opts.tstops)
         # Sundials can have floating point issues approaching a tstop if
         # there is a modifying event each
-        while integrator.tdir*(integrator.t-top(integrator.opts.tstops)) < -1e6eps()
-            tstop = top(integrator.opts.tstops)
+        while integrator.tdir*(integrator.t-DiffEqBase.top(integrator.opts.tstops)) < -1e6eps()
+            tstop = DiffEqBase.top(integrator.opts.tstops)
             set_stop_time(integrator,tstop)
             integrator.tprev = integrator.t
             if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
@@ -1193,7 +1193,7 @@ end
 function handle_tstop!(integrator::AbstractSundialsIntegrator)
     tstops = integrator.opts.tstops
     if !isempty(tstops)
-      if integrator.tdir*(integrator.t-top(integrator.opts.tstops)) > -1e6eps()
+      if integrator.tdir*(integrator.t-DiffEqBase.top(integrator.opts.tstops)) > -1e6eps()
           pop!(tstops)
           t = integrator.t
           integrator.just_hit_tstop = true
@@ -1231,21 +1231,21 @@ function fill_destats!(integrator::ARKODEIntegrator)
     mem = integrator.mem
     tmp = Ref(Clong(-1))
     tmp2 = Ref(Clong(-1))
-    ARKodeGetNumRhsEvals(mem,tmp,tmp2)
+    ARKStepGetNumRhsEvals(mem,tmp,tmp2)
     destats.nf = tmp[]
     destats.nf2 = tmp2[]
-    ARKodeGetNumLinSolvSetups(mem,tmp)
+    ARKStepGetNumLinSolvSetups(mem,tmp)
     destats.nw = tmp[]
-    ARKodeGetNumErrTestFails(mem,tmp)
+    ARKStepGetNumErrTestFails(mem,tmp)
     destats.nreject = tmp[]
-    ARKodeGetNumSteps(mem,tmp)
+    ARKStepGetNumSteps(mem,tmp)
     destats.naccept = tmp[] - destats.nreject
-    ARKodeGetNumNonlinSolvIters(mem,tmp)
+    ARKStepGetNumNonlinSolvIters(mem,tmp)
     destats.nnonliniter = tmp[]
-    ARKodeGetNumNonlinSolvConvFails(mem,tmp)
+    ARKStepGetNumNonlinSolvConvFails(mem,tmp)
     destats.nnonlinconvfail = tmp[]
     if method_choice(integrator.alg) == :Newton
-        ARKDlsGetNumJacEvals(mem,tmp)
+        ARKStepGetNumJacEvals(mem,tmp)
         destats.njacs = tmp[]
     end
 end
