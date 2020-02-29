@@ -116,7 +116,7 @@ function IDASetMaxOrd(ida_mem, maxord::Cint)
 end
 
 function IDASetMaxOrd(ida_mem, maxord)
-    __IDASetMaxOrd(ida_mem, convert(Cint, maxord))
+    IDASetMaxOrd(ida_mem, convert(Cint, maxord))
 end
 
 function IDASetMaxNumSteps(ida_mem, mxsteps::Clong)
@@ -143,8 +143,12 @@ function IDASetNonlinConvCoef(ida_mem, epcon::realtype)
     ccall((:IDASetNonlinConvCoef, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, epcon)
 end
 
-function IDASetMaxErrTestFails(ida_mem, maxnef::realtype)
+function IDASetMaxErrTestFails(ida_mem, maxnef::Cint)
     ccall((:IDASetMaxErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnef)
+end
+
+function IDASetMaxErrTestFails(ida_mem, maxnef)
+    IDASetMaxErrTestFails(ida_mem, convert(Cint, maxnef))
 end
 
 function IDASetMaxNonlinIters(ida_mem, maxcor::Cint)

@@ -913,8 +913,7 @@ function DiffEqBase.__init(
         _A = MatrixHandle(A,DenseMatrix())
         _LS = LinSolHandle(LS,Dense())
     elseif LinearSolver == :Band
-        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
-                                   alg.stored_upper)
+        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
         LS = SUNBandLinearSolver(u0,A)
         flag = IDADlsSetLinearSolver(mem, LS, A)
         _A = MatrixHandle(A,BandMatrix())
