@@ -100,7 +100,7 @@ context.headers = sundials_headers
 
 # 1st arg name to wrapped arg type map
 const arg1_name2type = Dict(
-    :arkode_mem => :(ARKODEMemPtr),
+    :arkode_mem => :(ARKStepMemPtr),
     :cvode_mem => :(CVODEMemPtr),
     :cv_mem => :(CVODEMemPtr),
     :kinmem => :(KINMemPtr),
@@ -131,7 +131,7 @@ const linear_solvers_and_matrices = [
 
 # substitute Ptr{Void} with the typed pointer
 const ctor_return_type = Dict(
-    "ARKCreate" => :(ARKODEMemPtr),
+    "ARKCreate" => :(ARKStepMemPtr),
     "ARKStepCreate" => :(ARKStepMemPtr),
     "CVodeCreate" => :(CVODEMemPtr),
     "IDACreate" => :(IDAMemPtr),
