@@ -16,9 +16,6 @@ abstract type AbstractSundialsObject end
 struct CVODEMem <: AbstractSundialsObject end
 const CVODEMemPtr = Ptr{CVODEMem}
 
-struct ARKODEMem <: AbstractSundialsObject end
-const ARKODEMemPtr = Ptr{ARKODEMem}
-
 struct ARKStepMem <: AbstractSundialsObject end
 const ARKStepMemPtr = Ptr{ARKStepMem}
 
@@ -84,7 +81,7 @@ Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T} = convert(Ptr{Ptr{T}},
 release_handle(ptr_ref::Ref{Ptr{T}}) where {T} = throw(MethodError("Freeing objects of type $T not supported"))
 release_handle(ptr_ref::Ref{Ptr{KINMem}}) = ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
-release_handle(ptr_ref::Ref{Ptr{ARKODEMem}}) = ((ptr_ref[] != C_NULL) && ARKodeFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{ARKODEMem}}) = ((ptr_ref[] != C_NULL) && ARKStepFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)
 
 function release_handle(h::MatrixHandle{DenseMatrix})
@@ -221,6 +218,6 @@ Base.isempty(h::NonLinSolHandle) = h.destroyed
 ##################################################################
 
 const CVODEh  =  Handle{CVODEMem}
-const ARKODEh =  Handle{ARKODEMem}
+const ARKSteph =  Handle{ARKStepMem}
 const KINh    =  Handle{KINMem}
 const IDAh    =  Handle{IDAMem}
