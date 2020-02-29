@@ -1,11 +1,11 @@
 using Sundials
 using Test
 
-#@testset "CVODE" begin
-#    @testset "Roberts CVODE Simplified" begin include("cvode_Roberts_simplified.jl") end
-#    @testset "Roberts CVODE Direct" begin include("cvode_Roberts_dns.jl") end
+@testset "CVODE" begin
+    @testset "Roberts CVODE Simplified" begin include("cvode_Roberts_simplified.jl") end
+    @testset "Roberts CVODE Direct" begin include("cvode_Roberts_dns.jl") end
     #@testset "CVODES Direct" begin include("cvodes_dns.jl") end
-#end
+end
 
 # Requires, recasting the problem in a different form
 #@testset "ARK" begin
@@ -24,8 +24,8 @@ using Test
 #end
 #@testset "Handle Tests" begin include("handle_tests.jl") end
 
-#@testset "Common Interface" begin
-#    @testset "CVODE" begin include("common_interface/cvode.jl") end
+@testset "Common Interface" begin
+     @testset "CVODE" begin include("common_interface/cvode.jl") end
 #    @testset "ARKODE" begin include("common_interface/arkode.jl") end
 #    @testset "IDA" begin include("common_interface/ida.jl") end
 #    @testset "Jacobians" begin include("common_interface/jacobians.jl") end
@@ -33,4 +33,4 @@ using Test
 #    @testset "Iterator" begin include("common_interface/iterators.jl") end
 #    @testset "Errors" begin include("common_interface/errors.jl") end
 #    @testset "Mass Matrix" begin include("common_interface/mass_matrix.jl") end
-#end
+end
