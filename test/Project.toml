@@ -1,22 +1,21 @@
-name = "Sundials"
-uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
-authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "3.8.2"
-
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
+DiffEqOperators = "9fdde737-9c7f-55bf-ade8-46b3f136cc48"
+DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-DataStructures = "0.17.0"
 DiffEqBase = "6"
-Reexport = "0.2"
 Sundials_jll = "5"
 julia = "1.3"
