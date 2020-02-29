@@ -310,7 +310,7 @@ end # function solve
 
 function DiffEqBase.__init(
     prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-    alg::ARKStep{Method,LinearSolver,MassLinearSolver},
+    alg::ARKODE{Method,LinearSolver,MassLinearSolver},
     timeseries=[], ts=[], ks=[];
 
     verbose=true,
@@ -381,7 +381,7 @@ function DiffEqBase.__init(
 
 
     mem_ptr = ARKodeCreate()
-    (mem_ptr == C_NULL) && error("Failed to allocate ARKStep solver object")
+    (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
     mem = Handle(mem_ptr)
 
     !verbose && ARKodeSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
@@ -1122,7 +1122,7 @@ function set_stop_time(integrator::CVODEIntegrator,tstop)
     CVodeSetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::ARKODEIntegrator,tstop)
-    ARKStepSetStopTime(integrator.mem,tstop)
+    ARKODESetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::IDAIntegrator,tstop)
     IDASetStopTime(integrator.mem,tstop)

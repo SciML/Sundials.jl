@@ -15,7 +15,8 @@ end
     @testset "Roberts IDA Simplified" begin include("ida_Roberts_simplified.jl") end
     @testset "Roberts IDA Direct" begin include("ida_Roberts_dns.jl") end
     @testset "Heat IDA Direct" begin include("ida_Heat2D.jl") end
-#    #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
+    # Commented out because still uses the syntax from Grid which is a deprecated package
+    #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
 #end
 #@testset "Kinsol" begin
     @testset "Kinsol Simplified" begin include("kinsol_mkin_simplified.jl") end
@@ -25,7 +26,7 @@ end
 @testset "Handle Tests" begin include("handle_tests.jl") end
 
 #@testset "Common Interface" begin
-#     @testset "CVODE" begin include("common_interface/cvode.jl") end
+#    @testset "CVODE" begin include("common_interface/cvode.jl") end
 #    @testset "ARKStep" begin include("common_interface/arkode.jl") end
 #    @testset "IDA" begin include("common_interface/ida.jl") end
 #    @testset "Jacobians" begin include("common_interface/jacobians.jl") end
