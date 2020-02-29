@@ -91,7 +91,7 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
                                       prec_side)
 end
 
-struct ARKODE{Method,LinearSolver,MassLinearSolver,T,T1,T2,P,PS} <: SundialsODEAlgorithm{Method,LinearSolver}
+struct ARKStep{Method,LinearSolver,MassLinearSolver,T,T1,T2,P,PS} <: SundialsODEAlgorithm{Method,LinearSolver}
     stiffness::T
     jac_upper::Int
     jac_lower::Int
@@ -121,7 +121,7 @@ struct ARKODE{Method,LinearSolver,MassLinearSolver,T,T1,T2,P,PS} <: SundialsODEA
     prec_side::Int
 end
 
-Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:Dense,
+Base.@pure function ARKStep(stiffness=Implicit();method=:Newton,linear_solver=:Dense,
                            mass_linear_solver=:Dense,
                     jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower,
                     mass_upper=0,mass_lower=0,mass_stored_upper = mass_upper+mass_lower,
@@ -153,7 +153,7 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
     if mass_linear_solver != :Dense && mass_linear_solver != :Band && mass_linear_solver != :BCG && mass_linear_solver != :GMRES && mass_linear_solver != :FGMRES && mass_linear_solver != :PCG && mass_linear_solver != :TFQMR
         error("Mass Matrix Linear solver choice not accepted.")
     end
-    ARKODE{method,linear_solver,mass_linear_solver,
+    ARKStep{method,linear_solver,mass_linear_solver,
                     typeof(stiffness),
                     typeof(itable),typeof(etable),
                     typeof(prec),typeof(psetup)}(

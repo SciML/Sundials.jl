@@ -42,14 +42,14 @@ function DiffEqBase.__init(
     tType = eltype(tupType)
 
     if verbose
-        warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
+        warned = !isempty(kwargs) && DiffEqBase.check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction) && typeof(alg) <: CVODE_BDF
             if DiffEqBase.has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
         end
-        warned && warn_compat()
+        warned && DiffEqBase.warn_compat()
     end
 
     if prob.f.mass_matrix != LinearAlgebra.I
@@ -62,7 +62,7 @@ function DiffEqBase.__init(
 
     progress && Logging.@logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
-    callbacks_internal = CallbackSet(callback)
+    callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
@@ -310,7 +310,7 @@ end # function solve
 
 function DiffEqBase.__init(
     prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-    alg::ARKODE{Method,LinearSolver,MassLinearSolver},
+    alg::ARKStep{Method,LinearSolver,MassLinearSolver},
     timeseries=[], ts=[], ks=[];
 
     verbose=true,
@@ -333,14 +333,14 @@ function DiffEqBase.__init(
     tType = eltype(tupType)
 
     if verbose
-        warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnlist)
+        warned = !isempty(kwargs) && DiffEqBase.check_keywords(alg, kwargs, warnlist)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
             if typeof(prob.f) <: SplitFunction ? DiffEqBase.has_tgrad(prob.f.f1) : DiffEqBase.has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
         end
-        warned && warn_compat()
+        warned && DiffEqBase.warn_compat()
     end
 
     if typeof(reltol) <: AbstractArray
@@ -349,7 +349,7 @@ function DiffEqBase.__init(
 
     progress && Logging.@logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
-    callbacks_internal = CallbackSet(callback)
+    callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
@@ -381,7 +381,7 @@ function DiffEqBase.__init(
 
 
     mem_ptr = ARKodeCreate()
-    (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
+    (mem_ptr == C_NULL) && error("Failed to allocate ARKStep solver object")
     mem = Handle(mem_ptr)
 
     !verbose && ARKodeSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
@@ -790,14 +790,14 @@ function DiffEqBase.__init(
     tType = eltype(tupType)
 
     if verbose
-        warned = !isempty(kwargs) && check_keywords(alg, kwargs, warnida)
+        warned = !isempty(kwargs) && DiffEqBase.check_keywords(alg, kwargs, warnida)
         if !(typeof(prob.f) <: DiffEqBase.AbstractParameterizedFunction)
             if DiffEqBase.has_tgrad(prob.f)
                 @warn("Explicit t-gradient given to this stiff solver is ignored.")
                 warned = true
             end
         end
-        warned && warn_compat()
+        warned && DiffEqBase.warn_compat()
     end
 
     if typeof(reltol) <: AbstractArray
@@ -806,7 +806,7 @@ function DiffEqBase.__init(
 
     progress && Logging.@logmsg(-1,progress_name,_id=_id = :Sundials,progress=0)
 
-    callbacks_internal = CallbackSet(callback)
+    callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
