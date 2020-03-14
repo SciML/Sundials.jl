@@ -16,7 +16,7 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
 [compat]
 julia = "1"
-DiffEqBase = "6"
+DiffEqBase = "6.21"
 DataStructures = "0.17.0"
 BinaryProvider = "0.5"
 Reexport = "0.2"

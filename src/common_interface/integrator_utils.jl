@@ -21,14 +21,16 @@ function handle_callbacks!(integrator)
   if !(typeof(discrete_callbacks)<:Tuple{})
     discrete_modified,saved_in_cb = DiffEqBase.apply_discrete_callback!(integrator,discrete_callbacks...)
   end
-  if !saved_in_cb
-    savevalues!(integrator)
-  end
 
   integrator.u_modified = continuous_modified || discrete_modified
   if integrator.u_modified
     handle_callback_modifiers!(integrator)
   end
+
+  if !saved_in_cb
+    savevalues!(integrator)
+  end
+
   integrator.u_modified = false
 end
 
@@ -37,10 +39,11 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_sav
   !integrator.opts.save_on && return saved, savedexactly
   uType = eltype(integrator.sol.u)
   while !isempty(integrator.opts.saveat) &&
-    integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*first(integrator.tout)
+    integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*integrator.t
 
     saved = true
     curt = pop!(integrator.opts.saveat)
+
     tmp = integrator(curt)
     save_value!(integrator.sol.u,tmp,uType,integrator.sizeu,Val{false})
     push!(integrator.sol.t,curt)
@@ -88,19 +91,7 @@ end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)
   IDAReInit(integrator.mem,integrator.t,integrator.u,integrator.du)
-  integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
-  if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
-      if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all
-          error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
-      end
-      if integrator.alg.init_all
-          init_type = IDA_Y_INIT
-      else
-          init_type = IDA_YA_YDP_INIT
-          integrator.flag = IDASetId(integrator.mem, integrator.sol.prob.differential_vars)
-      end
-      integrator.flag = IDACalcIC(integrator.mem, init_type, integrator.dt)
-  end
+  DiffEqBase.initialize_dae!(integrator)
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator,t)
@@ -152,5 +143,25 @@ end
     return integrator.t-integrator.tprev
   else
     return getfield(integrator, sym)
+  end
+end
+
+DiffEqBase.reeval_internals_due_to_modification!(integrator::AbstractSundialsIntegrator) = nothing
+DiffEqBase.reeval_internals_due_to_modification!(integrator::IDAIntegrator) = handle_callback_modifiers!(integrator::IDAIntegrator)
+
+DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator) = nothing
+function DiffEqBase.initialize_dae!(integrator::IDAIntegrator)
+  integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
+  if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
+      if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all
+          error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
+      end
+      if integrator.alg.init_all
+          init_type = IDA_Y_INIT
+      else
+          init_type = IDA_YA_YDP_INIT
+          integrator.flag = IDASetId(integrator.mem, integrator.sol.prob.differential_vars)
+      end
+      integrator.flag = IDACalcIC(integrator.mem, init_type, integrator.dt)
   end
 end
