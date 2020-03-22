@@ -6,6 +6,7 @@ using Reexport, DataStructures, Logging
 @reexport using DiffEqBase
 using DiffEqBase: check_error!
 using SparseArrays, LinearAlgebra
+using Sundials_jll
 
 const warnkeywords =
     (:save_idxs, :d_discontinuities, :isoutofdomain, :unstable_check,
@@ -14,13 +15,6 @@ const warnkeywords =
 function __init__()
     global warnlist = Set(warnkeywords)
     global warnida  = union(warnlist, Set((:dtmin,)))
-end
-
-const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
-if isfile(depsfile)
-    include(depsfile)
-else
-    error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
 end
 
 export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
