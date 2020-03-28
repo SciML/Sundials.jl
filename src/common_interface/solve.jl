@@ -66,7 +66,7 @@ function DiffEqBase.__init(
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
-      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,uBottomEltype,uBottomEltype)
+      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,Float64,Float64)
     else
       callback_cache = nothing
     end
@@ -353,7 +353,7 @@ function DiffEqBase.__init(
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
-      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,uBottomEltype,uBottomEltype)
+      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,Float64,Float64)
     else
       callback_cache = nothing
     end
@@ -810,7 +810,7 @@ function DiffEqBase.__init(
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
     if max_len_cb isa VectorContinuousCallback
-      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,uBottomEltype,uBottomEltype)
+      callback_cache = DiffEqBase.CallbackCache(max_len_cb.len,Float64,Float64)
     else
       callback_cache = nothing
     end
