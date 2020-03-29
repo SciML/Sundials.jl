@@ -1,4 +1,5 @@
-using Sundials, Compat
+using Sundials
+using Tests
 
 ## f routine. Compute function f(t,y).
 
@@ -23,20 +24,19 @@ abstol = 1e-11
 userdata = nothing
 h0 = 1e-4 * reltol
 
-mem_ptr = Sundials.ARKodeCreate()
-arkode_mem = Sundials.Handle(mem_ptr)
-Sundials.@checkflag Sundials.ARKodeInit(arkode_mem, C_NULL, f, t0, y0)
-Sundials.@checkflag Sundials.ARKodeSetInitStep(arkode_mem, h0)
-Sundials.@checkflag Sundials.ARKodeSetMaxErrTestFails(arkode_mem, 20)
-Sundials.@checkflag Sundials.ARKodeSetMaxNonlinIters(arkode_mem, 8)
-Sundials.@checkflag Sundials.ARKodeSetNonlinConvCoef(arkode_mem, 1.e-7)
-Sundials.@checkflag Sundials.ARKodeSetMaxNumSteps(arkode_mem, 100000)
-Sundials.@checkflag Sundials.ARKodeSetPredictorMethod(arkode_mem, 1)
+mem_ptr = Sundials.ARKStepCreate(C_NULL, f, t0, y0)
+arkStep_mem = Sundials.Handle(mem_ptr)
+Sundials.@checkflag Sundials.ARKStepSetInitStep(arkStep_mem, h0)
+Sundials.@checkflag Sundials.ARKStepSetMaxErrTestFails(arkStep_mem, 20)
+Sundials.@checkflag Sundials.ARKStepSetMaxNonlinIters(arkStep_mem, 8)
+Sundials.@checkflag Sundials.ARKStepSetNonlinConvCoef(arkStep_mem, 1.e-7)
+Sundials.@checkflag Sundials.ARKStepSetMaxNumSteps(arkStep_mem, 100000)
+Sundials.@checkflag Sundials.ARKStepSetPredictorMethod(arkStep_mem, 1)
 
-Sundials.@checkflag Sundials.ARKodeSStolerances(arkode_mem, reltol, abstol)
+Sundials.@checkflag Sundials.ARKStepSStolerances(arkStep_mem, reltol, abstol)
 A = Sundials.SUNDenseMatrix(neq,neq)
 LS = Sundials.SUNLinSol_Dense(y0,A)
-Sundials.@checkflag Sundials.ARKDlsSetLinearSolver(arkode_mem, LS, A)
+Sundials.@checkflag Sundials.ARKStepSetLinearSolver(arkStep_mem, LS, A)
 
 iout = 0
 tout = t1
@@ -44,12 +44,21 @@ t = [t0]
 
 while iout < nout
     y = similar(y0)
-    flag = Sundials.ARKode(arkode_mem, tout, y, t, Sundials.ARK_NORMAL)
+    flag = Sundials.ARKStepEvolve(arkStep_mem, tout, y, t, Sundials.ARK_NORMAL)
+    @test flag == 0
     println("T=", tout, ", Y=", y)
     global iout += 1
     global tout *= tmult
 end
 
-#Sundials.ARKodeFree(mem_ptr)
-#Sundials.SUNLinSolFree_Dense(LS)
-#Sundials.SUNMatDestroy_Dense(A)
+tmp1 = Ref(Clong(-1))
+tmp2 = Ref(Clong(-1))
+Sundials.@checkflag Sundials.ARKStepGetNumSteps(arkStep_mem, tmp1);
+Sundials.@checkflag Sundials.ARKStepGetNumStepAttempts(arkStep_mem, tmp1);
+Sundials.@checkflag Sundials.ARKStepGetNumRhsEvals(arkStep_mem, tmp1, tmp2);
+Sundials.@checkflag Sundials.ARKStepGetNumLinSolvSetups(arkStep_mem, tmp1);
+Sundials.@checkflag Sundials.ARKStepGetNumErrTestFails(arkStep_mem, tmp1);
+Sundials.@checkflag Sundials.ARKStepGetNumNonlinSolvIters(arkStep_mem, tmp1);
+Sundials.@checkflag Sundials.ARKStepGetNumNonlinSolvConvFails(arkStep_mem, tmp1);
+Sundials.@checkflag Sundials.ARKStepGetNumJacEvals(arkStep_mem, tmp1);
+Sundials.@checkflag Sundials.ARKStepGetNumLinRhsEvals(arkStep_mem, tmp2);
