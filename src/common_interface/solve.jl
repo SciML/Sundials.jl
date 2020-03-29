@@ -380,11 +380,11 @@ function DiffEqBase.__init(
 
 
 
-    mem_ptr = ARKodeCreate()
+    mem_ptr = ARKStepCreate()
     (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && ARKodeSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
+    !verbose && ARKStepSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
                                     (Cint, Char,
                                     Char, Ptr{Cvoid})),C_NULL)
 
@@ -447,7 +447,7 @@ function DiffEqBase.__init(
         cfj1 = getcfunjac(userfun)
         cfj2 = getcfunjac2(userfun)
 
-        flag = ARKodeInit(mem,
+        flag = ARKStepInit(mem,
                     cfj1,cfj2,
                     t0, convert(N_Vector, u0nv))
     else
@@ -459,7 +459,7 @@ function DiffEqBase.__init(
                          N_Vector, Ref{T}))
             end
             cfj1 = getcfun1(userfun)
-            flag = ARKodeInit(mem,
+            flag = ARKStepInit(mem,
                         cfj1,
                         C_NULL,
                         t0, convert(N_Vector, u0nv))
@@ -470,49 +470,49 @@ function DiffEqBase.__init(
                          N_Vector, Ref{T}))
             end
             cfj2 = getcfun2(userfun)
-            flag = ARKodeInit(mem,
+            flag = ARKStepInit(mem,
                         C_NULL,cfj2,
                         t0, convert(N_Vector, u0nv))
         end
     end
 
-    dt != nothing && (flag = ARKodeSetInitStep(mem, dt))
-    flag = ARKodeSetMinStep(mem, dtmin)
-    flag = ARKodeSetMaxStep(mem, dtmax)
-    flag = ARKodeSetUserData(mem, userfun)
+    dt != nothing && (flag = ARKStepSetInitStep(mem, dt))
+    flag = ARKStepSetMinStep(mem, dtmin)
+    flag = ARKStepSetMaxStep(mem, dtmax)
+    flag = ARKStepSetUserData(mem, userfun)
     if typeof(abstol) <: Array
-        flag = ARKodeSVtolerances(mem, reltol, abstol)
+        flag = ARKStepSVtolerances(mem, reltol, abstol)
     else
-        flag = ARKodeSStolerances(mem, reltol, abstol)
+        flag = ARKStepSStolerances(mem, reltol, abstol)
     end
-    flag = ARKodeSetMaxNumSteps(mem, maxiters)
-    flag = ARKodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
-    flag = ARKodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
-    flag = ARKodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
-    flag = ARKodeSetMaxConvFails(mem, alg.max_convergence_failures)
-    flag = ARKodeSetPredictorMethod(mem, alg.predictor_method)
-    flag = ARKodeSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
-    flag = ARKodeSetDenseOrder(mem,alg.dense_order)
+    flag = ARKStepSetMaxNumSteps(mem, maxiters)
+    flag = ARKStepSetMaxHnilWarns(mem, alg.max_hnil_warns)
+    flag = ARKStepSetMaxErrTestFails(mem, alg.max_error_test_failures)
+    flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
+    flag = ARKStepSetMaxConvFails(mem, alg.max_convergence_failures)
+    flag = ARKStepSetPredictorMethod(mem, alg.predictor_method)
+    flag = ARKStepSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
+    flag = ARKStepSetDenseOrder(mem,alg.dense_order)
 
     if alg.itable == nothing && alg.etable == nothing
-        flag = ARKodeSetOrder(mem,alg.order)
+        flag = ARKStepSetOrder(mem,alg.order)
     elseif alg.itable == nothing && alg.etable != nothing
-        flag = ARKodeSetERKTableNum(mem, alg.etable)
+        flag = ARKStepSetERKTableNum(mem, alg.etable)
     elseif alg.itable != nothing && alg.etable == nothing
-        flag = ARKodeSetIRKTableNum(mem, alg.itable)
+        flag = ARKStepSetIRKTableNum(mem, alg.itable)
     else
-        flag = ARKodeSetARKTableNum(mem, alg.itable, alg.etable)
+        flag = ARKStepSetARKTableNum(mem, alg.itable, alg.etable)
     end
 
-    flag = ARKodeSetNonlinCRDown(mem,alg.crdown)
-    flag = ARKodeSetNonlinRDiv(mem, alg.rdiv)
-    flag = ARKodeSetDeltaGammaMax(mem, alg.dgmax)
-    flag = ARKodeSetMaxStepsBetweenLSet(mem, alg.msbp)
-    #flag = ARKodeSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
+    flag = ARKStepSetNonlinCRDown(mem,alg.crdown)
+    flag = ARKStepSetNonlinRDiv(mem, alg.rdiv)
+    flag = ARKStepSetDeltaGammaMax(mem, alg.dgmax)
+    flag = ARKStepSetMaxStepsBetweenLSet(mem, alg.msbp)
+    #flag = ARKStepSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
 
 
-    #flag = ARKodeSetFixedStep(mem,)
-    alg.set_optimal_params && (flag = ARKodeSetOptimalParams(mem))
+    #flag = ARKStepSetFixedStep(mem,)
+    alg.set_optimal_params && (flag = ARKStepSetOptimalParams(mem))
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
@@ -562,7 +562,7 @@ function DiffEqBase.__init(
             _LS = LinSolHandle(LS,KLU())
         end
     elseif Method == :Functional
-        ARKodeSetFixedPoint(mem, Clong(alg.krylov_dim))
+        ARKStepSetFixedPoint(mem, Clong(alg.krylov_dim))
     else
         _A = nothing
         _LS = nothing
@@ -584,7 +584,7 @@ function DiffEqBase.__init(
                             N_Vector))
         end
         jtimes = getcfunjtimes(userfun)
-        ARKodeSpilsSetJacTimes(mem, C_NULL, jtimes)
+        ARKStepSpilsSetJacTimes(mem, C_NULL, jtimes)
     end
 
     if prob.f.mass_matrix != LinearAlgebra.I
@@ -667,7 +667,7 @@ function DiffEqBase.__init(
                            N_Vector))
       end
       jac = getfunjac(userfun)
-      flag = ARKodeSetUserData(mem, userfun)
+      flag = ARKStepSetUserData(mem, userfun)
       flag = ARKDlsSetJacFn(mem, jac)
     else
         jac = nothing
@@ -1097,7 +1097,7 @@ function solver_step(integrator::CVODEIntegrator,tstop)
     end
 end
 function solver_step(integrator::ARKODEIntegrator,tstop)
-    integrator.flag = ARKode(integrator.mem, tstop, integrator.u, integrator.tout, ARK_ONE_STEP)
+    integrator.flag = ARKStep(integrator.mem, tstop, integrator.u, integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
       Logging.@logmsg(-1,
       integrator.opts.progress_name,
