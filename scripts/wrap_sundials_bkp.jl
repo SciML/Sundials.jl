@@ -57,7 +57,7 @@ end
 function wrap_cursor(name::AbstractString, cursor)
     if typeof(cursor) == Clang.CLFunctionDecl
         # only wrap API functions
-        return occursin(r"^(CV|KIN|IDA|ARK|ERK|MRI|N_V|SUN)", name)
+        return occursin(r"^(CV|KIN|IDA|ARK|N_V|SUN)", name)
     else
         # skip problematic definitions
         return !occursin(r"^(ABS|SQRT|EXP)$", name)
@@ -154,7 +154,7 @@ function wrap_sundials_api(expr::Expr)
         expr.args[1].head == :call
         func_name = string(expr.args[1].args[1])
         convert_required = false
-        if occursin(r"^(ARK|ERK|MRI|CV|KIN|IDA|SUN|N_V)", func_name)
+        if occursin(r"^(ARK|CV|KIN|IDA|SUN|N_V)", func_name)
 	        @show func_name
             if occursin(r"Create$", func_name) && !occursin(r"Butcher", func_name)
                 # create functions return typed pointers
