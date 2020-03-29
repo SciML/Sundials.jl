@@ -1,5 +1,4 @@
-using Sundials
-using Tests
+using Sundials, Test
 
 ## f routine. Compute function f(t,y).
 

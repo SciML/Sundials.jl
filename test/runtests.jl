@@ -7,27 +7,24 @@ using Test
     #@testset "CVODES Direct" begin include("cvodes_dns.jl") end
 end
 
-# Requires, recasting the problem in a different form
-#Arkode old: http://runge.math.smu.edu/arkode_dev/doc/guide/build/html/Mathematics.html
-#Arkode new: https://computing.llnl.gov/sites/default/files/public/ark_guide.pdf
-#@testset "ARK" begin
-#    @testset "Roberts ARKStep Direct" begin include("arkode_Roberts_dns.jl") end
-#end
-#@testset "IDA" begin
+@testset "ARK" begin
+   @testset "Roberts ARKStep Direct" begin include("arkode_Roberts_dns.jl") end
+end
+@testset "IDA" begin
     @testset "Roberts IDA Simplified" begin include("ida_Roberts_simplified.jl") end
     @testset "Roberts IDA Direct" begin include("ida_Roberts_dns.jl") end
     @testset "Heat IDA Direct" begin include("ida_Heat2D.jl") end
     # Commented out because still uses the syntax from Grid which is a deprecated package
     #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
-#end
-#@testset "Kinsol" begin
+end
+@testset "Kinsol" begin
     @testset "Kinsol Simplified" begin include("kinsol_mkin_simplified.jl") end
     @testset "Kinsol MKin" begin include("kinsol_mkinTest.jl") end
     @testset "Kinsol Banded" begin include("kinsol_banded.jl") end
-#end
+end
 @testset "Handle Tests" begin include("handle_tests.jl") end
 
-#@testset "Common Interface" begin
+@testset "Common Interface" begin
 #    @testset "CVODE" begin include("common_interface/cvode.jl") end
 #    @testset "ARKStep" begin include("common_interface/arkode.jl") end
     @testset "IDA" begin include("common_interface/ida.jl") end
@@ -36,4 +33,4 @@ end
     @testset "Iterator" begin include("common_interface/iterators.jl") end
     @testset "Errors" begin include("common_interface/errors.jl") end
 #    @testset "Mass Matrix" begin include("common_interface/mass_matrix.jl") end
-#end
+end
