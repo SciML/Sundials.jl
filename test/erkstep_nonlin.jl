@@ -51,9 +51,9 @@ Sundials.@checkflag Sundials.ERKStepSStolerances(erkStep_mem, reltol, abstol)
 
 res = [0.0]
 t = [t0]
-y = similar(y0)
 tout = t0 + dTout
 while (tf - t[1] > 1e-15)
+    y = similar(y0)
     Sundials.@checkflag Sundials.ERKStepEvolve(erkStep_mem, tout, y, t, Sundials.ARK_NORMAL)
     push!(res, y[1])
     global tout += dTout
@@ -71,4 +71,4 @@ Sundials.@checkflag Sundials.ERKStepGetNumSteps(erkStep_mem, temp)
 Sundials.@checkflag Sundials.ERKStepGetNumStepAttempts(erkStep_mem, temp)
 Sundials.@checkflag Sundials.ERKStepGetNumRhsEvals(erkStep_mem, temp)
 Sundials.@checkflag Sundials.ERKStepGetNumErrTestFails(erkStep_mem, temp)
-Sundials.ERKStepFree(erkStep_mem)
+Sundials.ERKStepFree(mem_ptr)
