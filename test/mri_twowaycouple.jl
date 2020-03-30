@@ -68,5 +68,18 @@ _mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0);
 inner_arkode_mem = Sundials.Handle(_mem_ptr)
 Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem, -1, Sundials.KNOTH_WOLKE_3_3)
 Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
-Sundials.@checkflag Sundials.MRIStepCreate(fs, T0, y0, inner_arkode_mem)
+
 # Slow integrator portion
+_arkode_mem_ptr = Sundials.MRIStepCreate(fs, T0, y0, inner_arkode_mem)
+arkode_mem = Sundials.Handle(_arkode_mem_ptr)
+Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
+
+t = [T0]
+tout = T0+dTout
+
+for _ in 1:Nt
+    y= similar(y0)
+    retval = Sundials.MRIStepEvolve(arkode_mem, tout, y, t, Sundials.ARK_NORMAL)
+    global tout += dTout;
+    global tout = (tout > Tf) ? Tf : tout;
+end
