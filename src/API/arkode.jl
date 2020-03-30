@@ -493,7 +493,7 @@ end
 
 function ARKStepGetErrWeights(arkode_mem, eweight)
     __eweight = convert(NVector, eweight)
-    ARKStepGetErrWeights(arkode_mem, eweightconvert(N_vector, __eweight))
+    ARKStepGetErrWeights(arkode_mem, convert(N_Vector, __eweight))
 end
 
 function ARKStepGetResWeights(arkode_mem, rweight::N_Vector)
@@ -756,3 +756,511 @@ end
 
 # Julia wrapper for header: arkode_mristep.h
 # Automatically generated using Clang.jl
+
+function ERKStepCreate(f::ARKRhsFn, t0::realtype, y0::N_Vector)
+    ccall((:ERKStepCreate, libsundials_arkode), ARKStepMemPtr, (ARKRhsFn, realtype, N_Vector), f, t0, y0)
+end
+
+function ERKStepCreate(f, t0, y0)
+    __y0 = convert(NVector, y0)
+    ERKStepCreate(ARKRhsFn_wrapper(f), t0, convert(N_Vector, __y0))
+end
+
+function ERKStepResize(arkode_mem, ynew::N_Vector, hscale::realtype, t0::realtype, resize::ARKVecResizeFn, resize_data)
+    ccall((:ERKStepResize, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, hscale, t0, resize, resize_data)
+end
+
+function ERKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
+    __ynew = convert(NVector, ynew)
+    ERKStepResize(arkode_mem, convert(N_Vector, __ynew), hscale, t0, resize, resize_data)
+end
+
+function ERKStepReInit(arkode_mem, f::ARKRhsFn, t0::realtype, y0::N_Vector)
+    ccall((:ERKStepReInit, libsundials_arkode), Cint, (ARKStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, f, t0, y0)
+end
+
+function ARKStepReInit(arkode_mem, f, t0, y0)
+    __y0 = convert(NVector, y0)
+    ARKStepReInit(arkode_mem, ARKRhsFn_wrapper(f), t0, convert(N_Vector, __y0))
+end
+
+function ERKStepSStolerances(arkode_mem, reltol::realtype, abstol::realtype)
+    ccall((:ERKStepSStolerances, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, realtype), arkode_mem, reltol, abstol)
+end
+
+function ERKStepSVtolerances(arkode_mem, reltol::realtype, abstol::N_Vector)
+    ccall((:ERKStepSVtolerances, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
+end
+
+function ERKStepSVtolerances(arkode_mem, reltol, abstol)
+    __abstol = convert(NVector, abstol)
+    ERKStepSVtolerances(arkode_mem, reltol, convert(N_Vector, __abstol))
+end
+
+function ERKStepWFtolerances(arkode_mem, efun::ARKEwtFn)
+    ccall((:ERKStepWFtolerances, libsundials_arkode), Cint, (ARKStepMemPtr, ARKEwtFn), arkode_mem, efun)
+end
+
+function ERKStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
+    ccall((:ERKStepRootInit, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, ARKRootFn), arkode_mem, nrtfn, g)
+end
+
+function ERKStepRootInit(arkode_mem, nrtfn, g::ARKRootFn)
+    ERKStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
+end
+
+function ERKStepSetDefaults(arkode_mem)
+    ccall((:ERKStepSetDefaults, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+end
+
+function ERKStepSetOrder(arkode_mem, maxord::Cint)
+    ccall((:ERKStepSetOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, maxord)
+end
+
+function ERKStepSetOrder(arkode_mem, maxord)
+    ERKStepSetOrder(arkode_mem, convert(Cint, maxord))
+end
+
+function ERKStepSetDenseOrder(arkode_mem, dord::Cint)
+    ccall((:ERKStepSetDenseOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, dord)
+end
+
+function ERKStepSetDenseOrder(arkode_mem, maxord)
+    ERKStepSetOrder(arkode_mem, convert(Cint, maxord))
+end
+
+function ERKStepSetTable(arkode_mem, B)
+    ccall((:ERKStepSetTable, libsundials_arkode), Cint, (ARKStepMemPtr, ARKodeButcherTable), arkode_mem, B)
+end
+
+function ERKStepSetTableNum(arkode_mem, itable::Cint)
+    ccall((:ERKStepSetTableNum, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, itable)
+end
+
+function ERKStepSetTableNum(arkode_mem, itable)
+    ERKStepSetTableNum(arkode_mem, convert(Cint, itable))
+end
+
+function ERKStepSetCFLFraction(arkode_mem, cfl_frac::realtype)
+    ccall((:ERKStepSetCFLFraction, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, cfl_frac)
+end
+
+function ERKStepSetSafetyFactor(arkode_mem, safety::realtype)
+    ccall((:ERKStepSetSafetyFactor, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, safety)
+end
+
+function ERKStepSetErrorBias(arkode_mem, bias::realtype)
+    ccall((:ERKStepSetErrorBias, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, bias)
+end
+
+function ERKStepSetMaxGrowth(arkode_mem, mx_growth::realtype)
+    ccall((:ERKStepSetMaxGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, mx_growth)
+end
+
+function ERKStepSetFixedStepBounds(arkode_mem, lb::realtype, ub::realtype)
+    ccall((:ERKStepSetFixedStepBounds, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, realtype), arkode_mem, lb, ub)
+end
+
+function ERKStepSetAdaptivityMethod(arkode_mem,imethod::Cint, idefault::Cint, pq::Cint, adapt_params)
+    ccall((:ERKStepSetAdaptivityMethod, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, Cint, Cint, Ptr{realtype}), arkode_mem, imethod, idefault, pq, adapt_params)
+end
+
+function ERKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
+    ERKStepSetAdaptivityMethod(arkode_mem, convert(Cint, imethod), convert(Cint, idefault), convert(Cint, pq), adapt_params)
+end
+
+function ERKStepSetAdaptivityFn(arkode_mem, hfun::ARKAdaptFn, h_data)
+    ccall((:ERKStepSetAdaptivityFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data)
+end
+
+function ERKStepSetMaxFirstGrowth(arkode_mem, etamx1::realtype)
+    ccall((:ERKStepSetMaxFirstGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, etamx1)
+end
+
+function ERKStepSetMaxEFailGrowth(arkode_mem, etamxf::realtype)
+    ccall((:ERKStepSetMaxEFailGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, etamxf)
+end
+
+function ERKStepSetSmallNumEFails(arkode_mem, small_nef::Cint)
+    ccall((:ERKStepSetSmallNumEFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, small_nef)
+end
+
+function ERKStepSetSmallNumEFails(arkode_mem, small_nef)
+    ERKStepSetSmallNumEFails(arkode_mem, convert(Cint, small_nef))
+end
+
+# Note ARKExpStabFn not implemented in Julia
+function ERKStepSetStabilityFn(arkode_mem, EStab, estab_data)
+    ccall((:ERKStepSetStabilityFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data)
+end
+
+function ERKStepSetMaxErrTestFails(arkode_mem, maxnef::Cint)
+    ccall((:ERKStepSetMaxErrTestFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, maxnef)
+end
+
+function ERKStepSetMaxErrTestFails(arkode_mem, maxnef)
+    return ERKStepSetMaxErrTestFails(arkode_mem, convert(Cint, maxnef))
+end
+
+function ERKStepSetConstraints(arkode_mem, constraints::N_Vector)
+    ccall((:ERKStepSetConstraints, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector), arkode_mem, constraints)
+end
+
+function ERKStepSetConstraints(arkode_mem, constraints)
+    __constraints = convert(NVector, constraints)
+    ERKStepSetConstraints(arkode_mem, convert(N_Vector, __constraints))
+end
+
+function ERKStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
+    ccall((:ERKStepSetMaxNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Clong), arkode_mem, mxsteps)
+end
+
+function ERKStepSetMaxHnilWarns(arkode_mem, mxhnil::Cint)
+    ccall((:ERKStepSetMaxHnilWarns, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, mxhnil)
+end
+
+function ERKStepSetMaxHnilWarns(arkode_mem, mxhnil)
+    ERKStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
+end
+
+function ERKStepSetInitStep(arkode_mem, hin::realtype)
+    ccall((:ERKStepSetInitStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, hin)
+end
+
+function ERKStepSetMinStep(arkode_mem, hmin::realtype)
+    ccall((:ERKStepSetMinStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, hmin)
+end
+
+function ERKStepSetMaxStep(arkode_mem, hmax::realtype)
+    ccall((:ERKStepSetMaxStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, hmax)
+end
+
+function ERKStepSetStopTime(arkode_mem, tstop::realtype)
+    ccall((:ERKStepSetStopTime, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, tstop)
+end
+
+function ERKStepSetFixedStep(arkode_mem, hfixed::realtype)
+    ccall((:ERKStepSetFixedStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, hfixed)
+end
+
+function ERKStepSetMaxNumConstrFails(arkode_mem, maxfails::Cint)
+    ccall((:ERKStepSetMaxNumConstrFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, maxfails)
+end
+
+function ERKStepSetMaxNumConstrFails(arkode_mem, maxfails)
+    ERKStepSetMaxNumConstrFails(arkode_mem, convert(Cint, maxfails))
+end
+
+function ERKStepSetRootDirection(arkode_mem, rootdir)
+    ccall((:ERKStepSetRootDirection, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, rootdir)
+end
+
+function ERKStepSetNoInactiveRootWarn(arkode_mem)
+    ccall((:ERKStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+end
+
+function ERKStepSetErrHandlerFn(arkode_mem, ehfun::ARKErrHandlerFn, eh_data)
+    ccall((:ERKStepSetErrHandlerFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
+end
+
+function ERKStepSetErrFile(arkode_mem, errfp)
+    ccall((:ERKStepSetErrFile, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, errfp)
+end
+
+function ERKStepSetUserData(arkode_mem, user_data)
+    ccall((:ERKStepSetUserData, libsundials_arkode), Cint, (ARKStepMemPtr, Any), arkode_mem, user_data)
+end
+
+function ERKStepSetDiagnostics(arkode_mem, diagfp)
+    ccall((:ERKStepSetDiagnostics, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, diagfp)
+end
+
+function ERKStepSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessStepFn)
+    ccall((:ERKStepSetPostprocessStepFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKPostProcessStepFn), arkode_mem, ProcessStep)
+end
+
+function ERKStepEvolve(arkode_mem, tout::realtype, yout::N_Vector, tret, itask::Cint)
+    ccall((:ERKStepEvolve, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout, tret, itask)
+end
+
+function ERKStepEvolve(arkode_mem, tout, yout, tret, itask)
+    __yout = convert(NVector, yout)
+    ERKStepEvolve(arkode_mem, tout, convert(N_Vector, __yout), tret, convert(Cint, itask))
+end
+
+function ERKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::N_Vector)
+    ccall((:ERKStepGetDky, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
+end
+
+function ERKStepGetDky(arkode_mem, t::realtype, k, dky)
+    __dky = convert(NVector, dky)
+    ERKStepGetDky(arkode_mem, t, convert(Cint, k), convert(N_Vector, __dky))
+end
+
+function ERKStepGetNumExpSteps(arkode_mem, expsteps)
+    ccall((:ERKStepGetNumExpSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, expsteps)
+end
+
+function ERKStepGetNumAccSteps(arkode_mem, accsteps)
+    ccall((:ERKStepGetNumAccSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, accsteps)
+end
+
+function ERKStepGetNumStepAttempts(arkode_mem, step_attempts)
+    ccall((:ERKStepGetNumStepAttempts, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, step_attempts)
+end
+
+function ERKStepGetNumRhsEvals(arkode_mem, nfevals)
+    ccall((:ERKStepGetNumRhsEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nfevals)
+end
+
+function ERKStepGetNumErrTestFails(arkode_mem, netfails)
+    ccall((:ERKStepGetNumErrTestFails, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, netfails)
+end
+
+function ERKStepGetCurrentButcherTable(arkode_mem, B)
+    ccall((:ERKStepGetCurrentButcherTable, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B)
+end
+
+function ERKStepGetEstLocalErrors(arkode_mem, ele::N_Vector)
+    ccall((:ERKStepGetEstLocalErrors, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector), arkode_mem, ele)
+end
+
+function ERKStepGetEstLocalErrors(arkode_mem, ele)
+    __ele = convert(NVector, ele)
+    ERKStepGetEstLocalErrors(arkode_mem, convert(N_Vector, __ele))
+end
+
+function ERKStepGetWorkSpace(arkode_mem, lenrw, leniw)
+    ccall((:ERKStepGetWorkSpace, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
+end
+
+function ERKStepGetNumSteps(arkode_mem, nsteps)
+    ccall((:ERKStepGetNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nsteps)
+end
+
+function ERKStepGetActualInitStep(arkode_mem, hinused)
+    ccall((:ERKStepGetActualInitStep, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hinused)
+end
+
+function ERKStepGetLastStep(arkode_mem, hlast)
+    ccall((:ERKStepGetLastStep, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hlast)
+end
+
+function ERKStepGetCurrentStep(arkode_mem, hcur)
+    ccall((:ERKStepGetCurrentStep, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hcur)
+end
+
+function ERKStepGetCurrentTime(arkode_mem, tcur)
+    ccall((:ERKStepGetCurrentTime, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tcur)
+end
+
+function ERKStepGetTolScaleFactor(arkode_mem, tolsfac)
+    ccall((:ERKStepGetTolScaleFactor, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tolsfac)
+end
+
+function ERKStepGetErrWeights(arkode_mem, eweight::N_Vector)
+    ccall((:ERKStepGetErrWeights, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector), arkode_mem, eweight)
+end
+
+function ERKStepGetErrWeights(arkode_mem, eweight)
+    __eweight = convert(NVector, eweight)
+    ERKStepGetErrWeights(arkode_mem, convert(N_Vector, __eweight))
+end
+
+function ERKStepGetNumGEvals(arkode_mem, ngevals)
+    ccall((:ERKStepGetNumGEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, ngevals)
+end
+
+function ERKStepGetRootInfo(arkode_mem, rootsfound)
+    ccall((:ERKStepGetRootInfo, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, rootsfound)
+end
+
+function ERKStepGetNumConstrFails(arkode_mem, nconstrfails)
+    ccall((:ERKStepGetNumConstrFails, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nconstrfails)
+end
+
+function ERKStepGetReturnFlagName(flag::Clong)
+    ccall((:ERKStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
+end
+
+function ERKStepWriteParameters(arkode_mem, fp)
+    ccall((:ERKStepWriteParameters, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, fp)
+end
+
+function ERKStepWriteButcher(arkode_mem, fp)
+    ccall((:ERKStepWriteButcher, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, fp)
+end
+
+function ERKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, step_attempts, nfevals, netfails)
+    ccall((:ERKStepGetTimestepperStats, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}), arkode_mem, expsteps, accsteps, step_attempts, nfevals, netfails)
+end
+
+function ERKStepGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur)
+    ccall((:ERKStepGetStepStats, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), arkode_mem, nsteps, hinused, hlast, hcur, tcur)
+end
+
+function ERKStepFree(arkode_mem)
+    ccall((:ERKStepFree, libsundials_arkode), Cvoid, (Ref{ARKStepMemPtr},), arkode_mem)
+end
+
+function ERKStepPrintMem(arkode_mem, outfile)
+    ccall((:ERKStepPrintMem, libsundials_arkode), Cvoid, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, outfile)
+end
+# Julia wrapper for header: arkode_ls.h
+# Automatically generated using Clang.jl
+
+# Julia wrapper for header: arkode_mristep.h
+# Automatically generated using Clang.jl
+
+
+function MRIStepCreate(fs, t0, y0, inner_step_id, inner_step_mem)
+    ccall((:MRIStepCreate, libsundials_arkode), ARKStepMemPtr, (ARKRhsFn, realtype, N_Vector, MRISTEP_ID, Ptr{Cvoid}), fs, t0, y0, inner_step_id, inner_step_mem)
+end
+
+function MRIStepResize(arkode_mem, ynew, t0, resize, resize_data)
+    ccall((:MRIStepResize, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, t0, resize, resize_data)
+end
+
+function MRIStepReInit(arkode_mem, fs, t0, y0)
+    ccall((:MRIStepReInit, libsundials_arkode), Cint, (ARKStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, fs, t0, y0)
+end
+
+function MRIStepRootInit(arkode_mem, nrtfn, g)
+    ccall((:MRIStepRootInit, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, ARKRootFn), arkode_mem, nrtfn, g)
+end
+
+function MRIStepSetDefaults(arkode_mem)
+    ccall((:MRIStepSetDefaults, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+end
+
+function MRIStepSetDenseOrder(arkode_mem, dord)
+    ccall((:MRIStepSetDenseOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, dord)
+end
+
+function MRIStepSetTable(arkode_mem, q, B)
+    ccall((:MRIStepSetTable, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, ARKodeButcherTable), arkode_mem, q, B)
+end
+
+function MRIStepSetTableNum(arkode_mem, itable)
+    ccall((:MRIStepSetTableNum, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, itable)
+end
+
+function MRIStepSetMaxNumSteps(arkode_mem, mxsteps)
+    ccall((:MRIStepSetMaxNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Clong), arkode_mem, mxsteps)
+end
+
+function MRIStepSetMaxHnilWarns(arkode_mem, mxhnil)
+    ccall((:MRIStepSetMaxHnilWarns, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, mxhnil)
+end
+
+function MRIStepSetStopTime(arkode_mem, tstop)
+    ccall((:MRIStepSetStopTime, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, tstop)
+end
+
+function MRIStepSetFixedStep(arkode_mem, hsfixed)
+    ccall((:MRIStepSetFixedStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, hsfixed)
+end
+
+function MRIStepSetRootDirection(arkode_mem, rootdir)
+    ccall((:MRIStepSetRootDirection, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, rootdir)
+end
+
+function MRIStepSetNoInactiveRootWarn(arkode_mem)
+    ccall((:MRIStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+end
+
+function MRIStepSetErrHandlerFn(arkode_mem, ehfun, eh_data)
+    ccall((:MRIStepSetErrHandlerFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
+end
+
+function MRIStepSetErrFile(arkode_mem, errfp)
+    ccall((:MRIStepSetErrFile, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, errfp)
+end
+
+function MRIStepSetUserData(arkode_mem, user_data)
+    ccall((:MRIStepSetUserData, libsundials_arkode), Cint, (ARKStepMemPtr, Any), arkode_mem, user_data)
+end
+
+function MRIStepSetDiagnostics(arkode_mem, diagfp)
+    ccall((:MRIStepSetDiagnostics, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, diagfp)
+end
+
+function MRIStepSetPostprocessStepFn(arkode_mem, ProcessStep)
+    ccall((:MRIStepSetPostprocessStepFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKPostProcessStepFn), arkode_mem, ProcessStep)
+end
+
+function MRIStepSetPreInnerFn(arkode_mem, prefn)
+    ccall((:MRIStepSetPreInnerFn, libsundials_arkode), Cint, (ARKStepMemPtr, MRIStepPreInnerFn), arkode_mem, prefn)
+end
+
+function MRIStepSetPostInnerFn(arkode_mem, postfn)
+    ccall((:MRIStepSetPostInnerFn, libsundials_arkode), Cint, (ARKStepMemPtr, MRIStepPostInnerFn), arkode_mem, postfn)
+end
+
+function MRIStepEvolve(arkode_mem, tout, yout, tret, itask)
+    ccall((:MRIStepEvolve, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout, tret, itask)
+end
+
+function MRIStepGetDky(arkode_mem, t, k, dky)
+    ccall((:MRIStepGetDky, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
+end
+
+function MRIStepGetNumRhsEvals(arkode_mem, nfs_evals)
+    ccall((:MRIStepGetNumRhsEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nfs_evals)
+end
+
+function MRIStepGetCurrentButcherTables(arkode_mem, B)
+    ccall((:MRIStepGetCurrentButcherTables, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B)
+end
+
+function MRIStepGetWorkSpace(arkode_mem, lenrw, leniw)
+    ccall((:MRIStepGetWorkSpace, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
+end
+
+function MRIStepGetNumSteps(arkode_mem, nssteps)
+    ccall((:MRIStepGetNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nssteps)
+end
+
+function MRIStepGetLastStep(arkode_mem, hlast)
+    ccall((:MRIStepGetLastStep, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hlast)
+end
+
+function MRIStepGetCurrentTime(arkode_mem, tcur)
+    ccall((:MRIStepGetCurrentTime, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tcur)
+end
+
+function MRIStepGetCurrentState(arkode_mem, ycur)
+    ccall((:MRIStepGetCurrentState, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{N_Vector}), arkode_mem, ycur)
+end
+
+function MRIStepGetNumGEvals(arkode_mem, ngevals)
+    ccall((:MRIStepGetNumGEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, ngevals)
+end
+
+function MRIStepGetRootInfo(arkode_mem, rootsfound)
+    ccall((:MRIStepGetRootInfo, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, rootsfound)
+end
+
+function MRIStepGetLastInnerStepFlag(arkode_mem, flag)
+    ccall((:MRIStepGetLastInnerStepFlag, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, flag)
+end
+
+function MRIStepGetReturnFlagName(flag)
+    ccall((:MRIStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
+end
+
+function MRIStepWriteParameters(arkode_mem, fp)
+    ccall((:MRIStepWriteParameters, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, fp)
+end
+
+function MRIStepWriteButcher(arkode_mem, fp)
+    ccall((:MRIStepWriteButcher, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, fp)
+end
+
+function MRIStepFree(arkode_mem)
+    ccall((:MRIStepFree, libsundials_arkode), Cvoid, (Ref{ARKStepMemPtr},), arkode_mem)
+end
+
+function MRIStepPrintMem(arkode_mem, outfile)
+    ccall((:MRIStepPrintMem, libsundials_arkode), Cvoid, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, outfile)
+end
