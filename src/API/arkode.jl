@@ -1113,12 +1113,23 @@ end
 # Automatically generated using Clang.jl
 
 
-function MRIStepCreate(fs, t0, y0, inner_step_id, inner_step_mem)
+function MRIStepCreate(fs::ARKRhsFn, t0::realtype, y0::N_Vector, inner_step_id::Cint, inner_step_mem)
     ccall((:MRIStepCreate, libsundials_arkode), ARKStepMemPtr, (ARKRhsFn, realtype, N_Vector, MRISTEP_ID, Ptr{Cvoid}), fs, t0, y0, inner_step_id, inner_step_mem)
 end
 
-function MRIStepResize(arkode_mem, ynew, t0, resize, resize_data)
+function MRIStepCreate(fs, t0::realtype, y0, inner_step_mem::Handle{Sundials.ARKStepMem})
+    __y0 = convert(NVector, y0)
+    _inner_step_mem = inner_step_mem.ptr_ref[]
+    return MRIStepCreate(ARKRhsFn_wrapper(fs), t0, convert(N_Vector, __y0), Sundials.MRISTEP_ARKSTEP, _inner_step_mem)
+end
+
+function MRIStepResize(arkode_mem, ynew::N_Vector, t0::realtype, resize, resize_data)
     ccall((:MRIStepResize, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, t0, resize, resize_data)
+end
+
+function MRIStepResize(arkode_mem, ynew, t0::realtype, resize, resize_data)
+    __ynew = convert(NVector, ynew)
+    return MRIStepResize(arkode_mem, convert(N_Vector, __ynew),t0, resize, resize_data)
 end
 
 function MRIStepReInit(arkode_mem, fs, t0, y0)
