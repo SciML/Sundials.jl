@@ -8,7 +8,7 @@ function f(t, y_nv, ydot_nv, user_data)
     ydot[1] = -0.04*y[1] + 1.0e4*y[2]*y[3]
     ydot[3] = 3.0e7*y[2]*y[2]
     ydot[2] = -ydot[1] - ydot[3]
-    return Sundials.CV_SUCCESS
+    return Sundials.ARK_SUCCESS
 end
 
 neq = 3
