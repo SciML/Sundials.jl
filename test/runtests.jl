@@ -8,7 +8,8 @@ using Test
 end
 
 @testset "ARK" begin
-   @testset "Roberts ARKStep Direct" begin include("arkode_Roberts_dns.jl") end
+   @testset "Roberts ARKStep Direct" begin include("arkstep_Roberts_dns.jl") end
+   @testset "NonLinear ERKStep Direct" begin include("erkstep_nonlin.jl") end
 end
 @testset "IDA" begin
     @testset "Roberts IDA Simplified" begin include("ida_Roberts_simplified.jl") end
