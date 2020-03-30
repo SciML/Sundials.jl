@@ -7,10 +7,6 @@ using Test
     #@testset "CVODES Direct" begin include("cvodes_dns.jl") end
 end
 
-@testset "ARK" begin
-   @testset "Roberts ARKStep Direct" begin include("arkstep_Roberts_dns.jl") end
-   @testset "NonLinear ERKStep Direct" begin include("erkstep_nonlin.jl") end
-end
 @testset "IDA" begin
     @testset "Roberts IDA Simplified" begin include("ida_Roberts_simplified.jl") end
     @testset "Roberts IDA Direct" begin include("ida_Roberts_dns.jl") end
@@ -18,6 +14,12 @@ end
     # Commented out because still uses the syntax from Grid which is a deprecated package
     #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
 end
+
+@testset "ARK" begin
+   @testset "Roberts ARKStep Direct" begin include("arkstep_Roberts_dns.jl") end
+   @testset "NonLinear ERKStep Direct" begin include("erkstep_nonlin.jl") end
+end
+
 @testset "Kinsol" begin
     @testset "Kinsol Simplified" begin include("kinsol_mkin_simplified.jl") end
     @testset "Kinsol MKin" begin include("kinsol_mkinTest.jl") end

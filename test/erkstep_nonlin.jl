@@ -65,3 +65,10 @@ y_analytic = log.((0.5*t.^2 .+ t .+ 1))
 for i in 1:length(t)
     @test isapprox(y_analytic[1], res[1]; atol= 1e-3)
 end
+y = nothing
+temp = Ref(Clong(-1))
+Sundials.@checkflag Sundials.ERKStepGetNumSteps(erkStep_mem, temp)
+Sundials.@checkflag Sundials.ERKStepGetNumStepAttempts(erkStep_mem, temp)
+Sundials.@checkflag Sundials.ERKStepGetNumRhsEvals(erkStep_mem, temp)
+Sundials.@checkflag Sundials.ERKStepGetNumErrTestFails(erkStep_mem, temp)
+Sundials.ERKStepFree(erkStep_mem)
