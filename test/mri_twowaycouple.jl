@@ -39,9 +39,9 @@ using Sundials, Test
 function ff(t, y_nv, ydot_nv, user_data)
     y = convert(Vector, y_nv)
     ydot = convert(Vector, ydot_nv)
-    ydot[1] = 100.0*y[2] + y[3]
+    ydot[1] = 100.0*y[2]
     ydot[2] = -100.0*y[1]
-    ydot[3] = -y[3]+y[1]
+    ydot[3] = y[1]
     return Sundials.ARK_SUCCESS
 end
 
