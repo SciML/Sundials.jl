@@ -17,7 +17,7 @@ end
 
 @testset "ARK" begin
    @testset "Roberts ARKStep Direct" begin include("arkstep_Roberts_dns.jl") end
-   #@testset "NonLinear ERKStep Direct" begin include("erkstep_nonlin.jl") end
+   @testset "NonLinear ERKStep Direct" begin include("erkstep_nonlin.jl") end
    #@testset "MRI two way couple" begin include("mri_twowaycouple.jl") end
 end
 

@@ -77,6 +77,7 @@ const ARKAdaptFn = Ptr{Cvoid}
 const ARKExpStabFn = Ptr{Cvoid}
 const ARKVecResizeFn = Ptr{Cvoid}
 const ARKPostProcessStepFn = Ptr{Cvoid}
+const ARKPostProcessFn = Ptr{Cvoid} #manually added
 const HEUN_EULER_2_1_2 = Cint(0)
 const DEFAULT_ERK_2 = HEUN_EULER_2_1_2
 const BOGACKI_SHAMPINE_4_2_3 = Cint(1)
