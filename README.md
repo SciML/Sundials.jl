@@ -23,6 +23,10 @@ following:
           ODEs via split, linearly-implicit form, implicit, and IMEX Runge-Kutta
           methods on ODEs of the form `My' = f_E(t,y,p) + f_i(t,y,p), y(t0) = y0(p)`
           for a set of parameters `p`.
+* *ERKStep* - for integration of non-stiff, stiff, and mixed mode
+          ODEs via split, linearly-implicit form, implicit, and IMEX Runge-Kutta
+          methods on ODEs of the form `y' = f(t,y,p), y(t0) = y0(p)`
+          for a set of parameters `p`.
 * *IDAS*   - for integration and sensitivity analysis of DAEs.
           IDAS treats DAE systems of the form
           `F(t,y,y',p) = 0, y(t0) = y0(p), y'(t0) = y0'(p)`
