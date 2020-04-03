@@ -1152,7 +1152,7 @@ end
 
 
 function MRIStepCreate(fs::ARKRhsFn, t0::realtype, y0::N_Vector, inner_step_id, inner_step_mem)
-    ccall((:MRIStepCreate, libsundials_arkode), ARKStepMemPtr, (ARKRhsFn, realtype, N_Vector, Sundials.MRISTEP_ID, Ptr{Cvoid}), fs, t0, y0, inner_step_id, inner_step_mem)
+    ccall((:MRIStepCreate, libsundials_arkode), MRIStepMemPtr, (ARKRhsFn, realtype, N_Vector, Sundials.MRISTEP_ID, Ptr{Cvoid}), fs, t0, y0, inner_step_id, inner_step_mem)
 end
 
 function MRIStepCreate(fs, t0::realtype, y0, inner_step_mem)
@@ -1161,7 +1161,7 @@ function MRIStepCreate(fs, t0::realtype, y0, inner_step_mem)
 end
 
 function MRIStepResize(arkode_mem, ynew::N_Vector, t0::realtype, resize, resize_data)
-    ccall((:MRIStepResize, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, t0, resize, resize_data)
+    ccall((:MRIStepResize, libsundials_arkode), Cint, (MRIStepMemPtr, N_Vector, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew, t0, resize, resize_data)
 end
 
 function MRIStepResize(arkode_mem, ynew, t0::realtype, resize, resize_data)
@@ -1170,7 +1170,7 @@ function MRIStepResize(arkode_mem, ynew, t0::realtype, resize, resize_data)
 end
 
 function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0::realtype, y0::N_Vector)
-    ccall((:MRIStepReInit, libsundials_arkode), Cint, (ARKStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, fs, t0, y0)
+    ccall((:MRIStepReInit, libsundials_arkode), Cint, (MRIStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, fs, t0, y0)
 end
 
 function MRIStepReInit(arkode_mem, fs, t0, y0)
@@ -1179,7 +1179,7 @@ function MRIStepReInit(arkode_mem, fs, t0, y0)
 end
 
 function MRIStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
-    ccall((:MRIStepRootInit, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, ARKRootFn), arkode_mem, nrtfn, g)
+    ccall((:MRIStepRootInit, libsundials_arkode), Cint, (MRIStepMemPtr, Cint, ARKRootFn), arkode_mem, nrtfn, g)
 end
 
 function MRIStepRootInit(arkode_mem, nrtfn, g::ARKRootFn)
@@ -1187,11 +1187,11 @@ function MRIStepRootInit(arkode_mem, nrtfn, g::ARKRootFn)
 end
 
 function MRIStepSetDefaults(arkode_mem)
-    ccall((:MRIStepSetDefaults, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+    ccall((:MRIStepSetDefaults, libsundials_arkode), Cint, (MRIStepMemPtr,), arkode_mem)
 end
 
 function MRIStepSetInterpolantType(arkode_mem, itype::Cint)
-    ccall((:MRIStepSetInterpolantType, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, itype)
+    ccall((:MRIStepSetInterpolantType, libsundials_arkode), Cint, (MRIStepMemPtr, Cint), arkode_mem, itype)
 end
 
 function MRIStepSetInterpolantType(arkode_mem, itype)
@@ -1199,7 +1199,7 @@ function MRIStepSetInterpolantType(arkode_mem, itype)
 end
 
 function MRIStepSetInterpolantDegree(arkode_mem, degree::Cint)
-    ccall((:MRIStepSetInterpolantDegree, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, degree)
+    ccall((:MRIStepSetInterpolantDegree, libsundials_arkode), Cint, (MRIStepMemPtr, Cint), arkode_mem, degree)
 end
 
 function MRIStepSetInterpolantDegree(arkode_mem, degree)
@@ -1207,7 +1207,7 @@ function MRIStepSetInterpolantDegree(arkode_mem, degree)
 end
 
 function MRIStepSetDenseOrder(arkode_mem, dord::Cint)
-    ccall((:MRIStepSetDenseOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, dord)
+    ccall((:MRIStepSetDenseOrder, libsundials_arkode), Cint, (MRIStepMemPtr, Cint), arkode_mem, dord)
 end
 
 function MRIStepDenseSetOrder(arkode_mem, dord)
@@ -1215,7 +1215,7 @@ function MRIStepDenseSetOrder(arkode_mem, dord)
 end
 
 function MRIStepSetTable(arkode_mem, q::Cint, B)
-    ccall((:MRIStepSetTable, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, ARKodeButcherTable), arkode_mem, q, B)
+    ccall((:MRIStepSetTable, libsundials_arkode), Cint, (MRIStepMemPtr, Cint, ARKodeButcherTable), arkode_mem, q, B)
 end
 
 function MRIStepSetTable(arkode_mem, q, B)
@@ -1223,7 +1223,7 @@ function MRIStepSetTable(arkode_mem, q, B)
 end
 
 function MRIStepSetTableNum(arkode_mem, itable::Cint)
-    ccall((:MRIStepSetTableNum, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, itable)
+    ccall((:MRIStepSetTableNum, libsundials_arkode), Cint, (MRIStepMemPtr, Cint), arkode_mem, itable)
 end
 
 function MRIStepSetTableNum(arkode_mem, itable)
@@ -1231,11 +1231,11 @@ function MRIStepSetTableNum(arkode_mem, itable)
 end
 
 function MRIStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
-    ccall((:MRIStepSetMaxNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Clong), arkode_mem, mxsteps)
+    ccall((:MRIStepSetMaxNumSteps, libsundials_arkode), Cint, (MRIStepMemPtr, Clong), arkode_mem, mxsteps)
 end
 
 function MRIStepSetMaxHnilWarns(arkode_mem, mxhnil::Cint)
-    ccall((:MRIStepSetMaxHnilWarns, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem, mxhnil)
+    ccall((:MRIStepSetMaxHnilWarns, libsundials_arkode), Cint, (MRIStepMemPtr, Cint), arkode_mem, mxhnil)
 end
 
 function MRIStepSetMaxHnilWarns(arkode_mem, mxhnil)
@@ -1243,58 +1243,58 @@ function MRIStepSetMaxHnilWarns(arkode_mem, mxhnil)
 end
 
 function MRIStepSetStopTime(arkode_mem, tstop)
-    ccall((:MRIStepSetStopTime, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, tstop)
+    ccall((:MRIStepSetStopTime, libsundials_arkode), Cint, (MRIStepMemPtr, realtype), arkode_mem, tstop)
 end
 
 function MRIStepSetFixedStep(arkode_mem, hsfixed::realtype)
-    ccall((:MRIStepSetFixedStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype), arkode_mem, hsfixed)
+    ccall((:MRIStepSetFixedStep, libsundials_arkode), Cint, (MRIStepMemPtr, realtype), arkode_mem, hsfixed)
 end
 
 function MRIStepSetRootDirection(arkode_mem, rootdir)
-    ccall((:MRIStepSetRootDirection, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, rootdir)
+    ccall((:MRIStepSetRootDirection, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Cint}), arkode_mem, rootdir)
 end
 
 function MRIStepSetNoInactiveRootWarn(arkode_mem)
-    ccall((:MRIStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+    ccall((:MRIStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (MRIStepMemPtr,), arkode_mem)
 end
 
 function MRIStepSetErrHandlerFn(arkode_mem, ehfun::ARKErrHandlerFn, eh_data)
-    ccall((:MRIStepSetErrHandlerFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
+    ccall((:MRIStepSetErrHandlerFn, libsundials_arkode), Cint, (MRIStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
 end
 
 function MRIStepSetErrFile(arkode_mem, errfp)
-    ccall((:MRIStepSetErrFile, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, errfp)
+    ccall((:MRIStepSetErrFile, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{FILE}), arkode_mem, errfp)
 end
 
 function MRIStepSetUserData(arkode_mem, user_data)
-    ccall((:MRIStepSetUserData, libsundials_arkode), Cint, (ARKStepMemPtr, Any), arkode_mem, user_data)
+    ccall((:MRIStepSetUserData, libsundials_arkode), Cint, (MRIStepMemPtr, Any), arkode_mem, user_data)
 end
 
 function MRIStepSetDiagnostics(arkode_mem, diagfp)
-    ccall((:MRIStepSetDiagnostics, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, diagfp)
+    ccall((:MRIStepSetDiagnostics, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{FILE}), arkode_mem, diagfp)
 end
 
 #new ARKPostProcessFn type. Before it was ARKPostProcessStepFn
 function MRIStepSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessFn)
-    ccall((:MRIStepSetPostprocessStepFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep)
+    ccall((:MRIStepSetPostprocessStepFn, libsundials_arkode), Cint, (MRIStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep)
 end
 
 function MRIStepSetPostprocessStageFn(arkode_mem, ProcessStage::ARKPostProcessFn)
-    ccall((:MRIStepSetPostprocessStageFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage)
+    ccall((:MRIStepSetPostprocessStageFn, libsundials_arkode), Cint, (MRIStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage)
 end
 
 #This one does not have MRIStepPreInnerFn
-function MRIStepSetPreInnerFn(arkode_mem, prefn)
-    ccall((:MRIStepSetPreInnerFn, libsundials_arkode), Cint, (ARKStepMemPtr, MRIStepPreInnerFn), arkode_mem, prefn)
+function MRIStepSetPreInnerFn(arkode_mem, prefn::MRIStepPreInnerFn)
+    ccall((:MRIStepSetPreInnerFn, libsundials_arkode), Cint, (MRIStepMemPtr, MRIStepPreInnerFn), arkode_mem, prefn)
 end
 
 #This one does not have MRIStepPostInnerFn
-function MRIStepSetPostInnerFn(arkode_mem, postfn)
-    ccall((:MRIStepSetPostInnerFn, libsundials_arkode), Cint, (ARKStepMemPtr, MRIStepPostInnerFn), arkode_mem, postfn)
+function MRIStepSetPostInnerFn(arkode_mem, postfn::MRIStepPostInnerFn)
+    ccall((:MRIStepSetPostInnerFn, libsundials_arkode), Cint, (MRIStepMemPtr, MRIStepPostInnerFn), arkode_mem, postfn)
 end
 
 function MRIStepEvolve(arkode_mem, tout::realtype, yout::N_Vector, tret, itask::Cint)
-    ccall((:MRIStepEvolve, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout, tret, itask)
+    ccall((:MRIStepEvolve, libsundials_arkode), Cint, (MRIStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout, tret, itask)
 end
 
 function MRIStepEvolve(arkode_mem, tout, yout, tret, itask)
@@ -1303,7 +1303,7 @@ function MRIStepEvolve(arkode_mem, tout, yout, tret, itask)
 end
 
 function MRIStepGetDky(arkode_mem, t::realtype, k::Cint, dky::N_Vector)
-    ccall((:MRIStepGetDky, libsundials_arkode), Cint, (ARKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
+    ccall((:MRIStepGetDky, libsundials_arkode), Cint, (MRIStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
 end
 
 function MRIStepGetDky(arkode_mem, t::realtype, k, dky)
@@ -1312,43 +1312,43 @@ function MRIStepGetDky(arkode_mem, t::realtype, k, dky)
 end
 
 function MRIStepGetNumRhsEvals(arkode_mem, nfs_evals)
-    ccall((:MRIStepGetNumRhsEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nfs_evals)
+    ccall((:MRIStepGetNumRhsEvals, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}), arkode_mem, nfs_evals)
 end
 
 function MRIStepGetCurrentButcherTables(arkode_mem, B)
-    ccall((:MRIStepGetCurrentButcherTables, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B)
+    ccall((:MRIStepGetCurrentButcherTables, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B)
 end
 
 function MRIStepGetWorkSpace(arkode_mem, lenrw, leniw)
-    ccall((:MRIStepGetWorkSpace, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
+    ccall((:MRIStepGetWorkSpace, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
 end
 
 function MRIStepGetNumSteps(arkode_mem, nssteps)
-    ccall((:MRIStepGetNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nssteps)
+    ccall((:MRIStepGetNumSteps, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}), arkode_mem, nssteps)
 end
 
 function MRIStepGetLastStep(arkode_mem, hlast)
-    ccall((:MRIStepGetLastStep, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hlast)
+    ccall((:MRIStepGetLastStep, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{realtype}), arkode_mem, hlast)
 end
 
 function MRIStepGetCurrentTime(arkode_mem, tcur)
-    ccall((:MRIStepGetCurrentTime, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tcur)
+    ccall((:MRIStepGetCurrentTime, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{realtype}), arkode_mem, tcur)
 end
 
 function MRIStepGetCurrentState(arkode_mem, ycur)
-    ccall((:MRIStepGetCurrentState, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{N_Vector}), arkode_mem, ycur)
+    ccall((:MRIStepGetCurrentState, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{N_Vector}), arkode_mem, ycur)
 end
 
 function MRIStepGetNumGEvals(arkode_mem, ngevals)
-    ccall((:MRIStepGetNumGEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}), arkode_mem, ngevals)
+    ccall((:MRIStepGetNumGEvals, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}), arkode_mem, ngevals)
 end
 
 function MRIStepGetRootInfo(arkode_mem, rootsfound)
-    ccall((:MRIStepGetRootInfo, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, rootsfound)
+    ccall((:MRIStepGetRootInfo, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Cint}), arkode_mem, rootsfound)
 end
 
 function MRIStepGetLastInnerStepFlag(arkode_mem, flag)
-    ccall((:MRIStepGetLastInnerStepFlag, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}), arkode_mem, flag)
+    ccall((:MRIStepGetLastInnerStepFlag, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Cint}), arkode_mem, flag)
 end
 
 function MRIStepGetReturnFlagName(flag)
@@ -1356,17 +1356,17 @@ function MRIStepGetReturnFlagName(flag)
 end
 
 function MRIStepWriteParameters(arkode_mem, fp)
-    ccall((:MRIStepWriteParameters, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, fp)
+    ccall((:MRIStepWriteParameters, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{FILE}), arkode_mem, fp)
 end
 
 function MRIStepWriteButcher(arkode_mem, fp)
-    ccall((:MRIStepWriteButcher, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, fp)
+    ccall((:MRIStepWriteButcher, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{FILE}), arkode_mem, fp)
 end
 
 function MRIStepFree(arkode_mem)
-    ccall((:MRIStepFree, libsundials_arkode), Cvoid, (Ref{ARKStepMemPtr},), arkode_mem)
+    ccall((:MRIStepFree, libsundials_arkode), Cvoid, (Ref{MRIStepMemPtr},), arkode_mem)
 end
 
 function MRIStepPrintMem(arkode_mem, outfile)
-    ccall((:MRIStepPrintMem, libsundials_arkode), Cvoid, (ARKStepMemPtr, Ptr{FILE}), arkode_mem, outfile)
+    ccall((:MRIStepPrintMem, libsundials_arkode), Cvoid, (MRIStepMemPtr, Ptr{FILE}), arkode_mem, outfile)
 end
