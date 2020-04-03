@@ -19,6 +19,12 @@ const CVODEMemPtr = Ptr{CVODEMem}
 struct ARKStepMem <: AbstractSundialsObject end
 const ARKStepMemPtr = Ptr{ARKStepMem}
 
+struct ERKStepMem <: AbstractSundialsObject end
+const ERKStepMemPtr = Ptr{ERKStepMem}
+
+struct MRIStepMem <: AbstractSundialsObject end
+const MRIStepMemPtr = Ptr{MRIStepMem}
+
 struct IDAMem <: AbstractSundialsObject end
 const IDAMemPtr = Ptr{IDAMem}
 
@@ -82,6 +88,8 @@ release_handle(ptr_ref::Ref{Ptr{T}}) where {T} = throw(MethodError("Freeing obje
 release_handle(ptr_ref::Ref{Ptr{KINMem}}) = ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{ARKStepMem}}) = ((ptr_ref[] != C_NULL) && ARKStepFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{ERKStepMem}}) = ((ptr_ref[] != C_NULL) && ERKStepFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{MRIStepMem}}) = ((ptr_ref[] != C_NULL) && MRIStepFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)
 
 function release_handle(h::MatrixHandle{DenseMatrix})
@@ -219,5 +227,7 @@ Base.isempty(h::NonLinSolHandle) = h.destroyed
 
 const CVODEh  =  Handle{CVODEMem}
 const ARKSteph =  Handle{ARKStepMem}
+const ERKSteph =  Handle{ERKStepMem}
+const MRISteph =  Handle{MRIStepMem}
 const KINh    =  Handle{KINMem}
 const IDAh    =  Handle{IDAMem}
