@@ -173,14 +173,17 @@ function DiffEqBase.__init(
                 LS = SUNLinSol_LapackDense(u0,A)
                 _LS = LinSolHandle(LS,LapackDense())
             end
-            flag = CVodeSetLinearSolver(mem, LS, A)
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
             A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
-            LS = SUNLinSol_Band(u0,A)
-            flag = CVodeSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,BandMatrix())
-            _LS = LinSolHandle(LS,Band())
+            if LinearSolver === :Band
+                LS = SUNLinSol_Band(u0,A)
+                _LS = LinSolHandle(LS,Band())
+            else
+                LS = SUNLinSol_LapackBand(u0,A)
+                _LS = LinSolHandle(LS,LapackBand())
+            end
         elseif LinearSolver == :Diagonal
             nojacobian = false
             flag = CVDiag(mem)
@@ -188,27 +191,22 @@ function DiffEqBase.__init(
             _LS = nothing
         elseif LinearSolver == :GMRES
             LS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = CVodeSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS,Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
             LS = SUNLinSol_SPFGMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = CVodeSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,SPFGMR())
         elseif LinearSolver == :BCG
             LS = SUNLinSol_SPBCGS(u0, alg.prec_side, alg.krylov_dim)
-            flag = CVodeSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,SPBCGS())
         elseif LinearSolver == :PCG
             LS = SUNLinSol_PCG(u0, alg.prec_side, alg.krylov_dim)
-            flag = CVodeSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,PCG())
         elseif LinearSolver == :TFQMR
             LS = SUNLinSol_SPTFQMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = CVodeSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
         elseif LinearSolver == :KLU
@@ -216,9 +214,11 @@ function DiffEqBase.__init(
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNLinSol_KLU(u0, A)
-            flag = CVodeSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,SparseMatrix())
             _LS = LinSolHandle(LS,KLU())
+        end
+        if LinearSolver !== :Diagonal
+            flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
         NLS = SUNNonlinSol_Newton(u0)
     else
@@ -526,51 +526,56 @@ function DiffEqBase.__init(
     alg.set_optimal_params && (flag = ARKStepSetOptimalParams(mem))
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
-        if LinearSolver == :Dense
+        if LinearSolver in (:Dense, :LapackDense)
+            nojacobian = false
             A = SUNDenseMatrix(length(u0),length(u0))
-            LS = SUNLinSol_Dense(u0,A)
-            flag = ARKStepSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,DenseMatrix())
-            _LS = LinSolHandle(LS,Dense())
-        elseif LinearSolver == :Band
+            if LinearSolver === :Dense
+                LS = SUNLinSol_Dense(u0,A)
+                _LS = LinSolHandle(LS,Dense())
+            else
+                LS = SUNLinSol_LapackDense(u0,A)
+                _LS = LinSolHandle(LS,LapackDense())
+            end
+        elseif LinearSolver in (:Band, :LapackBand)
+            nojacobian = false
             A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
-            LS = SUNLinSol_Band(u0,A)
-            flag = ARKStepSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,BandMatrix())
-            _LS = LinSolHandle(LS,Band())
+            if LinearSolver === :Band
+                LS = SUNLinSol_Band(u0,A)
+                _LS = LinSolHandle(LS,Band())
+            else
+                LS = SUNLinSol_LapackBand(u0,A)
+                _LS = LinSolHandle(LS,LapackBand())
+            end
         elseif LinearSolver == :GMRES
             LS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS,Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
             LS = SUNLinSol_SPFGMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,SPFGMR())
         elseif LinearSolver == :BCG
             LS = SUNLinSol_SPBCGS(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,SPBCGS())
         elseif LinearSolver == :PCG
             LS = SUNLinSol_PCG(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,PCG())
         elseif LinearSolver == :TFQMR
             LS = SUNLinSol_SPTFQMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
         elseif LinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNLinSol_KLU(u0, A)
-            flag = ARKStepSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,SparseMatrix())
             _LS = LinSolHandle(LS,KLU())
         end
+        flag = ARKStepSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
     elseif Method == :Functional
         ARKStepSetFixedPoint(mem, Clong(alg.krylov_dim))
     else
@@ -598,53 +603,56 @@ function DiffEqBase.__init(
     end
 
     if prob.f.mass_matrix != LinearAlgebra.I
-        if MassLinearSolver == :Dense
+        if LinearSolver in (:Dense, :LapackDense)
+            nojacobian = false
             M = SUNDenseMatrix(length(u0),length(u0))
-            MLS = SUNLinSol_Dense(u0,M)
-            ARKStepSetMassLinearSolver(mem,MLS,M,false)
             _M = MatrixHandle(M,DenseMatrix())
-            _MLS = LinSolHandle(MLS,Dense())
-        elseif MassLinearSolver == :Band
-            M = SUNBandMatrix(length(u0), alg.mass_upper, alg.mass_lower)
-            MLS = SUNLinSol_Band(u0,M)
-            ARKStepSetMassLinearSolver(mem,MLS,M,false)
+            if LinearSolver === :Dense
+                MLS = SUNLinSol_Dense(u0,M)
+                _MLS = LinSolHandle(LS,Dense())
+            else
+                MLS = SUNLinSol_LapackDense(u0,M)
+                _MLS = LinSolHandle(LS,LapackDense())
+            end
+        elseif LinearSolver in (:Band, :LapackBand)
+            nojacobian = false
+            M = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
             _M = MatrixHandle(M,BandMatrix())
-            _MLS = LinSolHandle(MLS,Band())
+            if LinearSolver === :Band
+                MLS = SUNLinSol_Band(u0,M)
+                _MLS = LinSolHandle(LS,Band())
+            else
+                MLS = SUNLinSol_LapackBand(u0,M)
+                _MLS = LinSolHandle(LS,LapackBand())
+            end
         elseif MassLinearSolver == :GMRES
             MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
-            ARKStepSetMassLinearSolver(mem,MLS,C_NULL,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,SPGMR())
         elseif MassLinearSolver == :FGMRES
             MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
-            ARKStepSetMassLinearSolver(mem,MLS,C_NULL,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,SPFGMR())
         elseif MassLinearSolver == :BCG
             MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
-            ARKStepSetMassLinearSolver(mem,MLS,C_NULL,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,SPBCGS())
         elseif MassLinearSolver == :PCG
             MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
-            ARKStepSetMassLinearSolver(mem,MLS,C_NULL,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,PCG())
         elseif MassLinearSolver == :TFQMR
             MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
-            ARKStepSetMassLinearSolver(mem,MLS,C_NULL,false)
             _M = nothing
             _MLS = LinSolHandle(MLS,PTFQMR())
         elseif MassLinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.mass_matrix))
             M = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             MLS = SUNLinSol_KLU(u0, M)
-            ARKStepSetMassLinearSolver(mem,MLS,M,false)
             _M = MatrixHandle(M,SparseMatrix())
             _MLS = LinSolHandle(MLS,KLU())
-        else
-            ARKStepSetMassLinearSolver(mem,MLS,C_NULL,false)
         end
+        flag = ARKStepSetMassLinearSolver(mem, MLS, _M === nothing ? C_NULL : M, false)
         function getmatfun(::T) where T
             @cfunction(massmat,
                             Cint,
@@ -915,51 +923,56 @@ function DiffEqBase.__init(
     #flag = IDASetMaxBacksIC(mem,alg.max_num_backs_ic) # Needs newer version?
     flag = IDASetLineSearchOffIC(mem,alg.use_linesearch_ic)
 
-    if LinearSolver == :Dense
+    if LinearSolver in (:Dense, :LapackDense)
+        nojacobian = false
         A = SUNDenseMatrix(length(u0),length(u0))
-        LS = SUNLinSol_Dense(u0,A)
-        flag = IDASetLinearSolver(mem, LS, A)
         _A = MatrixHandle(A,DenseMatrix())
-        _LS = LinSolHandle(LS,Dense())
-    elseif LinearSolver == :Band
+        if LinearSolver === :Dense
+            LS = SUNLinSol_Dense(u0,A)
+            _LS = LinSolHandle(LS,Dense())
+        else
+            LS = SUNLinSol_LapackDense(u0,A)
+            _LS = LinSolHandle(LS,LapackDense())
+        end
+    elseif LinearSolver in (:Band, :LapackBand)
+        nojacobian = false
         A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
-        LS = SUNLinSol_Band(u0,A)
-        flag = IDASetLinearSolver(mem, LS, A)
         _A = MatrixHandle(A,BandMatrix())
-        _LS = LinSolHandle(LS,Band())
+        if LinearSolver === :Band
+            LS = SUNLinSol_Band(u0,A)
+            _LS = LinSolHandle(LS,Band())
+        else
+            LS = SUNLinSol_LapackBand(u0,A)
+            _LS = LinSolHandle(LS,LapackBand())
+        end
     elseif LinearSolver == :GMRES
         LS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.krylov_dim)
-        flag = IDASetLinearSolver(mem, LS, C_NULL)
         _A = nothing
         _LS = LinSolHandle(LS,SPGMR())
     elseif LinearSolver == :FGMRES
         LS = SUNLinSol_SPFGMR(u0, alg.prec_side, alg.krylov_dim)
-        flag = IDASetLinearSolver(mem, LS, C_NULL)
         _A = nothing
         _LS = LinSolHandle(LS,SPFGMR())
     elseif LinearSolver == :BCG
         LS = SUNLinSol_SPBCGS(u0, alg.prec_side, alg.krylov_dim)
-        flag = IDASetLinearSolver(mem, LS, C_NULL)
         _A = nothing
         _LS = LinSolHandle(LS,SPBCGS())
     elseif LinearSolver == :PCG
         LS = SUNLinSol_PCG(u0, alg.prec_side, alg.krylov_dim)
-        flag = IDASetLinearSolver(mem, LS, C_NULL)
         _A = nothing
         _LS = LinSolHandle(LS,PCG())
     elseif LinearSolver == :TFQMR
         LS = SUNLinSol_SPTFQMR(u0, alg.prec_side, alg.krylov_dim)
-        flag = IDASetLinearSolver(mem, LS, C_NULL)
         _A = nothing
         _LS = LinSolHandle(LS,PTFQMR())
     elseif LinearSolver == :KLU
         nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
         A = SUNSparseMatrix(length(u0),length(u0), nnz, Sundials.CSC_MAT)
         LS = SUNLinSol_KLU(u0, A)
-        flag = IDASetLinearSolver(mem, LS, A)
         _A = MatrixHandle(A,SparseMatrix())
         _LS = LinSolHandle(LS,KLU())
     end
+    flag = IDASetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
         function getcfunjtimes(::T) where T
