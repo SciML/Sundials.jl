@@ -28,8 +28,9 @@ Lotka_f = ODEFunction(Lotka,jac=Lotka_jac,
 
 prob = ODEProblem(Lotka_f,ones(2),(0.0,10.0))
 jac_called = false
-@test_broken sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU))
-@test_broken jac_called == true
+sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU))
+@test jac_called == true
+@test Array(sol9) ≈ Array(good_sol)
 
 Lotka_fj = ODEFunction(Lotka,
                       jac_prototype = JacVecOperator{Float64}(Lotka,ones(2)))
