@@ -162,14 +162,19 @@ function DiffEqBase.__init(
     nojacobian = true
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
-        if LinearSolver == :Dense
+        if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
             A = SUNDenseMatrix(length(u0),length(u0))
-            LS = SUNLinSol_Dense(u0,A)
-            flag = CVodeSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,DenseMatrix())
-            _LS = LinSolHandle(LS,Dense())
-        elseif LinearSolver == :Band
+            if LinearSolver === :Dense
+                LS = SUNLinSol_Dense(u0,A)
+                _LS = LinSolHandle(LS,Dense())
+            else
+                LS = SUNLinSol_LapackDense(u0,A)
+                _LS = LinSolHandle(LS,LapackDense())
+            end
+            flag = CVodeSetLinearSolver(mem, LS, A)
+        elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
             A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
             LS = SUNLinSol_Band(u0,A)

@@ -31,7 +31,7 @@ Base.@pure function CVODE_BDF(;method=:Newton,linear_solver=:Dense,
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR && linear_solver != :KLU
+    if !(linear_solver in (:None, :Diagonal, :Dense, :LapackDense, :Band, :LapackBand, :BCG, :GMRES, :FGMRES, :PCG, :TFQMR, :KLU))
         error("Linear solver choice not accepted.")
     end
     CVODE_BDF{method,linear_solver, typeof(prec), typeof(psetup)}(
