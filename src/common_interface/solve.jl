@@ -135,7 +135,7 @@ function DiffEqBase.__init(
 
     userfun = FunJac(f!,prob.f.jac,prob.p,nothing,prob.f.jac_prototype,alg.prec,alg.psetup,u0,_u0)
 
-    function getcfunf(userfun::T) where T
+    function getcfunf(::T) where T
         @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
     end
 
@@ -220,7 +220,7 @@ function DiffEqBase.__init(
     CVodeSetNonlinearSolver(mem, NLS)
 
     if DiffEqBase.has_jac(prob.f) && Method == :Newton
-      function getcfunjac(userfun::T) where T
+      function getcfunjac(::T) where T
           @cfunction(cvodejac,
                           Cint,
                            (realtype,
@@ -240,7 +240,7 @@ function DiffEqBase.__init(
     end
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-        function getcfunjtimes(userfun::T) where T
+        function getcfunjtimes(::T) where T
             @cfunction(jactimes,
                             Cint,
                             (N_Vector,
@@ -256,7 +256,7 @@ function DiffEqBase.__init(
     end
 
     if alg.prec !== nothing
-        function getpercfun(userfun::T) where T
+        function getpercfun(::T) where T
             @cfunction(precsolve,
                             Cint,
                             (Float64,
@@ -268,7 +268,7 @@ function DiffEqBase.__init(
         end
         precfun = getpercfun(userfun)
 
-        function getpsetupfun(userfun::T) where T
+        function getpsetupfun(::T) where T
             @cfunction(precsetup,
                             Cint,
                             (Float64,
@@ -384,20 +384,23 @@ function DiffEqBase.__init(
 
 
 
-    mem_ptr = ARKStepCreate()
-    (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
-    mem = Handle(mem_ptr)
-
-    !verbose && ARKStepSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
-                                    (Cint, Char,
-                                    Char, Ptr{Cvoid})),C_NULL)
-
     ures  = Vector{uType}()
     dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
     u0nv = NVector(u0)
     _u0 = copy(u0)
     utmp = NVector(_u0)
+
+    function arkodemem(;fe=C_NULL, fi=C_NULL, t0=t0, u0=convert(N_Vector, u0nv))
+        mem_ptr = ARKStepCreate(fe, fi, t0, u0)
+        (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
+        mem = Handle(mem_ptr)
+
+        !verbose && ARKStepSetErrHandlerFn(mem,@cfunction(null_error_handler, Nothing,
+                                        (Cint, Char,
+                                        Char, Ptr{Cvoid})),C_NULL)
+        return mem
+    end
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && typeof(prob.u0)<:Number
@@ -438,12 +441,12 @@ function DiffEqBase.__init(
         userfun = FunJac(f1!,f2!,prob.f.f1.jac,prob.p,prob.f.mass_matrix,
                          prob.f.f1.jac_prototype,alg.prec,alg.psetup,u0,_u0,nothing)
 
-        function getcfunjac(userfun::T) where T
+        function getcfunjac(::T) where T
             @cfunction(cvodefunjac, Cint,
                      (realtype, N_Vector,
                      N_Vector, Ref{T}))
         end
-        function getcfunjac2(userfun::T) where T
+        function getcfunjac2(::T) where T
             @cfunction(cvodefunjac2, Cint,
                      (realtype, N_Vector,
                      N_Vector, Ref{T}))
@@ -451,32 +454,25 @@ function DiffEqBase.__init(
         cfj1 = getcfunjac(userfun)
         cfj2 = getcfunjac2(userfun)
 
-        flag = ARKStepInit(mem,
-                    cfj1,cfj2,
-                    t0, convert(N_Vector, u0nv))
+        mem = arkodemem(fi=cfj1, fe=cfj2)
     else
         userfun = FunJac(f!,prob.f.jac,prob.p,prob.f.mass_matrix,prob.f.jac_prototype,alg.prec,alg.psetup,u0,_u0)
         if alg.stiffness == Explicit()
-            function getcfun1(userfun::T) where T
+            function getcfun1(::T) where T
                 @cfunction(cvodefunjac, Cint,
                          (realtype, N_Vector,
                          N_Vector, Ref{T}))
             end
             cfj1 = getcfun1(userfun)
-            flag = ARKStepInit(mem,
-                        cfj1,
-                        C_NULL,
-                        t0, convert(N_Vector, u0nv))
+            mem = arkodemem(fe=cfj1)
         elseif alg.stiffness == Implicit()
-            function getcfun2(userfun::T) where T
+            function getcfun2(::T) where T
                 @cfunction(cvodefunjac, Cint,
                          (realtype, N_Vector,
                          N_Vector, Ref{T}))
             end
             cfj2 = getcfun2(userfun)
-            flag = ARKStepInit(mem,
-                        C_NULL,cfj2,
-                        t0, convert(N_Vector, u0nv))
+            mem = arkodemem(fi=cfj2)
         end
     end
 
@@ -522,45 +518,45 @@ function DiffEqBase.__init(
         if LinearSolver == :Dense
             A = SUNDenseMatrix(length(u0),length(u0))
             LS = SUNLinSol_Dense(u0,A)
-            flag = ARKDlsSetLinearSolver(mem, LS, A)
+            flag = ARKStepSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,DenseMatrix())
             _LS = LinSolHandle(LS,Dense())
         elseif LinearSolver == :Band
             A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
             LS = SUNLinSol_Band(u0,A)
-            flag = ARKDlsSetLinearSolver(mem, LS, A)
+            flag = ARKStepSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,BandMatrix())
             _LS = LinSolHandle(LS,Band())
         elseif LinearSolver == :GMRES
             LS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKSpilsSetLinearSolver(mem, LS)
+            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS,Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
             LS = SUNLinSol_SPFGMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKSpilsSetLinearSolver(mem, LS)
+            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,SPFGMR())
         elseif LinearSolver == :BCG
             LS = SUNLinSol_SPBCGS(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKSpilsSetLinearSolver(mem, LS)
+            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,SPBCGS())
         elseif LinearSolver == :PCG
             LS = SUNLinSol_PCG(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKSpilsSetLinearSolver(mem, LS)
+            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,PCG())
         elseif LinearSolver == :TFQMR
             LS = SUNLinSol_SPTFQMR(u0, alg.prec_side, alg.krylov_dim)
-            flag = ARKSpilsSetLinearSolver(mem, LS)
+            flag = ARKStepSetLinearSolver(mem, LS, C_NULL)
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
         elseif LinearSolver == :KLU
             nnz = length(SparseArrays.(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNLinSol_KLU(u0, A)
-            flag = ARKDlsSetLinearSolver(mem, LS, A)
+            flag = ARKStepSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,SparseMatrix())
             _LS = LinSolHandle(LS,KLU())
         end
@@ -575,7 +571,7 @@ function DiffEqBase.__init(
        typeof(prob.f.f1.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator) ||
        (!(typeof(prob.problem_type) <: SplitODEProblem) &&
        typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator)
-       function getcfunjtimes(userfun::T) where T
+       function getcfunjtimes(::T) where T
            @cfunction(jactimes,
                            Cint,
                            (N_Vector,
@@ -638,7 +634,7 @@ function DiffEqBase.__init(
         else
             ARKSpilsSetMassLinearSolver(mem,MLS,false)
         end
-        function getmatfun(userfun::T) where T
+        function getmatfun(::T) where T
             @cfunction(massmat,
                             Cint,
                             (realtype,
@@ -656,7 +652,7 @@ function DiffEqBase.__init(
     end
 
     if DiffEqBase.has_jac(prob.f)
-      function getfunjac(userfun::T) where T
+      function getfunjac(::T) where T
           @cfunction(cvodejac,
                           Cint,
                           (realtype,
@@ -676,7 +672,7 @@ function DiffEqBase.__init(
     end
 
     if alg.prec !== nothing
-        function getpercfun(userfun::T) where T
+        function getpercfun(::T) where T
             @cfunction(precsolve,
                             Cint,
                             (Float64,
@@ -688,7 +684,7 @@ function DiffEqBase.__init(
         end
         precfun = getpercfun(userfun)
 
-        function getpsetupfun(userfun::T) where T
+        function getpsetupfun(::T) where T
             @cfunction(precsetup,
                             Cint,
                             (Float64,
@@ -878,7 +874,7 @@ function DiffEqBase.__init(
 
     u0nv = NVector(u0)
 
-    function getcfun(userfun::T) where T
+    function getcfun(::T) where T
         @cfunction(idasolfun,
                          Cint, (realtype, N_Vector, N_Vector,
                                 N_Vector, Ref{T}))
@@ -955,7 +951,7 @@ function DiffEqBase.__init(
     end
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-        function getcfunjtimes(userfun::T) where T
+        function getcfunjtimes(::T) where T
             @cfunction(idajactimes,
                            Cint,
                            (realtype,
@@ -969,7 +965,7 @@ function DiffEqBase.__init(
     end
 
     if alg.prec !== nothing
-        function getpercfun(userfun::T) where T
+        function getpercfun(::T) where T
             @cfunction(idaprecsolve,
                             Cint,
                             (Float64,
@@ -981,7 +977,7 @@ function DiffEqBase.__init(
         end
         precfun = getpercfun(userfun)
 
-        function getpsetupfun(userfun::T) where T
+        function getpsetupfun(::T) where T
             @cfunction(idaprecsetup,
                             Cint,
                             (Float64,
@@ -996,7 +992,7 @@ function DiffEqBase.__init(
     end
 
     if DiffEqBase.has_jac(prob.f)
-      function getcfunjacc(userfun::T) where T
+      function getcfunjacc(::T) where T
           @cfunction(idajac,
                      Cint,
                      (realtype,
@@ -1099,7 +1095,7 @@ function solver_step(integrator::CVODEIntegrator,tstop)
     end
 end
 function solver_step(integrator::ARKODEIntegrator,tstop)
-    integrator.flag = ARKStep(integrator.mem, tstop, integrator.u, integrator.tout, ARK_ONE_STEP)
+    integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u, integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
       Logging.@logmsg(-1,
       integrator.opts.progress_name,
@@ -1124,7 +1120,7 @@ function set_stop_time(integrator::CVODEIntegrator,tstop)
     CVodeSetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::ARKODEIntegrator,tstop)
-    ARKODESetStopTime(integrator.mem,tstop)
+    ARKStepSetStopTime(integrator.mem,tstop)
 end
 function set_stop_time(integrator::IDAIntegrator,tstop)
     IDASetStopTime(integrator.mem,tstop)
