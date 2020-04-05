@@ -14,7 +14,9 @@ f2 = (du,u,p,t) -> du .= u
 
 prob = prob_ode_2Dlinear
 dt = 1//2^(4)
-sol = solve(prob,ARKODE(linear_solver=:LapackDense))
+if !Sys.isapple()
+    sol = solve(prob,ARKODE(linear_solver=:LapackDense))
+end
 
 prob = SplitODEProblem(SplitFunction(f1,f2,analytic=(u0,p,t)->exp(2t)*u0),
                        rand(4,2),(0.0,1.0))
@@ -22,5 +24,7 @@ prob = SplitODEProblem(SplitFunction(f1,f2,analytic=(u0,p,t)->exp(2t)*u0),
 sol = solve(prob,ARKODE(linear_solver=:Dense))
 @test sol.errors[:l2] < 1e-2
 
-sol = solve(prob,ARKODE(linear_solver=:LapackBand,jac_upper=3,jac_lower=3),reltol=1e-12,abstol=1e-12)
-@test sol.errors[:l2] < 1e-6
+if !Sys.isapple()
+    sol = solve(prob,ARKODE(linear_solver=:LapackBand,jac_upper=3,jac_lower=3),reltol=1e-12,abstol=1e-12)
+    @test sol.errors[:l2] < 1e-6
+end
