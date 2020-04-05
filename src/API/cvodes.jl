@@ -1052,7 +1052,7 @@ end
 # Automatically generated using Clang.jl
 
 
-function CVodeSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
+function CVodeSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A)
     ccall((:CVodeSetLinearSolver, libsundials_cvodes), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
 end
 

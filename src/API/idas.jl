@@ -1104,7 +1104,7 @@ end
 # Automatically generated using Clang.jl
 
 
-function IDASetLinearSolver(ida_mem, LS::SUNLinearSolver, A::SUNMatrix)
+function IDASetLinearSolver(ida_mem, LS::SUNLinearSolver, A)
     ccall((:IDASetLinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
 end
 

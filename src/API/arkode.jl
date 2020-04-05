@@ -66,16 +66,16 @@ function ARKStepResFtolerance(arkode_mem, rfun::ARKRwtFn)
     ccall((:ARKStepResFtolerance, libsundials_arkode), Cint, (ARKStepMemPtr, ARKRwtFn), arkode_mem, rfun)
 end
 
-function ARKStepSetLinearSolver(arkode_mem, LS::SUNLinearSolver, A::SUNMatrix)
+function ARKStepSetLinearSolver(arkode_mem, LS::SUNLinearSolver, A)
     ccall((:ARKStepSetLinearSolver, libsundials_arkode), Cint, (ARKStepMemPtr, SUNLinearSolver, SUNMatrix), arkode_mem, LS, A)
 end
 
-function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, time_dep::Cint)
+function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M, time_dep::Cint)
     ccall((:ARKStepSetMassLinearSolver, libsundials_arkode), Cint, (ARKStepMemPtr, SUNLinearSolver, SUNMatrix, Cint), arkode_mem, LS, M, time_dep)
 end
 
-function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, time_dep)
-    ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix, convert(Cint,time_dep))
+function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M, time_dep)
+    ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M, convert(Cint,time_dep))
 end
 
 function ARKStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
