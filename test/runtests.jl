@@ -29,12 +29,12 @@ end
 @testset "Handle Tests" begin include("handle_tests.jl") end
 
 @testset "Common Interface" begin
-#   @testset "CVODE" begin include("common_interface/cvode.jl") end
-#   @testset "ARKStep" begin include("common_interface/arkode.jl") end
+    @testset "CVODE" begin include("common_interface/cvode.jl") end
+    @testset "ARKODE" begin include("common_interface/arkode.jl") end
     @testset "IDA" begin include("common_interface/ida.jl") end
     @testset "Jacobians" begin include("common_interface/jacobians.jl") end
-#   @testset "Callbacks" begin include("common_interface/callbacks.jl") end
+    @testset "Callbacks" begin include("common_interface/callbacks.jl") end
     @testset "Iterator" begin include("common_interface/iterators.jl") end
     @testset "Errors" begin include("common_interface/errors.jl") end
-#   @testset "Mass Matrix" begin include("common_interface/mass_matrix.jl") end
+    @testset "Mass Matrix" begin include("common_interface/mass_matrix.jl") end
 end
