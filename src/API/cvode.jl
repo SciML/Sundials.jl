@@ -393,7 +393,7 @@ end
 # Automatically generated using Clang.jl
 
 
-function CVodeSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A)
+function CVodeSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
     ccall((:CVodeSetLinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
 end
 

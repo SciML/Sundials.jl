@@ -268,7 +268,7 @@ end
 # Automatically generated using Clang.jl
 
 
-function KINSetLinearSolver(kinmem, LS::SUNLinearSolver, A)
+function KINSetLinearSolver(kinmem, LS::SUNLinearSolver, A::SUNMatrix)
     ccall((:KINSetLinearSolver, libsundials_kinsol), Cint, (KINMemPtr, SUNLinearSolver, SUNMatrix), kinmem, LS, A)
 end
 
