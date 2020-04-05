@@ -73,7 +73,7 @@ Base.@pure function CVODE_Adams(;method=:Functional,linear_solver=:None,
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if linear_solver != :None && linear_solver != :Diagonal && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
+    if !(linear_solver in (:None, :Diagonal, :Dense, :LapackDense, :Band, :LapackBand, :BCG, :GMRES, :FGMRES, :PCG, :TFQMR, :KLU))
         error("Linear solver choice not accepted.")
     end
     CVODE_Adams{method,linear_solver,typeof(prec),typeof(psetup)}(
@@ -142,10 +142,10 @@ Base.@pure function ARKODE(stiffness=Implicit();method=:Newton,linear_solver=:De
     if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if linear_solver != :None && linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR
+    if !(linear_solver in (:None, :Diagonal, :Dense, :LapackDense, :Band, :LapackBand, :BCG, :GMRES, :FGMRES, :PCG, :TFQMR, :KLU))
         error("Linear solver choice not accepted.")
     end
-    if mass_linear_solver != :Dense && mass_linear_solver != :Band && mass_linear_solver != :BCG && mass_linear_solver != :GMRES && mass_linear_solver != :FGMRES && mass_linear_solver != :PCG && mass_linear_solver != :TFQMR
+    if !(mass_linear_solver in (:None, :Diagonal, :Dense, :LapackDense, :Band, :LapackBand, :BCG, :GMRES, :FGMRES, :PCG, :TFQMR, :KLU))
         error("Mass Matrix Linear solver choice not accepted.")
     end
     ARKODE{method,linear_solver,mass_linear_solver,
@@ -213,7 +213,7 @@ Base.@pure function IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,
   if linear_solver == :Band && (jac_upper==0 || jac_lower==0)
       error("Banded solver must set the jac_upper and jac_lower")
   end
-  if linear_solver != :Dense && linear_solver != :Band && linear_solver != :BCG && linear_solver != :GMRES && linear_solver != :FGMRES && linear_solver != :PCG && linear_solver != :TFQMR && linear_solver != :KLU
+  if !(linear_solver in (:None, :Diagonal, :Dense, :LapackDense, :Band, :LapackBand, :BCG, :GMRES, :FGMRES, :PCG, :TFQMR, :KLU))
       error("Linear solver choice not accepted.")
   end
   IDA{linear_solver,typeof(prec),typeof(psetup)}(
