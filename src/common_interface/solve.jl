@@ -159,20 +159,25 @@ function DiffEqBase.__init(
     flag = CVodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     flag = CVodeSetMaxConvFails(mem, alg.max_convergence_failures)
 
+    nojacobian = true
+
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver == :Dense
+            nojacobian = false
             A = SUNDenseMatrix(length(u0),length(u0))
             LS = SUNLinSol_Dense(u0,A)
             flag = CVodeSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,DenseMatrix())
             _LS = LinSolHandle(LS,Dense())
         elseif LinearSolver == :Band
+            nojacobian = false
             A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
             LS = SUNLinSol_Band(u0,A)
             flag = CVodeSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,BandMatrix())
             _LS = LinSolHandle(LS,Band())
         elseif LinearSolver == :Diagonal
+            nojacobian = false
             flag = CVDiag(mem)
             _A = nothing
             _LS = nothing
@@ -202,6 +207,7 @@ function DiffEqBase.__init(
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
         elseif LinearSolver == :KLU
+            nojacobian = false
             nnz = length(SparseArrays.(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNLinSol_KLU(u0, A)
@@ -234,7 +240,7 @@ function DiffEqBase.__init(
       end
       jac = getcfunjac(userfun)
       flag = CVodeSetUserData(mem, userfun)
-      flag = CVodeSetJacFn(mem, jac)
+      nojacobian || (flag = CVodeSetJacFn(mem, jac))
     else
         jac = nothing
     end
