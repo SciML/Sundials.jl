@@ -29,7 +29,7 @@ Sundials.@checkflag Sundials.KINSetMaxSetupCalls(kmem, 1)
 y = ones(neq)
 Sundials.@checkflag Sundials.KINInit(kmem, sysfn, y)
 A = Sundials.SUNDenseMatrix(length(y),length(y))
-LS = Sundials.SUNDenseLinearSolver(y,A)
+LS = Sundials.SUNLinSol_Dense(y,A)
 Sundials.@checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A)
 ## Solve problem
 scale = ones(neq)

@@ -8,7 +8,7 @@ step!(integrator)
 integrator(integrator.t,Val{1})
 
 for i in integrator
-    @show i.t
+    @info i.t
 end
 
 integrator.t == 1.0

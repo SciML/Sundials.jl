@@ -19,9 +19,13 @@ following:
           CVODES treats stiff and nonstiff ODE systems of the form
           `y' = f(t,y,p), y(t0) = y0(p)`,
           where `p` is a set of parameters.
-* *ARKODE* - for integration of non-stiff, stiff, and mixed mode
-          ODEs via its explicit, implicit, and IMEX Runge-Kutta
-          methods on ODEs of the form `My' = f(t,y,p), y(t0) = y0(p)`
+* *ARKStep* - for integration of non-stiff, stiff, and mixed mode
+          ODEs via split, linearly-implicit form, implicit, and IMEX Runge-Kutta
+          methods on ODEs of the form `My' = f_E(t,y,p) + f_i(t,y,p), y(t0) = y0(p)`
+          for a set of parameters `p`.
+* *ERKStep* - for integration of non-stiff, stiff, and mixed mode
+          ODEs via split, linearly-implicit form, implicit, and IMEX Runge-Kutta
+          methods on ODEs of the form `y' = f(t,y,p), y(t0) = y0(p)`
           for a set of parameters `p`.
 * *IDAS*   - for integration and sensitivity analysis of DAEs.
           IDAS treats DAE systems of the form
@@ -75,11 +79,11 @@ sol = solve(prob,CVODE_Adams())
 using Plots; plot(sol,vars=(1,2,3))
 ```
 
-Sundials.jl exports the `CVODE_BDF`, `CVODE_Adams`, and `ARKODE` methods for
+Sundials.jl exports the `CVODE_BDF`, `CVODE_Adams`, and `ARKStep` methods for
 ODEs which are documented
 [in the ODE Solvers page](http://docs.juliadiffeq.org/latest/solvers/ode_solve.html#Sundials.jl-1), and `IDA` which is documented
 [in the DAE solvers page](http://docs.juliadiffeq.org/latest/solvers/dae_solve.html).
-Additionally, the `ARKODE` method can be used
+Additionally, the `ARKStep` method can be used
 [on `SplitODEProblem`s](http://docs.juliadiffeq.org/latest/solvers/split_ode_solve.html#Implicit-Explicit-(IMEX)-ODE-1)
 to solve ODEs in IMEX form.
 

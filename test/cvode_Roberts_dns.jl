@@ -50,7 +50,7 @@ y0 = [1.0, 0.0, 0.0]
 reltol = 1e-4
 abstol = [1e-8, 1e-14, 1e-6]
 userdata = nothing
-mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.CV_NEWTON)
+mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF)
 cvode_mem = Sundials.Handle(mem_ptr)
 userfun = Sundials.UserFunctionAndData(f, userdata)
 Sundials.CVodeSetUserData(cvode_mem, userfun)
@@ -68,7 +68,7 @@ Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g)
 A = Sundials.SUNDenseMatrix(neq,neq)
 mat_handle = Sundials.MatrixHandle(A,Sundials.DenseMatrix())
-LS = Sundials.SUNDenseLinearSolver(convert(Sundials.N_Vector,y0),A)
+LS = Sundials.SUNLinSol_Dense(convert(Sundials.N_Vector,y0),A)
 LS_handle = Sundials.LinSolHandle(LS,Sundials.Dense())
 Sundials.@checkflag Sundials.CVDlsSetLinearSolver(cvode_mem, LS, A)
 #Sundials.@checkflag Sundials.CVDlsSetDenseJacFn(cvode_mem, Jac)

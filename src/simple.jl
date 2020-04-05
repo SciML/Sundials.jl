@@ -67,11 +67,10 @@ function kinsol(f, y0::Vector{Float64};
     flag = @checkflag KINInit(kmem, getcfun(userfun), NVector(y0)) true
     if linear_solver == :Dense
         A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-        LS = Sundials.SUNDenseLinearSolver(y0,A)
+        LS = Sundials.SUNLinSol_Dense(y0,A)
     elseif linear_solver == :Band
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower,
-                                   stored_upper)
-        LS = Sundials.SUNBandLinearSolver(y0,A)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
+        LS = Sundials.SUNLinSol_Band(y0,A)
     end
     flag = @checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
@@ -127,9 +126,9 @@ end
 function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing;
                 integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
     if integrator==:BDF
-        mem_ptr = CVodeCreate(CV_BDF, CV_NEWTON)
+        mem_ptr = CVodeCreate(CV_BDF)
     elseif integrator==:Adams
-        mem_ptr = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL)
+        mem_ptr = CVodeCreate(CV_ADAMS)
     end
 
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
@@ -148,7 +147,7 @@ function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::Abstrac
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
     A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-    LS = Sundials.SUNDenseLinearSolver(y0nv,A)
+    LS = Sundials.SUNLinSol_Dense(y0nv,A)
     flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
     y[1,:] = y0
@@ -217,7 +216,7 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
 
     A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-    LS = Sundials.SUNDenseLinearSolver(y0,A)
+    LS = Sundials.SUNLinSol_Dense(y0,A)
     flag = Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A) true
 
     rtest = zeros(length(y0))

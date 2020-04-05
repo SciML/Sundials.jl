@@ -16,8 +16,14 @@ abstract type AbstractSundialsObject end
 struct CVODEMem <: AbstractSundialsObject end
 const CVODEMemPtr = Ptr{CVODEMem}
 
-struct ARKODEMem <: AbstractSundialsObject end
-const ARKODEMemPtr = Ptr{ARKODEMem}
+struct ARKStepMem <: AbstractSundialsObject end
+const ARKStepMemPtr = Ptr{ARKStepMem}
+
+struct ERKStepMem <: AbstractSundialsObject end
+const ERKStepMemPtr = Ptr{ERKStepMem}
+
+struct MRIStepMem <: AbstractSundialsObject end
+const MRIStepMemPtr = Ptr{MRIStepMem}
 
 struct IDAMem <: AbstractSundialsObject end
 const IDAMemPtr = Ptr{IDAMem}
@@ -54,10 +60,20 @@ mutable struct MatrixHandle{T<:SundialsMatrix} <: SundialsHandle
     end
 end
 
-mutable struct LinSolHandle{T<:SundialsLinSol} <: SundialsHandle
+mutable struct LinSolHandle{T<:SundialsLinearSolver} <: SundialsHandle
     ptr::SUNLinearSolver
     destroyed::Bool
-    function LinSolHandle(ptr::SUNLinearSolver,M::T) where T<:SundialsLinSol
+    function LinSolHandle(ptr::SUNLinearSolver,M::T) where T<:SundialsLinearSolver
+        h = new{T}(ptr,false)
+        finalizer(release_handle, h)
+        return h
+    end
+end
+
+mutable struct NonLinSolHandle{T<:SundialsNonLinearSolver} <: SundialsHandle
+    ptr::SUNNonlinearSolver
+    destroyed::Bool
+    function NonLinSolHandle(ptr::SUNNonlinearSolver,M::T) where T<:SundialsNonLinearSolver
         h = new{T}(ptr,false)
         finalizer(release_handle, h)
         return h
@@ -71,7 +87,9 @@ Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T} = convert(Ptr{Ptr{T}},
 release_handle(ptr_ref::Ref{Ptr{T}}) where {T} = throw(MethodError("Freeing objects of type $T not supported"))
 release_handle(ptr_ref::Ref{Ptr{KINMem}}) = ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
-release_handle(ptr_ref::Ref{Ptr{ARKODEMem}}) = ((ptr_ref[] != C_NULL) && ARKodeFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{ARKStepMem}}) = ((ptr_ref[] != C_NULL) && ARKStepFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{ERKStepMem}}) = ((ptr_ref[] != C_NULL) && ERKStepFree(ptr_ref); nothing)
+release_handle(ptr_ref::Ref{Ptr{MRIStepMem}}) = ((ptr_ref[] != C_NULL) && MRIStepFree(ptr_ref); nothing)
 release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)
 
 function release_handle(h::MatrixHandle{DenseMatrix})
@@ -160,12 +178,46 @@ function release_handle(h::LinSolHandle{KLU})
     nothing
 end
 
+function release_handle(h::LinSolHandle{LapackBand})
+    if !isempty(h)
+        Sundials.SUNLinSolFree_LapackBand(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
+function release_handle(h::LinSolHandle{LapackDense})
+    if !isempty(h)
+        Sundials.SUNLinSolFree_LapackDense(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
+function release_handle(h::NonLinSolHandle{FixedPoint})
+    if !isempty(h)
+        Sundials.SUNNonlinSolFree_FixedPoint(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
+function release_handle(h::NonLinSolHandle{Newton})
+    if !isempty(h)
+        Sundials.SUNNonlinSolFree_Newton(h.ptr)
+        h.destroyed = true
+    end
+    nothing
+end
+
 Base.empty!(h::LinSolHandle) = release_handle(h)
+Base.empty!(h::NonLinSolHandle) = release_handle(h)
 Base.empty!(h::MatrixHandle) = release_handle(h)
 Base.empty!(h::Handle{T}) where {T} = release_handle(h.ptr_ref)
 Base.isempty(h::Handle) = h.ptr_ref[] == C_NULL
 Base.isempty(h::MatrixHandle) = h.destroyed
 Base.isempty(h::LinSolHandle) = h.destroyed
+Base.isempty(h::NonLinSolHandle) = h.destroyed
 
 ##################################################################
 #
@@ -174,6 +226,8 @@ Base.isempty(h::LinSolHandle) = h.destroyed
 ##################################################################
 
 const CVODEh  =  Handle{CVODEMem}
-const ARKODEh =  Handle{ARKODEMem}
+const ARKSteph =  Handle{ARKStepMem}
+const ERKSteph =  Handle{ERKStepMem}
+const MRISteph =  Handle{MRIStepMem}
 const KINh    =  Handle{KINMem}
 const IDAh    =  Handle{IDAMem}

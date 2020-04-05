@@ -1,13 +1,17 @@
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/sunmatrix/sunmatrix_band.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: sunmatrix_band.h
+# Automatically generated using Clang.jl
 
 
-function SUNBandMatrix(N::sunindextype, mu::sunindextype, ml::sunindextype, smu::sunindextype)
-    ccall((:SUNBandMatrix, libsundials_sunmatrixband), SUNMatrix, (sunindextype, sunindextype, sunindextype, sunindextype), N, mu, ml, smu)
+function SUNBandMatrix(N::sunindextype, mu::sunindextype, ml::sunindextype)
+    ccall((:SUNBandMatrix, libsundials_sunmatrixband), SUNMatrix, (sunindextype, sunindextype, sunindextype), N, mu, ml)
+end
+
+function SUNBandMatrixStorage(N::sunindextype, mu::sunindextype, ml::sunindextype, smu::sunindextype)
+    ccall((:SUNBandMatrixStorage, libsundials_sunmatrixband), SUNMatrix, (sunindextype, sunindextype, sunindextype, sunindextype), N, mu, ml, smu)
 end
 
 function SUNBandMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNBandMatrix_Print, libsundials_sunmatrixband), Cvoid, (SUNMatrix, Ptr{Cint}), A, outfile)
+    ccall((:SUNBandMatrix_Print, libsundials_sunmatrixband), Cvoid, (SUNMatrix, Ptr{FILE}), A, outfile)
 end
 
 function SUNBandMatrix_Rows(A::SUNMatrix)
@@ -74,21 +78,21 @@ function SUNMatScaleAddI_Band(c::realtype, A::SUNMatrix)
     ccall((:SUNMatScaleAddI_Band, libsundials_sunmatrixband), Cint, (realtype, SUNMatrix), c, A)
 end
 
-function __SUNMatMatvec_Band(A::SUNMatrix, x::N_Vector, y::N_Vector)
+function SUNMatMatvec_Band(A::SUNMatrix, x::N_Vector, y::N_Vector)
     ccall((:SUNMatMatvec_Band, libsundials_sunmatrixband), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
 function SUNMatMatvec_Band(A, x, y)
     __x = convert(NVector, x)
     __y = convert(NVector, y)
-    __SUNMatMatvec_Band(A, convert(N_Vector, __x), convert(N_Vector, __y))
+    SUNMatMatvec_Band(A, convert(N_Vector, __x), convert(N_Vector, __y))
 end
 
 function SUNMatSpace_Band(A::SUNMatrix, lenrw, leniw)
     ccall((:SUNMatSpace_Band, libsundials_sunmatrixband), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
 end
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/sunmatrix/sunmatrix_dense.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: sunmatrix_dense.h
+# Automatically generated using Clang.jl
 
 
 function SUNDenseMatrix(M::sunindextype, N::sunindextype)
@@ -96,7 +100,7 @@ function SUNDenseMatrix(M::sunindextype, N::sunindextype)
 end
 
 function SUNDenseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNDenseMatrix_Print, libsundials_sunmatrixdense), Cvoid, (SUNMatrix, Ptr{Cint}), A, outfile)
+    ccall((:SUNDenseMatrix_Print, libsundials_sunmatrixdense), Cvoid, (SUNMatrix, Ptr{FILE}), A, outfile)
 end
 
 function SUNDenseMatrix_Rows(A::SUNMatrix)
@@ -151,53 +155,57 @@ function SUNMatScaleAddI_Dense(c::realtype, A::SUNMatrix)
     ccall((:SUNMatScaleAddI_Dense, libsundials_sunmatrixdense), Cint, (realtype, SUNMatrix), c, A)
 end
 
-function __SUNMatMatvec_Dense(A::SUNMatrix, x::N_Vector, y::N_Vector)
+function SUNMatMatvec_Dense(A::SUNMatrix, x::N_Vector, y::N_Vector)
     ccall((:SUNMatMatvec_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
 function SUNMatMatvec_Dense(A, x, y)
     __x = convert(NVector, x)
     __y = convert(NVector, y)
-    __SUNMatMatvec_Dense(A, convert(N_Vector, __x), convert(N_Vector, __y))
+    SUNMatMatvec_Dense(A, convert(N_Vector, __x), convert(N_Vector, __y))
 end
 
 function SUNMatSpace_Dense(A::SUNMatrix, lenrw, leniw)
     ccall((:SUNMatSpace_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
 end
-# Julia wrapper for header: /home/osboxes/.julia/v0.6/Sundials/deps/usr/include/sunmatrix/sunmatrix_sparse.h
-# Automatically generated using Clang.jl wrap_c, version 0.0.0
+# Julia wrapper for header: sunmatrix_sparse.h
+# Automatically generated using Clang.jl
 
 
-function __SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype, sparsetype::Cint)
+function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype, sparsetype::Cint)
     ccall((:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix, (sunindextype, sunindextype, sunindextype, Cint), M, N, NNZ, sparsetype)
 end
 
 function SUNSparseMatrix(M, N, NNZ, sparsetype)
-    __SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
+    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
 end
 
-function __SUNSparseFromDenseMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
+function SUNSparseFromDenseMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
     ccall((:SUNSparseFromDenseMatrix, libsundials_sunmatrixdense), SUNMatrix, (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
 end
 
 function SUNSparseFromDenseMatrix(A, droptol, sparsetype)
-    __SUNSparseFromDenseMatrix(A, droptol, convert(Cint, sparsetype))
+    SUNSparseFromDenseMatrix(A, droptol, convert(Cint, sparsetype))
 end
 
-function __SUNSparseFromBandMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
+function SUNSparseFromBandMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
     ccall((:SUNSparseFromBandMatrix, libsundials_sunmatrixband), SUNMatrix, (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
 end
 
 function SUNSparseFromBandMatrix(A, droptol, sparsetype)
-    __SUNSparseFromBandMatrix(A, droptol, convert(Cint, sparsetype))
+    SUNSparseFromBandMatrix(A, droptol, convert(Cint, sparsetype))
 end
 
 function SUNSparseMatrix_Realloc(A::SUNMatrix)
     ccall((:SUNSparseMatrix_Realloc, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
 end
 
+function SUNSparseMatrix_Reallocate(A::SUNMatrix, NNZ::sunindextype)
+    ccall((:SUNSparseMatrix_Reallocate, libsundials_sunmatrixsparse), Cint, (SUNMatrix, sunindextype), A, NNZ)
+end
+
 function SUNSparseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNSparseMatrix_Print, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix, Ptr{Cint}), A, outfile)
+    ccall((:SUNSparseMatrix_Print, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix, Ptr{FILE}), A, outfile)
 end
 
 function SUNSparseMatrix_Rows(A::SUNMatrix)
@@ -260,14 +268,14 @@ function SUNMatScaleAddI_Sparse(c::realtype, A::SUNMatrix)
     ccall((:SUNMatScaleAddI_Sparse, libsundials_sunmatrixsparse), Cint, (realtype, SUNMatrix), c, A)
 end
 
-function __SUNMatMatvec_Sparse(A::SUNMatrix, x::N_Vector, y::N_Vector)
+function SUNMatMatvec_Sparse(A::SUNMatrix, x::N_Vector, y::N_Vector)
     ccall((:SUNMatMatvec_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
 function SUNMatMatvec_Sparse(A, x, y)
     __x = convert(NVector, x)
     __y = convert(NVector, y)
-    __SUNMatMatvec_Sparse(A, convert(N_Vector, __x), convert(N_Vector, __y))
+    SUNMatMatvec_Sparse(A, convert(N_Vector, __x), convert(N_Vector, __y))
 end
 
 function SUNMatSpace_Sparse(A::SUNMatrix, lenrw, leniw)

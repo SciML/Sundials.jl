@@ -51,12 +51,12 @@ end
 function (integrator::CVODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     out = similar(integrator.u)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : out[idx]
+    return idxs == nothing ? out : out[idxs]
 end
 
 function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : @view out[idx]
+    return idxs == nothing ? out : @view out[idxs]
 end
 
 mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype,CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
@@ -91,13 +91,13 @@ end
 
 function (integrator::ARKODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     out = similar(integrator.u)
-    integrator.flag = @checkflag ARKodeGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : out[idx]
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
+    return idxs == nothing ? out : out[idxs]
 end
 
 function (integrator::ARKODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
-    integrator.flag = @checkflag ARKodeGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : @view out[idx]
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
+    return idxs == nothing ? out : @view out[idxs]
 end
 
 mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype,CallbackCacheType} <: AbstractSundialsIntegrator{IDA}
@@ -133,12 +133,12 @@ end
 function (integrator::IDAIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     out = similar(integrator.u)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : out[idx]
+    return idxs == nothing ? out : out[idxs]
 end
 
 function (integrator::IDAIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : @view out[idx]
+    return idxs == nothing ? out : @view out[idxs]
 end
 
 ###  Error check (retcode)
@@ -147,15 +147,15 @@ DiffEqBase.check_error(integrator::AbstractSundialsIntegrator) =
     interpret_sundials_retcode(integrator.flag)
 
 DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
-# No-op postamble! to make check_error! (and hence iterator interface
+# No-op postamble! to make DiffEqBase.check_error! (and hence iterator interface
 # implemented in DiffEqBase) work.
 
 ### Iterator interface
 
 @inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
   if integrator.opts.advance_to_tstop
-    while integrator.tdir*(integrator.t-top(integrator.opts.tstops)) < -1e6eps()
-        tstop = top(integrator.opts.tstops)
+    while integrator.tdir*(integrator.t-DataStructures.top(integrator.opts.tstops)) < -1e6eps()
+        tstop = DataStructures.top(integrator.opts.tstops)
         set_stop_time(integrator,tstop)
         integrator.tprev = integrator.t
         if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
@@ -163,9 +163,9 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
         end
         solver_step(integrator,tstop)
         integrator.t = first(integrator.tout)
-        check_error!(integrator) != :Success && return
+        DiffEqBase.check_error!(integrator) != :Success && return
         handle_callbacks!(integrator)
-        check_error!(integrator) != :Success && return
+        DiffEqBase.check_error!(integrator) != :Success && return
     end
  else
       integrator.tprev = integrator.t
@@ -173,16 +173,16 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
           integrator.uprev .= integrator.u
       end
       if !isempty(integrator.opts.tstops)
-          tstop = top(integrator.opts.tstops)
+          tstop = DataStructures.top(integrator.opts.tstops)
           set_stop_time(integrator,tstop)
           solver_step(integrator,tstop)
       else
           solver_step(integrator,1.0) # fake tstop
       end
       integrator.t = first(integrator.tout)
-      check_error!(integrator) != :Success && return
+      DiffEqBase.check_error!(integrator) != :Success && return
       handle_callbacks!(integrator)
-      check_error!(integrator) != :Success && return
+      DiffEqBase.check_error!(integrator) != :Success && return
   end
   handle_tstop!(integrator)
   nothing

@@ -39,8 +39,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_sav
   !integrator.opts.save_on && return saved, savedexactly
   uType = eltype(integrator.sol.u)
   while !isempty(integrator.opts.saveat) &&
-    integrator.tdir*top(integrator.opts.saveat) < integrator.tdir*integrator.t
-
+    integrator.tdir*DataStructures.top(integrator.opts.saveat) < integrator.tdir*integrator.t
     saved = true
     curt = pop!(integrator.opts.saveat)
 
@@ -86,7 +85,7 @@ function handle_callback_modifiers!(integrator::CVODEIntegrator)
 end
 
 function handle_callback_modifiers!(integrator::ARKODEIntegrator)
-  ARKodeReInit(integrator.mem,integrator.t,integrator.u)
+  ARKStepReInit(integrator.mem,integrator.t,integrator.u)
 end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)

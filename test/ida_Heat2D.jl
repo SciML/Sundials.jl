@@ -117,8 +117,8 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
 
-    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID,2MGRID)
-    LS = Sundials.SUNBandLinearSolver(y0,A)
+    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID)#,2MGRID)
+    LS = Sundials.SUNLinSol_Band(y0,A)
     Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
     rtest = zeros(neq)

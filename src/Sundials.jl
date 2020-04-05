@@ -2,10 +2,25 @@ __precompile__()
 
 module Sundials
 
-using Reexport, DataStructures, Logging
-@reexport using DiffEqBase
-using DiffEqBase: check_error!
-using SparseArrays, LinearAlgebra
+import Reexport
+Reexport.@reexport using DiffEqBase
+import DataStructures
+import Logging
+import DiffEqBase
+import SparseArrays
+import LinearAlgebra
+
+import Libdl
+import CEnum
+
+## TODO: pending https://github.com/JuliaLang/julia/issues/29420
+# this one is suggested in the issue, but it looks like time_t and tm are two different things?
+# const Ctime_t = Base.Libc.TmStruct
+
+const Ctm = Base.Libc.TmStruct
+const Ctime_t = UInt
+const Cclock_t = UInt
+export Ctm, Ctime_t, Cclock_t
 
 const warnkeywords =
     (:save_idxs, :d_discontinuities, :isoutofdomain, :unstable_check,
@@ -16,12 +31,7 @@ function __init__()
     global warnida  = union(warnlist, Set((:dtmin,)))
 end
 
-const depsfile = joinpath(dirname(dirname(@__FILE__)),"deps","deps.jl")
-if isfile(depsfile)
-    include(depsfile)
-else
-    error("Sundials is not properly installed. Please run Pkg.build(\"Sundials\")")
-end
+using Sundials_jll
 
 export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
 
@@ -33,28 +43,23 @@ const DBL_EPSILON = eps(Cdouble)
 const FILE = Nothing
 const __builtin_va_list = Ptr{Cvoid}
 
-include("wrapped_api/types_and_consts.jl")
+include("API/types_and_consts.jl")
 include("types_and_consts_additions.jl")
 
 include("handle.jl")
 include("nvector_wrapper.jl")
 
-include("wrapped_api/nvector.jl")
-include("wrapped_api/libsundials.jl")
-include("wrapped_api/sunmatrix.jl")
-include("wrapped_api/sunlinsol.jl")
-if @isdefined libsundials_cvodes
-    include("wrapped_api/cvodes.jl")
-else
-    include("wrapped_api/cvode.jl")
-end
-include("wrapped_api/arkode.jl")
-if @isdefined libsundials_idas
-    include("wrapped_api/idas.jl")
-else
-    include("wrapped_api/ida.jl")
-end
-include("wrapped_api/kinsol.jl")
+include("API/nvector.jl")
+include("API/libsundials.jl")
+include("API/sunmatrix.jl")
+include("API/sunlinsol.jl")
+include("API/sunnonlinsol.jl")
+include("API/cvodes.jl")
+#include("API/cvode.jl")
+include("API/arkode.jl")
+include("API/idas.jl")
+#include("API/ida.jl")
+include("API/kinsol.jl")
 
 include("simple.jl")
 include("common_interface/function_types.jl")

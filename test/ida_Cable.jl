@@ -1,5 +1,5 @@
 using Sundials
-using Grid ## for interpolating grids
+using Interpolations
 
 ##
 ## Solving the 1D cable equation with IDA.
