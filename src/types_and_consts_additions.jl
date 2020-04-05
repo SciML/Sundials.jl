@@ -43,6 +43,7 @@ function Base.convert(::Type{SparseArrays.SparseMatrixCSC}, J::SUNMatrix)
     # TODO: Get rid of allocation for 1-based index change
     rowval = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), own=false)
     colptr = unsafe_wrap(Array, mat.indexptrs, (mat.NP+1), own=false)
+    colptr .+= 1
     m = mat.M
     n = mat.N
     nzval = unsafe_wrap(Array,mat.data, (mat.NNZ), own=false)
