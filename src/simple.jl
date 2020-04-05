@@ -46,8 +46,7 @@ end
 
 function kinsol(f, y0::Vector{Float64};
                 userdata::Any = nothing,
-                linear_solver=:Dense, jac_upper=0, jac_lower=0,
-                stored_upper = jac_upper + jac_lower)
+                linear_solver=:Dense, jac_upper=0, jac_lower=0)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values

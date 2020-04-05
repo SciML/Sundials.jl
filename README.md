@@ -96,8 +96,7 @@ It's called via:
 ```julia
 kinsol(f, y0::Vector{Float64};
                 userdata::Any = nothing,
-                linear_solver=:Dense, jac_upper=0, jac_lower=0,
-                stored_upper = jac_upper + jac_lower)
+                linear_solver=:Dense, jac_upper=0, jac_lower=0)
 ```
 
 where `f(res,y)` is an in-place function that computes the residual `f(y)-res=0`,

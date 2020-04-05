@@ -167,8 +167,7 @@ function DiffEqBase.__init(
             _A = MatrixHandle(A,DenseMatrix())
             _LS = LinSolHandle(LS,Dense())
         elseif LinearSolver == :Band
-            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
-                                       alg.stored_upper)
+            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
             LS = SUNLinSol_Band(u0,A)
             flag = CVDlsSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,BandMatrix())
@@ -210,10 +209,15 @@ function DiffEqBase.__init(
             _A = MatrixHandle(A,SparseMatrix())
             _LS = LinSolHandle(LS,KLU())
         end
+        NLS = SUNNonlinSol_Newton(u0)
     else
         _A = nothing
         _LS = nothing
+        # TODO: Anderson Acceleration
+        anderson_m = 0
+        NLS = SUNNonlinSol_FixedPoint(u0, anderson_m)
     end
+    CVodeSetNonlinearSolver(mem, NLS)
 
     if DiffEqBase.has_jac(prob.f) && Method == :Newton
       function getcfunjac(userfun::T) where T
@@ -522,8 +526,7 @@ function DiffEqBase.__init(
             _A = MatrixHandle(A,DenseMatrix())
             _LS = LinSolHandle(LS,Dense())
         elseif LinearSolver == :Band
-            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower,
-                                       alg.stored_upper)
+            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
             LS = SUNLinSol_Band(u0,A)
             flag = ARKDlsSetLinearSolver(mem, LS, A)
             _A = MatrixHandle(A,BandMatrix())
@@ -595,8 +598,7 @@ function DiffEqBase.__init(
             _M = MatrixHandle(M,DenseMatrix())
             _MLS = LinSolHandle(MLS,Dense())
         elseif MassLinearSolver == :Band
-            M = SUNBandMatrix(length(u0), alg.mass_upper, alg.mass_lower,
-                                       alg.mass_stored_upper)
+            M = SUNBandMatrix(length(u0), alg.mass_upper, alg.mass_lower)
             MLS = SUNLinSol_Band(u0,M)
             ARKDlsSetMassLinearSolver(mem,MLS,M,false)
             _M = MatrixHandle(M,BandMatrix())
