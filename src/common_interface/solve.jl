@@ -208,7 +208,7 @@ function DiffEqBase.__init(
             _LS = LinSolHandle(LS,PTFQMR())
         elseif LinearSolver == :KLU
             nojacobian = false
-            nnz = length(SparseArrays.(prob.f.jac_prototype))
+            nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNLinSol_KLU(u0, A)
             flag = CVodeSetLinearSolver(mem, LS, A)
@@ -559,7 +559,7 @@ function DiffEqBase.__init(
             _A = nothing
             _LS = LinSolHandle(LS,PTFQMR())
         elseif LinearSolver == :KLU
-            nnz = length(SparseArrays.(prob.f.jac_prototype))
+            nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             LS = SUNLinSol_KLU(u0, A)
             flag = ARKStepSetLinearSolver(mem, LS, A)
@@ -631,7 +631,7 @@ function DiffEqBase.__init(
             _M = nothing
             _MLS = LinSolHandle(MLS,PTFQMR())
         elseif MassLinearSolver == :KLU
-            nnz = length(SparseArrays.(prob.f.mass_matrix))
+            nnz = length(SparseArrays.nonzeros(prob.f.mass_matrix))
             M = SUNSparseMatrix(length(u0),length(u0), nnz, CSC_MAT)
             MLS = SUNLinSol_KLU(u0, M)
             ARKStepSetMassLinearSolver(mem,MLS,M,false)
