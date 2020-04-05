@@ -60,6 +60,8 @@ include("API/arkode.jl")
 include("API/idas.jl")
 #include("API/ida.jl")
 include("API/kinsol.jl")
+# this must be the last one from the API folder!
+include("API/api_overloads.jl")
 
 include("simple.jl")
 include("common_interface/function_types.jl")
