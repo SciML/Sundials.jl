@@ -23,10 +23,8 @@ sol7 = solve(prob,IDA(linear_solver=:PCG)) # Requires symmetric linear
 #@info "KLU solver"
 #sol8 = solve(prob,IDA(linear_solver=:KLU)) # Requires Jacobian
 
-if !Sys.isapple()
-    sol9 = solve(prob,IDA(linear_solver=:LapackBand,jac_upper=2,jac_lower=2))
-    sol10 = solve(prob,IDA(linear_solver=:LapackDense))
-end
+sol9 = solve(prob,IDA(linear_solver=:LapackBand,jac_upper=2,jac_lower=2))
+sol10 = solve(prob,IDA(linear_solver=:LapackDense))
 sol11 = solve(prob,IDA(linear_solver=:Dense))
 
 # Test identity preconditioner
