@@ -603,22 +603,22 @@ function DiffEqBase.__init(
     end
 
     if prob.f.mass_matrix != LinearAlgebra.I
-        if LinearSolver in (:Dense, :LapackDense)
+        if MassLinearSolver in (:Dense, :LapackDense)
             nojacobian = false
             M = SUNDenseMatrix(length(u0),length(u0))
             _M = MatrixHandle(M,DenseMatrix())
-            if LinearSolver === :Dense
+            if MassLinearSolver === :Dense
                 MLS = SUNLinSol_Dense(u0,M)
                 _MLS = LinSolHandle(LS,Dense())
             else
                 MLS = SUNLinSol_LapackDense(u0,M)
                 _MLS = LinSolHandle(LS,LapackDense())
             end
-        elseif LinearSolver in (:Band, :LapackBand)
+        elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
             M = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
             _M = MatrixHandle(M,BandMatrix())
-            if LinearSolver === :Band
+            if MassLinearSolver === :Band
                 MLS = SUNLinSol_Band(u0,M)
                 _MLS = LinSolHandle(LS,Band())
             else
