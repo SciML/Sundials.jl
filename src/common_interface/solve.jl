@@ -609,10 +609,10 @@ function DiffEqBase.__init(
             _M = MatrixHandle(M,DenseMatrix())
             if MassLinearSolver === :Dense
                 MLS = SUNLinSol_Dense(u0,M)
-                _MLS = LinSolHandle(LS,Dense())
+                _MLS = LinSolHandle(MLS,Dense())
             else
                 MLS = SUNLinSol_LapackDense(u0,M)
-                _MLS = LinSolHandle(LS,LapackDense())
+                _MLS = LinSolHandle(MLS,LapackDense())
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
@@ -620,10 +620,10 @@ function DiffEqBase.__init(
             _M = MatrixHandle(M,BandMatrix())
             if MassLinearSolver === :Band
                 MLS = SUNLinSol_Band(u0,M)
-                _MLS = LinSolHandle(LS,Band())
+                _MLS = LinSolHandle(MLS,Band())
             else
                 MLS = SUNLinSol_LapackBand(u0,M)
-                _MLS = LinSolHandle(LS,LapackBand())
+                _MLS = LinSolHandle(MLS,LapackBand())
             end
         elseif MassLinearSolver == :GMRES
             MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
