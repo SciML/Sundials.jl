@@ -505,14 +505,19 @@ function DiffEqBase.__init(
     flag = ARKStepSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
     flag = ARKStepSetDenseOrder(mem,alg.dense_order)
 
+    #=
+    Reference from Manual on ARKODE
+    To choose an explicit table, set itable to a negative value. This automatically calls ARKStepSetExplicit(). However, if the problem is posed in explicit form, i.e. 𝑦 ̇ = 𝑓 (𝑡, 𝑦), then we recommend that the ERKStep time- stepper module be used instead of ARKStep.
+    To select an implicit table, set etable to a negative value. This automatically calls ARKStepSetImplicit(). If both itable and etable are non-negative, then these should match an existing implicit/explicit pair, listed in the section Additive Butcher tables. This automatically calls ARKStepSetImEx().
+    =#
     if alg.itable == nothing && alg.etable == nothing
         flag = ARKStepSetOrder(mem,alg.order)
     elseif alg.itable == nothing && alg.etable != nothing
-        flag = ARKStepSetERKTableNum(mem, alg.etable)
+        flag = ARKStepSetTableNum(mem, -1, alg.etable)
     elseif alg.itable != nothing && alg.etable == nothing
-        flag = ARKStepSetIRKTableNum(mem, alg.itable)
+        flag = ARKStepSetTableNum(mem, alg.itable, -1)
     else
-        flag = ARKStepSetARKTableNum(mem, alg.itable, alg.etable)
+        flag = ARKStepSetTableNum(mem, alg.itable, alg.etable)
     end
 
     flag = ARKStepSetNonlinCRDown(mem,alg.crdown)
