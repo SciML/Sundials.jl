@@ -24,3 +24,33 @@ sol = solve(prob,ARKODE(linear_solver=:Dense))
 
 sol = solve(prob,ARKODE(linear_solver=:LapackBand,jac_upper=3,jac_lower=3),reltol=1e-12,abstol=1e-12)
 @test sol.errors[:l2] < 1e-6
+
+#
+# Test for Sundials.jl issue #253
+#
+# ARKStepSetERKTableNum not defined
+#
+# Function
+function Eq_Dif(dq,q,t)
+  dq .= 10*q
+end
+# Alias
+fn(dq,q,p,t) = Eq_Dif(dq,q,t)
+# Time span
+tspan = (0.0, 1.0)
+# Initial values
+q = zeros(10)
+# Define problem
+prob = ODEProblem(fn,q,tspan)
+# Define solution method
+method = DifferentialEquations.ARKODE(Sundials.Explicit(),
+                                          etable = Sundials.VERNER_8_5_6,
+                                          order = 8,
+                                          set_optimal_params = false,
+                                          max_hnil_warns = 10,
+                                          max_error_test_failures = 7,
+                                          max_nonlinear_iters = 4,
+                                          max_convergence_failures = 10)
+# Solve
+sol = DifferentialEquations.solve(prob,method)
+@test sol.retcode == :Success
