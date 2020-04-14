@@ -43,14 +43,14 @@ q = zeros(10)
 # Define problem
 prob = ODEProblem(fn,q,tspan)
 # Define solution method
-method = DifferentialEquations.ARKODE(Sundials.Explicit(),
-                                          etable = Sundials.VERNER_8_5_6,
-                                          order = 8,
-                                          set_optimal_params = false,
-                                          max_hnil_warns = 10,
-                                          max_error_test_failures = 7,
-                                          max_nonlinear_iters = 4,
-                                          max_convergence_failures = 10)
+method = ARKODE(Sundials.Explicit(),
+                etable = Sundials.VERNER_8_5_6,
+                order = 8,
+                set_optimal_params = false,
+                max_hnil_warns = 10,
+                max_error_test_failures = 7,
+                max_nonlinear_iters = 4,
+                max_convergence_failures = 10)
 # Solve
-sol = DifferentialEquations.solve(prob,method)
+sol = solve(prob,method)
 @test sol.retcode == :Success
