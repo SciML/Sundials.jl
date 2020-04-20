@@ -34,7 +34,7 @@
  * ----------------------------------------------------------------*/
 =#
 
-using Sundials, Test
+using Sundials# Test
 
 function ff(t, y_nv, ydot_nv, user_data)
     y = convert(Vector, y_nv)
@@ -76,10 +76,11 @@ Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
 
 t = [T0]
 tout = T0+dTout
-
-for _ in 1:Nt
-    y= similar(y0)
-    retval = Sundials.MRIStepEvolve(arkode_mem, tout, y, t, Sundials.ARK_NORMAL)
+res = Dict(0 => y0)
+for i in 1:Nt
+    y = similar(y0)
+    global retval = Sundials.MRIStepEvolve(arkode_mem, tout, y, t, Sundials.ARK_NORMAL)
     global tout += dTout;
     global tout = (tout > Tf) ? Tf : tout;
+    res[i] = y
 end
