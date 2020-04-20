@@ -1157,7 +1157,7 @@ end
 
 function MRIStepCreate(fs, t0::realtype, y0, inner_step_mem)
     __y0 = convert(NVector, y0)
-    return MRIStepCreate(ARKRhsFn_wrapper(fs), t0, convert(N_Vector, __y0), Sundials.MRISTEP_ARKSTEP, inner_step_mem.ptr_ref)
+    return MRIStepCreate(ARKRhsFn_wrapper(fs), t0, convert(N_Vector, __y0), Sundials.MRISTEP_ARKSTEP, inner_step_mem)
 end
 
 function MRIStepResize(arkode_mem, ynew::N_Vector, t0::realtype, resize, resize_data)
