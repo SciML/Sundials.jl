@@ -61,7 +61,7 @@ Neq = 3
 Nt = ceil(Tf/dTout)
 hs = 0.001
 hf = 0.00002
-y0 = [9001/10001, -1e-5/10001, 1000.0]
+y0 = [0.90001, -9.999, 1000.0]
 
 # Fast Integration portion
 _mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0);
@@ -83,4 +83,11 @@ for i in 1:Nt
     global tout += dTout;
     global tout = (tout > Tf) ? Tf : tout;
     res[i] = y
+end
+
+for i in 1:3
+    sol_1 = [ -0.927671   -8.500060  904.786828]
+    sol_end = [0.547358   -0.523577  135.169441]
+    @test isapprox(res[1][i], sol_1[i], atol = 1e-3)
+    @test isapprox(res[Nt][i], sol_end[i], atol = 1e-3)
 end
