@@ -81,6 +81,7 @@ mutable struct NonLinSolHandle{T<:SundialsNonLinearSolver} <: SundialsHandle
 end
 
 Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) where T = h.ptr_ref[]
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::Handle{T}) where T = Ptr{Cvoid}(h.ptr_ref[])
 Base.convert(::Type{Ptr{T}}, h::Handle{T}) where T = h.ptr_ref[]
 Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T} = convert(Ptr{Ptr{T}}, h.ptr_ref[])
 
