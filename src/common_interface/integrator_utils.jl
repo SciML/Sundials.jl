@@ -148,6 +148,9 @@ end
 DiffEqBase.reeval_internals_due_to_modification!(integrator::AbstractSundialsIntegrator) = nothing
 DiffEqBase.reeval_internals_due_to_modification!(integrator::IDAIntegrator) = handle_callback_modifiers!(integrator::IDAIntegrator)
 
+# Required for callbacks
+DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator,dt) = nothing
+
 DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator) = nothing
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator)
   integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
