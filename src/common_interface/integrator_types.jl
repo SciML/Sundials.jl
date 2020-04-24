@@ -147,6 +147,10 @@ DiffEqBase.check_error(integrator::AbstractSundialsIntegrator) =
     interpret_sundials_retcode(integrator.flag)
 
 DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
+
+# false because this function is used in callbacks and cannot change dt forcibly
+DiffEqBase.is_integrator_adaptive(integrator::AbstractSundialsIntegrator) = false
+
 # No-op postamble! to make DiffEqBase.check_error! (and hence iterator interface
 # implemented in DiffEqBase) work.
 
