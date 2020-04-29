@@ -79,6 +79,11 @@ function save_value!(save_array,val,::Type{T},sizeu,
     bool ? save = copy(val) : save = val
     push!(save_array,reshape(save,sizeu))
 end
+function save_value!(save_array,val,::Type{T},sizeu,
+                     make_copy::Type{Val{bool}}=Val{true}) where {T <: AbstractArray,bool}
+    bool ? save = copy(val) : save = val
+    push!(save_array,convert(T,reshape(save,sizeu)))
+end
 
 function handle_callback_modifiers!(integrator::CVODEIntegrator)
   CVodeReInit(integrator.mem,integrator.t,integrator.u)
