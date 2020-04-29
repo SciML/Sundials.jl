@@ -25,6 +25,7 @@ struct NVector <: DenseVector{realtype}
     end
 end
 
+NVector(v::AbstractArray) = convert(Vector,v)
 N_Vector(x::NVector) = convert(N_Vector,x)
 
 release_handle(ref_nv::Ref{N_Vector}) = N_VDestroy_Serial(ref_nv[])
@@ -50,6 +51,7 @@ Base.pointer(nv::NVector) = Sundials.N_VGetArrayPointer_Serial(nv.ref_nv[])
 
 Base.convert(::Type{NVector}, v::Vector{realtype}) = NVector(v)
 Base.convert(::Type{NVector}, v::Vector{T}) where {T<:Real} = NVector(copy!(similar(v, realtype), v))
+Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Array,v))
 Base.convert(::Type{NVector}, nv::NVector) = nv
 Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
 Base.convert(::Type{N_Vector}, nv::NVector) = nv.ref_nv[]
