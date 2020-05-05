@@ -15,7 +15,7 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 
 [compat]
-CEnum = "0.2"
+CEnum = "0.2, 0.3"
 DataStructures = "0.17.0"
 DiffEqBase = "6.21"
 Reexport = "0.2"
