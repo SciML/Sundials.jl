@@ -37,6 +37,7 @@ function DiffEqBase.__init(
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
     alias_u0=false,
+    sensitivity_context=false,
     kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
 
     tType = eltype(tupType)
@@ -305,10 +306,17 @@ function DiffEqBase.__init(
       end
     end
 
+    interp = if dense && sensitivity_context
+        DiffEqBase.SensitivtyInterpolation(ts,ures)
+    elseif dense
+        DiffEqBase.HermiteInterpolation(ts,ures,dures)
+    else
+        DiffEqBase.LinearInterpolation(ts,ures)
+    end
+
     sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
-                                    DiffEqBase.LinearInterpolation(ts,ures),
+                   interp = interp,
                    timeseries_errors = timeseries_errors,
                    destats = DiffEqBase.DEStats(0),
                    calculate_error = false)
@@ -343,6 +351,7 @@ function DiffEqBase.__init(
     advance_to_tstop = false,stop_at_next_tstop=false,
     userdata=nothing,
     alias_u0=false,
+    sensitivity_context=false,
     kwargs...) where {uType, tupType, isinplace, Method, LinearSolver, MassLinearSolver}
 
     tType = eltype(tupType)
@@ -734,10 +743,17 @@ function DiffEqBase.__init(
       end
     end
 
+    interp = if dense && sensitivity_context
+        DiffEqBase.SensitivtyInterpolation(ts,ures)
+    elseif dense
+        DiffEqBase.HermiteInterpolation(ts,ures,dures)
+    else
+        DiffEqBase.LinearInterpolation(ts,ures)
+    end
+
     sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
-                                    DiffEqBase.LinearInterpolation(ts,ures),
+                   interp = interp
                    timeseries_errors = timeseries_errors,
                    destats = DiffEqBase.DEStats(0),
                    calculate_error = false)
@@ -807,6 +823,7 @@ function DiffEqBase.__init(
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
     advance_to_tstop = false, stop_at_next_tstop = false,
     userdata=nothing,
+    sensitivity_context=false,
     kwargs...) where {uType, duType, tupType, isinplace, LinearSolver}
 
     tType = eltype(tupType)
@@ -1081,10 +1098,17 @@ function DiffEqBase.__init(
         retcode = :InitialFailure
     end
 
+    interp = if dense && sensitivity_context
+        DiffEqBase.SensitivtyInterpolation(ts,ures)
+    elseif dense
+        DiffEqBase.HermiteInterpolation(ts,ures,dures)
+    else
+        DiffEqBase.LinearInterpolation(ts,ures)
+    end
+
     sol = DiffEqBase.build_solution(prob, alg, ts, ures,
                    dense = dense,
-                   interp = dense ? DiffEqBase.HermiteInterpolation(ts,ures,dures) :
-                                    DiffEqBase.LinearInterpolation(ts,ures),
+                   interp = interp,
                    calculate_error = false,
                    timeseries_errors = timeseries_errors,
                    retcode = retcode,
