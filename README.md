@@ -147,6 +147,15 @@ If you use this library, please cite both Sundials and the JuliaDiffEq project.
   year={2017},
   publisher={Ubiquity Press}
 }
-```
 
-* A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, D. E. Shumaker, and C. S. Woodward, “SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers,” ACM Transactions on Mathematical Software, 31(3), pp. 363-396, 2005. Also available as LLNL technical report UCRL-JP-200037.
+@article{hindmarsh2005sundials,
+  title={{SUNDIALS}: Suite of nonlinear and differential/algebraic equation solvers},
+  author={Hindmarsh, Alan C and Brown, Peter N and Grant, Keith E and Lee, Steven L and Serban, Radu and Shumaker, Dan E and Woodward, Carol S},
+  journal={ACM Transactions on Mathematical Software (TOMS)},
+  volume={31},
+  number={3},
+  pages={363--396},
+  year={2005},
+  publisher={ACM}
+}
+```
