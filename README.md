@@ -137,6 +137,16 @@ Citing
 
 If you use this library, please cite both Sundials and the JuliaDiffEq project.
 
-* Rackauckas, C. & Nie, Q., (2017). DifferentialEquations.jl – A Performant and Feature-Rich Ecosystem for Solving Differential Equations in Julia. Journal of Open Research Software. 5(1), p.15. DOI: http://doi.org/10.5334/jors.151
+```
+@article{rackauckas2017differentialequations,
+  title={Differentialequations. jl--a performant and feature-rich ecosystem for solving differential equations in julia},
+  author={Rackauckas, Christopher and Nie, Qing},
+  journal={Journal of Open Research Software},
+  volume={5},
+  number={1},
+  year={2017},
+  publisher={Ubiquity Press}
+}
+```
 
 * A. C. Hindmarsh, P. N. Brown, K. E. Grant, S. L. Lee, R. Serban, D. E. Shumaker, and C. S. Woodward, “SUNDIALS: Suite of Nonlinear and Differential/Algebraic Equation Solvers,” ACM Transactions on Mathematical Software, 31(3), pp. 363-396, 2005. Also available as LLNL technical report UCRL-JP-200037.
