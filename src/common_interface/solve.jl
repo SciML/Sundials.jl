@@ -7,7 +7,7 @@ function DiffEqBase.__solve(
   kwargs...) where {algType<:Union{SundialsODEAlgorithm,SundialsDAEAlgorithm},
                     recompile_flag}
 
-  integrator = DiffEqBase.init(prob,alg,timeseries,ts,ks;kwargs...)
+  integrator = DiffEqBase.__init(prob,alg,timeseries,ts,ks;kwargs...)
   if integrator.sol.retcode == :Default
     solve!(integrator)
   end
