@@ -1155,6 +1155,16 @@ function set_stop_time(integrator::IDAIntegrator,tstop)
     IDASetStopTime(integrator.mem,tstop)
 end
 
+function get_iters!(integrator::CVODEIntegrator,iters)
+    CVodeGetNumSteps(integrator.mem,iters)
+end
+function get_iters!(integrator::ARKODEIntegrator,iters)
+    ARKStepGetNumSteps(integrator.mem,iters)
+end
+function get_iters!(integrator::IDAIntegrator,iters)
+    IDAGetNumSteps(integrator.mem,iters)
+end
+
 function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     uType = eltype(integrator.sol.u)
     iters = Ref(-1)
@@ -1177,7 +1187,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
             if isempty(integrator.opts.tstops)
               break
             end
-            CVodeGetNumSteps(integrator.mem, iters)
+            get_iters!(integrator, iters)
             if iters[] + 1 > integrator.opts.maxiters
                 integrator.flag = -1 # MaxIters: -1
                 break
