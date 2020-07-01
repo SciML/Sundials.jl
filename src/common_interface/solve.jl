@@ -315,7 +315,7 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop,
-                     progress,progress_name,progress_message)
+                     progress,progress_name,progress_message,maxiters)
     integrator = CVODEIntegrator(u0,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,1,callback_cache,0.)
 
@@ -744,7 +744,7 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                      timeseries_errors,dense_errors,save_on,save_end,
                      callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop,
-                     progress,progress_name,progress_message)
+                     progress,progress_name,progress_message,maxiters)
     integrator = ARKODEIntegrator(utmp,prob.p,t0,t0,mem,_LS,_A,_MLS,_M,sol,alg,f!,userfun,jac,opts,
                        tout,tdir,sizeu,false,tmp,uprev,Cint(flag),false,0,1,callback_cache,0.)
 
@@ -1094,7 +1094,7 @@ function DiffEqBase.__init(
     opts = DEOptions(saveat_internal,tstops_internal,save_everystep,dense,
                     timeseries_errors,dense_errors,save_on,save_end,
                     callbacks_internal,abstol,reltol,verbose,advance_to_tstop,stop_at_next_tstop,
-                    progress,progress_name,progress_message)
+                    progress,progress_name,progress_message,maxiters)
 
     integrator = IDAIntegrator(utmp,dutmp,prob.p,t0,t0,mem,_LS,_A,sol,alg,f!,userfun,jac,opts,
                    tout,tdir,sizeu,sizedu,false,tmp,uprev,Cint(flag),false,0,1,callback_cache,0.)
@@ -1155,8 +1155,19 @@ function set_stop_time(integrator::IDAIntegrator,tstop)
     IDASetStopTime(integrator.mem,tstop)
 end
 
+function get_iters!(integrator::CVODEIntegrator,iters)
+    CVodeGetNumSteps(integrator.mem,iters)
+end
+function get_iters!(integrator::ARKODEIntegrator,iters)
+    ARKStepGetNumSteps(integrator.mem,iters)
+end
+function get_iters!(integrator::IDAIntegrator,iters)
+    IDAGetNumSteps(integrator.mem,iters)
+end
+
 function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     uType = eltype(integrator.sol.u)
+    iters = Ref(-1)
     while !isempty(integrator.opts.tstops)
         # Sundials can have floating point issues approaching a tstop if
         # there is a modifying event each
@@ -1176,8 +1187,13 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
             if isempty(integrator.opts.tstops)
               break
             end
+            get_iters!(integrator, iters)
+            if iters[] + 1 > integrator.opts.maxiters
+                integrator.flag = -1 # MaxIters: -1
+                break
+            end
         end
-        (integrator.flag < 0) && break
+        integrator.flag < 0 && break
         handle_tstop!(integrator)
     end
 
@@ -1209,11 +1225,11 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
         dense_errors=integrator.opts.dense_errors)
     end
 
-    if integrator.sol.retcode != :Default
-      return integrator.sol
+    if integrator.sol.retcode === :Default
+        integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
     end
-    integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,interpret_sundials_retcode(integrator.flag))
-    nothing
+
+    return integrator.sol
 end
 
 function handle_tstop!(integrator::AbstractSundialsIntegrator)

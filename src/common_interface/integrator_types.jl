@@ -16,6 +16,7 @@ mutable struct DEOptions{SType,TstopType,CType,reltolType,abstolType,F5}
     progress::Bool
     progress_name::String
     progress_message::F5
+    maxiters::Int
 end
 
 abstract type AbstractSundialsIntegrator{algType} <: DiffEqBase.AbstractODEIntegrator{algType,true,Vector{Float64},Float64} end

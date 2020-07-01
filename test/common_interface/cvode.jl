@@ -107,3 +107,6 @@ u0 = 0.0;
 tspan = (0.0, 10)
 prob = ODEProblem(number_test,u0,tspan,(2.0,0.01))
 sol = solve(prob,CVODE_BDF())
+
+sol = solve(prob2,CVODE_BDF(), maxiters=1)
+@test length(sol.t) == 2
