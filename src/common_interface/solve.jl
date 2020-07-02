@@ -1167,7 +1167,7 @@ end
 
 function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     uType = eltype(integrator.sol.u)
-    iters = Ref(-1)
+    iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)
         # Sundials can have floating point issues approaching a tstop if
         # there is a modifying event each
