@@ -62,7 +62,7 @@ which currently runs some of the examples in the `examples` directory.
 Common Interface API
 --------------------
 
-This package is part of the JuliaDiffEq common interface. This is documented in [the DifferentialEquaitons.jl documentation](http://docs.juliadiffeq.org/latest/index.html). Thus [the ODE tutorial](http://docs.juliadiffeq.org/latest/tutorials/ode_example.html) applies. For example, the Lorenz attractor can be solved with `CVODE_Adams` as follows:
+This package is part of the JuliaDiffEq common interface. This is documented in [the DifferentialEquaitons.jl documentation](http://diffeq.sciml.ai/latest/index.html). Thus [the ODE tutorial](http://diffeq.sciml.ai/latest/tutorials/ode_example.html) applies. For example, the Lorenz attractor can be solved with `CVODE_Adams` as follows:
 
 ```juila
 using Sundials
@@ -80,10 +80,10 @@ using Plots; plot(sol,vars=(1,2,3))
 
 Sundials.jl exports the `CVODE_BDF`, `CVODE_Adams`, and `ARKODE` methods for
 ODEs which are documented
-[in the ODE Solvers page](https://docs.sciml.ai/latest/solvers/ode_solve/#ode_solve_sundials-1), and `IDA` which is documented
-[in the DAE solvers page](https://docs.sciml.ai/latest/solvers/dae_solve/#Sundials.jl-1).
+[in the ODE Solvers page](https://diffeq.sciml.ai/latest/solvers/ode_solve/#ode_solve_sundials-1), and `IDA` which is documented
+[in the DAE solvers page](https://diffeq.sciml.ai/latest/solvers/dae_solve/#Sundials.jl-1).
 Additionally, the `ARKODE` method can be used
-[on `SplitODEProblem`s](https://docs.sciml.ai/latest/solvers/split_ode_solve/)
+[on `SplitODEProblem`s](https://diffeq.sciml.ai/latest/solvers/split_ode_solve/)
 to solve ODEs in IMEX form.
 
 KINSOL High Level API
