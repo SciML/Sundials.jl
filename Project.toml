@@ -17,7 +17,7 @@ Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 [compat]
 CEnum = "0.2, 0.3, 0.4"
 DataStructures = "0.18"
-DiffEqBase = "6.21"
+DiffEqBase = "6.44"
 Reexport = "0.2"
 Sundials_jll = "5.2"
 julia = "1.3"
