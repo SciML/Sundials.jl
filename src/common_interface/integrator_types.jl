@@ -155,8 +155,8 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
 
 @inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
   if integrator.opts.advance_to_tstop
-    while integrator.tdir*(integrator.t-DataStructures.top(integrator.opts.tstops)) < -1e6eps()
-        tstop = DataStructures.top(integrator.opts.tstops)
+    while integrator.tdir*(integrator.t-DataStructures.first(integrator.opts.tstops)) < -1e6eps()
+        tstop = DataStructures.first(integrator.opts.tstops)
         set_stop_time(integrator,tstop)
         integrator.tprev = integrator.t
         if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
@@ -174,7 +174,7 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
           integrator.uprev .= integrator.u
       end
       if !isempty(integrator.opts.tstops)
-          tstop = DataStructures.top(integrator.opts.tstops)
+          tstop = DataStructures.first(integrator.opts.tstops)
           set_stop_time(integrator,tstop)
           solver_step(integrator,tstop)
       else

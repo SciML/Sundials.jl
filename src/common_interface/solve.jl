@@ -1153,8 +1153,8 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     while !isempty(integrator.opts.tstops)
         # Sundials can have floating point issues approaching a tstop if
         # there is a modifying event each
-        while integrator.tdir*(integrator.t-DataStructures.top(integrator.opts.tstops)) < -1e6eps()
-            tstop = DataStructures.top(integrator.opts.tstops)
+        while integrator.tdir*(integrator.t-DataStructures.first(integrator.opts.tstops)) < -1e6eps()
+            tstop = DataStructures.first(integrator.opts.tstops)
             set_stop_time(integrator,tstop)
             integrator.tprev = integrator.t
             if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
@@ -1217,7 +1217,7 @@ end
 function handle_tstop!(integrator::AbstractSundialsIntegrator)
     tstops = integrator.opts.tstops
     if !isempty(tstops)
-      if integrator.tdir*(integrator.t-DataStructures.top(integrator.opts.tstops)) > -1e6eps()
+      if integrator.tdir*(integrator.t-DataStructures.first(integrator.opts.tstops)) > -1e6eps()
           pop!(tstops)
           t = integrator.t
           integrator.just_hit_tstop = true
