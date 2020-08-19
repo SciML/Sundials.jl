@@ -38,8 +38,9 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,force_sav
   saved, savedexactly = false, false
   !integrator.opts.save_on && return saved, savedexactly
   uType = eltype(integrator.sol.u)
+  # The call to first is an overload of Base.first implemented in DataStructures
   while !isempty(integrator.opts.saveat) &&
-    integrator.tdir*DataStructures.first(integrator.opts.saveat) < integrator.tdir*integrator.t
+    integrator.tdir*first(integrator.opts.saveat) < integrator.tdir*integrator.t
     saved = true
     curt = pop!(integrator.opts.saveat)
 
