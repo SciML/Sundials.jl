@@ -173,6 +173,7 @@ CEnum.@cenum MRISTEP_ID::UInt32 begin
     MRISTEP_ARKSTEP = 0
 end
 
+
 const MRIStepPreInnerFn = Ptr{Cvoid}
 const MRIStepPostInnerFn = Ptr{Cvoid}
 const CV_ADAMS = Cint(1)
@@ -699,6 +700,8 @@ CEnum.@cenum SUNLinearSolver_ID::UInt32 begin
     SUNLINEARSOLVER_CUSTOM = 13
 end
 
+
+
 struct _generic_SUNLinearSolver_Ops
     gettype::Ptr{Cvoid}
     getid::Ptr{Cvoid}
@@ -739,6 +742,7 @@ const SUNMAT_MEM_FAIL = Cint(-702)
 const SUNMAT_OPERATION_FAIL = Cint(-703)
 const SUNMAT_MATVEC_SETUP_REQUIRED = Cint(-704)
 
+
 CEnum.@cenum SUNMatrix_ID::UInt32 begin
     SUNMATRIX_DENSE = 0
     SUNMATRIX_BAND = 1
@@ -746,6 +750,7 @@ CEnum.@cenum SUNMatrix_ID::UInt32 begin
     SUNMATRIX_SLUNRLOC = 3
     SUNMATRIX_CUSTOM = 4
 end
+
 
 struct _generic_SUNMatrix_Ops
     getid::Ptr{Cvoid}
@@ -831,6 +836,7 @@ CEnum.@cenum N_Vector_ID::UInt32 begin
     SUNDIALS_NVEC_MPIPLUSX = 12
     SUNDIALS_NVEC_CUSTOM = 13
 end
+
 
 const N_Vector_S = Ptr{N_Vector}
 

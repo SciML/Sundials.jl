@@ -19,14 +19,9 @@
 # Julia wrapper for header: sundials_futils.h
 # Automatically generated using Clang.jl
 
+
 function SUNDIALSFileOpen(filename, modes)
-    ccall(
-        (:SUNDIALSFileOpen, libsundials_sundials),
-        Ptr{FILE},
-        (Cstring, Cstring),
-        filename,
-        modes,
-    )
+    ccall((:SUNDIALSFileOpen, libsundials_sundials), Ptr{FILE}, (Cstring, Cstring), filename, modes)
 end
 
 function SUNDIALSFileClose(fp)
@@ -41,6 +36,7 @@ end
 # Julia wrapper for header: sundials_linearsolver.h
 # Automatically generated using Clang.jl
 
+
 function SUNLinSolNewEmpty()
     ccall((:SUNLinSolNewEmpty, libsundials_sundials), SUNLinearSolver, ())
 end
@@ -50,55 +46,23 @@ function SUNLinSolFreeEmpty(S::SUNLinearSolver)
 end
 
 function SUNLinSolGetType(S::SUNLinearSolver)
-    ccall(
-        (:SUNLinSolGetType, libsundials_sundials),
-        SUNLinearSolver_Type,
-        (SUNLinearSolver,),
-        S,
-    )
+    ccall((:SUNLinSolGetType, libsundials_sundials), SUNLinearSolver_Type, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolGetID(S::SUNLinearSolver)
-    ccall(
-        (:SUNLinSolGetID, libsundials_sundials),
-        SUNLinearSolver_ID,
-        (SUNLinearSolver,),
-        S,
-    )
+    ccall((:SUNLinSolGetID, libsundials_sundials), SUNLinearSolver_ID, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSetATimes(S, A_data, ATimes::ATimesFn)
-    ccall(
-        (:SUNLinSolSetATimes, libsundials_sundials),
-        Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn),
-        S,
-        A_data,
-        ATimes,
-    )
+    ccall((:SUNLinSolSetATimes, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
 end
 
 function SUNLinSolSetPreconditioner(S, P_data, Pset::PSetupFn, Psol::PSolveFn)
-    ccall(
-        (:SUNLinSolSetPreconditioner, libsundials_sundials),
-        Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn),
-        S,
-        P_data,
-        Pset,
-        Psol,
-    )
+    ccall((:SUNLinSolSetPreconditioner, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
 function SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::N_Vector, s2::N_Vector)
-    ccall(
-        (:SUNLinSolSetScalingVectors, libsundials_sundials),
-        Cint,
-        (SUNLinearSolver, N_Vector, N_Vector),
-        S,
-        s1,
-        s2,
-    )
+    ccall((:SUNLinSolSetScalingVectors, libsundials_sundials), Cint, (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
 function SUNLinSolSetScalingVectors(S, s1, s2)
@@ -115,23 +79,8 @@ function SUNLinSolSetup(S::SUNLinearSolver, A::SUNMatrix)
     ccall((:SUNLinSolSetup, libsundials_sundials), Cint, (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve(
-    S::SUNLinearSolver,
-    A::SUNMatrix,
-    x::N_Vector,
-    b::N_Vector,
-    tol::realtype,
-)
-    ccall(
-        (:SUNLinSolSolve, libsundials_sundials),
-        Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype),
-        S,
-        A,
-        x,
-        b,
-        tol,
-    )
+function SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::N_Vector, b::N_Vector, tol::realtype)
+    ccall((:SUNLinSolSolve, libsundials_sundials), Cint, (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
 function SUNLinSolSolve(S, A, x, b, tol)
@@ -157,14 +106,7 @@ function SUNLinSolLastFlag(S::SUNLinearSolver)
 end
 
 function SUNLinSolSpace(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall(
-        (:SUNLinSolSpace, libsundials_sundials),
-        Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}),
-        S,
-        lenrwLS,
-        leniwLS,
-    )
+    ccall((:SUNLinSolSpace, libsundials_sundials), Cint, (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
 end
 
 function SUNLinSolFree(S::SUNLinearSolver)
@@ -172,6 +114,7 @@ function SUNLinSolFree(S::SUNLinearSolver)
 end
 # Julia wrapper for header: sundials_math.h
 # Automatically generated using Clang.jl
+
 
 function SUNRpowerI(base::realtype, exponent::Cint)
     ccall((:SUNRpowerI, libsundials_sundials), realtype, (realtype, Cint), base, exponent)
@@ -182,13 +125,7 @@ function SUNRpowerI(base::realtype, exponent)
 end
 
 function SUNRpowerR(base::realtype, exponent::Cint)
-    ccall(
-        (:SUNRpowerR, libsundials_sundials),
-        realtype,
-        (realtype, realtype),
-        base,
-        exponent,
-    )
+    ccall((:SUNRpowerR, libsundials_sundials), realtype, (realtype, realtype), base, exponent)
 end
 
 function SUNRpowerR(base::realtype, exponent)
@@ -196,6 +133,7 @@ function SUNRpowerR(base::realtype, exponent)
 end
 # Julia wrapper for header: sundials_matrix.h
 # Automatically generated using Clang.jl
+
 
 function SUNMatNewEmpty()
     ccall((:SUNMatNewEmpty, libsundials_sundials), SUNMatrix, ())
@@ -230,14 +168,7 @@ function SUNMatCopy(A::SUNMatrix, B::SUNMatrix)
 end
 
 function SUNMatScaleAdd(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall(
-        (:SUNMatScaleAdd, libsundials_sundials),
-        Cint,
-        (realtype, SUNMatrix, SUNMatrix),
-        c,
-        A,
-        B,
-    )
+    ccall((:SUNMatScaleAdd, libsundials_sundials), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
 end
 
 function SUNMatScaleAddI(c::realtype, A::SUNMatrix)
@@ -249,14 +180,7 @@ function SUNMatMatvecSetup(A::SUNMatrix)
 end
 
 function SUNMatMatvec(A::SUNMatrix, x::N_Vector, y::N_Vector)
-    ccall(
-        (:SUNMatMatvec, libsundials_sundials),
-        Cint,
-        (SUNMatrix, N_Vector, N_Vector),
-        A,
-        x,
-        y,
-    )
+    ccall((:SUNMatMatvec, libsundials_sundials), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
 function SUNMatMatvec(A, x, y)
@@ -266,20 +190,14 @@ function SUNMatMatvec(A, x, y)
 end
 
 function SUNMatSpace(A::SUNMatrix, lenrw, leniw)
-    ccall(
-        (:SUNMatSpace, libsundials_sundials),
-        Cint,
-        (SUNMatrix, Ptr{Clong}, Ptr{Clong}),
-        A,
-        lenrw,
-        leniw,
-    )
+    ccall((:SUNMatSpace, libsundials_sundials), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
 end
 # Julia wrapper for header: sundials_mpi_types.h
 # Automatically generated using Clang.jl
 
 # Julia wrapper for header: sundials_nonlinearsolver.h
 # Automatically generated using Clang.jl
+
 
 function SUNNonlinSolNewEmpty()
     ccall((:SUNNonlinSolNewEmpty, libsundials_sundials), SUNNonlinearSolver, ())
@@ -290,12 +208,7 @@ function SUNNonlinSolFreeEmpty(NLS::SUNNonlinearSolver)
 end
 
 function SUNNonlinSolGetType(NLS::SUNNonlinearSolver)
-    ccall(
-        (:SUNNonlinSolGetType, libsundials_sundials),
-        SUNNonlinearSolver_Type,
-        (SUNNonlinearSolver,),
-        NLS,
-    )
+    ccall((:SUNNonlinSolGetType, libsundials_sundials), SUNNonlinearSolver_Type, (SUNNonlinearSolver,), NLS)
 end
 
 function SUNNonlinSolInitialize(NLS::SUNNonlinearSolver)
@@ -303,14 +216,7 @@ function SUNNonlinSolInitialize(NLS::SUNNonlinearSolver)
 end
 
 function SUNNonlinSolSetup(NLS::SUNNonlinearSolver, y::N_Vector, mem)
-    ccall(
-        (:SUNNonlinSolSetup, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, N_Vector, Ptr{Cvoid}),
-        NLS,
-        y,
-        mem,
-    )
+    ccall((:SUNNonlinSolSetup, libsundials_sundials), Cint, (SUNNonlinearSolver, N_Vector, Ptr{Cvoid}), NLS, y, mem)
 end
 
 function SUNNonlinSolSetup(NLS, y, mem)
@@ -318,42 +224,15 @@ function SUNNonlinSolSetup(NLS, y, mem)
     SUNNonlinSolSetup(NLS, convert(N_Vector, __y), mem)
 end
 
-function SUNNonlinSolSolve(
-    NLS::SUNNonlinearSolver,
-    y0::N_Vector,
-    y::N_Vector,
-    w::N_Vector,
-    tol::realtype,
-    callLSetup::Cint,
-    mem,
-)
-    ccall(
-        (:SUNNonlinSolSolve, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}),
-        NLS,
-        y0,
-        y,
-        w,
-        tol,
-        callLSetup,
-        mem,
-    )
+function SUNNonlinSolSolve(NLS::SUNNonlinearSolver, y0::N_Vector, y::N_Vector, w::N_Vector, tol::realtype, callLSetup::Cint, mem)
+    ccall((:SUNNonlinSolSolve, libsundials_sundials), Cint, (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}), NLS, y0, y, w, tol, callLSetup, mem)
 end
 
 function SUNNonlinSolSolve(NLS, y0, y, w, tol, callLSetup, mem)
     __y0 = convert(NVector, y0)
     __y = convert(NVector, y)
     __w = convert(NVector, w)
-    SUNNonlinSolSolve(
-        NLS,
-        convert(N_Vector, __y0),
-        convert(N_Vector, __y),
-        convert(N_Vector, __w),
-        tol,
-        convert(Cint, callLSetup),
-        mem,
-    )
+    SUNNonlinSolSolve(NLS, convert(N_Vector, __y0), convert(N_Vector, __y), convert(N_Vector, __w), tol, convert(Cint, callLSetup), mem)
 end
 
 function SUNNonlinSolFree(NLS::SUNNonlinearSolver)
@@ -361,58 +240,23 @@ function SUNNonlinSolFree(NLS::SUNNonlinearSolver)
 end
 
 function SUNNonlinSolSetSysFn(NLS::SUNNonlinearSolver, SysFn::SUNNonlinSolSysFn)
-    ccall(
-        (:SUNNonlinSolSetSysFn, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, SUNNonlinSolSysFn),
-        NLS,
-        SysFn,
-    )
+    ccall((:SUNNonlinSolSetSysFn, libsundials_sundials), Cint, (SUNNonlinearSolver, SUNNonlinSolSysFn), NLS, SysFn)
 end
 
 function SUNNonlinSolSetLSetupFn(NLS::SUNNonlinearSolver, SetupFn::SUNNonlinSolLSetupFn)
-    ccall(
-        (:SUNNonlinSolSetLSetupFn, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, SUNNonlinSolLSetupFn),
-        NLS,
-        SetupFn,
-    )
+    ccall((:SUNNonlinSolSetLSetupFn, libsundials_sundials), Cint, (SUNNonlinearSolver, SUNNonlinSolLSetupFn), NLS, SetupFn)
 end
 
 function SUNNonlinSolSetLSolveFn(NLS::SUNNonlinearSolver, SolveFn::SUNNonlinSolLSolveFn)
-    ccall(
-        (:SUNNonlinSolSetLSolveFn, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, SUNNonlinSolLSolveFn),
-        NLS,
-        SolveFn,
-    )
+    ccall((:SUNNonlinSolSetLSolveFn, libsundials_sundials), Cint, (SUNNonlinearSolver, SUNNonlinSolLSolveFn), NLS, SolveFn)
 end
 
-function SUNNonlinSolSetConvTestFn(
-    NLS::SUNNonlinearSolver,
-    CTestFn::SUNNonlinSolConvTestFn,
-    ctest_data,
-)
-    ccall(
-        (:SUNNonlinSolSetConvTestFn, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, SUNNonlinSolConvTestFn, Ptr{Cvoid}),
-        NLS,
-        CTestFn,
-        ctest_data,
-    )
+function SUNNonlinSolSetConvTestFn(NLS::SUNNonlinearSolver, CTestFn::SUNNonlinSolConvTestFn, ctest_data)
+    ccall((:SUNNonlinSolSetConvTestFn, libsundials_sundials), Cint, (SUNNonlinearSolver, SUNNonlinSolConvTestFn, Ptr{Cvoid}), NLS, CTestFn, ctest_data)
 end
 
 function SUNNonlinSolSetMaxIters(NLS::SUNNonlinearSolver, maxiters::Cint)
-    ccall(
-        (:SUNNonlinSolSetMaxIters, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, Cint),
-        NLS,
-        maxiters,
-    )
+    ccall((:SUNNonlinSolSetMaxIters, libsundials_sundials), Cint, (SUNNonlinearSolver, Cint), NLS, maxiters)
 end
 
 function SUNNonlinSolSetMaxIters(NLS, maxiters)
@@ -420,36 +264,19 @@ function SUNNonlinSolSetMaxIters(NLS, maxiters)
 end
 
 function SUNNonlinSolGetNumIters(NLS::SUNNonlinearSolver, niters)
-    ccall(
-        (:SUNNonlinSolGetNumIters, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, Ptr{Clong}),
-        NLS,
-        niters,
-    )
+    ccall((:SUNNonlinSolGetNumIters, libsundials_sundials), Cint, (SUNNonlinearSolver, Ptr{Clong}), NLS, niters)
 end
 
 function SUNNonlinSolGetCurIter(NLS::SUNNonlinearSolver, iter)
-    ccall(
-        (:SUNNonlinSolGetCurIter, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, Ptr{Cint}),
-        NLS,
-        iter,
-    )
+    ccall((:SUNNonlinSolGetCurIter, libsundials_sundials), Cint, (SUNNonlinearSolver, Ptr{Cint}), NLS, iter)
 end
 
 function SUNNonlinSolGetNumConvFails(NLS::SUNNonlinearSolver, nconvfails)
-    ccall(
-        (:SUNNonlinSolGetNumConvFails, libsundials_sundials),
-        Cint,
-        (SUNNonlinearSolver, Ptr{Clong}),
-        NLS,
-        nconvfails,
-    )
+    ccall((:SUNNonlinSolGetNumConvFails, libsundials_sundials), Cint, (SUNNonlinearSolver, Ptr{Clong}), NLS, nconvfails)
 end
 # Julia wrapper for header: sundials_nvector.h
 # Automatically generated using Clang.jl
+
 
 function N_VNewEmpty()
     ccall((:N_VNewEmpty, libsundials_sundials), N_Vector, ())
@@ -511,14 +338,7 @@ function N_VDestroy(v)
 end
 
 function N_VSpace(v::N_Vector, lrw, liw)
-    ccall(
-        (:N_VSpace, libsundials_sundials),
-        Cvoid,
-        (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}),
-        v,
-        lrw,
-        liw,
-    )
+    ccall((:N_VSpace, libsundials_sundials), Cvoid, (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
 end
 
 function N_VSpace(v, lrw, liw)
@@ -536,13 +356,7 @@ function N_VGetArrayPointer(v)
 end
 
 function N_VSetArrayPointer(v_data, v::N_Vector)
-    ccall(
-        (:N_VSetArrayPointer, libsundials_sundials),
-        Cvoid,
-        (Ptr{realtype}, N_Vector),
-        v_data,
-        v,
-    )
+    ccall((:N_VSetArrayPointer, libsundials_sundials), Cvoid, (Ptr{realtype}, N_Vector), v_data, v)
 end
 
 function N_VSetArrayPointer(v_data, v)
@@ -569,29 +383,14 @@ function N_VGetLength(v)
 end
 
 function N_VLinearSum(a::realtype, x::N_Vector, b::realtype, y::N_Vector, z::N_Vector)
-    ccall(
-        (:N_VLinearSum, libsundials_sundials),
-        Cvoid,
-        (realtype, N_Vector, realtype, N_Vector, N_Vector),
-        a,
-        x,
-        b,
-        y,
-        z,
-    )
+    ccall((:N_VLinearSum, libsundials_sundials), Cvoid, (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
 
 function N_VLinearSum(a, x, b, y, z)
     __x = convert(NVector, x)
     __y = convert(NVector, y)
     __z = convert(NVector, z)
-    N_VLinearSum(
-        a,
-        convert(N_Vector, __x),
-        b,
-        convert(N_Vector, __y),
-        convert(N_Vector, __z),
-    )
+    N_VLinearSum(a, convert(N_Vector, __x), b, convert(N_Vector, __y), convert(N_Vector, __z))
 end
 
 function N_VConst(c::realtype, z::N_Vector)
@@ -656,14 +455,7 @@ function N_VInv(x, z)
 end
 
 function N_VAddConst(x::N_Vector, b::realtype, z::N_Vector)
-    ccall(
-        (:N_VAddConst, libsundials_sundials),
-        Cvoid,
-        (N_Vector, realtype, N_Vector),
-        x,
-        b,
-        z,
-    )
+    ccall((:N_VAddConst, libsundials_sundials), Cvoid, (N_Vector, realtype, N_Vector), x, b, z)
 end
 
 function N_VAddConst(x, b, z)
@@ -702,14 +494,7 @@ function N_VWrmsNorm(x, w)
 end
 
 function N_VWrmsNormMask(x::N_Vector, w::N_Vector, id::N_Vector)
-    ccall(
-        (:N_VWrmsNormMask, libsundials_sundials),
-        realtype,
-        (N_Vector, N_Vector, N_Vector),
-        x,
-        w,
-        id,
-    )
+    ccall((:N_VWrmsNormMask, libsundials_sundials), realtype, (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
 function N_VWrmsNormMask(x, w, id)
@@ -748,14 +533,7 @@ function N_VL1Norm(x)
 end
 
 function N_VCompare(c::realtype, x::N_Vector, z::N_Vector)
-    ccall(
-        (:N_VCompare, libsundials_sundials),
-        Cvoid,
-        (realtype, N_Vector, N_Vector),
-        c,
-        x,
-        z,
-    )
+    ccall((:N_VCompare, libsundials_sundials), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
 function N_VCompare(c, x, z)
@@ -775,14 +553,7 @@ function N_VInvTest(x, z)
 end
 
 function N_VConstrMask(c::N_Vector, x::N_Vector, m::N_Vector)
-    ccall(
-        (:N_VConstrMask, libsundials_sundials),
-        Cint,
-        (N_Vector, N_Vector, N_Vector),
-        c,
-        x,
-        m,
-    )
+    ccall((:N_VConstrMask, libsundials_sundials), Cint, (N_Vector, N_Vector, N_Vector), c, x, m)
 end
 
 function N_VConstrMask(c, x, m)
@@ -793,13 +564,7 @@ function N_VConstrMask(c, x, m)
 end
 
 function N_VMinQuotient(num::N_Vector, denom::N_Vector)
-    ccall(
-        (:N_VMinQuotient, libsundials_sundials),
-        realtype,
-        (N_Vector, N_Vector),
-        num,
-        denom,
-    )
+    ccall((:N_VMinQuotient, libsundials_sundials), realtype, (N_Vector, N_Vector), num, denom)
 end
 
 function N_VMinQuotient(num, denom)
@@ -809,15 +574,7 @@ function N_VMinQuotient(num, denom)
 end
 
 function N_VLinearCombination(nvec::Cint, c, X, z)
-    ccall(
-        (:N_VLinearCombination, libsundials_sundials),
-        Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector),
-        nvec,
-        c,
-        X,
-        z,
-    )
+    ccall((:N_VLinearCombination, libsundials_sundials), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, X, z)
 end
 
 function N_VLinearCombination(nvec, c, X, z)
@@ -825,16 +582,7 @@ function N_VLinearCombination(nvec, c, X, z)
 end
 
 function N_VScaleAddMulti(nvec::Cint, a, x::N_Vector, Y, Z)
-    ccall(
-        (:N_VScaleAddMulti, libsundials_sundials),
-        Cint,
-        (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}),
-        nvec,
-        a,
-        x,
-        Y,
-        Z,
-    )
+    ccall((:N_VScaleAddMulti, libsundials_sundials), Cint, (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z)
 end
 
 function N_VScaleAddMulti(nvec, a, x, Y, Z)
@@ -843,15 +591,7 @@ function N_VScaleAddMulti(nvec, a, x, Y, Z)
 end
 
 function N_VDotProdMulti(nvec::Cint, x::N_Vector, Y, dotprods)
-    ccall(
-        (:N_VDotProdMulti, libsundials_sundials),
-        Cint,
-        (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}),
-        nvec,
-        x,
-        Y,
-        dotprods,
-    )
+    ccall((:N_VDotProdMulti, libsundials_sundials), Cint, (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods)
 end
 
 function N_VDotProdMulti(nvec, x, Y, dotprods)
@@ -860,17 +600,7 @@ function N_VDotProdMulti(nvec, x, Y, dotprods)
 end
 
 function N_VLinearSumVectorArray(nvec::Cint, a::realtype, X, b::realtype, Y, Z)
-    ccall(
-        (:N_VLinearSumVectorArray, libsundials_sundials),
-        Cint,
-        (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}),
-        nvec,
-        a,
-        X,
-        b,
-        Y,
-        Z,
-    )
+    ccall((:N_VLinearSumVectorArray, libsundials_sundials), Cint, (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, X, b, Y, Z)
 end
 
 function N_VLinearSumVectorArray(nvec, a, X, b, Y, Z)
@@ -878,15 +608,7 @@ function N_VLinearSumVectorArray(nvec, a, X, b, Y, Z)
 end
 
 function N_VScaleVectorArray(nvec::Cint, c, X, Z)
-    ccall(
-        (:N_VScaleVectorArray, libsundials_sundials),
-        Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}),
-        nvec,
-        c,
-        X,
-        Z,
-    )
+    ccall((:N_VScaleVectorArray, libsundials_sundials), Cint, (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z)
 end
 
 function N_VScaleVectorArray(nvec, c, X, Z)
@@ -894,14 +616,7 @@ function N_VScaleVectorArray(nvec, c, X, Z)
 end
 
 function N_VConstVectorArray(nvec::Cint, c::realtype, Z)
-    ccall(
-        (:N_VConstVectorArray, libsundials_sundials),
-        Cint,
-        (Cint, realtype, Ptr{N_Vector}),
-        nvec,
-        c,
-        Z,
-    )
+    ccall((:N_VConstVectorArray, libsundials_sundials), Cint, (Cint, realtype, Ptr{N_Vector}), nvec, c, Z)
 end
 
 function N_VConstVectorArray(nvec, c, Z)
@@ -909,15 +624,7 @@ function N_VConstVectorArray(nvec, c, Z)
 end
 
 function N_VWrmsNormVectorArray(nvec::Cint, X, W, nrm)
-    ccall(
-        (:N_VWrmsNormVectorArray, libsundials_sundials),
-        Cint,
-        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}),
-        nvec,
-        X,
-        W,
-        nrm,
-    )
+    ccall((:N_VWrmsNormVectorArray, libsundials_sundials), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvec, X, W, nrm)
 end
 
 function N_VWrmsNormVectorArray(nvec, X, W, nrm)
@@ -925,16 +632,7 @@ function N_VWrmsNormVectorArray(nvec, X, W, nrm)
 end
 
 function N_VWrmsNormMaskVectorArray(nvec::Cint, X, W, id::N_Vector, nrm)
-    ccall(
-        (:N_VWrmsNormMaskVectorArray, libsundials_sundials),
-        Cint,
-        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}),
-        nvec,
-        X,
-        W,
-        id,
-        nrm,
-    )
+    ccall((:N_VWrmsNormMaskVectorArray, libsundials_sundials), Cint, (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvec, X, W, id, nrm)
 end
 
 function N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm)
@@ -943,17 +641,7 @@ function N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm)
 end
 
 function N_VScaleAddMultiVectorArray(nvec::Cint, nsum::Cint, a, X, Y, Z)
-    ccall(
-        (:N_VScaleAddMultiVectorArray, libsundials_sundials),
-        Cint,
-        (Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}}, Ptr{Ptr{N_Vector}}),
-        nvec,
-        nsum,
-        a,
-        X,
-        Y,
-        Z,
-    )
+    ccall((:N_VScaleAddMultiVectorArray, libsundials_sundials), Cint, (Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}}, Ptr{Ptr{N_Vector}}), nvec, nsum, a, X, Y, Z)
 end
 
 function N_VScaleAddMultiVectorArray(nvec, nsum, a, X, Y, Z)
@@ -961,16 +649,7 @@ function N_VScaleAddMultiVectorArray(nvec, nsum, a, X, Y, Z)
 end
 
 function N_VLinearCombinationVectorArray(nvec::Cint, nsum::Cint, c, X, Z)
-    ccall(
-        (:N_VLinearCombinationVectorArray, libsundials_sundials),
-        Cint,
-        (Cint, Cint, Ptr{realtype}, Ptr{Ptr{N_Vector}}, Ptr{N_Vector}),
-        nvec,
-        nsum,
-        c,
-        X,
-        Z,
-    )
+    ccall((:N_VLinearCombinationVectorArray, libsundials_sundials), Cint, (Cint, Cint, Ptr{realtype}, Ptr{Ptr{N_Vector}}, Ptr{N_Vector}), nvec, nsum, c, X, Z)
 end
 
 function N_VLinearCombinationVectorArray(nvec, nsum, c, X, Z)
@@ -1025,25 +704,14 @@ function N_VWSqrSumLocal(x, w)
 end
 
 function N_VWSqrSumMaskLocal(x::N_Vector, w::N_Vector, id::N_Vector)
-    ccall(
-        (:N_VWSqrSumMaskLocal, libsundials_sundials),
-        realtype,
-        (N_Vector, N_Vector, N_Vector),
-        x,
-        w,
-        id,
-    )
+    ccall((:N_VWSqrSumMaskLocal, libsundials_sundials), realtype, (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
 function N_VWSqrSumMaskLocal(x, w, id)
     __x = convert(NVector, x)
     __w = convert(NVector, w)
     __id = convert(NVector, id)
-    N_VWSqrSumMaskLocal(
-        convert(N_Vector, __x),
-        convert(N_Vector, __w),
-        convert(N_Vector, __id),
-    )
+    N_VWSqrSumMaskLocal(convert(N_Vector, __x), convert(N_Vector, __w), convert(N_Vector, __id))
 end
 
 function N_VInvTestLocal(x::N_Vector, z::N_Vector)
@@ -1057,35 +725,18 @@ function N_VInvTestLocal(x, z)
 end
 
 function N_VConstrMaskLocal(c::N_Vector, x::N_Vector, m::N_Vector)
-    ccall(
-        (:N_VConstrMaskLocal, libsundials_sundials),
-        Cint,
-        (N_Vector, N_Vector, N_Vector),
-        c,
-        x,
-        m,
-    )
+    ccall((:N_VConstrMaskLocal, libsundials_sundials), Cint, (N_Vector, N_Vector, N_Vector), c, x, m)
 end
 
 function N_VConstrMaskLocal(c, x, m)
     __c = convert(NVector, c)
     __x = convert(NVector, x)
     __m = convert(NVector, m)
-    N_VConstrMaskLocal(
-        convert(N_Vector, __c),
-        convert(N_Vector, __x),
-        convert(N_Vector, __m),
-    )
+    N_VConstrMaskLocal(convert(N_Vector, __c), convert(N_Vector, __x), convert(N_Vector, __m))
 end
 
 function N_VMinQuotientLocal(num::N_Vector, denom::N_Vector)
-    ccall(
-        (:N_VMinQuotientLocal, libsundials_sundials),
-        realtype,
-        (N_Vector, N_Vector),
-        num,
-        denom,
-    )
+    ccall((:N_VMinQuotientLocal, libsundials_sundials), realtype, (N_Vector, N_Vector), num, denom)
 end
 
 function N_VMinQuotientLocal(num, denom)
@@ -1103,13 +754,7 @@ function N_VNewVectorArray(count)
 end
 
 function N_VCloneEmptyVectorArray(count::Cint, w::N_Vector)
-    ccall(
-        (:N_VCloneEmptyVectorArray, libsundials_sundials),
-        Ptr{N_Vector},
-        (Cint, N_Vector),
-        count,
-        w,
-    )
+    ccall((:N_VCloneEmptyVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint, N_Vector), count, w)
 end
 
 function N_VCloneEmptyVectorArray(count, w)
@@ -1118,13 +763,7 @@ function N_VCloneEmptyVectorArray(count, w)
 end
 
 function N_VCloneVectorArray(count::Cint, w::N_Vector)
-    ccall(
-        (:N_VCloneVectorArray, libsundials_sundials),
-        Ptr{N_Vector},
-        (Cint, N_Vector),
-        count,
-        w,
-    )
+    ccall((:N_VCloneVectorArray, libsundials_sundials), Ptr{N_Vector}, (Cint, N_Vector), count, w)
 end
 
 function N_VCloneVectorArray(count, w)
@@ -1133,13 +772,7 @@ function N_VCloneVectorArray(count, w)
 end
 
 function N_VDestroyVectorArray(vs, count::Cint)
-    ccall(
-        (:N_VDestroyVectorArray, libsundials_sundials),
-        Cvoid,
-        (Ptr{N_Vector}, Cint),
-        vs,
-        count,
-    )
+    ccall((:N_VDestroyVectorArray, libsundials_sundials), Cvoid, (Ptr{N_Vector}, Cint), vs, count)
 end
 
 function N_VDestroyVectorArray(vs, count)
@@ -1147,13 +780,7 @@ function N_VDestroyVectorArray(vs, count)
 end
 
 function N_VGetVecAtIndexVectorArray(vs, index::Cint)
-    ccall(
-        (:N_VGetVecAtIndexVectorArray, libsundials_sundials),
-        N_Vector,
-        (Ptr{N_Vector}, Cint),
-        vs,
-        index,
-    )
+    ccall((:N_VGetVecAtIndexVectorArray, libsundials_sundials), N_Vector, (Ptr{N_Vector}, Cint), vs, index)
 end
 
 function N_VGetVecAtIndexVectorArray(vs, index)
@@ -1161,14 +788,7 @@ function N_VGetVecAtIndexVectorArray(vs, index)
 end
 
 function N_VSetVecAtIndexVectorArray(vs, index::Cint, w::N_Vector)
-    ccall(
-        (:N_VSetVecAtIndexVectorArray, libsundials_sundials),
-        Cvoid,
-        (Ptr{N_Vector}, Cint, N_Vector),
-        vs,
-        index,
-        w,
-    )
+    ccall((:N_VSetVecAtIndexVectorArray, libsundials_sundials), Cvoid, (Ptr{N_Vector}, Cint, N_Vector), vs, index, w)
 end
 
 function N_VSetVecAtIndexVectorArray(vs, index, w)
@@ -1181,6 +801,7 @@ end
 # Julia wrapper for header: sundials_version.h
 # Automatically generated using Clang.jl
 
+
 function SUNDIALSGetVersion(version, len::Cint)
     ccall((:SUNDIALSGetVersion, libsundials_sundials), Cint, (Cstring, Cint), version, len)
 end
@@ -1190,16 +811,7 @@ function SUNDIALSGetVersion(version, len)
 end
 
 function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Cint)
-    ccall(
-        (:SUNDIALSGetVersionNumber, libsundials_sundials),
-        Cint,
-        (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cstring, Cint),
-        major,
-        minor,
-        patch,
-        label,
-        len,
-    )
+    ccall((:SUNDIALSGetVersionNumber, libsundials_sundials), Cint, (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cstring, Cint), major, minor, patch, label, len)
 end
 
 function SUNDIALSGetVersionNumber(major, minor, patch, label, len)
