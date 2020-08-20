@@ -8,7 +8,7 @@
     Insert a check that the given function call returns 0,
     throw an error otherwise. Only apply directly to function calls.
 """
-macro checkflag(ex,throw_error=false)
+macro checkflag(ex, throw_error = false)
     @assert Base.Meta.isexpr(ex, :call)
     fname = ex.args[1]
     quote
@@ -44,9 +44,14 @@ function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
     return KIN_SUCCESS
 end
 
-function kinsol(f, y0::Vector{Float64};
-                userdata::Any = nothing,
-                linear_solver=:Dense, jac_upper=0, jac_lower=0)
+function kinsol(
+    f,
+    y0::Vector{Float64};
+    userdata::Any = nothing,
+    linear_solver = :Dense,
+    jac_upper = 0,
+    jac_lower = 0,
+)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -65,11 +70,11 @@ function kinsol(f, y0::Vector{Float64};
     end
     flag = @checkflag KINInit(kmem, getcfun(userfun), NVector(y0)) true
     if linear_solver == :Dense
-        A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-        LS = Sundials.SUNLinSol_Dense(y0,A)
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0))
+        LS = Sundials.SUNLinSol_Dense(y0, A)
     elseif linear_solver == :Band
         A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
-        LS = Sundials.SUNLinSol_Band(y0,A)
+        LS = Sundials.SUNLinSol_Band(y0, A)
     end
     flag = @checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
@@ -116,17 +121,32 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-function cvode(f::Function, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing; kwargs...)
+function cvode(
+    f::Function,
+    y0::Vector{Float64},
+    t::AbstractVector,
+    userdata::Any = nothing;
+    kwargs...,
+)
     y = zeros(length(t), length(y0))
     n = cvode!(f, y, y0, t, userdata; kwargs...)
-    return y[1:n,:]
+    return y[1:n, :]
 end
 
-function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::AbstractVector, userdata::Any=nothing;
-                integrator=:BDF, reltol::Float64=1e-3, abstol::Float64=1e-6, callback=(x,y,z)->true)
-    if integrator==:BDF
+function cvode!(
+    f::Function,
+    y::Matrix{Float64},
+    y0::Vector{Float64},
+    t::AbstractVector,
+    userdata::Any = nothing;
+    integrator = :BDF,
+    reltol::Float64 = 1e-3,
+    abstol::Float64 = 1e-6,
+    callback = (x, y, z) -> true,
+)
+    if integrator == :BDF
         mem_ptr = CVodeCreate(CV_BDF)
-    elseif integrator==:Adams
+    elseif integrator == :Adams
         mem_ptr = CVodeCreate(CV_ADAMS)
     end
 
@@ -145,11 +165,11 @@ function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::Abstrac
 
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
-    A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-    LS = Sundials.SUNLinSol_Dense(y0nv,A)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0))
+    LS = Sundials.SUNLinSol_Dense(y0nv, A)
     flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
-    y[1,:] = y0
+    y[1, :] = y0
     ynv = NVector(copy(y0))
     tout = [0.0]
     for k in 2:length(t)
@@ -157,7 +177,7 @@ function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::Abstrac
         if !callback(mem, t[k], ynv)
             break
         end
-        y[k,:] = convert(Vector, ynv)
+        y[k, :] = convert(Vector, ynv)
         c = c + 1
     end
 
@@ -168,8 +188,20 @@ function cvode!(f::Function, y::Matrix{Float64}, y0::Vector{Float64}, t::Abstrac
     return c
 end
 
-function idasolfun(t::Float64, y::N_Vector, yp::N_Vector, r::N_Vector, userfun::UserFunctionAndData)
-    userfun.func(t, convert(Vector, y), convert(Vector, yp), convert(Vector, r), userfun.data)
+function idasolfun(
+    t::Float64,
+    y::N_Vector,
+    yp::N_Vector,
+    r::N_Vector,
+    userfun::UserFunctionAndData,
+)
+    userfun.func(
+        t,
+        convert(Vector, y),
+        convert(Vector, yp),
+        convert(Vector, r),
+        userfun.data,
+    )
     return IDA_SUCCESS
 end
 
@@ -195,8 +227,16 @@ end
 return: (y,yp) two solution matrices representing the states and state derivatives
          with time steps in `t` along rows and state variable `y` or `yp` along columns
 """
-function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}, userdata::Any=nothing;
-                reltol::Float64=1e-3, abstol::Float64=1e-6, diffstates::Union{Vector{Bool},Nothing}=nothing)
+function idasol(
+    f,
+    y0::Vector{Float64},
+    yp0::Vector{Float64},
+    t::Vector{Float64},
+    userdata::Any = nothing;
+    reltol::Float64 = 1e-3,
+    abstol::Float64 = 1e-6,
+    diffstates::Union{Vector{Bool}, Nothing} = nothing,
+)
     mem_ptr = IDACreate()
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
@@ -209,13 +249,12 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
     function getcfun(userfun::T) where {T}
         @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
     end
-    flag = @checkflag IDAInit(mem, getcfun(userfun),
-                              t[1], y0, yp0) true
+    flag = @checkflag IDAInit(mem, getcfun(userfun), t[1], y0, yp0) true
     flag = @checkflag IDASetUserData(mem, userfun) true
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
 
-    A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-    LS = Sundials.SUNLinSol_Dense(y0,A)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0))
+    LS = Sundials.SUNLinSol_Dense(y0, A)
     flag = Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A) true
 
     rtest = zeros(length(y0))
@@ -227,15 +266,15 @@ function idasol(f, y0::Vector{Float64}, yp0::Vector{Float64}, t::Vector{Float64}
         flag = @checkflag IDASetId(mem, collect(Float64, diffstates)) true
         flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2]) true
     end
-    yres[1,:] = y0
-    ypres[1,:] = yp0
+    yres[1, :] = y0
+    ypres[1, :] = yp0
     y = copy(y0)
     yp = copy(yp0)
     tout = [0.0]
     for k in 2:length(t)
         retval = @checkflag IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL) true
-        yres[k,:] = y
-        ypres[k,:] = yp
+        yres[k, :] = y
+        ypres[k, :] = yp
     end
 
     empty!(mem)

@@ -41,7 +41,7 @@ y0 = [0.0]
 function f(t, y, ydot, user_data)
     y = convert(Vector, y)
     ydot = convert(Vector, ydot)
-    ydot[1] = (t+1.0)*exp(-1*y[1])
+    ydot[1] = (t + 1.0) * exp(-1 * y[1])
     return Sundials.ARK_SUCCESS
 end
 
@@ -61,9 +61,9 @@ while (tf - t[1] > 1e-15)
 end
 
 t = 0.0:1:10
-y_analytic = log.((0.5*t.^2 .+ t .+ 1))
+y_analytic = log.((0.5 * t .^ 2 .+ t .+ 1))
 for i in 1:length(t)
-    @test isapprox(y_analytic[1], res[1]; atol= 1e-3)
+    @test isapprox(y_analytic[1], res[1]; atol = 1e-3)
 end
 y = nothing
 temp = Ref(Clong(-1))

@@ -28,13 +28,12 @@ Sundials.@checkflag Sundials.KINSetScaledStepTol(kmem, 1.0e-4)
 Sundials.@checkflag Sundials.KINSetMaxSetupCalls(kmem, 1)
 y = ones(neq)
 Sundials.@checkflag Sundials.KINInit(kmem, sysfn, y)
-A = Sundials.SUNDenseMatrix(length(y),length(y))
-LS = Sundials.SUNLinSol_Dense(y,A)
+A = Sundials.SUNDenseMatrix(length(y), length(y))
+LS = Sundials.SUNLinSol_Dense(y, A)
 Sundials.@checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A)
 ## Solve problem
 scale = ones(neq)
-Sundials.@checkflag Sundials.KINSol(kmem, y, Sundials.KIN_LINESEARCH,
-                                    scale, scale)
+Sundials.@checkflag Sundials.KINSol(kmem, y, Sundials.KIN_LINESEARCH, scale, scale)
 
 println("Solution: ", y)
 residual = ones(2)

@@ -1,7 +1,6 @@
 ## Adapted from  doc/libsundials-serial-dev/examples/ida/serial/idaRoberts_dns.c and
 ##               sundialsTB/ida/examples_ser/midasRoberts_dns.m
 
-
 ## /*
 ##  * -----------------------------------------------------------------
 ##  * $Revision: 1.2 $
@@ -33,16 +32,15 @@
 
 using Sundials
 
-
 ## Define the system residual function.
 function resrob(tres, yy_nv, yp_nv, rr_nv, user_data)
     yy = convert(Vector, yy_nv)
     yp = convert(Vector, yp_nv)
     rr = convert(Vector, rr_nv)
-    rr[1]  = -0.04*yy[1] + 1.0e4*yy[2]*yy[3]
-    rr[2]  = -rr[1] - 3.0e7*yy[2]*yy[2] - yp[2]
-    rr[1] -=  yp[1]
-    rr[3]  =  yy[1] + yy[2] + yy[3] - 1.0
+    rr[1] = -0.04 * yy[1] + 1.0e4 * yy[2] * yy[3]
+    rr[2] = -rr[1] - 3.0e7 * yy[2] * yy[2] - yp[2]
+    rr[1] -= yp[1]
+    rr[3] = yy[1] + yy[2] + yy[3] - 1.0
     return Sundials.IDA_SUCCESS
 end
 
@@ -56,26 +54,25 @@ function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
 end
 
 ## Define the Jacobian function. BROKEN - JJ is wrong
-function jacrob(Neq, tt, cj, yy, yp, resvec,
-                JJ, user_data, tempv1, tempv2, tempv3)
-    JJ = pointer_to_array(convert(Ptr{Float64}, JJ), (3,3))
-    JJ[1,1] = -0.04 - cj
-    JJ[2,1] = 0.04
-    JJ[3,1] = 1.0
-    JJ[1,2] = 1.0e4*yy[3]
-    JJ[2,2] = -1.0e4*yy[3] - 6.0e7*yy[2] - cj
-    JJ[3,2] = 1.0
-    JJ[1,3] = 1.0e4*yy[2]
-    JJ[2,3] = -1.0e4*yy[2]
-    JJ[3,3] = 1.0
+function jacrob(Neq, tt, cj, yy, yp, resvec, JJ, user_data, tempv1, tempv2, tempv3)
+    JJ = pointer_to_array(convert(Ptr{Float64}, JJ), (3, 3))
+    JJ[1, 1] = -0.04 - cj
+    JJ[2, 1] = 0.04
+    JJ[3, 1] = 1.0
+    JJ[1, 2] = 1.0e4 * yy[3]
+    JJ[2, 2] = -1.0e4 * yy[3] - 6.0e7 * yy[2] - cj
+    JJ[3, 2] = 1.0
+    JJ[1, 3] = 1.0e4 * yy[2]
+    JJ[2, 3] = -1.0e4 * yy[2]
+    JJ[3, 3] = 1.0
     return Sundials.IDA_SUCCESS
 end
 
 neq = 3
 nout = 12
 t0 = 0.0
-yy0 = [1.0,0.0,0.0]
-yp0 = [-0.04,0.04,0.0]
+yy0 = [1.0, 0.0, 0.0]
+yp0 = [-0.04, 0.04, 0.0]
 rtol = 1e-4
 avtol = [1e-8, 1e-14, 1e-6]
 tout1 = 0.4
@@ -88,8 +85,8 @@ Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
 Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob)
 
 ## Call IDADense and set up the linear solver.
-A = Sundials.SUNDenseMatrix(length(y0),length(y0))
-LS = Sundials.SUNLinSol_Dense(y0,A)
+A = Sundials.SUNDenseMatrix(length(y0), length(y0))
+LS = Sundials.SUNLinSol_Dense(y0, A)
 Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
 iout = 0

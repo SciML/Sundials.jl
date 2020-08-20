@@ -22,18 +22,30 @@ const Ctime_t = UInt
 const Cclock_t = UInt
 export Ctm, Ctime_t, Cclock_t
 
-const warnkeywords =
-    (:save_idxs, :d_discontinuities, :isoutofdomain, :unstable_check,
-     :calck, :internalnorm, :gamma, :beta1, :beta2, :qmax, :qmin, :qoldinit)
+const warnkeywords = (
+    :save_idxs,
+    :d_discontinuities,
+    :isoutofdomain,
+    :unstable_check,
+    :calck,
+    :internalnorm,
+    :gamma,
+    :beta1,
+    :beta2,
+    :qmax,
+    :qmin,
+    :qoldinit,
+)
 
 function __init__()
     global warnlist = Set(warnkeywords)
-    global warnida  = union(warnlist, Set((:dtmin,)))
+    global warnida = union(warnlist, Set((:dtmin,)))
 end
 
 using Sundials_jll
 
-export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
+export solve,
+    SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)

@@ -5,8 +5,8 @@ using Sundials, Test
 function f(t, y_nv, ydot_nv, user_data)
     y = convert(Vector, y_nv)
     ydot = convert(Vector, ydot_nv)
-    ydot[1] = -0.04*y[1] + 1.0e4*y[2]*y[3]
-    ydot[3] = 3.0e7*y[2]*y[2]
+    ydot[1] = -0.04 * y[1] + 1.0e4 * y[2] * y[3]
+    ydot[3] = 3.0e7 * y[2] * y[2]
     ydot[2] = -ydot[1] - ydot[3]
     return Sundials.ARK_SUCCESS
 end
@@ -33,8 +33,8 @@ Sundials.@checkflag Sundials.ARKStepSetMaxNumSteps(arkStep_mem, 100000)
 Sundials.@checkflag Sundials.ARKStepSetPredictorMethod(arkStep_mem, 1)
 
 Sundials.@checkflag Sundials.ARKStepSStolerances(arkStep_mem, reltol, abstol)
-A = Sundials.SUNDenseMatrix(neq,neq)
-LS = Sundials.SUNLinSol_Dense(y0,A)
+A = Sundials.SUNDenseMatrix(neq, neq)
+LS = Sundials.SUNLinSol_Dense(y0, A)
 Sundials.@checkflag Sundials.ARKStepSetLinearSolver(arkStep_mem, LS, A)
 
 iout = 0
