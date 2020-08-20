@@ -1,4 +1,4 @@
-mutable struct DEOptions{SType,TstopType,CType,reltolType,abstolType,F5}
+mutable struct DEOptions{SType, TstopType, CType, reltolType, abstolType, F5}
     saveat::SType
     tstops::TstopType
     save_everystep::Bool
@@ -19,9 +19,26 @@ mutable struct DEOptions{SType,TstopType,CType,reltolType,abstolType,F5}
     maxiters::Int
 end
 
-abstract type AbstractSundialsIntegrator{algType} <: DiffEqBase.AbstractODEIntegrator{algType,true,Vector{Float64},Float64} end
+abstract type AbstractSundialsIntegrator{algType} <:
+              DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
 
-mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,CallbackCacheType} <: AbstractSundialsIntegrator{algType}
+mutable struct CVODEIntegrator{
+    uType,
+    pType,
+    memType,
+    solType,
+    algType,
+    fType,
+    UFType,
+    JType,
+    oType,
+    toutType,
+    sizeType,
+    tmpType,
+    LStype,
+    Atype,
+    CallbackCacheType,
+} <: AbstractSundialsIntegrator{algType}
     u::uType
     p::pType
     t::Float64
@@ -49,18 +66,45 @@ mutable struct CVODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,
     last_event_error::Float64
 end
 
-function (integrator::CVODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
+function (integrator::CVODEIntegrator)(
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing,
+) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
     return idxs == nothing ? out : out[idxs]
 end
 
-function (integrator::CVODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
+function (integrator::CVODEIntegrator)(
+    out,
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing,
+) where {T}
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
     return idxs == nothing ? out : @view out[idxs]
 end
 
-mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,tmpType,LStype,Atype,MLStype,Mtype,CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
+mutable struct ARKODEIntegrator{
+    uType,
+    pType,
+    memType,
+    solType,
+    algType,
+    fType,
+    UFType,
+    JType,
+    oType,
+    toutType,
+    sizeType,
+    tmpType,
+    LStype,
+    Atype,
+    MLStype,
+    Mtype,
+    CallbackCacheType,
+} <: AbstractSundialsIntegrator{ARKODE}
     u::uType
     p::pType
     t::Float64
@@ -90,18 +134,45 @@ mutable struct ARKODEIntegrator{uType,pType,memType,solType,algType,fType,UFType
     last_event_error::Float64
 end
 
-function (integrator::ARKODEIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
+function (integrator::ARKODEIntegrator)(
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing,
+) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
     return idxs == nothing ? out : out[idxs]
 end
 
-function (integrator::ARKODEIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
+function (integrator::ARKODEIntegrator)(
+    out,
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing,
+) where {T}
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
     return idxs == nothing ? out : @view out[idxs]
 end
 
-mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UFType,JType,oType,toutType,sizeType,sizeDType,tmpType,LStype,Atype,CallbackCacheType} <: AbstractSundialsIntegrator{IDA}
+mutable struct IDAIntegrator{
+    uType,
+    duType,
+    pType,
+    memType,
+    solType,
+    algType,
+    fType,
+    UFType,
+    JType,
+    oType,
+    toutType,
+    sizeType,
+    sizeDType,
+    tmpType,
+    LStype,
+    Atype,
+    CallbackCacheType,
+} <: AbstractSundialsIntegrator{IDA}
     u::uType
     du::duType
     p::pType
@@ -131,13 +202,22 @@ mutable struct IDAIntegrator{uType,duType,pType,memType,solType,algType,fType,UF
     last_event_error::Float64
 end
 
-function (integrator::IDAIntegrator)(t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
+function (integrator::IDAIntegrator)(
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing,
+) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
     return idxs == nothing ? out : out[idxs]
 end
 
-function (integrator::IDAIntegrator)(out,t::Number,deriv::Type{Val{T}}=Val{0};idxs=nothing) where T
+function (integrator::IDAIntegrator)(
+    out,
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing,
+) where {T}
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
     return idxs == nothing ? out : @view out[idxs]
 end
@@ -154,38 +234,38 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
 ### Iterator interface
 
 @inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
-  if integrator.opts.advance_to_tstop
-    # The call to first is an overload of Base.first implemented in DataStructures
-    while integrator.tdir*(integrator.t-first(integrator.opts.tstops)) < -1e6eps()
-        tstop = first(integrator.opts.tstops)
-        set_stop_time(integrator,tstop)
+    if integrator.opts.advance_to_tstop
+        # The call to first is an overload of Base.first implemented in DataStructures
+        while integrator.tdir * (integrator.t - first(integrator.opts.tstops)) < -1e6eps()
+            tstop = first(integrator.opts.tstops)
+            set_stop_time(integrator, tstop)
+            integrator.tprev = integrator.t
+            if !(typeof(integrator.opts.callback.continuous_callbacks) <: Tuple{})
+                integrator.uprev .= integrator.u
+            end
+            solver_step(integrator, tstop)
+            integrator.t = first(integrator.tout)
+            DiffEqBase.check_error!(integrator) != :Success && return
+            handle_callbacks!(integrator)
+            DiffEqBase.check_error!(integrator) != :Success && return
+        end
+    else
         integrator.tprev = integrator.t
-        if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
+        if !(typeof(integrator.opts.callback.continuous_callbacks) <: Tuple{})
             integrator.uprev .= integrator.u
         end
-        solver_step(integrator,tstop)
+        if !isempty(integrator.opts.tstops)
+            tstop = first(integrator.opts.tstops)
+            set_stop_time(integrator, tstop)
+            solver_step(integrator, tstop)
+        else
+            solver_step(integrator, 1.0) # fake tstop
+        end
         integrator.t = first(integrator.tout)
         DiffEqBase.check_error!(integrator) != :Success && return
         handle_callbacks!(integrator)
         DiffEqBase.check_error!(integrator) != :Success && return
     end
- else
-      integrator.tprev = integrator.t
-      if !(typeof(integrator.opts.callback.continuous_callbacks)<:Tuple{})
-          integrator.uprev .= integrator.u
-      end
-      if !isempty(integrator.opts.tstops)
-          tstop = first(integrator.opts.tstops)
-          set_stop_time(integrator,tstop)
-          solver_step(integrator,tstop)
-      else
-          solver_step(integrator,1.0) # fake tstop
-      end
-      integrator.t = first(integrator.tout)
-      DiffEqBase.check_error!(integrator) != :Success && return
-      handle_callbacks!(integrator)
-      DiffEqBase.check_error!(integrator) != :Success && return
-  end
-  handle_tstop!(integrator)
-  nothing
+    handle_tstop!(integrator)
+    nothing
 end

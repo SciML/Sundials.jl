@@ -26,9 +26,9 @@ using Sundials
 ##
 
 MGRID = 10
-NEQ = MGRID*MGRID
+NEQ = MGRID * MGRID
 
-dx = 1.0/(MGRID - 1.0)
+dx = 1.0 / (MGRID - 1.0)
 coeff = 1.0 / (dx * dx)
 bval = 0.1
 ##
@@ -45,32 +45,32 @@ function heatres(t, u, up, r)
     r[:] = u ## Initialize r to u, to take care of boundary equations.
 
     ## Loop over interior points; set res = up - (central difference).
-    for j = 2:(MGRID-2)
+    for j in 2:(MGRID - 2)
         offset = MGRID * j
-        for i = 2:(MGRID-2)
+        for i in 2:(MGRID - 2)
             loc = offset + i
-            r[loc] = up[loc] - coeff * (u[loc-1] + u[loc+1] +
-                                        u[loc-MGRID] + u[loc+MGRID] -
-                                        4.0 * u[loc])
+            r[loc] =
+                up[loc] -
+                coeff *
+                (u[loc - 1] + u[loc + 1] + u[loc - MGRID] + u[loc + MGRID] - 4.0 * u[loc])
         end
     end
 
     return Sundials.CV_SUCCESS
 end
 
-
 function initial()
     mm = MGRID
     mm1 = mm - 1
 
-    u  = zeros(NEQ)
+    u = zeros(NEQ)
     id = ones(NEQ)
 
     ## initialize u on all grid points
-    for j = 1:mm-1
+    for j in 1:(mm - 1)
         yfact = dx * j
-        offset = mm*j
-        for i = 1:mm-1
+        offset = mm * j
+        for i in 1:(mm - 1)
             xfact = dx * i
             loc = offset + i
             u[loc] = 48.0 * xfact * (1.0 - xfact) * yfact * (1.0 - yfact)
@@ -78,7 +78,7 @@ function initial()
     end
 
     up = zeros(NEQ)
-    r  = zeros(NEQ)
+    r = zeros(NEQ)
 
     heatres(0.0, u, up, r)
 
@@ -86,10 +86,10 @@ function initial()
     up[:] = -1.0 * r
 
     ## Finally, set values of u, up, and id at boundary points.
-    for j = 1:mm-1
+    for j in 1:(mm - 1)
         offset = mm * j
-        for i = 1:mm-1
-            loc = offset + i;
+        for i in 1:(mm - 1)
+            loc = offset + i
             if j == 1 || j == mm1 || i == 1 || i == mm1
                 u[loc] = bval
                 up[loc] = 0
@@ -99,26 +99,45 @@ function initial()
     end
 
     constraints = ones(NEQ)
-    return (u,up,id,constraints)
+    return (u, up, id, constraints)
 end
 
-function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
-                    id::Vector{Float64}, constraints::Vector{Float64},
-                    t::Vector{Float64};
-                    reltol::Float64=1e-4, abstol::Float64=1e-6)
+function idabandsol(
+    f::Function,
+    y0::Vector{Float64},
+    yp0::Vector{Float64},
+    id::Vector{Float64},
+    constraints::Vector{Float64},
+    t::Vector{Float64};
+    reltol::Float64 = 1e-4,
+    abstol::Float64 = 1e-6,
+)
     neq = length(y0)
     mem = Sundials.IDACreate()
-    Sundials.@checkflag Sundials.IDAInit(mem, @cfunction(
-                                         Sundials.idasolfun, Cint,
-                                         (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{Function})),
-                                         t[1], y0, yp0)
+    Sundials.@checkflag Sundials.IDAInit(
+        mem,
+        @cfunction(
+            Sundials.idasolfun,
+            Cint,
+            (
+                Sundials.realtype,
+                Sundials.N_Vector,
+                Sundials.N_Vector,
+                Sundials.N_Vector,
+                Ref{Function},
+            )
+        ),
+        t[1],
+        y0,
+        yp0,
+    )
     Sundials.@checkflag Sundials.IDASetId(mem, id)
     Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints)
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
 
     A = Sundials.SUNBandMatrix(neq, MGRID, MGRID)#,2MGRID)
-    LS = Sundials.SUNLinSol_Band(y0,A)
+    LS = Sundials.SUNLinSol_Band(y0, A)
     Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
     rtest = zeros(neq)
@@ -144,8 +163,7 @@ end
 
 nsteps = 10
 tstep = 0.005
-t = collect(0.0:tstep:(tstep*nsteps))
+t = collect(0.0:tstep:(tstep * nsteps))
 u0, up0, id, constraints = initial()
 
-idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t),
-                         reltol = 0.0, abstol = 1e-3)
+idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t), reltol = 0.0, abstol = 1e-3)
