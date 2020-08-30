@@ -19,6 +19,7 @@ CEnum = "0.2, 0.3, 0.4"
 DataStructures = "0.18"
 DiffEqBase = "6.44"
 Reexport = "0.2"
+Sundials32_jll = "5.3"
 julia = "1"
 
 [extras]
