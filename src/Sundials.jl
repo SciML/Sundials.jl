@@ -31,7 +31,7 @@ function __init__()
     global warnida  = union(warnlist, Set((:dtmin,)))
 end
 
-using Sundials_jll
+using Sundials32_jll
 
 export solve, SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA
 
