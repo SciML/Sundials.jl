@@ -62,7 +62,7 @@ which currently runs some of the examples in the `examples` directory.
 Common Interface API
 --------------------
 
-This package is part of the JuliaDiffEq common interface. This is documented in [the DifferentialEquaitons.jl documentation](http://diffeq.sciml.ai/latest/index.html). Thus [the ODE tutorial](http://diffeq.sciml.ai/latest/tutorials/ode_example.html) applies. For example, the Lorenz attractor can be solved with `CVODE_Adams` as follows:
+This package is part of the JuliaDiffEq common interface. This is documented in [the DifferentialEquations.jl documentation](http://diffeq.sciml.ai/latest/index.html). Thus [the ODE tutorial](http://diffeq.sciml.ai/latest/tutorials/ode_example.html) applies. For example, the Lorenz attractor can be solved with `CVODE_Adams` as follows:
 
 ```julia
 using Sundials
