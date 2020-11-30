@@ -2,8 +2,7 @@ Sundials.jl
 ===========
 
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.com/SciML/Sundials.jl.svg?branch=master)](https://travis-ci.com/SciML/Sundials.jl)
-[![AppVoyer](https://ci.appveyor.com/api/projects/status/s14c4i1sd322x6ko/branch/master?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/sundials-jl/branch/master)
+[![Build Status](https://github.com/SciML/Sundials.jl/workflows/CI/badge.svg)](https://github.com/SciML/Sundials.jl/actions?query=workflow%3ACI)
 [![Coveralls](https://coveralls.io/repos/github/SciML/Sundials.jl/badge.svg?branch=master)](https://coveralls.io/github/SciML/Sundials.jl?branch=master)
 
 Introduction
