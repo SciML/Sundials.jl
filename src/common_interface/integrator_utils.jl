@@ -130,7 +130,7 @@ function handle_callback_modifiers!(integrator::IDAIntegrator)
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
-    t < integrator.t &&
+    integrator.tdir * (t - integrator.t) < 0 &&
         error("Tried to add a tstop that is behind the current time. This is strictly forbidden")
     push!(integrator.opts.tstops, t)
 end
