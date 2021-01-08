@@ -63,7 +63,8 @@ function DiffEqBase.savevalues!(
         end
     end
 
-    if integrator.opts.save_everystep || force_save
+    if integrator.opts.save_everystep || || (integrator.opts.save_everystep && (isempty(integrator.sol.t) || 
+                                             (integrator.t !== integrator.sol.t[end])))
         saved = true
         save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu)
         push!(integrator.sol.t, integrator.t)
