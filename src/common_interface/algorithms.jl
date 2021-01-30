@@ -375,9 +375,6 @@ Base.@pure function KINSOL(;
     jac_lower = 0,
     userdata = nothing,
 )
-    if linear_solver == :Band && (jac_upper == 0 || jac_lower == 0)
-        error("Banded solver must set the jac_upper and jac_lower")
-    end
     if !(
         linear_solver in (
             :None,
