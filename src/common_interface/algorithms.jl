@@ -364,9 +364,49 @@ Base.@pure function IDA(;
     )
 end
 
+struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
+    jac_upper::Int
+    jac_lower::Int
+    userdata::Any
+end
+Base.@pure function KINSOL(;
+    linear_solver = :Dense,
+    jac_upper = 0,
+    jac_lower = 0,
+    userdata = nothing,
+)
+    if linear_solver == :Band && (jac_upper == 0 || jac_lower == 0)
+        error("Banded solver must set the jac_upper and jac_lower")
+    end
+    if !(
+        linear_solver in (
+            :None,
+            :Diagonal,
+            :Dense,
+            :LapackDense,
+            :Band,
+            :LapackBand,
+            :BCG,
+            :GMRES,
+            :FGMRES,
+            :PCG,
+            :TFQMR,
+            :KLU,
+        )
+    )
+        error("Linear solver choice not accepted.")
+    end
+    KINSOL{linear_solver}(
+        jac_upper,
+        jac_lower,
+        userdata,
+    )
+end
+
 method_choice(alg::SundialsODEAlgorithm{Method}) where {Method} = Method
 method_choice(alg::SundialsDAEAlgorithm) = :Newton
 linear_solver(
     alg::SundialsODEAlgorithm{Method, LinearSolver},
 ) where {Method, LinearSolver} = LinearSolver
 linear_solver(alg::SundialsDAEAlgorithm{LinearSolver}) where {LinearSolver} = LinearSolver
+linear_solver(alg::SundialsNonlinearSolveAlgorithm{LinearSolver}) where {LinearSolver} = LinearSolver
