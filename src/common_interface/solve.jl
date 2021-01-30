@@ -17,6 +17,72 @@ function DiffEqBase.__solve(
     integrator.sol
 end
 
+function DiffEqBase.__solve(
+    prob::Union{DiffEqBase.AbstractSteadyStateProblem{uType,isinplace},DiffEqBase.AbstractNonlinearProblem{uType,isinplace}},
+    alg::algType,
+    timeseries=[],
+    ts=[],
+    ks=[],
+    recompile::Type{Val{recompile_flag}}=Val{true};
+    kwargs...,
+) where {algType <: SundialsNonlinearSolveAlgorithm,recompile_flag,uType,isinplace}
+
+    if typeof(prob.u0) <: Number
+        u0 = [prob.u0]
+    else
+        u0 = deepcopy(prob.u0)
+    end
+
+    sizeu = size(prob.u0)
+    p = prob.p
+    userdata = alg.userdata
+    linsolve = linear_solver(alg)
+    jac_upper = alg.jac_upper
+    jac_lower = alg.jac_lower
+
+    ### Fix the more general function to Sundials allowed style
+    if typeof(prob.f) <: ODEFunction
+        t = Inf
+        if !isinplace && typeof(prob.u0) <: Number
+            f! = (du, u) -> (du .= prob.f(first(u), p, t); Cint(0))
+        elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
+            f! = (du, u) -> (du .= prob.f(u, p, t); Cint(0))
+        elseif !isinplace && typeof(prob.u0) <: AbstractArray
+            f! = (du, u) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
+        elseif typeof(prob.u0) <: Vector{Float64}
+            f! = (du, u) -> prob.f(du, u, p, t)
+        else # Then it's an in-place function on an abstract array
+            f! = (du, u) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
+            du = vec(du);
+            0)
+        end
+    elseif typeof(prob.f) <: NonlinearFunction
+        if !isinplace && typeof(prob.u0) <: Number
+            f! = (du, u) -> (du .= prob.f(first(u), p); Cint(0))
+        elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
+            f! = (du, u) -> (du .= prob.f(u, p); Cint(0))
+        elseif !isinplace && typeof(prob.u0) <: AbstractArray
+            f! = (du, u) -> (du .= vec(prob.f(reshape(u, sizeu), p)); Cint(0))
+        elseif typeof(prob.u0) <: Vector{Float64}
+            f! = (du, u) -> prob.f(du, u, p)
+        else # Then it's an in-place function on an abstract array
+            f! = (du, u) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p);
+            du = vec(du);
+            0)
+        end
+    end
+    u = zero(u0)
+    resid = similar(u)
+    u = kinsol(f!, u0, 
+               userdata=userdata, 
+               linear_solver=linsolve, 
+               jac_upper=jac_upper, 
+               jac_lower=jac_lower)
+
+    f!(resid, u)
+    DiffEqBase.build_solution(prob, alg, u, resid;retcode=:Success)
+end
+
 function DiffEqBase.__init(
     prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
     alg::SundialsODEAlgorithm{Method, LinearSolver},
