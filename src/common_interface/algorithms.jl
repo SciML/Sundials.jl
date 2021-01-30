@@ -3,6 +3,7 @@
 # Abstract Types
 abstract type SundialsODEAlgorithm{Method, LinearSolver} <: DiffEqBase.AbstractODEAlgorithm end
 abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgorithm end
+abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
 
 # ODE Algorithms
 struct CVODE_BDF{Method, LinearSolver, P, PS} <: SundialsODEAlgorithm{Method, LinearSolver}
