@@ -73,10 +73,10 @@ function DiffEqBase.__solve(
     end
     u = zero(u0)
     resid = similar(u)
-    u = kinsol(f!, u0, 
-               userdata=userdata, 
-               linear_solver=linsolve, 
-               jac_upper=jac_upper, 
+    u = kinsol(f!, u0,
+               userdata=userdata,
+               linear_solver=linsolve,
+               jac_upper=jac_upper,
                jac_lower=jac_lower)
 
     f!(resid, u)
@@ -307,6 +307,7 @@ function DiffEqBase.__init(
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
         NLS = SUNNonlinSol_Newton(u0)
+        flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     else
         _A = nothing
         _LS = nothing
@@ -660,7 +661,6 @@ function DiffEqBase.__init(
     flag = ARKStepSetMaxNumSteps(mem, maxiters)
     flag = ARKStepSetMaxHnilWarns(mem, alg.max_hnil_warns)
     flag = ARKStepSetMaxErrTestFails(mem, alg.max_error_test_failures)
-    flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     flag = ARKStepSetMaxConvFails(mem, alg.max_convergence_failures)
     flag = ARKStepSetPredictorMethod(mem, alg.predictor_method)
     flag = ARKStepSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
