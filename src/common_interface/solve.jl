@@ -307,7 +307,6 @@ function DiffEqBase.__init(
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
         NLS = SUNNonlinSol_Newton(u0)
-        flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     else
         _A = nothing
         _LS = nothing
@@ -741,6 +740,7 @@ function DiffEqBase.__init(
             _LS = LinSolHandle(LS, KLU())
         end
         flag = ARKStepSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
+        flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     elseif Method == :Functional
         ARKStepSetFixedPoint(mem, Clong(alg.krylov_dim))
     else
