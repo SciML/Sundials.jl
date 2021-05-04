@@ -689,7 +689,7 @@ function DiffEqBase.__init(
     #flag = ARKStepSetFixedStep(mem,)
     alg.set_optimal_params && (flag = ARKStepSetOptimalParams(mem))
 
-    if Method == :Newton # Only use a linear solver if it's a Newton-based method
+    if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
             A = SUNDenseMatrix(length(u0), length(u0))
@@ -741,7 +741,7 @@ function DiffEqBase.__init(
         end
         flag = ARKStepSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
-    elseif Method == :Functional
+    elseif Method == :Functional && alg.stiffness !== Explicit()
         ARKStepSetFixedPoint(mem, Clong(alg.krylov_dim))
     else
         _A = nothing
@@ -754,7 +754,7 @@ function DiffEqBase.__init(
     ) || (
         !(typeof(prob.problem_type) <: SplitODEProblem) &&
         typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-    )
+    ) && alg.stiffness !== Explicit()
         function getcfunjtimes(::T) where {T}
             @cfunction(
                 jactimes,
@@ -766,7 +766,7 @@ function DiffEqBase.__init(
         ARKStepSetJacTimes(mem, C_NULL, jtimes)
     end
 
-    if prob.f.mass_matrix != LinearAlgebra.I
+    if prob.f.mass_matrix != LinearAlgebra.I && alg.stiffness !== Explicit()
         if MassLinearSolver in (:Dense, :LapackDense)
             nojacobian = false
             M = SUNDenseMatrix(length(u0), length(u0))
@@ -831,7 +831,7 @@ function DiffEqBase.__init(
         _MLS = nothing
     end
 
-    if DiffEqBase.has_jac(prob.f)
+    if DiffEqBase.has_jac(prob.f) && alg.stiffness !== Explicit()
         function getfunjac(::T) where {T}
             @cfunction(
                 cvodejac,
@@ -855,7 +855,7 @@ function DiffEqBase.__init(
         jac = nothing
     end
 
-    if alg.prec !== nothing
+    if alg.prec !== nothing && alg.stiffness !== Explicit()
         function getpercfun(::T) where {T}
             @cfunction(
                 precsolve,
@@ -1631,17 +1631,17 @@ function fill_destats!(integrator::ARKODEIntegrator)
     ARKStepGetNumRhsEvals(mem, tmp, tmp2)
     destats.nf = tmp[]
     destats.nf2 = tmp2[]
-    ARKStepGetNumLinSolvSetups(mem, tmp)
+    integrator.alg.stiffness !== Explicit() && ARKStepGetNumLinSolvSetups(mem, tmp)
     destats.nw = tmp[]
     ARKStepGetNumErrTestFails(mem, tmp)
     destats.nreject = tmp[]
     ARKStepGetNumSteps(mem, tmp)
     destats.naccept = tmp[] - destats.nreject
-    ARKStepGetNumNonlinSolvIters(mem, tmp)
+    integrator.alg.stiffness !== Explicit() && ARKStepGetNumNonlinSolvIters(mem, tmp)
     destats.nnonliniter = tmp[]
-    ARKStepGetNumNonlinSolvConvFails(mem, tmp)
+    integrator.alg.stiffness !== Explicit() && ARKStepGetNumNonlinSolvConvFails(mem, tmp)
     destats.nnonlinconvfail = tmp[]
-    if method_choice(integrator.alg) == :Newton
+    if integrator.alg.stiffness !== Explicit() && method_choice(integrator.alg) == :Newton
         ARKStepGetNumJacEvals(mem, tmp)
         destats.njacs = tmp[]
     end
