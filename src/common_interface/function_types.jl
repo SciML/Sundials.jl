@@ -136,7 +136,7 @@ function idajac(
         unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(du), length(funjac.du))
     _du = funjac.du
 
-    funjac.jac(jac_prototype, _du, convert(Vector, _u), funjac.p, cj, t)
+    funjac.jac(jac_prototype, _du, _u, funjac.p, cj, t)
     J.nzval .= jac_prototype.nzval
     # Sundials resets the value pointers each time, so reset it too
     @. J.rowval = jac_prototype.rowval - 1
