@@ -23,6 +23,27 @@ The choices for the linear solver are:
 :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
 :TFQMR - A TFQMR method.
 :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+
+Example:
+
+CVODE_BDF() # BDF method using Newton + Dense solver
+CVODE_BDF(method=:Functional) # BDF method using Functional iterations
+CVODE_BDF(linear_solver=:Band,jac_upper=3,jac_lower=3) # Banded solver with nonzero diagonals 3 up and 3 down
+CVODE_BDF(linear_solver=:BCG) # Biconjugate gradient method
+
+All of the additional options are available. The full constructor is:
+
+CVODE_BDF(;method=:Newton,linear_solver=:Dense,
+          jac_upper=0,jac_lower=0,
+          stored_upper = jac_upper + jac_lower,
+          non_zero=0,krylov_dim=0,
+          stability_limit_detect=false,
+          max_hnil_warns = 10,
+          max_order = 5,
+          max_error_test_failures = 7,
+          max_nonlinear_iters = 3,
+          max_convergence_failures = 10,
+          prec = nothing, prec_side = 0)
 """
 struct CVODE_BDF{Method, LinearSolver, P, PS} <: SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
@@ -108,6 +129,20 @@ The choices for the linear solver are:
 :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
 :TFQMR - A TFQMR method.
 :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+
+All of the additional options are available. The full constructor is:
+
+CVODE_Adams(;method=:Functional,linear_solver=:None,
+            jac_upper=0,jac_lower=0,
+            stored_upper = jac_upper + jac_lower,
+            krylov_dim=0,
+            stability_limit_detect=false,
+            max_hnil_warns = 10,
+            max_order = 12,
+            max_error_test_failures = 7,
+            max_nonlinear_iters = 3,
+            max_convergence_failures = 10,
+            prec = nothing, psetup = nothing, prec_side = 0)
 """
 struct CVODE_Adams{Method, LinearSolver, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
@@ -212,6 +247,34 @@ itable:
     ARK436L2SA_DIRK_6_3_4: implicit portion of Kennedy and Carpenter's 4th order method
     KVAERNO_7_4_5: Kvaerno's 5th order ESDIRK method
     ARK548L2SA_DIRK_8_4_5: implicit portion of Kennedy and Carpenter's 5th order method
+
+These can be set for example via:
+
+ARKODE(Sundials.Explicit(),etable = Sundials.DORMAND_PRINCE_7_4_5)
+ARKODE(Sundials.Implicit(),itable = Sundials.KVAERNO_4_2_3)
+
+All of the additional options are available. The full constructor is:
+
+ARKODE(stiffness=Sundials.Implicit();
+      method=:Newton,linear_solver=:Dense,
+      jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower,
+      non_zero=0,krylov_dim=0,
+      max_hnil_warns = 10,
+      max_error_test_failures = 7,
+      max_nonlinear_iters = 3,
+      max_convergence_failures = 10,
+      predictor_method = 0,
+      nonlinear_convergence_coefficient = 0.1,
+      dense_order = 3,
+      order = 4,
+      set_optimal_params = false,
+      crdown = 0.3,
+      dgmax = 0.2,
+      rdiv = 2.3,
+      msbp = 20,
+      adaptivity_method = 0,
+      prec = nothing, psetup = nothing, prec_side = 0
+      )
 """
 struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
@@ -367,6 +430,29 @@ linearsolver - This is the linear solver which is used in the Newton iterations.
 :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
 :TFQMR - A TFQMR method.
 :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+
+Example:
+
+IDA() # Newton + Dense solver
+IDA(linear_solver=:Band,jac_upper=3,jac_lower=3) # Banded solver with nonzero diagonals 3 up and 3 down
+IDA(linear_solver=:BCG) # Biconjugate gradient method
+
+All of the additional options are available. The constructor is:
+
+IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0,
+    max_order = 5,
+    max_error_test_failures = 7,
+    max_nonlinear_iters = 3,
+    nonlinear_convergence_coefficient = 0.33,
+    nonlinear_convergence_coefficient_ic = 0.0033,
+    max_num_steps_ic = 5,
+    max_num_jacs_ic = 4,
+    max_num_iters_ic = 10,
+    max_num_backs_ic = 100,
+    use_linesearch_ic = true,
+    max_convergence_failures = 10,
+    init_all = false,
+    prec = nothing, psetup = nothing, prec_side = 0)
 """
 struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     jac_upper::Int
