@@ -8,6 +8,21 @@ abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
 # ODE Algorithms
 """
 CVODE_BDF: CVode Backward Differentiation Formula (BDF) solver.
+
+method - This is the method for solving the implicit equation. For BDF this defaults to :Newton while for Adams this defaults to :Functional. These choices match the recommended pairing in the Sundials.jl manual. However, note that using the :Newton method may take less iterations but requires more memory than the :Function iteration approach.
+linear_solver - This is the linear solver which is used in the :Newton method.
+The choices for the linear solver are:
+
+:Dense - A dense linear solver.
+:Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+:LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+:LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+:Diagonal - This method is specialized for diagonal Jacobians.
+:GMRES - A GMRES method. Recommended first choice Krylov method
+:BCG - A Biconjugate gradient method.
+:PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+:TFQMR - A TFQMR method.
+:KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
 """
 struct CVODE_BDF{Method, LinearSolver, P, PS} <: SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
@@ -148,6 +163,40 @@ Base.@pure function CVODE_Adams(;
 end
 """
 ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choice of options.
+
+The main options for ARKODE are the choice between explicit and implicit and the method order, given via:
+
+ARKODE(Sundials.Explicit()) # Solve with explicit tableau of default order 4
+ARKODE(Sundials.Implicit(),order = 3) # Solve with explicit tableau of order 3
+The order choices for explicit are 2 through 8 and for implicit 3 through 5. Specific methods can also be set through the etable and itable options for explicit and implicit tableaus respectively. The available tableaus are:
+
+etable:
+    HEUN_EULER_2_1_2: 2nd order Heun's method
+    BOGACKI_SHAMPINE_4_2_3:
+    ARK324L2SA_ERK_4_2_3: explicit portion of Kennedy and Carpenter's 3rd order method
+    ZONNEVELD_5_3_4: 4th order explicit method
+    ARK436L2SA_ERK_6_3_4: explicit portion of Kennedy and Carpenter's 4th order method
+    SAYFY_ABURUB_6_3_4: 4th order explicit method
+    CASH_KARP_6_4_5: 5th order explicit method
+    FEHLBERG_6_4_5: Fehlberg's classic 5th order method
+    DORMAND_PRINCE_7_4_5: the classic 5th order Dormand-Prince method
+    ARK548L2SA_ERK_8_4_5: explicit portion of Kennedy and Carpenter's 5th order method
+    VERNER_8_5_6: Verner's classic 5th order method
+    FEHLBERG_13_7_8: Fehlberg's 8th order method
+
+itable:
+    SDIRK_2_1_2: An A-B-stable 2nd order SDIRK method
+    BILLINGTON_3_3_2: A second order method with a 3rd order error predictor of less stability
+    TRBDF2_3_3_2: The classic TR-BDF2 method
+    KVAERNO_4_2_3: an L-stable 3rd order ESDIRK method
+    ARK324L2SA_DIRK_4_2_3: implicit portion of Kennedy and Carpenter's 3th order method
+    CASH_5_2_4: Cash's 4th order L-stable SDIRK method
+    CASH_5_3_4: Cash's 2nd 4th order L-stable SDIRK method
+    SDIRK_5_3_4: Hairer's 4th order SDIRK method
+    KVAERNO_5_3_4: Kvaerno's 4th order ESDIRK method
+    ARK436L2SA_DIRK_6_3_4: implicit portion of Kennedy and Carpenter's 4th order method
+    KVAERNO_7_4_5: Kvaerno's 5th order ESDIRK method
+    ARK548L2SA_DIRK_8_4_5: implicit portion of Kennedy and Carpenter's 5th order method
 """
 struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
