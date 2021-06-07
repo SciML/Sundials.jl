@@ -93,6 +93,21 @@ Base.@pure function CVODE_BDF(;
 end
 """
 CVODE_Adams: CVode Adams-Moulton solver.
+
+method - This is the method for solving the implicit equation. For BDF this defaults to :Newton while for Adams this defaults to :Functional. These choices match the recommended pairing in the Sundials.jl manual. However, note that using the :Newton method may take less iterations but requires more memory than the :Function iteration approach.
+linear_solver - This is the linear solver which is used in the :Newton method.
+The choices for the linear solver are:
+
+:Dense - A dense linear solver.
+:Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+:LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+:LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+:Diagonal - This method is specialized for diagonal Jacobians.
+:GMRES - A GMRES method. Recommended first choice Krylov method
+:BCG - A Biconjugate gradient method.
+:PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+:TFQMR - A TFQMR method.
+:KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
 """
 struct CVODE_Adams{Method, LinearSolver, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
@@ -338,7 +353,20 @@ end
 
 # DAE Algorithms
 """
-IDA: Newton + Dense solver
+IDA: This is the IDA method from the Sundials.jl package.
+
+Note that the constructors for the Sundials algorithms take a main argument:
+linearsolver - This is the linear solver which is used in the Newton iterations. The choices are:
+
+:Dense - A dense linear solver.
+:Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+:LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+:LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+:GMRES - A GMRES method. Recommended first choice Krylov method
+:BCG - A Biconjugate gradient method.
+:PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+:TFQMR - A TFQMR method.
+:KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
 """
 struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     jac_upper::Int
