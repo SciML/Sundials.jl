@@ -6,6 +6,9 @@ abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgori
 abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
 
 # ODE Algorithms
+"""
+CVODE_BDF: CVode Backward Differentiation Formula (BDF) solver.
+"""
 struct CVODE_BDF{Method, LinearSolver, P, PS} <: SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
     jac_lower::Int
@@ -73,7 +76,9 @@ Base.@pure function CVODE_BDF(;
         prec_side,
     )
 end
-
+"""
+CVODE_Adams: CVode Adams-Moulton solver.
+"""
 struct CVODE_Adams{Method, LinearSolver, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
@@ -141,7 +146,9 @@ Base.@pure function CVODE_Adams(;
         prec_side,
     )
 end
-
+"""
+ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choice of options.
+"""
 struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
     stiffness::T
@@ -281,6 +288,9 @@ Base.@pure function ARKODE(
 end
 
 # DAE Algorithms
+"""
+IDA: Newton + Dense solver
+"""
 struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     jac_upper::Int
     jac_lower::Int
@@ -364,7 +374,9 @@ Base.@pure function IDA(;
         prec_side,
     )
 end
-
+"""
+KINSOL: Newton-Krylov technique solver
+"""
 struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
     jac_upper::Int
     jac_lower::Int
