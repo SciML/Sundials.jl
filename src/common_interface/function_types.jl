@@ -50,7 +50,7 @@ function cvodejac(
 
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
     _u = funjac.u
-    funjac.jac(convert(Matrix, J), _u, funjac.p, t)
+    funjac.jac(unsafe_convert(Matrix, J), _u, funjac.p, t)
     return CV_SUCCESS
 end
 
@@ -65,7 +65,7 @@ function cvodejac(
     tmp3::N_Vector,
 )
     jac_prototype = funjac.jac_prototype
-    J = convert(SparseArrays.SparseMatrixCSC, _J)
+    J = unsafe_convert(SparseArrays.SparseMatrixCSC, _J)
 
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
     _u = funjac.u
@@ -110,7 +110,7 @@ function idajac(
         unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(du), length(funjac.du))
     _du = funjac.du
 
-    funjac.jac(convert(Matrix, J), _du, _u, funjac.p, cj, t)
+    funjac.jac(unsafe_convert(Matrix, J), _du, _u, funjac.p, cj, t)
     return IDA_SUCCESS
 end
 
@@ -128,7 +128,7 @@ function idajac(
 )
 
     jac_prototype = funjac.jac_prototype
-    J = convert(SparseArrays.SparseMatrixCSC, _J)
+    J = unsafe_convert(SparseArrays.SparseMatrixCSC, _J)
 
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
     _u = funjac.u
@@ -154,9 +154,9 @@ function massmat(
     tmp3::N_Vector,
 )
     if typeof(mmf.mass_matrix) <: Array
-        M = convert(Matrix, _M)
+        M = unsafe_convert(Matrix, _M)
     else
-        M = convert(SparseArrays.SparseMatrixCSC, _M)
+        M = unsafe_convert(SparseArrays.SparseMatrixCSC, _M)
     end
     M .= mmf.mass_matrix
 
@@ -173,7 +173,7 @@ function jactimes(
     tmp::N_Vector,
 )
     DiffEqBase.update_coefficients!(fj.jac_prototype, y, fj.p, t)
-    LinearAlgebra.mul!(convert(Vector, Jv), fj.jac_prototype, convert(Vector, v))
+    LinearAlgebra.mul!(unsafe_convert(Vector, Jv), fj.jac_prototype, unsafe_convert(Vector, v))
     return CV_SUCCESS
 end
 
@@ -190,7 +190,7 @@ function idajactimes(
     tmp2::N_Vector,
 )
     DiffEqBase.update_coefficients!(fj.jac_prototype, y, fj.p, t)
-    LinearAlgebra.mul!(convert(Vector, Jv), fj.jac_prototype, convert(Vector, v))
+    LinearAlgebra.mul!(unsafe_convert(Vector, Jv), fj.jac_prototype, unsafe_convert(Vector, v))
     return IDA_SUCCESS
 end
 
@@ -206,12 +206,12 @@ function precsolve(
     fj::AbstractFunJac,
 )
     fj.prec(
-        convert(Vector, z),
-        convert(Vector, r),
+        unsafe_convert(Vector, z),
+        unsafe_convert(Vector, r),
         fj.p,
         t,
-        convert(Vector, y),
-        convert(Vector, fy),
+        unsafe_convert(Vector, y),
+        unsafe_convert(Vector, fy),
         gamma,
         delta,
         lr,
@@ -231,8 +231,8 @@ function precsetup(
     fj.psetup(
         fj.p,
         t,
-        convert(Vector, y),
-        convert(Vector, fy),
+        unsafe_convert(Vector, y),
+        unsafe_convert(Vector, fy),
         jok == 1,
         Base.unsafe_wrap(Vector{Int}, jcurPtr, 1),
         gamma,
@@ -253,13 +253,13 @@ function idaprecsolve(
     fj::AbstractFunJac,
 )
     fj.prec(
-        convert(Vector, z),
-        convert(Vector, r),
+        unsafe_convert(Vector, z),
+        unsafe_convert(Vector, r),
         fj.p,
         t,
-        convert(Vector, y),
-        convert(Vector, fy),
-        convert(Vector, resid),
+        unsafe_convert(Vector, y),
+        unsafe_convert(Vector, fy),
+        unsafe_convert(Vector, resid),
         gamma,
         delta,
         lr,
@@ -275,6 +275,6 @@ function idaprecsetup(
     gamma::Float64,
     fj::AbstractFunJac,
 )
-    fj.psetup(fj.p, t, convert(Vector, rr), convert(Vector, y), convert(Vector, fy), gamma)
+    fj.psetup(fj.p, t, unsafe_convert(Vector, rr), unsafe_convert(Vector, y), unsafe_convert(Vector, fy), gamma)
     return IDA_SUCCESS
 end
