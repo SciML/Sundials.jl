@@ -65,16 +65,14 @@ function cvodejac(
     tmp3::N_Vector,
 )
     jac_prototype = funjac.jac_prototype
-    J = convert(SparseArrays.SparseMatrixCSC, _J)
-
+   
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
     _u = funjac.u
 
     funjac.jac(jac_prototype, _u, funjac.p, t)
-    J.nzval .= jac_prototype.nzval
-    # Sundials resets the value pointers each time, so reset it too
-    @. J.rowval = jac_prototype.rowval - 1
-    @. J.colptr = jac_prototype.colptr - 1
+
+    copyto!(_J, jac_prototype)
+    
     return CV_SUCCESS
 end
 
@@ -128,7 +126,6 @@ function idajac(
 )
 
     jac_prototype = funjac.jac_prototype
-    J = convert(SparseArrays.SparseMatrixCSC, _J)
 
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
     _u = funjac.u
@@ -137,10 +134,8 @@ function idajac(
     _du = funjac.du
 
     funjac.jac(jac_prototype, _du, _u, funjac.p, cj, t)
-    J.nzval .= jac_prototype.nzval
-    # Sundials resets the value pointers each time, so reset it too
-    @. J.rowval = jac_prototype.rowval - 1
-    @. J.colptr = jac_prototype.colptr - 1
+
+    copyto!(_J, jac_prototype)
 
     return IDA_SUCCESS
 end
@@ -155,10 +150,10 @@ function massmat(
 )
     if typeof(mmf.mass_matrix) <: Array
         M = convert(Matrix, _M)
+        M .= mmf.mass_matrix
     else
-        M = convert(SparseArrays.SparseMatrixCSC, _M)
+        copyto!(_M, mmf.mass_matrix)
     end
-    M .= mmf.mass_matrix
 
     return IDA_SUCCESS
 end

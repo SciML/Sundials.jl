@@ -39,19 +39,21 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
     unsafe_wrap(Array, mat.data, (mat.M, mat.N), own = false)
 end
 
-function Base.convert(::Type{SparseArrays.SparseMatrixCSC}, J::SUNMatrix)
-    _sunmat = unsafe_load(J)
+# sparse SUNMatrix uses zero-offset indices, so provide copyto!, not convert
+function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC)
+    _sunmat = unsafe_load(Asun)
     _mat = convert(SUNMatrixContent_Sparse, _sunmat.content)
     mat = unsafe_load(_mat)
-    # own is false as memory is allocated by sundials
-    # TODO: Get rid of allocation for 1-based index change
-    rowval = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), own = false)
-    colptr = unsafe_wrap(Array, mat.indexptrs, (mat.NP + 1), own = false)
-    colptr .+= 1
-    m = mat.M
-    n = mat.N
-    nzval = unsafe_wrap(Array, mat.data, (mat.NNZ), own = false)
-    SparseArrays.SparseMatrixCSC(m, n, colptr, rowval, nzval)
+    # own is false as memory is allocated by sundials    
+    indexvals = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), own = false)
+    indexptrs = unsafe_wrap(Array, mat.indexptrs, (mat.NP + 1), own = false)
+    data = unsafe_wrap(Array, mat.data, (mat.NNZ), own = false)
+
+    @. indexvals = Acsc.rowval - 1
+    @. indexptrs = Acsc.colptr - 1
+    data .= Acsc.nzval
+    
+    return nothing
 end
 
 abstract type SundialsMatrix end
