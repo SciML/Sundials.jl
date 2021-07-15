@@ -1174,6 +1174,7 @@ function DiffEqBase.__init(
     #flag = IDASetMaxBacksIC(mem,alg.max_num_backs_ic) # Needs newer version?
     flag = IDASetLineSearchOffIC(mem, alg.use_linesearch_ic)
 
+    prec_side = isnothing(alg.prec) ? 0 : 1  # IDA only supports left preconditioning (prec_side = 1)
     if LinearSolver in (:Dense, :LapackDense)
         nojacobian = false
         A = SUNDenseMatrix(length(u0), length(u0))
@@ -1197,23 +1198,23 @@ function DiffEqBase.__init(
             _LS = LinSolHandle(LS, LapackBand())
         end
     elseif LinearSolver == :GMRES
-        LS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPGMR(u0, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, SPGMR())
     elseif LinearSolver == :FGMRES
-        LS = SUNLinSol_SPFGMR(u0, alg.prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPFGMR(u0, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, SPFGMR())
     elseif LinearSolver == :BCG
-        LS = SUNLinSol_SPBCGS(u0, alg.prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPBCGS(u0, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, SPBCGS())
     elseif LinearSolver == :PCG
-        LS = SUNLinSol_PCG(u0, alg.prec_side, alg.krylov_dim)
+        LS = SUNLinSol_PCG(u0, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, PCG())
     elseif LinearSolver == :TFQMR
-        LS = SUNLinSol_SPTFQMR(u0, alg.prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPTFQMR(u0, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, PTFQMR())
     elseif LinearSolver == :KLU

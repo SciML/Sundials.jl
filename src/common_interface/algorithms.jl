@@ -431,6 +431,8 @@ linearsolver - This is the linear solver which is used in the Newton iterations.
 :TFQMR - A TFQMR method.
 :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
 
+Note that the preconditioner for iterative linear solvers (if supplied) should be a left preconditioner. 
+
 Example:
 
 IDA() # Newton + Dense solver
@@ -452,7 +454,7 @@ IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0,
     use_linesearch_ic = true,
     max_convergence_failures = 10,
     init_all = false,
-    prec = nothing, psetup = nothing, prec_side = 0)
+    prec = nothing, psetup = nothing)
 """
 struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     jac_upper::Int
@@ -472,7 +474,6 @@ struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     init_all::Bool
     prec::P
     psetup::PS
-    prec_side::Int
 end
 Base.@pure function IDA(;
     linear_solver = :Dense,
@@ -493,7 +494,6 @@ Base.@pure function IDA(;
     max_convergence_failures = 10,
     prec = nothing,
     psetup = nothing,
-    prec_side = 0,
 )
     if linear_solver == :Band && (jac_upper == 0 || jac_lower == 0)
         error("Banded solver must set the jac_upper and jac_lower")
@@ -534,7 +534,6 @@ Base.@pure function IDA(;
         init_all,
         prec,
         psetup,
-        prec_side,
     )
 end
 """

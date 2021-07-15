@@ -39,10 +39,10 @@ sol11 = solve(prob, IDA(linear_solver = :Dense))
 prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)
 psetup = (p, t, resid, u, du, gamma) -> (p.psetup_used = true)
 @info "GMRES for identity preconditioner"
-sol4 = solve(prob, IDA(linear_solver = :GMRES, prec_side = 1, prec = prec))  # IDA requires left preconditioning (prec_side = 1)
+sol4 = solve(prob, IDA(linear_solver = :GMRES, prec = prec))
 @test p.prec_used
 @info "GMRES with pset"
-sol4 = solve(prob, IDA(linear_solver = :GMRES, prec_side = 1, prec = prec, psetup = psetup)) # IDA requires left preconditioning (prec_side = 1)
+sol4 = solve(prob, IDA(linear_solver = :GMRES, prec = prec, psetup = psetup))
 @test p.psetup_used
 
 @info "IDA with saveat"
