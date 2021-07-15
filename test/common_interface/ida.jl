@@ -4,7 +4,14 @@ importdaeproblems();
 using DiffEqProblemLibrary.DAEProblemLibrary: prob_dae_resrob
 
 # Test DAE
-prob = prob_dae_resrob
+mutable struct precflags
+    prec_used::Bool
+    psetup_used::Bool
+end
+
+p = precflags(false, false)
+prob = DAEProblem(prob_dae_resrob.f, prob_dae_resrob.du0, prob_dae_resrob.u0, prob_dae_resrob.tspan, p)
+
 dt = 1000
 saveat = float(collect(0:dt:100000))
 sol = solve(prob, IDA())
@@ -29,16 +36,14 @@ sol10 = solve(prob, IDA(linear_solver = :LapackDense))
 sol11 = solve(prob, IDA(linear_solver = :Dense))
 
 # Test identity preconditioner
-global prec_used = false
-global psetup_used = false
-prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (global prec_used = true; z .= r)
-psetup = (p, t, resid, u, du, gamma) -> (global psetup_used = true)
+prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)
+psetup = (p, t, resid, u, du, gamma) -> (p.psetup_used = true)
 @info "GMRES for identity preconditioner"
 sol4 = solve(prob, IDA(linear_solver = :GMRES, prec_side = 1, prec = prec))  # IDA requires left preconditioning (prec_side = 1)
-@test prec_used
+@test p.prec_used
 @info "GMRES with pset"
 sol4 = solve(prob, IDA(linear_solver = :GMRES, prec_side = 1, prec = prec, psetup = psetup)) # IDA requires left preconditioning (prec_side = 1)
-@test psetup_used
+@test p.psetup_used
 
 @info "IDA with saveat"
 sol = solve(prob, IDA(), saveat = saveat)
