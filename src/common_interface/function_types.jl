@@ -244,7 +244,6 @@ function idaprecsolve(
     z::N_Vector,
     gamma::Float64,
     delta::Float64,
-    lr::Int,
     fj::AbstractFunJac,
 )
     fj.prec(
@@ -257,7 +256,6 @@ function idaprecsolve(
         convert(Vector, resid),
         gamma,
         delta,
-        lr,
     )
     return IDA_SUCCESS
 end
