@@ -1249,7 +1249,7 @@ function DiffEqBase.__init(
     end
 
     if alg.prec !== nothing
-        function getpercfun(::T) where {T}
+        function getprecfun(::T) where {T}
             @cfunction(
                 idaprecsolve,
                 Cint,
@@ -1262,12 +1262,11 @@ function DiffEqBase.__init(
                     N_Vector,
                     Float64,
                     Float64,
-                    Int,
                     Ref{T},
                 )
             )
         end
-        precfun = getpercfun(userfun)
+        precfun = getprecfun(userfun)
 
         function getpsetupfun(::T) where {T}
             @cfunction(
