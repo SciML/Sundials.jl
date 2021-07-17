@@ -1,11 +1,14 @@
 using Sundials
 using Test
 
+# Some tests use @cfunction, but at the moment that isn't supported on non-Intel platforms
+const SUPPORT_CFUNCTION = Sys.ARCH ∉ (:aarch64, :ppc64le, :powerpc64le) || startswith(lowercase(String(Sys.ARCH)), "arm")
+
 @testset "CVODE" begin
     @testset "Roberts CVODE Simplified" begin
         include("cvode_Roberts_simplified.jl")
     end
-    @testset "Roberts CVODE Direct" begin
+    SUPPORT_CFUNCTION && @testset "Roberts CVODE Direct" begin
         include("cvode_Roberts_dns.jl")
     end
     #@testset "CVODES Direct" begin include("cvodes_dns.jl") end
@@ -15,7 +18,7 @@ end
     @testset "Roberts IDA Simplified" begin
         include("ida_Roberts_simplified.jl")
     end
-    @testset "Roberts IDA Direct" begin
+    SUPPORT_CFUNCTION && @testset "Roberts IDA Direct" begin
         include("ida_Roberts_dns.jl")
     end
     @testset "Heat IDA Direct" begin
@@ -25,7 +28,7 @@ end
     #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
 end
 
-@testset "ARK" begin
+SUPPORT_CFUNCTION && @testset "ARK" begin
     @testset "Roberts ARKStep Direct" begin
         include("arkstep_Roberts_dns.jl")
     end
@@ -39,7 +42,7 @@ end
     @testset "Kinsol Simplified" begin
         include("kinsol_mkin_simplified.jl")
     end
-    @testset "Kinsol MKin" begin
+    SUPPORT_CFUNCTION && @testset "Kinsol MKin" begin
         include("kinsol_mkinTest.jl")
     end
     @testset "Kinsol Banded" begin
