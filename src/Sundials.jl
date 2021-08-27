@@ -1,4 +1,4 @@
-__precompile__()
+# __precompile__()
 
 module Sundials
 
@@ -11,16 +11,8 @@ import SparseArrays
 import LinearAlgebra
 
 import Libdl
-import CEnum
+using CEnum
 
-## TODO: pending https://github.com/JuliaLang/julia/issues/29420
-# this one is suggested in the issue, but it looks like time_t and tm are two different things?
-# const Ctime_t = Base.Libc.TmStruct
-
-const Ctm = Base.Libc.TmStruct
-const Ctime_t = UInt
-const Cclock_t = UInt
-export Ctm, Ctime_t, Cclock_t
 
 const warnkeywords = (
     :save_idxs,
@@ -51,28 +43,20 @@ export solve,
 const DBL_MAX = prevfloat(Inf)
 const DBL_MIN = nextfloat(-Inf)
 const DBL_EPSILON = eps(Cdouble)
+const int64_t = Int64
+const MPI_DOUBLE = nothing
+const MPI_INT64_T = nothing
+macro SUNDIALS_F77_FUNC(name, NAME)
+    Symbol(string(name) * "_64_")
+end
 
-const FILE = Nothing
-const __builtin_va_list = Ptr{Cvoid}
-
-include("API/types_and_consts.jl")
+include("../lib/libsundials_common.jl")
 include("types_and_consts_additions.jl")
 
 include("handle.jl")
 include("nvector_wrapper.jl")
 
-include("API/nvector.jl")
-include("API/libsundials.jl")
-include("API/sunmatrix.jl")
-include("API/sunlinsol.jl")
-include("API/sunnonlinsol.jl")
-include("API/cvodes.jl")
-#include("API/cvode.jl")
-include("API/arkode.jl")
-include("API/idas.jl")
-#include("API/ida.jl")
-include("API/kinsol.jl")
-# this must be the last one from the API folder!
+include("../lib/libsundials_api.jl")
 include("API/api_overloads.jl")
 
 include("simple.jl")

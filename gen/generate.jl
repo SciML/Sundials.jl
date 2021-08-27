@@ -1,102 +1,8 @@
-# This script is not an active part of the package.
-# It uses Clang.jl package to parse Sundials C headers and generate
-# Julia wrapper for Sundials API.
-#
-# To run the script from Julia console:
-# include(joinpath(Pkg.dir("Sundials"), "src", "wrap_sundials.jl"));
-
-using Clang
+using Clang.Generators
 using Sundials_jll
+using MLStyle
+using Pkg
 
-# `outpath` specifies, where the julian wrappers would be generated.
-# If the generated .jl files are ok, they have to be copied to the "src" folder
-# overwriting the old ones
-const outpath = normpath(joinpath(dirname(@__FILE__), "wrapped_api"))
-mkpath(outpath)
-
-# Find all relevant Sundials headers
-# const incpath = normpath(Sundials-5_jll.jl.artifact_dir, "include")
-const incpath = joinpath(Sundials_jll.artifact_dir, "include")
-if !isdir(incpath)
-    error("Sundials C headers not found.")
-end
-
-@info("Scanning Sundials headers in $incpath...")
-const sundials_folders = filter!(isdir,
-								 map(x -> joinpath(incpath, x),
-                                     ["arkode",
-                                      "cvode",
-                                      "cvodes",
-                                      "ida",
-                                      "idas",
-                                      "kinsol",
-                                      "nvector",
-                                      "sundials",
-                                      "sunlinsol",
-                                      "sunmatrix",
-                                      "sunnonlinsol"]))
-const sundials_headers = similar(sundials_folders, 0)
-for folder in sundials_folders
-    @info("Processing $folder...")
-	headers = [joinpath(folder, header) for header in readdir(folder) if endswith(header, ".h")]
-    append!(sundials_headers, headers)
-end
-
-@show sundials_headers
-
-const clang_includes = [CLANG_INCLUDE]
-push!(sundials_headers, joinpath(Sundials_jll.SuiteSparse_jll.artifact_dir, "include", "klu.h"))
-
-# check_use_header(path) = true
-# Callback to test if a header should actually be wrapped (for exclusion)
-function wrap_header(top_hdr::AbstractString, cursor_header::AbstractString)
-    !occursin(r"(_parallel|_impl)\.h$", cursor_header) &&  # don't wrap parallel and implementation definitions
-    (top_hdr == cursor_header) # don't wrap if header is included from the other header (e.g. nvector in cvode or cvode_direct from cvode_band)
-end
-
-function wrap_cursor(name::AbstractString, cursor)
-    if typeof(cursor) == Clang.CLFunctionDecl
-        # only wrap API functions
-        return occursin(r"^(CV|KIN|IDA|ARK|ERK|MRI|N_V|SUN)", name)
-    else
-        # skip problematic definitions
-        return !occursin(r"^(ABS|SQRT|EXP)$", name)
-    end
-end
-
-function julia_file(header::AbstractString)
-    src_name = basename(dirname(header))
-    if src_name == "sundials"
-        src_name = "libsundials" # avoid having both Sundials.jl and sundials.jl
-    end
-    return joinpath(outpath, string(src_name, ".jl"))
-end
-function library_file(header::AbstractString)
-    header_name = basename(header)
-    if startswith(header_name, "nvector")
-        return "libsundials_nvecserial"
-    else
-        return string("libsundials_", basename(dirname(header)))
-    end
-end
-
-const context = init(
-    common_file=joinpath(outpath, "types_and_consts.jl"),
-    clang_args=[
-        "-D", "__STDC_LIMIT_MACROS",
-        "-D", "__STDC_CONSTANT_MACROS",
-		"-I", find_std_headers()[1],
-		"-I", find_std_headers()[2],
-        # "-v"
-    ],
-    clang_diagnostics=true,
-    clang_includes=[clang_includes; incpath],
-    header_outputfile=julia_file,
-    header_library=library_file,
-    header_wrapped=wrap_header,
-    cursor_wrapped=wrap_cursor
-)
-context.headers = sundials_headers
 
 # 1st arg name to wrapped arg type map
 const arg1_name2type = Dict(
@@ -149,15 +55,13 @@ const FnTypeSignatures = Dict(
     :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Cvoid}))),
 )
 
-wrap_sundials_api(notexpr) = Any[notexpr]
-
 function wrap_sundials_api(expr::Expr)
     if expr.head == :function &&
         expr.args[1].head == :call
         func_name = string(expr.args[1].args[1])
         convert_required = false
         if occursin(r"^(ARK|ERK|MRI|CV|KIN|IDA|SUN|N_V)", func_name)
-	        @show func_name
+	        # @show func_name
             if occursin(r"Create$", func_name) && !occursin(r"Butcher", func_name)
                 # create functions return typed pointers
 		        @assert expr.args[2].args[1].args[3] == :(Ptr{Cvoid})
@@ -167,6 +71,10 @@ function wrap_sundials_api(expr::Expr)
                 if arg1_type == :(Ptr{Cvoid}) || arg1_type == :(Ptr{Ptr{Cvoid}})
 		            arg1_name = expr.args[1].args[2]
                     arg1_newtype = arg1_name2type[arg1_name]
+                    # seperate ARKStepMemPtr from ERK* and MRI*
+                    if arg1_newtype == :ARKStepMemPtr
+                        arg1_newtype = Symbol(func_name[1:3] * "StepMemPtr")
+                    end
                     if arg1_type == :(Ptr{Ptr{Cvoid}})
                         # adjust for void** type (for CVodeFree()-like funcs)
                         arg1_newtype = Expr(:curly, :Ref, arg1_newtype)
@@ -211,12 +119,12 @@ function wrap_sundials_api(expr::Expr)
                 #   3) expr for low-level wrapper call
                 # if 1)==3), then no wrapping is required
                 if typeof(expr) <: Symbol
-			arg_name_expr = expr
-			arg_type_expr = Any
-		else
-			arg_name_expr = expr.args[1]
-                	arg_type_expr = expr.args[2]
-		end
+                    arg_name_expr = expr
+                    arg_type_expr = Any
+                else
+                    arg_name_expr = expr.args[1]
+                    arg_type_expr = expr.args[2]
+                end
                 if arg_type_expr == :N_Vector
                     # first convert argument to NVector() and store in local var,
                     # this guarantees that the wrapper and associated Sundials object (e.g. N_Vector)
@@ -246,7 +154,7 @@ function wrap_sundials_api(expr::Expr)
             # check which arguments are wrapped
             if any(map(arg_exprs -> arg_exprs[1] != arg_exprs[3], args_wrap_exprs))
                 # mangle the name of the low-level wrapper to avoid recursion
-                lowlevel_func_name = string("__", func_name)
+                lowlevel_func_name = string(func_name)
                 expr.args[1].args[1] = Symbol(lowlevel_func_name)
 
                 # higher-level wrapper function
@@ -290,14 +198,62 @@ function wrap_sundials_api(expr::Expr)
     return Any[expr]
 end
 
-context.rewriter = function (exprs)
-    mod_exprs = sizehint!(Vector{Any}(), length(exprs))
-    for expr in exprs
-        append!(mod_exprs, wrap_sundials_api(expr))
+
+function rewrite(ex)
+    ex = @match ex begin
+        :(const $name = SUNDIALS_F77_FUNC($arg1, $arg2)) => :(const $name = nothing)
+            # Expr(:macro, :($name()), Expr(:macrocall, Symbol("@SUNDIALS_F77_FUNC"), nothing, arg1, arg2))
+        :(const $sun_name = $klu_name) && 
+                if startswith(string(sun_name), "sun_klu_") && startswith(string(klu_name), "klu_") end => 
+            :(const $sun_name = nothing) # skip
+        _ => ex
     end
-    mod_exprs
+    wrap_sundials_api(ex)
 end
 
-@info("Generating .jl wrappers for Sundials in $outpath...")
-run(context)
-@info("Done generating .jl wrappers for Sundials in $outpath")
+
+cd(@__DIR__)
+
+include_dir = joinpath(Sundials_jll.artifact_dir, "include") |> normpath
+
+artifact_toml = joinpath(dirname(pathof(Sundials_jll.SuiteSparse_jll)), "..", "StdlibArtifacts.toml")
+suitespase_dir= Pkg.Artifacts.ensure_artifact_installed("SuiteSparse", artifact_toml)
+suitespase_include_sir = joinpath(suitespase_dir, "include")
+
+# wrapper generator options
+options = load_options(joinpath(@__DIR__, "generate.toml"))
+
+# add compiler flags, e.g. "-DXXXXXXXXX"
+args = get_default_args()
+push!(args, "-I$include_dir", "-isystem$suitespase_include_sir")
+
+library_names = Dict(
+    raw"sundials[\\/].+" => "libsundials_sundials", 
+    raw"sunnonlinsol[\\/].+" => "libsundials_sunnonlinsol", 
+    raw"sunmatrix[\\/].+" => "libsundials_sunmatrix", 
+    raw"kinsol[\\/].+" => "libsundials_kinsol", 
+    raw"ida[\\/].+" => "libsundials_ida", 
+    raw"cvodes[\\/].+" => "libsundials_cvodes", 
+    raw"sunlinsol[\\/].+$(?<!lapackband\.h)(?<!lapackdense\.h)" => "libsundials_sunlinsol", 
+    raw"cvode[\\/].+" => "libsundials_cvode", 
+    raw"idas[\\/].+" => "libsundials_idas", 
+    raw"arkode[\\/].+" => "libsundials_arkode",
+    raw"nvector[\\/].+" => "libsundials_nvecserial",
+    raw"lapackband\.h" => "libsundials_sunlinsollapackband",
+    raw"lapackdense\.h" => "libsundials_sunlinsollapackdense",
+    )
+headers = String[]
+for lib in readdir(include_dir)
+    header_dir = joinpath(include_dir, lib)
+    append!(headers, joinpath(header_dir, header) for header in readdir(header_dir) if endswith(header, ".h"))
+end
+options["general"]["library_names"] = library_names
+
+ctx = create_context(headers, args, options)
+
+# run generator
+build!(ctx, BUILDSTAGE_NO_PRINTING)
+for n in ctx.dag.nodes
+    copy!(n.exprs, reduce(vcat, rewrite.(n.exprs), init=[]))
+end
+build!(ctx, BUILDSTAGE_PRINTING_ONLY)
