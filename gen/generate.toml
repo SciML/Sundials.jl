@@ -1,0 +1,25 @@
+[general]
+library_name = "" # depends on header file
+# library_names = {}\
+# output_file_path = "../lib/file.jl"
+output_api_file_path = "../lib/libsundials_api.jl"
+output_common_file_path = "../lib/libsundials_common.jl"
+prologue_file_path = "prologue.jl"
+# epilogue_file_path = "epilogue.jl"
+use_julia_native_enum_type = false
+print_using_CEnum = false
+use_deterministic_symbol = true
+is_local_header_only = true
+smart_de_anonymize = true
+printer_blacklist = [
+
+]
+extract_c_comment_style = "doxygen"
+[codegen]
+use_julia_bool = true
+always_NUL_terminated_string = true
+is_function_strictly_typed = true
+opaque_func_arg_as_PtrCvoid = false
+opaque_as_mutable_struct = true
+# use_ccall_macro = true
+# wrap_variadic_function = true
