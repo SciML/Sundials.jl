@@ -83,8 +83,6 @@ function kinsol(
     strategy = KIN_NONE
     flag = @checkflag KINSol(kmem, y, strategy, scale, scale) true
 
-    empty!(kmem)
-
     return y
 end
 
@@ -181,7 +179,6 @@ function cvode!(
         c = c + 1
     end
 
-    empty!(mem)
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
 
@@ -277,7 +274,6 @@ function idasol(
         ypres[k, :] = yp
     end
 
-    empty!(mem)
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
 
