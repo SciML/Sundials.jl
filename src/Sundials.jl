@@ -52,6 +52,10 @@ end
 
 include("../lib/libsundials_common.jl")
 include("types_and_consts_additions.jl")
+
+include("handle.jl")
+include("nvector_wrapper.jl")
+
 include("../lib/libsundials_api.jl")
 
 for ff in names(@__MODULE__; all=true)
@@ -62,9 +66,6 @@ for ff in names(@__MODULE__; all=true)
         @eval $ff(mem, LS::SUNLinearSolver, A::Ptr, args...) = $ff(mem, LS, convert(SUNMatrix, A), args...)
     end
 end
-
-include("handle.jl")
-include("nvector_wrapper.jl")
 
 include("simple.jl")
 include("common_interface/function_types.jl")
