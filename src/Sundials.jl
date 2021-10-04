@@ -51,12 +51,11 @@ macro SUNDIALS_F77_FUNC(name, NAME)
 end
 
 include("../lib/libsundials_common.jl")
+include("../lib/libsundials_api.jl")
 include("types_and_consts_additions.jl")
 
 include("handle.jl")
 include("nvector_wrapper.jl")
-
-include("../lib/libsundials_api.jl")
 
 include("simple.jl")
 include("common_interface/function_types.jl")
