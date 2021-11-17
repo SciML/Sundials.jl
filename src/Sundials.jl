@@ -50,6 +50,13 @@ macro SUNDIALS_F77_FUNC(name, NAME)
     Symbol(string(name) * "_64_")
 end
 
+# Issue 328: these symbols exist in other libraries
+const libsundials_sundials = libsundials_cvode
+const libsundials_sunlinsol = libsundials_cvode
+const libsundials_sunnonlinsol = libsundials_cvode
+# sunmatrix has been renamed to sunmatrix[dense/sparse/band]
+# const libsundials_sunmatrix = libsundials_cvode
+
 include("../lib/libsundials_common.jl")
 include("types_and_consts_additions.jl")
 
