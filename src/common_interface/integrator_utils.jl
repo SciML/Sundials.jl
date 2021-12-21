@@ -108,7 +108,6 @@ function save_value!(
     make_copy::Type{Val{bool}} = Val{true},
 ) where {T <: AbstractArray, bool}
     save = if save_idxs !== nothing
-        @show typeof(val)
         reshape(val, sizeu)[save_idxs]
     else
         x = bool ? copy(val) : val
