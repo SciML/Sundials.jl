@@ -52,6 +52,11 @@ sol = solve(prob, CVODE_Adams(), tstops = [0.9])
 
 @test 0.9 ∈ sol.t
 
+sol = solve(prob, CVODE_Adams())
+sol_idxs = solve(prob, CVODE_Adams(), save_idxs = [1], timeseries_errors = false)
+
+@test sol[1,:] == sol_idxs[:]
+
 # Test the other function conversions
 k = (du, u, p, t) -> du[1] = u[1]
 prob = ODEProblem(k, [1.0], (0.0, 1.0))

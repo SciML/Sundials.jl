@@ -101,7 +101,7 @@ function DiffEqBase.__init(
     dtmax = 0.0,
     timeseries_errors = true,
     dense_errors = false,
-    save_everystep = isempty(saveat),
+    save_everystep = isempty(saveat), save_idxs = nothing,
     save_on = true,
     save_start = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true :
                  prob.tspan[1] in saveat,
@@ -202,8 +202,6 @@ function DiffEqBase.__init(
         C_NULL,
     )
 
-    ures = Vector{uType}()
-    dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
 
     u0nv = NVector(u0)
@@ -389,11 +387,24 @@ function DiffEqBase.__init(
     tout = [tspan[1]]
 
     if save_start
-        save_value!(ures, u0, uType, sizeu)
-        if dense
-            f!(_u0, u0, prob.p, tspan[1])
-            save_value!(dures, utmp, uType, sizeu)
+        if save_idxs === nothing
+            ures = Vector{uType}()
+            dures = Vector{uType}()
+            save_value!(ures, u0, uType, sizeu, save_idxs)
+            if dense
+                f!(_u0, u0, prob.p, tspan[1])
+                save_value!(dures, utmp, uType, sizeu, save_idxs)
+            end
+        else
+            ures = u0[save_idxs]
+            if dense
+                f!(_u0, u0, prob.p, tspan[1])
+                dures = _u0[save_idxs]
+            end
         end
+    else
+        ures = Vector{uType}()
+        dures = Vector{uType}()
     end
 
     sol = DiffEqBase.build_solution(
@@ -411,7 +422,7 @@ function DiffEqBase.__init(
     opts = DEOptions(
         saveat_internal,
         tstops_internal,
-        save_everystep,
+        save_everystep,save_idxs,
         dense,
         timeseries_errors,
         dense_errors,
@@ -478,7 +489,7 @@ function DiffEqBase.__init(
     dtmax = 0.0,
     timeseries_errors = true,
     dense_errors = false,
-    save_everystep = isempty(saveat),
+    save_everystep = isempty(saveat), save_idxs = nothing,
     dense = save_everystep,
     save_on = true,
     save_start = true,
@@ -535,9 +546,6 @@ function DiffEqBase.__init(
     end
 
     sizeu = size(prob.u0)
-
-    ures = Vector{uType}()
-    dures = Vector{uType}()
     save_start ? ts = [t0] : ts = Float64[]
     u0nv = NVector(u0)
     _u0 = copy(u0)
@@ -892,11 +900,24 @@ function DiffEqBase.__init(
     tout = [tspan[1]]
 
     if save_start
-        save_value!(ures, u0, uType, sizeu)
-        if dense
-            f!(_u0, u0, prob.p, tspan[1])
-            save_value!(dures, utmp, uType, sizeu)
+        if save_idxs === nothing
+            ures = Vector{uType}()
+            dures = Vector{uType}()
+            save_value!(ures, u0, uType, sizeu, save_idxs)
+            if dense
+                f!(_u0, u0, prob.p, tspan[1])
+                save_value!(dures, utmp, uType, sizeu, save_idxs)
+            end
+        else
+            ures = u0[save_idxs]
+            if dense
+                f!(_u0, u0, prob.p, tspan[1])
+                dures = _u0[save_idxs]
+            end
         end
+    else
+        ures = Vector{uType}()
+        dures = Vector{uType}()
     end
 
     sol = DiffEqBase.build_solution(
@@ -914,7 +935,7 @@ function DiffEqBase.__init(
     opts = DEOptions(
         saveat_internal,
         tstops_internal,
-        save_everystep,
+        save_everystep,save_idxs,
         dense,
         timeseries_errors,
         dense_errors,
@@ -1036,7 +1057,7 @@ function DiffEqBase.__init(
     maxiters = Int(1e5),
     timeseries_errors = true,
     dense_errors = false,
-    save_everystep = isempty(saveat),
+    save_everystep = isempty(saveat), save_idxs = nothing,
     dense = save_everystep,
     save_timeseries = nothing,
     save_end = true,
@@ -1123,8 +1144,6 @@ function DiffEqBase.__init(
         C_NULL,
     )
 
-    ures = Vector{uType}()
-    dures = Vector{uType}()
     ts = [t0]
 
     _u0 = copy(u0)
@@ -1331,10 +1350,22 @@ function DiffEqBase.__init(
     end
 
     if save_start
-        save_value!(ures, u0, uType, sizeu)
-        if dense
-            save_value!(dures, du0, uType, sizedu) # Does this need to update for IDACalcIC?
+        if save_idxs === nothing
+            ures = Vector{uType}()
+            dures = Vector{uType}()
+            save_value!(ures, u0, uType, sizeu, save_idxs)
+            if dense
+                save_value!(dures, du0, uType, sizedu, save_idxs)
+            end
+        else
+            ures = u0[save_idxs]
+            if dense
+                dures = du0[save_idxs]
+            end
         end
+    else
+        ures = Vector{uType}()
+        dures = Vector{uType}()
     end
 
     callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
@@ -1364,7 +1395,7 @@ function DiffEqBase.__init(
     opts = DEOptions(
         saveat_internal,
         tstops_internal,
-        save_everystep,
+        save_everystep,save_idxs,
         dense,
         timeseries_errors,
         dense_errors,
@@ -1542,11 +1573,11 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
 
     if integrator.opts.save_end &&
        (isempty(integrator.sol.t) || integrator.sol.t[end] != integrator.t)
-        save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu)
+        save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu, integrator.opts.save_idxs)
         push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
             integrator(integrator.u, integrator.t, Val{1})
-            save_value!(integrator.sol.interp.du, integrator.u, uType, integrator.sizeu)
+            save_value!(integrator.sol.interp.du, integrator.u, uType, integrator.sizeu, integrator.opts.save_idxs)
         end
     end
 

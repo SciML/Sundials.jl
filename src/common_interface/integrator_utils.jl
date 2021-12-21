@@ -55,22 +55,22 @@ function DiffEqBase.savevalues!(
         curt = pop!(integrator.opts.saveat)
 
         tmp = integrator(curt)
-        save_value!(integrator.sol.u, tmp, uType, integrator.sizeu, Val{false})
+        save_value!(integrator.sol.u, tmp, uType, integrator.sizeu, integrator.opts.save_idxs, Val{false})
         push!(integrator.sol.t, curt)
         if integrator.opts.dense
             tmp = integrator(curt, Val{1})
-            save_value!(integrator.sol.interp.du, tmp, uType, integrator.sizeu, Val{false})
+            save_value!(integrator.sol.interp.du, tmp, uType, integrator.sizeu, integrator.opts.save_idxs, Val{false})
         end
     end
 
-    if force_save || integrator.opts.save_everystep || (integrator.opts.save_everystep && (isempty(integrator.sol.t) || 
+    if force_save || integrator.opts.save_everystep || (integrator.opts.save_everystep && (isempty(integrator.sol.t) ||
                                          (integrator.t !== integrator.sol.t[end])))
         saved = true
-        save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu)
+        save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu, integrator.opts.save_idxs)
         push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
             tmp = integrator(integrator.t, Val{1})
-            save_value!(integrator.sol.interp.du, tmp, uType, integrator.sizeu)
+            save_value!(integrator.sol.interp.du, tmp, uType, integrator.sizeu, integrator.opts.save_idxs)
         end
     end
     savedexactly = !isempty(integrator.sol.t) && last(integrator.sol.t) == integrator.t
@@ -81,7 +81,7 @@ function save_value!(
     save_array,
     val,
     ::Type{T},
-    sizeu,
+    sizeu, save_idxs,
     make_copy::Type{Val{bool}} = Val{true},
 ) where {T <: Number, bool}
     push!(save_array, first(val))
@@ -90,31 +90,31 @@ function save_value!(
     save_array,
     val,
     ::Type{T},
-    sizeu,
+    sizeu, save_idxs,
     make_copy::Type{Val{bool}} = Val{true},
 ) where {T <: Vector, bool}
-    bool ? save = copy(val) : save = val
+    save = if save_idxs !== nothing
+        val[save_idxs]
+    else
+        bool ? copy(val) : val
+    end
     push!(save_array, save)
 end
 function save_value!(
     save_array,
     val,
     ::Type{T},
-    sizeu,
-    make_copy::Type{Val{bool}} = Val{true},
-) where {T <: Array, bool}
-    bool ? save = copy(val) : save = val
-    push!(save_array, reshape(save, sizeu))
-end
-function save_value!(
-    save_array,
-    val,
-    ::Type{T},
-    sizeu,
+    sizeu, save_idxs,
     make_copy::Type{Val{bool}} = Val{true},
 ) where {T <: AbstractArray, bool}
-    bool ? save = copy(val) : save = val
-    push!(save_array, convert(T, reshape(save, sizeu)))
+    save = if save_idxs !== nothing
+        @show typeof(val)
+        reshape(val, sizeu)[save_idxs]
+    else
+        x = bool ? copy(val) : val
+        reshape(x, sizeu)
+    end
+    push!(save_array, save)
 end
 
 function handle_callback_modifiers!(integrator::CVODEIntegrator)

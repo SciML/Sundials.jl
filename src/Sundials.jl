@@ -15,7 +15,6 @@ using CEnum
 
 
 const warnkeywords = (
-    :save_idxs,
     :d_discontinuities,
     :isoutofdomain,
     :unstable_check,
