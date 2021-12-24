@@ -28,10 +28,8 @@ const warnkeywords = (
     :qoldinit,
 )
 
-function __init__()
-    global warnlist = Set(warnkeywords)
-    global warnida = union(warnlist, Set((:dtmin,)))
-end
+warnlist = Set(warnkeywords)
+warnida = union(warnlist, Set((:dtmin,)))
 
 using Sundials_jll
 
