@@ -1360,7 +1360,7 @@ function MRIStepPrintMem(arkode_mem, outfile)
 end
 
 function CVodeCreate(lmm::Cint)
-    ccall((:CVodeCreate, libsundials_cvode), CVODEMemPtr, (Cint,), lmm)
+    ccall((:CVodeCreate, libsundials_cvodes), CVODEMemPtr, (Cint,), lmm)
 end
 
 function CVodeCreate(lmm)
@@ -1368,7 +1368,7 @@ function CVodeCreate(lmm)
 end
 
 function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::N_Vector)
-    ccall((:CVodeInit, libsundials_cvode), Cint, (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0)
+    ccall((:CVodeInit, libsundials_cvodes), Cint, (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0)
 end
 
 function CVodeInit(cvode_mem, f, t0, y0)
@@ -1377,7 +1377,7 @@ function CVodeInit(cvode_mem, f, t0, y0)
 end
 
 function CVodeReInit(cvode_mem, t0::realtype, y0::N_Vector)
-    ccall((:CVodeReInit, libsundials_cvode), Cint, (CVODEMemPtr, realtype, N_Vector), cvode_mem, t0, y0)
+    ccall((:CVodeReInit, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector), cvode_mem, t0, y0)
 end
 
 function CVodeReInit(cvode_mem, t0, y0)
@@ -1386,11 +1386,11 @@ function CVodeReInit(cvode_mem, t0, y0)
 end
 
 function CVodeSStolerances(cvode_mem, reltol::realtype, abstol::realtype)
-    ccall((:CVodeSStolerances, libsundials_cvode), Cint, (CVODEMemPtr, realtype, realtype), cvode_mem, reltol, abstol)
+    ccall((:CVodeSStolerances, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, realtype), cvode_mem, reltol, abstol)
 end
 
 function CVodeSVtolerances(cvode_mem, reltol::realtype, abstol::N_Vector)
-    ccall((:CVodeSVtolerances, libsundials_cvode), Cint, (CVODEMemPtr, realtype, N_Vector), cvode_mem, reltol, abstol)
+    ccall((:CVodeSVtolerances, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector), cvode_mem, reltol, abstol)
 end
 
 function CVodeSVtolerances(cvode_mem, reltol, abstol)
@@ -1399,23 +1399,23 @@ function CVodeSVtolerances(cvode_mem, reltol, abstol)
 end
 
 function CVodeWFtolerances(cvode_mem, efun::CVEwtFn)
-    ccall((:CVodeWFtolerances, libsundials_cvode), Cint, (CVODEMemPtr, CVEwtFn), cvode_mem, efun)
+    ccall((:CVodeWFtolerances, libsundials_cvodes), Cint, (CVODEMemPtr, CVEwtFn), cvode_mem, efun)
 end
 
 function CVodeSetErrHandlerFn(cvode_mem, ehfun::CVErrHandlerFn, eh_data)
-    ccall((:CVodeSetErrHandlerFn, libsundials_cvode), Cint, (CVODEMemPtr, CVErrHandlerFn, Ptr{Cvoid}), cvode_mem, ehfun, eh_data)
+    ccall((:CVodeSetErrHandlerFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVErrHandlerFn, Ptr{Cvoid}), cvode_mem, ehfun, eh_data)
 end
 
 function CVodeSetErrFile(cvode_mem, errfp)
-    ccall((:CVodeSetErrFile, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Libc.FILE}), cvode_mem, errfp)
+    ccall((:CVodeSetErrFile, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Libc.FILE}), cvode_mem, errfp)
 end
 
 function CVodeSetUserData(cvode_mem, user_data)
-    ccall((:CVodeSetUserData, libsundials_cvode), Cint, (CVODEMemPtr, Any), cvode_mem, user_data)
+    ccall((:CVodeSetUserData, libsundials_cvodes), Cint, (CVODEMemPtr, Any), cvode_mem, user_data)
 end
 
 function CVodeSetMaxOrd(cvode_mem, maxord::Cint)
-    ccall((:CVodeSetMaxOrd, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxord)
+    ccall((:CVodeSetMaxOrd, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxord)
 end
 
 function CVodeSetMaxOrd(cvode_mem, maxord)
@@ -1423,7 +1423,7 @@ function CVodeSetMaxOrd(cvode_mem, maxord)
 end
 
 function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Clong)
-    ccall((:CVodeSetMaxNumSteps, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, mxsteps)
+    ccall((:CVodeSetMaxNumSteps, libsundials_cvodes), Cint, (CVODEMemPtr, Clong), cvode_mem, mxsteps)
 end
 
 function CVodeSetMaxNumSteps(cvode_mem, mxsteps)
@@ -1431,7 +1431,7 @@ function CVodeSetMaxNumSteps(cvode_mem, mxsteps)
 end
 
 function CVodeSetMaxHnilWarns(cvode_mem, mxhnil::Cint)
-    ccall((:CVodeSetMaxHnilWarns, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, mxhnil)
+    ccall((:CVodeSetMaxHnilWarns, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, mxhnil)
 end
 
 function CVodeSetMaxHnilWarns(cvode_mem, mxhnil)
@@ -1439,7 +1439,7 @@ function CVodeSetMaxHnilWarns(cvode_mem, mxhnil)
 end
 
 function CVodeSetStabLimDet(cvode_mem, stldet::Cint)
-    ccall((:CVodeSetStabLimDet, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, stldet)
+    ccall((:CVodeSetStabLimDet, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, stldet)
 end
 
 function CVodeSetStabLimDet(cvode_mem, stldet)
@@ -1447,23 +1447,23 @@ function CVodeSetStabLimDet(cvode_mem, stldet)
 end
 
 function CVodeSetInitStep(cvode_mem, hin::realtype)
-    ccall((:CVodeSetInitStep, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, hin)
+    ccall((:CVodeSetInitStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem, hin)
 end
 
 function CVodeSetMinStep(cvode_mem, hmin::realtype)
-    ccall((:CVodeSetMinStep, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, hmin)
+    ccall((:CVodeSetMinStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem, hmin)
 end
 
 function CVodeSetMaxStep(cvode_mem, hmax::realtype)
-    ccall((:CVodeSetMaxStep, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, hmax)
+    ccall((:CVodeSetMaxStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem, hmax)
 end
 
 function CVodeSetStopTime(cvode_mem, tstop::realtype)
-    ccall((:CVodeSetStopTime, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, tstop)
+    ccall((:CVodeSetStopTime, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem, tstop)
 end
 
 function CVodeSetMaxErrTestFails(cvode_mem, maxnef::Cint)
-    ccall((:CVodeSetMaxErrTestFails, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxnef)
+    ccall((:CVodeSetMaxErrTestFails, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxnef)
 end
 
 function CVodeSetMaxErrTestFails(cvode_mem, maxnef)
@@ -1471,7 +1471,7 @@ function CVodeSetMaxErrTestFails(cvode_mem, maxnef)
 end
 
 function CVodeSetMaxNonlinIters(cvode_mem, maxcor::Cint)
-    ccall((:CVodeSetMaxNonlinIters, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxcor)
+    ccall((:CVodeSetMaxNonlinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxcor)
 end
 
 function CVodeSetMaxNonlinIters(cvode_mem, maxcor)
@@ -1479,7 +1479,7 @@ function CVodeSetMaxNonlinIters(cvode_mem, maxcor)
 end
 
 function CVodeSetMaxConvFails(cvode_mem, maxncf::Cint)
-    ccall((:CVodeSetMaxConvFails, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxncf)
+    ccall((:CVodeSetMaxConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, maxncf)
 end
 
 function CVodeSetMaxConvFails(cvode_mem, maxncf)
@@ -1487,11 +1487,11 @@ function CVodeSetMaxConvFails(cvode_mem, maxncf)
 end
 
 function CVodeSetNonlinConvCoef(cvode_mem, nlscoef::realtype)
-    ccall((:CVodeSetNonlinConvCoef, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, nlscoef)
+    ccall((:CVodeSetNonlinConvCoef, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem, nlscoef)
 end
 
 function CVodeSetConstraints(cvode_mem, constraints::N_Vector)
-    ccall((:CVodeSetConstraints, libsundials_cvode), Cint, (CVODEMemPtr, N_Vector), cvode_mem, constraints)
+    ccall((:CVodeSetConstraints, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector), cvode_mem, constraints)
 end
 
 function CVodeSetConstraints(cvode_mem, constraints)
@@ -1500,11 +1500,11 @@ function CVodeSetConstraints(cvode_mem, constraints)
 end
 
 function CVodeSetNonlinearSolver(cvode_mem, NLS::SUNNonlinearSolver)
-    ccall((:CVodeSetNonlinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS)
+    ccall((:CVodeSetNonlinearSolver, libsundials_cvodes), Cint, (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS)
 end
 
 function CVodeRootInit(cvode_mem, nrtfn::Cint, g::CVRootFn)
-    ccall((:CVodeRootInit, libsundials_cvode), Cint, (CVODEMemPtr, Cint, CVRootFn), cvode_mem, nrtfn, g)
+    ccall((:CVodeRootInit, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVRootFn), cvode_mem, nrtfn, g)
 end
 
 function CVodeRootInit(cvode_mem, nrtfn, g)
@@ -1512,15 +1512,15 @@ function CVodeRootInit(cvode_mem, nrtfn, g)
 end
 
 function CVodeSetRootDirection(cvode_mem, rootdir)
-    ccall((:CVodeSetRootDirection, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, rootdir)
+    ccall((:CVodeSetRootDirection, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, rootdir)
 end
 
 function CVodeSetNoInactiveRootWarn(cvode_mem)
-    ccall((:CVodeSetNoInactiveRootWarn, libsundials_cvode), Cint, (CVODEMemPtr,), cvode_mem)
+    ccall((:CVodeSetNoInactiveRootWarn, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVode(cvode_mem, tout::realtype, yout::N_Vector, tret, itask::Cint)
-    ccall((:CVode, libsundials_cvode), Cint, (CVODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), cvode_mem, tout, yout, tret, itask)
+    ccall((:CVode, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), cvode_mem, tout, yout, tret, itask)
 end
 
 function CVode(cvode_mem, tout, yout, tret, itask)
@@ -1529,7 +1529,7 @@ function CVode(cvode_mem, tout, yout, tret, itask)
 end
 
 function CVodeGetDky(cvode_mem, t::realtype, k::Cint, dky::N_Vector)
-    ccall((:CVodeGetDky, libsundials_cvode), Cint, (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky)
+    ccall((:CVodeGetDky, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky)
 end
 
 function CVodeGetDky(cvode_mem, t, k, dky)
@@ -1538,67 +1538,67 @@ function CVodeGetDky(cvode_mem, t, k, dky)
 end
 
 function CVodeGetWorkSpace(cvode_mem, lenrw, leniw)
-    ccall((:CVodeGetWorkSpace, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrw, leniw)
+    ccall((:CVodeGetWorkSpace, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrw, leniw)
 end
 
 function CVodeGetNumSteps(cvode_mem, nsteps)
-    ccall((:CVodeGetNumSteps, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nsteps)
+    ccall((:CVodeGetNumSteps, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nsteps)
 end
 
 function CVodeGetNumRhsEvals(cvode_mem, nfevals)
-    ccall((:CVodeGetNumRhsEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevals)
+    ccall((:CVodeGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevals)
 end
 
 function CVodeGetNumLinSolvSetups(cvode_mem, nlinsetups)
-    ccall((:CVodeGetNumLinSolvSetups, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlinsetups)
+    ccall((:CVodeGetNumLinSolvSetups, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlinsetups)
 end
 
 function CVodeGetNumErrTestFails(cvode_mem, netfails)
-    ccall((:CVodeGetNumErrTestFails, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, netfails)
+    ccall((:CVodeGetNumErrTestFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, netfails)
 end
 
 function CVodeGetLastOrder(cvode_mem, qlast)
-    ccall((:CVodeGetLastOrder, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, qlast)
+    ccall((:CVodeGetLastOrder, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, qlast)
 end
 
 function CVodeGetCurrentOrder(cvode_mem, qcur)
-    ccall((:CVodeGetCurrentOrder, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, qcur)
+    ccall((:CVodeGetCurrentOrder, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, qcur)
 end
 
 function CVodeGetCurrentGamma(cvode_mem, gamma)
-    ccall((:CVodeGetCurrentGamma, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, gamma)
+    ccall((:CVodeGetCurrentGamma, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, gamma)
 end
 
 function CVodeGetNumStabLimOrderReds(cvode_mem, nslred)
-    ccall((:CVodeGetNumStabLimOrderReds, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nslred)
+    ccall((:CVodeGetNumStabLimOrderReds, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nslred)
 end
 
 function CVodeGetActualInitStep(cvode_mem, hinused)
-    ccall((:CVodeGetActualInitStep, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, hinused)
+    ccall((:CVodeGetActualInitStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, hinused)
 end
 
 function CVodeGetLastStep(cvode_mem, hlast)
-    ccall((:CVodeGetLastStep, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, hlast)
+    ccall((:CVodeGetLastStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, hlast)
 end
 
 function CVodeGetCurrentStep(cvode_mem, hcur)
-    ccall((:CVodeGetCurrentStep, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, hcur)
+    ccall((:CVodeGetCurrentStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, hcur)
 end
 
 function CVodeGetCurrentState(cvode_mem, y)
-    ccall((:CVodeGetCurrentState, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{N_Vector}), cvode_mem, y)
+    ccall((:CVodeGetCurrentState, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{N_Vector}), cvode_mem, y)
 end
 
 function CVodeGetCurrentTime(cvode_mem, tcur)
-    ccall((:CVodeGetCurrentTime, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, tcur)
+    ccall((:CVodeGetCurrentTime, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, tcur)
 end
 
 function CVodeGetTolScaleFactor(cvode_mem, tolsfac)
-    ccall((:CVodeGetTolScaleFactor, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, tolsfac)
+    ccall((:CVodeGetTolScaleFactor, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, tolsfac)
 end
 
 function CVodeGetErrWeights(cvode_mem, eweight::N_Vector)
-    ccall((:CVodeGetErrWeights, libsundials_cvode), Cint, (CVODEMemPtr, N_Vector), cvode_mem, eweight)
+    ccall((:CVodeGetErrWeights, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector), cvode_mem, eweight)
 end
 
 function CVodeGetErrWeights(cvode_mem, eweight)
@@ -1607,7 +1607,7 @@ function CVodeGetErrWeights(cvode_mem, eweight)
 end
 
 function CVodeGetEstLocalErrors(cvode_mem, ele::N_Vector)
-    ccall((:CVodeGetEstLocalErrors, libsundials_cvode), Cint, (CVODEMemPtr, N_Vector), cvode_mem, ele)
+    ccall((:CVodeGetEstLocalErrors, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector), cvode_mem, ele)
 end
 
 function CVodeGetEstLocalErrors(cvode_mem, ele)
@@ -1616,31 +1616,31 @@ function CVodeGetEstLocalErrors(cvode_mem, ele)
 end
 
 function CVodeGetNumGEvals(cvode_mem, ngevals)
-    ccall((:CVodeGetNumGEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, ngevals)
+    ccall((:CVodeGetNumGEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, ngevals)
 end
 
 function CVodeGetRootInfo(cvode_mem, rootsfound)
-    ccall((:CVodeGetRootInfo, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, rootsfound)
+    ccall((:CVodeGetRootInfo, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}), cvode_mem, rootsfound)
 end
 
 function CVodeGetIntegratorStats(cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur)
-    ccall((:CVodeGetIntegratorStats, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint}, Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur)
+    ccall((:CVodeGetIntegratorStats, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint}, Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur)
 end
 
 function CVodeGetNumNonlinSolvIters(cvode_mem, nniters)
-    ccall((:CVodeGetNumNonlinSolvIters, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nniters)
+    ccall((:CVodeGetNumNonlinSolvIters, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nniters)
 end
 
 function CVodeGetNumNonlinSolvConvFails(cvode_mem, nncfails)
-    ccall((:CVodeGetNumNonlinSolvConvFails, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nncfails)
+    ccall((:CVodeGetNumNonlinSolvConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nncfails)
 end
 
 function CVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
-    ccall((:CVodeGetNonlinSolvStats, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nniters, nncfails)
+    ccall((:CVodeGetNonlinSolvStats, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nniters, nncfails)
 end
 
 function CVodeGetReturnFlagName(flag::Clong)
-    ccall((:CVodeGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
+    ccall((:CVodeGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVodeGetReturnFlagName(flag)
@@ -1648,55 +1648,55 @@ function CVodeGetReturnFlagName(flag)
 end
 
 function CVodeFree(cvode_mem)
-    ccall((:CVodeFree, libsundials_cvode), Cvoid, (Ref{CVODEMemPtr},), cvode_mem)
+    ccall((:CVodeFree, libsundials_cvodes), Cvoid, (Ref{CVODEMemPtr},), cvode_mem)
 end
 
 function CVBandPrecInit(cvode_mem, N::sunindextype, mu::sunindextype, ml::sunindextype)
-    ccall((:CVBandPrecInit, libsundials_cvode), Cint, (CVODEMemPtr, sunindextype, sunindextype, sunindextype), cvode_mem, N, mu, ml)
+    ccall((:CVBandPrecInit, libsundials_cvodes), Cint, (CVODEMemPtr, sunindextype, sunindextype, sunindextype), cvode_mem, N, mu, ml)
 end
 
 function CVBandPrecGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVBandPrecGetWorkSpace, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    ccall((:CVBandPrecGetWorkSpace, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
 end
 
 function CVBandPrecGetNumRhsEvals(cvode_mem, nfevalsBP)
-    ccall((:CVBandPrecGetNumRhsEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsBP)
+    ccall((:CVBandPrecGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsBP)
 end
 
 function CVBBDPrecInit(cvode_mem, Nlocal::sunindextype, mudq::sunindextype, mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype, dqrely::realtype, gloc::CVLocalFn, cfn::CVCommFn)
-    ccall((:CVBBDPrecInit, libsundials_cvode), Cint, (CVODEMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, CVLocalFn, CVCommFn), cvode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn)
+    ccall((:CVBBDPrecInit, libsundials_cvodes), Cint, (CVODEMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, CVLocalFn, CVCommFn), cvode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn)
 end
 
 function CVBBDPrecReInit(cvode_mem, mudq::sunindextype, mldq::sunindextype, dqrely::realtype)
-    ccall((:CVBBDPrecReInit, libsundials_cvode), Cint, (CVODEMemPtr, sunindextype, sunindextype, realtype), cvode_mem, mudq, mldq, dqrely)
+    ccall((:CVBBDPrecReInit, libsundials_cvodes), Cint, (CVODEMemPtr, sunindextype, sunindextype, realtype), cvode_mem, mudq, mldq, dqrely)
 end
 
 function CVBBDPrecGetWorkSpace(cvode_mem, lenrwBBDP, leniwBBDP)
-    ccall((:CVBBDPrecGetWorkSpace, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwBBDP, leniwBBDP)
+    ccall((:CVBBDPrecGetWorkSpace, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwBBDP, leniwBBDP)
 end
 
 function CVBBDPrecGetNumGfnEvals(cvode_mem, ngevalsBBDP)
-    ccall((:CVBBDPrecGetNumGfnEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, ngevalsBBDP)
+    ccall((:CVBBDPrecGetNumGfnEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, ngevalsBBDP)
 end
 
 function CVDiag(cvode_mem)
-    ccall((:CVDiag, libsundials_cvode), Cint, (CVODEMemPtr,), cvode_mem)
+    ccall((:CVDiag, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVDiagGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVDiagGetWorkSpace, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    ccall((:CVDiagGetWorkSpace, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
 end
 
 function CVDiagGetNumRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVDiagGetNumRhsEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
+    ccall((:CVDiagGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
 end
 
 function CVDiagGetLastFlag(cvode_mem, flag)
-    ccall((:CVDiagGetLastFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
+    ccall((:CVDiagGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
 function CVDiagGetReturnFlagName(flag::Clong)
-    ccall((:CVDiagGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
+    ccall((:CVDiagGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVDiagGetReturnFlagName(flag)
@@ -1704,31 +1704,31 @@ function CVDiagGetReturnFlagName(flag)
 end
 
 function CVDlsSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:CVDlsSetLinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
+    ccall((:CVDlsSetLinearSolver, libsundials_cvodes), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
 end
 
 function CVDlsSetJacFn(cvode_mem, jac::CVDlsJacFn)
-    ccall((:CVDlsSetJacFn, libsundials_cvode), Cint, (CVODEMemPtr, CVDlsJacFn), cvode_mem, jac)
+    ccall((:CVDlsSetJacFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVDlsJacFn), cvode_mem, jac)
 end
 
 function CVDlsGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVDlsGetWorkSpace, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    ccall((:CVDlsGetWorkSpace, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
 end
 
 function CVDlsGetNumJacEvals(cvode_mem, njevals)
-    ccall((:CVDlsGetNumJacEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njevals)
+    ccall((:CVDlsGetNumJacEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njevals)
 end
 
 function CVDlsGetNumRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVDlsGetNumRhsEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
+    ccall((:CVDlsGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
 end
 
 function CVDlsGetLastFlag(cvode_mem, flag)
-    ccall((:CVDlsGetLastFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
+    ccall((:CVDlsGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
 function CVDlsGetReturnFlagName(flag::Clong)
-    ccall((:CVDlsGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
+    ccall((:CVDlsGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVDlsGetReturnFlagName(flag)
@@ -1736,15 +1736,15 @@ function CVDlsGetReturnFlagName(flag)
 end
 
 function CVodeSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:CVodeSetLinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
+    ccall((:CVodeSetLinearSolver, libsundials_cvodes), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
 end
 
 function CVodeSetJacFn(cvode_mem, jac::CVLsJacFn)
-    ccall((:CVodeSetJacFn, libsundials_cvode), Cint, (CVODEMemPtr, CVLsJacFn), cvode_mem, jac)
+    ccall((:CVodeSetJacFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsJacFn), cvode_mem, jac)
 end
 
 function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj::Clong)
-    ccall((:CVodeSetMaxStepsBetweenJac, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, msbj)
+    ccall((:CVodeSetMaxStepsBetweenJac, libsundials_cvodes), Cint, (CVODEMemPtr, Clong), cvode_mem, msbj)
 end
 
 function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj)
@@ -1752,7 +1752,7 @@ function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj)
 end
 
 function CVodeSetLinearSolutionScaling(cvode_mem, onoff::Cint)
-    ccall((:CVodeSetLinearSolutionScaling, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, onoff)
+    ccall((:CVodeSetLinearSolutionScaling, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, onoff)
 end
 
 function CVodeSetLinearSolutionScaling(cvode_mem, onoff)
@@ -1760,63 +1760,63 @@ function CVodeSetLinearSolutionScaling(cvode_mem, onoff)
 end
 
 function CVodeSetEpsLin(cvode_mem, eplifac::realtype)
-    ccall((:CVodeSetEpsLin, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, eplifac)
+    ccall((:CVodeSetEpsLin, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem, eplifac)
 end
 
 function CVodeSetPreconditioner(cvode_mem, pset::CVLsPrecSetupFn, psolve::CVLsPrecSolveFn)
-    ccall((:CVodeSetPreconditioner, libsundials_cvode), Cint, (CVODEMemPtr, CVLsPrecSetupFn, CVLsPrecSolveFn), cvode_mem, pset, psolve)
+    ccall((:CVodeSetPreconditioner, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsPrecSetupFn, CVLsPrecSolveFn), cvode_mem, pset, psolve)
 end
 
 function CVodeSetJacTimes(cvode_mem, jtsetup::CVLsJacTimesSetupFn, jtimes::CVLsJacTimesVecFn)
-    ccall((:CVodeSetJacTimes, libsundials_cvode), Cint, (CVODEMemPtr, CVLsJacTimesSetupFn, CVLsJacTimesVecFn), cvode_mem, jtsetup, jtimes)
+    ccall((:CVodeSetJacTimes, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsJacTimesSetupFn, CVLsJacTimesVecFn), cvode_mem, jtsetup, jtimes)
 end
 
 function CVodeSetLinSysFn(cvode_mem, linsys::CVLsLinSysFn)
-    ccall((:CVodeSetLinSysFn, libsundials_cvode), Cint, (CVODEMemPtr, CVLsLinSysFn), cvode_mem, linsys)
+    ccall((:CVodeSetLinSysFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsLinSysFn), cvode_mem, linsys)
 end
 
 function CVodeGetLinWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVodeGetLinWorkSpace, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    ccall((:CVodeGetLinWorkSpace, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
 end
 
 function CVodeGetNumJacEvals(cvode_mem, njevals)
-    ccall((:CVodeGetNumJacEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njevals)
+    ccall((:CVodeGetNumJacEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njevals)
 end
 
 function CVodeGetNumPrecEvals(cvode_mem, npevals)
-    ccall((:CVodeGetNumPrecEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npevals)
+    ccall((:CVodeGetNumPrecEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npevals)
 end
 
 function CVodeGetNumPrecSolves(cvode_mem, npsolves)
-    ccall((:CVodeGetNumPrecSolves, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npsolves)
+    ccall((:CVodeGetNumPrecSolves, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npsolves)
 end
 
 function CVodeGetNumLinIters(cvode_mem, nliters)
-    ccall((:CVodeGetNumLinIters, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nliters)
+    ccall((:CVodeGetNumLinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nliters)
 end
 
 function CVodeGetNumLinConvFails(cvode_mem, nlcfails)
-    ccall((:CVodeGetNumLinConvFails, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlcfails)
+    ccall((:CVodeGetNumLinConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlcfails)
 end
 
 function CVodeGetNumJTSetupEvals(cvode_mem, njtsetups)
-    ccall((:CVodeGetNumJTSetupEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njtsetups)
+    ccall((:CVodeGetNumJTSetupEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njtsetups)
 end
 
 function CVodeGetNumJtimesEvals(cvode_mem, njvevals)
-    ccall((:CVodeGetNumJtimesEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njvevals)
+    ccall((:CVodeGetNumJtimesEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njvevals)
 end
 
 function CVodeGetNumLinRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVodeGetNumLinRhsEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
+    ccall((:CVodeGetNumLinRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
 end
 
 function CVodeGetLastLinFlag(cvode_mem, flag)
-    ccall((:CVodeGetLastLinFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
+    ccall((:CVodeGetLastLinFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
 function CVodeGetLinReturnFlagName(flag::Clong)
-    ccall((:CVodeGetLinReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
+    ccall((:CVodeGetLinReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVodeGetLinReturnFlagName(flag)
@@ -1824,59 +1824,59 @@ function CVodeGetLinReturnFlagName(flag)
 end
 
 function CVSpilsSetLinearSolver(cvode_mem, LS::SUNLinearSolver)
-    ccall((:CVSpilsSetLinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNLinearSolver), cvode_mem, LS)
+    ccall((:CVSpilsSetLinearSolver, libsundials_cvodes), Cint, (CVODEMemPtr, SUNLinearSolver), cvode_mem, LS)
 end
 
 function CVSpilsSetEpsLin(cvode_mem, eplifac::realtype)
-    ccall((:CVSpilsSetEpsLin, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, eplifac)
+    ccall((:CVSpilsSetEpsLin, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem, eplifac)
 end
 
 function CVSpilsSetPreconditioner(cvode_mem, pset::CVSpilsPrecSetupFn, psolve::CVSpilsPrecSolveFn)
-    ccall((:CVSpilsSetPreconditioner, libsundials_cvode), Cint, (CVODEMemPtr, CVSpilsPrecSetupFn, CVSpilsPrecSolveFn), cvode_mem, pset, psolve)
+    ccall((:CVSpilsSetPreconditioner, libsundials_cvodes), Cint, (CVODEMemPtr, CVSpilsPrecSetupFn, CVSpilsPrecSolveFn), cvode_mem, pset, psolve)
 end
 
 function CVSpilsSetJacTimes(cvode_mem, jtsetup::CVSpilsJacTimesSetupFn, jtimes::CVSpilsJacTimesVecFn)
-    ccall((:CVSpilsSetJacTimes, libsundials_cvode), Cint, (CVODEMemPtr, CVSpilsJacTimesSetupFn, CVSpilsJacTimesVecFn), cvode_mem, jtsetup, jtimes)
+    ccall((:CVSpilsSetJacTimes, libsundials_cvodes), Cint, (CVODEMemPtr, CVSpilsJacTimesSetupFn, CVSpilsJacTimesVecFn), cvode_mem, jtsetup, jtimes)
 end
 
 function CVSpilsGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVSpilsGetWorkSpace, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    ccall((:CVSpilsGetWorkSpace, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
 end
 
 function CVSpilsGetNumPrecEvals(cvode_mem, npevals)
-    ccall((:CVSpilsGetNumPrecEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npevals)
+    ccall((:CVSpilsGetNumPrecEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npevals)
 end
 
 function CVSpilsGetNumPrecSolves(cvode_mem, npsolves)
-    ccall((:CVSpilsGetNumPrecSolves, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npsolves)
+    ccall((:CVSpilsGetNumPrecSolves, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, npsolves)
 end
 
 function CVSpilsGetNumLinIters(cvode_mem, nliters)
-    ccall((:CVSpilsGetNumLinIters, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nliters)
+    ccall((:CVSpilsGetNumLinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nliters)
 end
 
 function CVSpilsGetNumConvFails(cvode_mem, nlcfails)
-    ccall((:CVSpilsGetNumConvFails, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlcfails)
+    ccall((:CVSpilsGetNumConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlcfails)
 end
 
 function CVSpilsGetNumJTSetupEvals(cvode_mem, njtsetups)
-    ccall((:CVSpilsGetNumJTSetupEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njtsetups)
+    ccall((:CVSpilsGetNumJTSetupEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njtsetups)
 end
 
 function CVSpilsGetNumJtimesEvals(cvode_mem, njvevals)
-    ccall((:CVSpilsGetNumJtimesEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njvevals)
+    ccall((:CVSpilsGetNumJtimesEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, njvevals)
 end
 
 function CVSpilsGetNumRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVSpilsGetNumRhsEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
+    ccall((:CVSpilsGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
 end
 
 function CVSpilsGetLastFlag(cvode_mem, flag)
-    ccall((:CVSpilsGetLastFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
+    ccall((:CVSpilsGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
 function CVSpilsGetReturnFlagName(flag::Clong)
-    ccall((:CVSpilsGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
+    ccall((:CVSpilsGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVSpilsGetReturnFlagName(flag)
@@ -2678,11 +2678,11 @@ function CVSpilsSetJacTimesBS(cvode_mem, which, jtsetupBS, jtimesBS)
 end
 
 function IDACreate()
-    ccall((:IDACreate, libsundials_ida), IDAMemPtr, ())
+    ccall((:IDACreate, libsundials_idas), IDAMemPtr, ())
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::N_Vector, yp0::N_Vector)
-    ccall((:IDAInit, libsundials_ida), Cint, (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
+    ccall((:IDAInit, libsundials_idas), Cint, (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
 end
 
 function IDAInit(ida_mem, res, t0, yy0, yp0)
@@ -2692,7 +2692,7 @@ function IDAInit(ida_mem, res, t0, yy0, yp0)
 end
 
 function IDAReInit(ida_mem, t0::realtype, yy0::N_Vector, yp0::N_Vector)
-    ccall((:IDAReInit, libsundials_ida), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector), ida_mem, t0, yy0, yp0)
+    ccall((:IDAReInit, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector), ida_mem, t0, yy0, yp0)
 end
 
 function IDAReInit(ida_mem, t0, yy0, yp0)
@@ -2702,11 +2702,11 @@ function IDAReInit(ida_mem, t0, yy0, yp0)
 end
 
 function IDASStolerances(ida_mem, reltol::realtype, abstol::realtype)
-    ccall((:IDASStolerances, libsundials_ida), Cint, (IDAMemPtr, realtype, realtype), ida_mem, reltol, abstol)
+    ccall((:IDASStolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, realtype), ida_mem, reltol, abstol)
 end
 
 function IDASVtolerances(ida_mem, reltol::realtype, abstol::N_Vector)
-    ccall((:IDASVtolerances, libsundials_ida), Cint, (IDAMemPtr, realtype, N_Vector), ida_mem, reltol, abstol)
+    ccall((:IDASVtolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector), ida_mem, reltol, abstol)
 end
 
 function IDASVtolerances(ida_mem, reltol, abstol)
@@ -2715,11 +2715,11 @@ function IDASVtolerances(ida_mem, reltol, abstol)
 end
 
 function IDAWFtolerances(ida_mem, efun::IDAEwtFn)
-    ccall((:IDAWFtolerances, libsundials_ida), Cint, (IDAMemPtr, IDAEwtFn), ida_mem, efun)
+    ccall((:IDAWFtolerances, libsundials_idas), Cint, (IDAMemPtr, IDAEwtFn), ida_mem, efun)
 end
 
 function IDACalcIC(ida_mem, icopt::Cint, tout1::realtype)
-    ccall((:IDACalcIC, libsundials_ida), Cint, (IDAMemPtr, Cint, realtype), ida_mem, icopt, tout1)
+    ccall((:IDACalcIC, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem, icopt, tout1)
 end
 
 function IDACalcIC(ida_mem, icopt, tout1)
@@ -2727,11 +2727,11 @@ function IDACalcIC(ida_mem, icopt, tout1)
 end
 
 function IDASetNonlinConvCoefIC(ida_mem, epiccon::realtype)
-    ccall((:IDASetNonlinConvCoefIC, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, epiccon)
+    ccall((:IDASetNonlinConvCoefIC, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, epiccon)
 end
 
 function IDASetMaxNumStepsIC(ida_mem, maxnh::Cint)
-    ccall((:IDASetMaxNumStepsIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnh)
+    ccall((:IDASetMaxNumStepsIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnh)
 end
 
 function IDASetMaxNumStepsIC(ida_mem, maxnh)
@@ -2739,7 +2739,7 @@ function IDASetMaxNumStepsIC(ida_mem, maxnh)
 end
 
 function IDASetMaxNumJacsIC(ida_mem, maxnj::Cint)
-    ccall((:IDASetMaxNumJacsIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnj)
+    ccall((:IDASetMaxNumJacsIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnj)
 end
 
 function IDASetMaxNumJacsIC(ida_mem, maxnj)
@@ -2747,7 +2747,7 @@ function IDASetMaxNumJacsIC(ida_mem, maxnj)
 end
 
 function IDASetMaxNumItersIC(ida_mem, maxnit::Cint)
-    ccall((:IDASetMaxNumItersIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnit)
+    ccall((:IDASetMaxNumItersIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnit)
 end
 
 function IDASetMaxNumItersIC(ida_mem, maxnit)
@@ -2755,7 +2755,7 @@ function IDASetMaxNumItersIC(ida_mem, maxnit)
 end
 
 function IDASetLineSearchOffIC(ida_mem, lsoff::Cint)
-    ccall((:IDASetLineSearchOffIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, lsoff)
+    ccall((:IDASetLineSearchOffIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, lsoff)
 end
 
 function IDASetLineSearchOffIC(ida_mem, lsoff)
@@ -2763,11 +2763,11 @@ function IDASetLineSearchOffIC(ida_mem, lsoff)
 end
 
 function IDASetStepToleranceIC(ida_mem, steptol::realtype)
-    ccall((:IDASetStepToleranceIC, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, steptol)
+    ccall((:IDASetStepToleranceIC, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, steptol)
 end
 
 function IDASetMaxBacksIC(ida_mem, maxbacks::Cint)
-    ccall((:IDASetMaxBacksIC, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxbacks)
+    ccall((:IDASetMaxBacksIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxbacks)
 end
 
 function IDASetMaxBacksIC(ida_mem, maxbacks)
@@ -2775,19 +2775,19 @@ function IDASetMaxBacksIC(ida_mem, maxbacks)
 end
 
 function IDASetErrHandlerFn(ida_mem, ehfun::IDAErrHandlerFn, eh_data)
-    ccall((:IDASetErrHandlerFn, libsundials_ida), Cint, (IDAMemPtr, IDAErrHandlerFn, Ptr{Cvoid}), ida_mem, ehfun, eh_data)
+    ccall((:IDASetErrHandlerFn, libsundials_idas), Cint, (IDAMemPtr, IDAErrHandlerFn, Ptr{Cvoid}), ida_mem, ehfun, eh_data)
 end
 
 function IDASetErrFile(ida_mem, errfp)
-    ccall((:IDASetErrFile, libsundials_ida), Cint, (IDAMemPtr, Ptr{Libc.FILE}), ida_mem, errfp)
+    ccall((:IDASetErrFile, libsundials_idas), Cint, (IDAMemPtr, Ptr{Libc.FILE}), ida_mem, errfp)
 end
 
 function IDASetUserData(ida_mem, user_data)
-    ccall((:IDASetUserData, libsundials_ida), Cint, (IDAMemPtr, Any), ida_mem, user_data)
+    ccall((:IDASetUserData, libsundials_idas), Cint, (IDAMemPtr, Any), ida_mem, user_data)
 end
 
 function IDASetMaxOrd(ida_mem, maxord::Cint)
-    ccall((:IDASetMaxOrd, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxord)
+    ccall((:IDASetMaxOrd, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxord)
 end
 
 function IDASetMaxOrd(ida_mem, maxord)
@@ -2795,7 +2795,7 @@ function IDASetMaxOrd(ida_mem, maxord)
 end
 
 function IDASetMaxNumSteps(ida_mem, mxsteps::Clong)
-    ccall((:IDASetMaxNumSteps, libsundials_ida), Cint, (IDAMemPtr, Clong), ida_mem, mxsteps)
+    ccall((:IDASetMaxNumSteps, libsundials_idas), Cint, (IDAMemPtr, Clong), ida_mem, mxsteps)
 end
 
 function IDASetMaxNumSteps(ida_mem, mxsteps)
@@ -2803,23 +2803,23 @@ function IDASetMaxNumSteps(ida_mem, mxsteps)
 end
 
 function IDASetInitStep(ida_mem, hin::realtype)
-    ccall((:IDASetInitStep, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, hin)
+    ccall((:IDASetInitStep, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, hin)
 end
 
 function IDASetMaxStep(ida_mem, hmax::realtype)
-    ccall((:IDASetMaxStep, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, hmax)
+    ccall((:IDASetMaxStep, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, hmax)
 end
 
 function IDASetStopTime(ida_mem, tstop::realtype)
-    ccall((:IDASetStopTime, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, tstop)
+    ccall((:IDASetStopTime, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, tstop)
 end
 
 function IDASetNonlinConvCoef(ida_mem, epcon::realtype)
-    ccall((:IDASetNonlinConvCoef, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, epcon)
+    ccall((:IDASetNonlinConvCoef, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, epcon)
 end
 
 function IDASetMaxErrTestFails(ida_mem, maxnef::Cint)
-    ccall((:IDASetMaxErrTestFails, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxnef)
+    ccall((:IDASetMaxErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnef)
 end
 
 function IDASetMaxErrTestFails(ida_mem, maxnef)
@@ -2827,7 +2827,7 @@ function IDASetMaxErrTestFails(ida_mem, maxnef)
 end
 
 function IDASetMaxNonlinIters(ida_mem, maxcor::Cint)
-    ccall((:IDASetMaxNonlinIters, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxcor)
+    ccall((:IDASetMaxNonlinIters, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxcor)
 end
 
 function IDASetMaxNonlinIters(ida_mem, maxcor)
@@ -2835,7 +2835,7 @@ function IDASetMaxNonlinIters(ida_mem, maxcor)
 end
 
 function IDASetMaxConvFails(ida_mem, maxncf::Cint)
-    ccall((:IDASetMaxConvFails, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, maxncf)
+    ccall((:IDASetMaxConvFails, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxncf)
 end
 
 function IDASetMaxConvFails(ida_mem, maxncf)
@@ -2843,7 +2843,7 @@ function IDASetMaxConvFails(ida_mem, maxncf)
 end
 
 function IDASetSuppressAlg(ida_mem, suppressalg::Cint)
-    ccall((:IDASetSuppressAlg, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, suppressalg)
+    ccall((:IDASetSuppressAlg, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, suppressalg)
 end
 
 function IDASetSuppressAlg(ida_mem, suppressalg)
@@ -2851,7 +2851,7 @@ function IDASetSuppressAlg(ida_mem, suppressalg)
 end
 
 function IDASetId(ida_mem, id::N_Vector)
-    ccall((:IDASetId, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, id)
+    ccall((:IDASetId, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, id)
 end
 
 function IDASetId(ida_mem, id)
@@ -2860,7 +2860,7 @@ function IDASetId(ida_mem, id)
 end
 
 function IDASetConstraints(ida_mem, constraints::N_Vector)
-    ccall((:IDASetConstraints, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, constraints)
+    ccall((:IDASetConstraints, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, constraints)
 end
 
 function IDASetConstraints(ida_mem, constraints)
@@ -2869,11 +2869,11 @@ function IDASetConstraints(ida_mem, constraints)
 end
 
 function IDASetNonlinearSolver(ida_mem, NLS::SUNNonlinearSolver)
-    ccall((:IDASetNonlinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNNonlinearSolver), ida_mem, NLS)
+    ccall((:IDASetNonlinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNNonlinearSolver), ida_mem, NLS)
 end
 
 function IDARootInit(ida_mem, nrtfn::Cint, g::IDARootFn)
-    ccall((:IDARootInit, libsundials_ida), Cint, (IDAMemPtr, Cint, IDARootFn), ida_mem, nrtfn, g)
+    ccall((:IDARootInit, libsundials_idas), Cint, (IDAMemPtr, Cint, IDARootFn), ida_mem, nrtfn, g)
 end
 
 function IDARootInit(ida_mem, nrtfn, g)
@@ -2881,15 +2881,15 @@ function IDARootInit(ida_mem, nrtfn, g)
 end
 
 function IDASetRootDirection(ida_mem, rootdir)
-    ccall((:IDASetRootDirection, libsundials_ida), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, rootdir)
+    ccall((:IDASetRootDirection, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, rootdir)
 end
 
 function IDASetNoInactiveRootWarn(ida_mem)
-    ccall((:IDASetNoInactiveRootWarn, libsundials_ida), Cint, (IDAMemPtr,), ida_mem)
+    ccall((:IDASetNoInactiveRootWarn, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
 function IDASolve(ida_mem, tout::realtype, tret, yret::N_Vector, ypret::N_Vector, itask::Cint)
-    ccall((:IDASolve, libsundials_ida), Cint, (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint), ida_mem, tout, tret, yret, ypret, itask)
+    ccall((:IDASolve, libsundials_idas), Cint, (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint), ida_mem, tout, tret, yret, ypret, itask)
 end
 
 function IDASolve(ida_mem, tout, tret, yret, ypret, itask)
@@ -2899,7 +2899,7 @@ function IDASolve(ida_mem, tout, tret, yret, ypret, itask)
 end
 
 function IDAComputeY(ida_mem, ycor::N_Vector, y::N_Vector)
-    ccall((:IDAComputeY, libsundials_ida), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, ycor, y)
+    ccall((:IDAComputeY, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, ycor, y)
 end
 
 function IDAComputeY(ida_mem, ycor, y)
@@ -2909,7 +2909,7 @@ function IDAComputeY(ida_mem, ycor, y)
 end
 
 function IDAComputeYp(ida_mem, ycor::N_Vector, yp::N_Vector)
-    ccall((:IDAComputeYp, libsundials_ida), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, ycor, yp)
+    ccall((:IDAComputeYp, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, ycor, yp)
 end
 
 function IDAComputeYp(ida_mem, ycor, yp)
@@ -2919,7 +2919,7 @@ function IDAComputeYp(ida_mem, ycor, yp)
 end
 
 function IDAGetDky(ida_mem, t::realtype, k::Cint, dky::N_Vector)
-    ccall((:IDAGetDky, libsundials_ida), Cint, (IDAMemPtr, realtype, Cint, N_Vector), ida_mem, t, k, dky)
+    ccall((:IDAGetDky, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint, N_Vector), ida_mem, t, k, dky)
 end
 
 function IDAGetDky(ida_mem, t, k, dky)
@@ -2928,31 +2928,31 @@ function IDAGetDky(ida_mem, t, k, dky)
 end
 
 function IDAGetWorkSpace(ida_mem, lenrw, leniw)
-    ccall((:IDAGetWorkSpace, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrw, leniw)
+    ccall((:IDAGetWorkSpace, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrw, leniw)
 end
 
 function IDAGetNumSteps(ida_mem, nsteps)
-    ccall((:IDAGetNumSteps, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nsteps)
+    ccall((:IDAGetNumSteps, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nsteps)
 end
 
 function IDAGetNumResEvals(ida_mem, nrevals)
-    ccall((:IDAGetNumResEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevals)
+    ccall((:IDAGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevals)
 end
 
 function IDAGetNumLinSolvSetups(ida_mem, nlinsetups)
-    ccall((:IDAGetNumLinSolvSetups, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nlinsetups)
+    ccall((:IDAGetNumLinSolvSetups, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nlinsetups)
 end
 
 function IDAGetNumErrTestFails(ida_mem, netfails)
-    ccall((:IDAGetNumErrTestFails, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, netfails)
+    ccall((:IDAGetNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, netfails)
 end
 
 function IDAGetNumBacktrackOps(ida_mem, nbacktr)
-    ccall((:IDAGetNumBacktrackOps, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nbacktr)
+    ccall((:IDAGetNumBacktrackOps, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nbacktr)
 end
 
 function IDAGetConsistentIC(ida_mem, yy0_mod::N_Vector, yp0_mod::N_Vector)
-    ccall((:IDAGetConsistentIC, libsundials_ida), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, yy0_mod, yp0_mod)
+    ccall((:IDAGetConsistentIC, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem, yy0_mod, yp0_mod)
 end
 
 function IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod)
@@ -2962,47 +2962,47 @@ function IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod)
 end
 
 function IDAGetLastOrder(ida_mem, klast)
-    ccall((:IDAGetLastOrder, libsundials_ida), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, klast)
+    ccall((:IDAGetLastOrder, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, klast)
 end
 
 function IDAGetCurrentOrder(ida_mem, kcur)
-    ccall((:IDAGetCurrentOrder, libsundials_ida), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, kcur)
+    ccall((:IDAGetCurrentOrder, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, kcur)
 end
 
 function IDAGetCurrentCj(ida_mem, cj)
-    ccall((:IDAGetCurrentCj, libsundials_ida), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, cj)
+    ccall((:IDAGetCurrentCj, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, cj)
 end
 
 function IDAGetCurrentY(ida_mem, ycur)
-    ccall((:IDAGetCurrentY, libsundials_ida), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem, ycur)
+    ccall((:IDAGetCurrentY, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem, ycur)
 end
 
 function IDAGetCurrentYp(ida_mem, ypcur)
-    ccall((:IDAGetCurrentYp, libsundials_ida), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem, ypcur)
+    ccall((:IDAGetCurrentYp, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem, ypcur)
 end
 
 function IDAGetActualInitStep(ida_mem, hinused)
-    ccall((:IDAGetActualInitStep, libsundials_ida), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, hinused)
+    ccall((:IDAGetActualInitStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, hinused)
 end
 
 function IDAGetLastStep(ida_mem, hlast)
-    ccall((:IDAGetLastStep, libsundials_ida), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, hlast)
+    ccall((:IDAGetLastStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, hlast)
 end
 
 function IDAGetCurrentStep(ida_mem, hcur)
-    ccall((:IDAGetCurrentStep, libsundials_ida), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, hcur)
+    ccall((:IDAGetCurrentStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, hcur)
 end
 
 function IDAGetCurrentTime(ida_mem, tcur)
-    ccall((:IDAGetCurrentTime, libsundials_ida), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, tcur)
+    ccall((:IDAGetCurrentTime, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, tcur)
 end
 
 function IDAGetTolScaleFactor(ida_mem, tolsfact)
-    ccall((:IDAGetTolScaleFactor, libsundials_ida), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, tolsfact)
+    ccall((:IDAGetTolScaleFactor, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem, tolsfact)
 end
 
 function IDAGetErrWeights(ida_mem, eweight::N_Vector)
-    ccall((:IDAGetErrWeights, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, eweight)
+    ccall((:IDAGetErrWeights, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, eweight)
 end
 
 function IDAGetErrWeights(ida_mem, eweight)
@@ -3011,7 +3011,7 @@ function IDAGetErrWeights(ida_mem, eweight)
 end
 
 function IDAGetEstLocalErrors(ida_mem, ele::N_Vector)
-    ccall((:IDAGetEstLocalErrors, libsundials_ida), Cint, (IDAMemPtr, N_Vector), ida_mem, ele)
+    ccall((:IDAGetEstLocalErrors, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, ele)
 end
 
 function IDAGetEstLocalErrors(ida_mem, ele)
@@ -3020,31 +3020,31 @@ function IDAGetEstLocalErrors(ida_mem, ele)
 end
 
 function IDAGetNumGEvals(ida_mem, ngevals)
-    ccall((:IDAGetNumGEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, ngevals)
+    ccall((:IDAGetNumGEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, ngevals)
 end
 
 function IDAGetRootInfo(ida_mem, rootsfound)
-    ccall((:IDAGetRootInfo, libsundials_ida), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, rootsfound)
+    ccall((:IDAGetRootInfo, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, rootsfound)
 end
 
 function IDAGetIntegratorStats(ida_mem, nsteps, nrevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur)
-    ccall((:IDAGetIntegratorStats, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint}, Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), ida_mem, nsteps, nrevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur)
+    ccall((:IDAGetIntegratorStats, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint}, Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), ida_mem, nsteps, nrevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur)
 end
 
 function IDAGetNumNonlinSolvIters(ida_mem, nniters)
-    ccall((:IDAGetNumNonlinSolvIters, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nniters)
+    ccall((:IDAGetNumNonlinSolvIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nniters)
 end
 
 function IDAGetNumNonlinSolvConvFails(ida_mem, nncfails)
-    ccall((:IDAGetNumNonlinSolvConvFails, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nncfails)
+    ccall((:IDAGetNumNonlinSolvConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nncfails)
 end
 
 function IDAGetNonlinSolvStats(ida_mem, nniters, nncfails)
-    ccall((:IDAGetNonlinSolvStats, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nniters, nncfails)
+    ccall((:IDAGetNonlinSolvStats, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nniters, nncfails)
 end
 
 function IDAGetReturnFlagName(flag::Clong)
-    ccall((:IDAGetReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
+    ccall((:IDAGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDAGetReturnFlagName(flag)
@@ -3052,51 +3052,51 @@ function IDAGetReturnFlagName(flag)
 end
 
 function IDAFree(ida_mem)
-    ccall((:IDAFree, libsundials_ida), Cvoid, (Ref{IDAMemPtr},), ida_mem)
+    ccall((:IDAFree, libsundials_idas), Cvoid, (Ref{IDAMemPtr},), ida_mem)
 end
 
 function IDABBDPrecInit(ida_mem, Nlocal::sunindextype, mudq::sunindextype, mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype, dq_rel_yy::realtype, Gres::IDABBDLocalFn, Gcomm::IDABBDCommFn)
-    ccall((:IDABBDPrecInit, libsundials_ida), Cint, (IDAMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, IDABBDLocalFn, IDABBDCommFn), ida_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_yy, Gres, Gcomm)
+    ccall((:IDABBDPrecInit, libsundials_idas), Cint, (IDAMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, IDABBDLocalFn, IDABBDCommFn), ida_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dq_rel_yy, Gres, Gcomm)
 end
 
 function IDABBDPrecReInit(ida_mem, mudq::sunindextype, mldq::sunindextype, dq_rel_yy::realtype)
-    ccall((:IDABBDPrecReInit, libsundials_ida), Cint, (IDAMemPtr, sunindextype, sunindextype, realtype), ida_mem, mudq, mldq, dq_rel_yy)
+    ccall((:IDABBDPrecReInit, libsundials_idas), Cint, (IDAMemPtr, sunindextype, sunindextype, realtype), ida_mem, mudq, mldq, dq_rel_yy)
 end
 
 function IDABBDPrecGetWorkSpace(ida_mem, lenrwBBDP, leniwBBDP)
-    ccall((:IDABBDPrecGetWorkSpace, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwBBDP, leniwBBDP)
+    ccall((:IDABBDPrecGetWorkSpace, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwBBDP, leniwBBDP)
 end
 
 function IDABBDPrecGetNumGfnEvals(ida_mem, ngevalsBBDP)
-    ccall((:IDABBDPrecGetNumGfnEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, ngevalsBBDP)
+    ccall((:IDABBDPrecGetNumGfnEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, ngevalsBBDP)
 end
 
 function IDADlsSetLinearSolver(ida_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:IDADlsSetLinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
+    ccall((:IDADlsSetLinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
 end
 
 function IDADlsSetJacFn(ida_mem, jac::IDADlsJacFn)
-    ccall((:IDADlsSetJacFn, libsundials_ida), Cint, (IDAMemPtr, IDADlsJacFn), ida_mem, jac)
+    ccall((:IDADlsSetJacFn, libsundials_idas), Cint, (IDAMemPtr, IDADlsJacFn), ida_mem, jac)
 end
 
 function IDADlsGetWorkSpace(ida_mem, lenrwLS, leniwLS)
-    ccall((:IDADlsGetWorkSpace, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
+    ccall((:IDADlsGetWorkSpace, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
 end
 
 function IDADlsGetNumJacEvals(ida_mem, njevals)
-    ccall((:IDADlsGetNumJacEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njevals)
+    ccall((:IDADlsGetNumJacEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njevals)
 end
 
 function IDADlsGetNumResEvals(ida_mem, nrevalsLS)
-    ccall((:IDADlsGetNumResEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevalsLS)
+    ccall((:IDADlsGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevalsLS)
 end
 
 function IDADlsGetLastFlag(ida_mem, flag)
-    ccall((:IDADlsGetLastFlag, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
+    ccall((:IDADlsGetLastFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
 end
 
 function IDADlsGetReturnFlagName(flag::Clong)
-    ccall((:IDADlsGetReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
+    ccall((:IDADlsGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDADlsGetReturnFlagName(flag)
@@ -3104,27 +3104,27 @@ function IDADlsGetReturnFlagName(flag)
 end
 
 function IDASetLinearSolver(ida_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:IDASetLinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
+    ccall((:IDASetLinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
 end
 
 function IDASetJacFn(ida_mem, jac::IDALsJacFn)
-    ccall((:IDASetJacFn, libsundials_ida), Cint, (IDAMemPtr, IDALsJacFn), ida_mem, jac)
+    ccall((:IDASetJacFn, libsundials_idas), Cint, (IDAMemPtr, IDALsJacFn), ida_mem, jac)
 end
 
 function IDASetPreconditioner(ida_mem, pset::IDALsPrecSetupFn, psolve::IDALsPrecSolveFn)
-    ccall((:IDASetPreconditioner, libsundials_ida), Cint, (IDAMemPtr, IDALsPrecSetupFn, IDALsPrecSolveFn), ida_mem, pset, psolve)
+    ccall((:IDASetPreconditioner, libsundials_idas), Cint, (IDAMemPtr, IDALsPrecSetupFn, IDALsPrecSolveFn), ida_mem, pset, psolve)
 end
 
 function IDASetJacTimes(ida_mem, jtsetup::IDALsJacTimesSetupFn, jtimes::IDALsJacTimesVecFn)
-    ccall((:IDASetJacTimes, libsundials_ida), Cint, (IDAMemPtr, IDALsJacTimesSetupFn, IDALsJacTimesVecFn), ida_mem, jtsetup, jtimes)
+    ccall((:IDASetJacTimes, libsundials_idas), Cint, (IDAMemPtr, IDALsJacTimesSetupFn, IDALsJacTimesVecFn), ida_mem, jtsetup, jtimes)
 end
 
 function IDASetEpsLin(ida_mem, eplifac::realtype)
-    ccall((:IDASetEpsLin, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
+    ccall((:IDASetEpsLin, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
 end
 
 function IDASetLinearSolutionScaling(ida_mem, onoff::Cint)
-    ccall((:IDASetLinearSolutionScaling, libsundials_ida), Cint, (IDAMemPtr, Cint), ida_mem, onoff)
+    ccall((:IDASetLinearSolutionScaling, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, onoff)
 end
 
 function IDASetLinearSolutionScaling(ida_mem, onoff)
@@ -3132,51 +3132,51 @@ function IDASetLinearSolutionScaling(ida_mem, onoff)
 end
 
 function IDASetIncrementFactor(ida_mem, dqincfac::realtype)
-    ccall((:IDASetIncrementFactor, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, dqincfac)
+    ccall((:IDASetIncrementFactor, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, dqincfac)
 end
 
 function IDAGetLinWorkSpace(ida_mem, lenrwLS, leniwLS)
-    ccall((:IDAGetLinWorkSpace, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
+    ccall((:IDAGetLinWorkSpace, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
 end
 
 function IDAGetNumJacEvals(ida_mem, njevals)
-    ccall((:IDAGetNumJacEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njevals)
+    ccall((:IDAGetNumJacEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njevals)
 end
 
 function IDAGetNumPrecEvals(ida_mem, npevals)
-    ccall((:IDAGetNumPrecEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npevals)
+    ccall((:IDAGetNumPrecEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npevals)
 end
 
 function IDAGetNumPrecSolves(ida_mem, npsolves)
-    ccall((:IDAGetNumPrecSolves, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npsolves)
+    ccall((:IDAGetNumPrecSolves, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npsolves)
 end
 
 function IDAGetNumLinIters(ida_mem, nliters)
-    ccall((:IDAGetNumLinIters, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nliters)
+    ccall((:IDAGetNumLinIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nliters)
 end
 
 function IDAGetNumLinConvFails(ida_mem, nlcfails)
-    ccall((:IDAGetNumLinConvFails, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nlcfails)
+    ccall((:IDAGetNumLinConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nlcfails)
 end
 
 function IDAGetNumJTSetupEvals(ida_mem, njtsetups)
-    ccall((:IDAGetNumJTSetupEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njtsetups)
+    ccall((:IDAGetNumJTSetupEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njtsetups)
 end
 
 function IDAGetNumJtimesEvals(ida_mem, njvevals)
-    ccall((:IDAGetNumJtimesEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njvevals)
+    ccall((:IDAGetNumJtimesEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njvevals)
 end
 
 function IDAGetNumLinResEvals(ida_mem, nrevalsLS)
-    ccall((:IDAGetNumLinResEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevalsLS)
+    ccall((:IDAGetNumLinResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevalsLS)
 end
 
 function IDAGetLastLinFlag(ida_mem, flag)
-    ccall((:IDAGetLastLinFlag, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
+    ccall((:IDAGetLastLinFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
 end
 
 function IDAGetLinReturnFlagName(flag::Clong)
-    ccall((:IDAGetLinReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
+    ccall((:IDAGetLinReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDAGetLinReturnFlagName(flag)
@@ -3184,63 +3184,63 @@ function IDAGetLinReturnFlagName(flag)
 end
 
 function IDASpilsSetLinearSolver(ida_mem, LS::SUNLinearSolver)
-    ccall((:IDASpilsSetLinearSolver, libsundials_ida), Cint, (IDAMemPtr, SUNLinearSolver), ida_mem, LS)
+    ccall((:IDASpilsSetLinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNLinearSolver), ida_mem, LS)
 end
 
 function IDASpilsSetPreconditioner(ida_mem, pset::IDASpilsPrecSetupFn, psolve::IDASpilsPrecSolveFn)
-    ccall((:IDASpilsSetPreconditioner, libsundials_ida), Cint, (IDAMemPtr, IDASpilsPrecSetupFn, IDASpilsPrecSolveFn), ida_mem, pset, psolve)
+    ccall((:IDASpilsSetPreconditioner, libsundials_idas), Cint, (IDAMemPtr, IDASpilsPrecSetupFn, IDASpilsPrecSolveFn), ida_mem, pset, psolve)
 end
 
 function IDASpilsSetJacTimes(ida_mem, jtsetup::IDASpilsJacTimesSetupFn, jtimes::IDASpilsJacTimesVecFn)
-    ccall((:IDASpilsSetJacTimes, libsundials_ida), Cint, (IDAMemPtr, IDASpilsJacTimesSetupFn, IDASpilsJacTimesVecFn), ida_mem, jtsetup, jtimes)
+    ccall((:IDASpilsSetJacTimes, libsundials_idas), Cint, (IDAMemPtr, IDASpilsJacTimesSetupFn, IDASpilsJacTimesVecFn), ida_mem, jtsetup, jtimes)
 end
 
 function IDASpilsSetEpsLin(ida_mem, eplifac::realtype)
-    ccall((:IDASpilsSetEpsLin, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
+    ccall((:IDASpilsSetEpsLin, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
 end
 
 function IDASpilsSetIncrementFactor(ida_mem, dqincfac::realtype)
-    ccall((:IDASpilsSetIncrementFactor, libsundials_ida), Cint, (IDAMemPtr, realtype), ida_mem, dqincfac)
+    ccall((:IDASpilsSetIncrementFactor, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, dqincfac)
 end
 
 function IDASpilsGetWorkSpace(ida_mem, lenrwLS, leniwLS)
-    ccall((:IDASpilsGetWorkSpace, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
+    ccall((:IDASpilsGetWorkSpace, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
 end
 
 function IDASpilsGetNumPrecEvals(ida_mem, npevals)
-    ccall((:IDASpilsGetNumPrecEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npevals)
+    ccall((:IDASpilsGetNumPrecEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npevals)
 end
 
 function IDASpilsGetNumPrecSolves(ida_mem, npsolves)
-    ccall((:IDASpilsGetNumPrecSolves, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npsolves)
+    ccall((:IDASpilsGetNumPrecSolves, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, npsolves)
 end
 
 function IDASpilsGetNumLinIters(ida_mem, nliters)
-    ccall((:IDASpilsGetNumLinIters, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nliters)
+    ccall((:IDASpilsGetNumLinIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nliters)
 end
 
 function IDASpilsGetNumConvFails(ida_mem, nlcfails)
-    ccall((:IDASpilsGetNumConvFails, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nlcfails)
+    ccall((:IDASpilsGetNumConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nlcfails)
 end
 
 function IDASpilsGetNumJTSetupEvals(ida_mem, njtsetups)
-    ccall((:IDASpilsGetNumJTSetupEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njtsetups)
+    ccall((:IDASpilsGetNumJTSetupEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njtsetups)
 end
 
 function IDASpilsGetNumJtimesEvals(ida_mem, njvevals)
-    ccall((:IDASpilsGetNumJtimesEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njvevals)
+    ccall((:IDASpilsGetNumJtimesEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, njvevals)
 end
 
 function IDASpilsGetNumResEvals(ida_mem, nrevalsLS)
-    ccall((:IDASpilsGetNumResEvals, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevalsLS)
+    ccall((:IDASpilsGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, nrevalsLS)
 end
 
 function IDASpilsGetLastFlag(ida_mem, flag)
-    ccall((:IDASpilsGetLastFlag, libsundials_ida), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
+    ccall((:IDASpilsGetLastFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem, flag)
 end
 
 function IDASpilsGetReturnFlagName(flag::Clong)
-    ccall((:IDASpilsGetReturnFlagName, libsundials_ida), Cstring, (Clong,), flag)
+    ccall((:IDASpilsGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDASpilsGetReturnFlagName(flag)
