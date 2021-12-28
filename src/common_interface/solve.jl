@@ -1541,7 +1541,7 @@ function get_iters!(integrator::IDAIntegrator, iters)
     IDAGetNumSteps(integrator.mem, iters)
 end
 
-function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator, early_free = false)
+function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = false)
     uType = eltype(integrator.sol.u)
     iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)
