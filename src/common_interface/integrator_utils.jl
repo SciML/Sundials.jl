@@ -210,3 +210,65 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator)
         integrator.flag = IDACalcIC(integrator.mem, init_type, integrator.dt)
     end
 end
+
+DiffEqBase.has_reinit(integrator::AbstractSundialsIntegrator) = true
+function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,u0 = integrator.sol.prob.u0;
+  t0 = integrator.sol.prob.tspan[1], tf = integrator.sol.prob.tspan[2],
+  erase_sol = true,
+  tstops = integrator.opts.tstops_cache,
+  saveat = integrator.opts.saveat_cache,
+  reinit_callbacks = true, initialize_save = true,
+  reinit_cache = true)
+
+  if isinplace(integrator.sol.prob)
+    copyto!(integrator.u,u0)
+    copyto!(integrator.uprev,integrator.u)
+  else
+    integrator.u = u0
+    integrator.uprev = integrator.u
+  end
+
+  integrator.t = t0
+  integrator.tprev = t0
+
+  tType = typeof(integrator.t)
+  tspan = (tType(t0), tType(tf))
+  tdir = sign(tspan[2] - tspan[1])
+
+  tstops_internal, saveat_internal =
+      tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, eltype(integrator.t))
+
+  integrator.opts.tstops = tstops_internal
+  integrator.opts.saveat = saveat_internal
+
+  if erase_sol
+    if integrator.opts.save_start
+      resize_start = 1
+    else
+      resize_start = 0
+    end
+    resize!(integrator.sol.u,resize_start)
+    resize!(integrator.sol.t,resize_start)
+    if integrator.opts.save_start
+      integrator.sol.t[1] = t0
+      if integrator.opts.save_idxs === nothing
+        integrator.sol.u[1] = u0
+      else
+        u_initial = u0[integrator.opts.save_idxs]
+        integrator.sol.u[1] = u_initial
+      end
+    end
+    if integrator.sol.u_analytic !== nothing
+      resize!(integrator.sol.u_analytic,0)
+    end
+  end
+
+  integrator.u_modified = false
+  handle_callback_modifiers!(integrator)
+
+  if reinit_callbacks
+    initialize_callbacks!(integrator, initialize_save)
+  end
+
+  nothing
+end

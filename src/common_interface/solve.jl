@@ -12,7 +12,7 @@ function DiffEqBase.__solve(
 
     integrator = DiffEqBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
     if integrator.sol.retcode == :Default
-        solve!(integrator)
+        solve!(integrator,early_free = true)
     end
     integrator.sol
 end
@@ -422,6 +422,7 @@ function DiffEqBase.__init(
     opts = DEOptions(
         saveat_internal,
         tstops_internal,
+        saveat,tstops,save_start,
         save_everystep,save_idxs,
         dense,
         timeseries_errors,
@@ -935,6 +936,7 @@ function DiffEqBase.__init(
     opts = DEOptions(
         saveat_internal,
         tstops_internal,
+        saveat,tstops,save_start,
         save_everystep,save_idxs,
         dense,
         timeseries_errors,
@@ -1395,6 +1397,7 @@ function DiffEqBase.__init(
     opts = DEOptions(
         saveat_internal,
         tstops_internal,
+        saveat,tstops,save_start,
         save_everystep,save_idxs,
         dense,
         timeseries_errors,
@@ -1538,7 +1541,7 @@ function get_iters!(integrator::IDAIntegrator, iters)
     IDAGetNumSteps(integrator.mem, iters)
 end
 
-function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
+function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator, early_free = false)
     uType = eltype(integrator.sol.u)
     iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)
@@ -1597,9 +1600,12 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator)
     end
 
     fill_destats!(integrator)
-    empty!(integrator.mem)
-    integrator.A != nothing && empty!(integrator.A)
-    integrator.LS != nothing && empty!(integrator.LS)
+
+    if early_free
+        empty!(integrator.mem)
+        integrator.A != nothing && empty!(integrator.A)
+        integrator.LS != nothing && empty!(integrator.LS)
+    end
 
     if DiffEqBase.has_analytic(integrator.sol.prob.f)
         DiffEqBase.calculate_solution_errors!(
