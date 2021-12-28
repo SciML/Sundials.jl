@@ -15,3 +15,12 @@ end
 integrator.t == 1.0
 step!(integrator)
 integrator.t > 1.0
+
+reinit!(integrator)
+solve!(integrator)
+u1 = copy(integrator.u)
+reinit!(integrator)
+solve!(integrator)
+u2 = copy(integrator.u)
+@test u1 != vec(prob.u0)
+@test u1 == u2

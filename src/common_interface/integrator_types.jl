@@ -1,6 +1,9 @@
-mutable struct DEOptions{SType, TstopType, SIX, CType, reltolType, abstolType, F5}
+mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, reltolType, abstolType, F5}
     saveat::SType
     tstops::TstopType
+    saveat_cache::SType2
+    tstops_cache::TstopType2
+    save_start::Bool
     save_everystep::Bool
     save_idxs::SIX
     dense::Bool
