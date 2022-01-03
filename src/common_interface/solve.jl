@@ -134,6 +134,10 @@ function DiffEqBase.__init(
         error("Sundials only allows scalar reltol.")
     end
 
+    if length(prob.u0) <= 0
+        error("Sundials requires at least one state variable.")
+    end
+
     progress && Logging.@logmsg(-1, progress_name, _id = _id = :Sundials, progress = 0)
 
     callbacks_internal = DiffEqBase.CallbackSet(callback)
@@ -515,6 +519,10 @@ function DiffEqBase.__init(
 
     if typeof(reltol) <: AbstractArray
         error("Sundials only allows scalar reltol.")
+    end
+
+    if length(prob.u0) <= 0
+        error("Sundials requires at least one state variable.")
     end
 
     progress && Logging.@logmsg(-1, progress_name, _id = _id = :Sundials, progress = 0)
@@ -1081,6 +1089,10 @@ function DiffEqBase.__init(
 
     if typeof(reltol) <: AbstractArray
         error("Sundials only allows scalar reltol.")
+    end
+
+    if length(prob.u0) <= 0
+        error("Sundials requires at least one state variable.")
     end
 
     progress && Logging.@logmsg(-1, progress_name, _id = _id = :Sundials, progress = 0)
