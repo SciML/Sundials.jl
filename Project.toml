@@ -26,7 +26,8 @@ julia = "1.6"
 DiffEqOperators = "9fdde737-9c7f-55bf-ade8-46b3f136cc48"
 DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "DiffEqProblemLibrary", "ForwardDiff", "DiffEqOperators"]
+test = ["Test", "DiffEqProblemLibrary", "ForwardDiff", "DiffEqOperators", "SparseDiffTools"]
