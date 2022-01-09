@@ -81,4 +81,8 @@ end
     @testset "Mass Matrix" begin
         include("common_interface/mass_matrix.jl")
     end
+
+    @testset "Preconditioners" begin
+        include("common_interface/precs.jl")
+    end
 end
