@@ -211,12 +211,13 @@ function DiffEqBase.__init(
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
+    use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
     userfun = FunJac(
         f!,
         prob.f.jac,
         prob.p,
         nothing,
-        prob.f.jac_prototype,
+        use_jac_prototype ? prob.f.jac_prototype : nothing,
         alg.prec,
         alg.psetup,
         u0,
@@ -613,13 +614,14 @@ function DiffEqBase.__init(
                 Cint(0))
         end
 
+        use_jac_prototype = (isa(prob.f.f1.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
         userfun = FunJac(
             f1!,
             f2!,
             prob.f.f1.jac,
             prob.p,
             prob.f.mass_matrix,
-            prob.f.f1.jac_prototype,
+            use_jac_prototype ? prob.f.f1.jac_prototype : nothing,
             alg.prec,
             alg.psetup,
             u0,
@@ -638,12 +640,13 @@ function DiffEqBase.__init(
 
         mem = arkodemem(fi = cfj1, fe = cfj2)
     else
+        use_jac_prototype = (isa(prob.f.f1.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
         userfun = FunJac(
             f!,
             prob.f.jac,
             prob.p,
             prob.f.mass_matrix,
-            prob.f.jac_prototype,
+            use_jac_prototype ? prob.f.jac_prototype : nothing,
             alg.prec,
             alg.psetup,
             u0,
@@ -1165,20 +1168,19 @@ function DiffEqBase.__init(
     dutmp = NVector(_du0)
     rtest = zeros(length(u0))
 
+    use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) && LinearSolver ∈ SPARSE_SOLVERS)
     userfun = FunJac(
         f!,
         prob.f.jac,
         prob.p,
         nothing,
-        prob.f.jac_prototype,
+        use_jac_prototype ? prob.f.jac_prototype : nothing,
         alg.prec,
         alg.psetup,
         _u0,
         _du0,
         rtest,
     )
-
-    u0nv = NVector(u0)
 
     function getcfun(::T) where {T}
         @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
@@ -1250,7 +1252,7 @@ function DiffEqBase.__init(
         _A = nothing
         _LS = LinSolHandle(LS, PTFQMR())
     elseif LinearSolver == :KLU
-        @show nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
+        nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
         A = SUNSparseMatrix(length(u0), length(u0), nnz, Sundials.CSC_MAT)
         LS = SUNLinSol_KLU(u0, A)
         _A = MatrixHandle(A, SparseMatrix())
