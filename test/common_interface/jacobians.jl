@@ -98,3 +98,33 @@ sol4 = solve(prob4, IDA())
 println("Jacobian vs no Jacobian difference:")
 println(maximum(sol3 - sol4))
 @test maximum(sol3 - sol4) < 1e-6
+
+function testjac(res, du, u, p, t)
+    res[1] = du[1] - 1.5 * u[1] + 1.0 * u[1] * u[2]
+    res[2] = du[2] + 3 * u[2] - u[1] * u[2]
+end
+
+jac_called = false
+function testjac_jac(J, du, u, p, gamma, t)
+    global jac_called
+    jac_called = true
+    J[1, 1] = gamma - 1.5 + 1.0 * u[2]
+    J[1, 2] = 1.0 * u[1]
+    J[2, 1] = -1 * u[2]
+    J[2, 2] = gamma + 3 - u[1]
+    nothing
+end
+
+testjac_f = DAEFunction(testjac,
+jac = testjac_jac,
+jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4))
+)
+
+prob3 = DAEProblem(
+    testjac_f,
+    [0.5, -2.0],
+    ones(2),
+    (0.0, 10.0),
+    differential_vars = [true, true],
+)
+sol3 = solve(prob3, IDA(linear_solver = :KLU))
