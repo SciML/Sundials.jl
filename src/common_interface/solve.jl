@@ -640,7 +640,7 @@ function DiffEqBase.__init(
 
         mem = arkodemem(fi = cfj1, fe = cfj2)
     else
-        use_jac_prototype = (isa(prob.f.f1.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
+        use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
         userfun = FunJac(
             f!,
             prob.f.jac,
