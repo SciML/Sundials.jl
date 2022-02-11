@@ -47,7 +47,7 @@ function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC{Float6
     # own is false as memory is allocated by sundials
     indexvals = unsafe_wrap(Vector{Int}, mat.indexvals, (mat.NNZ), own = false)
     indexptrs = unsafe_wrap(Vector{Int}, mat.indexptrs, (mat.NP + 1), own = false)
-    data = unsafe_wrap(Matrix{Float64}, mat.data, (mat.NNZ), own = false)
+    data = unsafe_wrap(Vector{Float64}, mat.data, (mat.NNZ), own = false)
 
     if size(indexvals) != size(Acsc.rowval) || size(indexptrs) != size(Acsc.colptr)
         error("Sparsity Pattern in receiving SUNMatrix doesn't match sending SparseMatrix")
