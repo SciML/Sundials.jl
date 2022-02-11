@@ -77,7 +77,7 @@ function (integrator::CVODEIntegrator)(
 ) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : out[idxs]
+    return idxs === nothing ? out : out[idxs]
 end
 
 function (integrator::CVODEIntegrator)(
@@ -87,7 +87,7 @@ function (integrator::CVODEIntegrator)(
     idxs = nothing,
 ) where {T}
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : @view out[idxs]
+    return idxs === nothing ? out : @view out[idxs]
 end
 
 mutable struct ARKODEIntegrator{
@@ -145,7 +145,7 @@ function (integrator::ARKODEIntegrator)(
 ) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : out[idxs]
+    return idxs === nothing ? out : out[idxs]
 end
 
 function (integrator::ARKODEIntegrator)(
@@ -155,7 +155,7 @@ function (integrator::ARKODEIntegrator)(
     idxs = nothing,
 ) where {T}
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : @view out[idxs]
+    return idxs === nothing ? out : @view out[idxs]
 end
 
 mutable struct IDAIntegrator{
@@ -213,7 +213,7 @@ function (integrator::IDAIntegrator)(
 ) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : out[idxs]
+    return idxs === nothing ? out : out[idxs]
 end
 
 function (integrator::IDAIntegrator)(
@@ -223,7 +223,7 @@ function (integrator::IDAIntegrator)(
     idxs = nothing,
 ) where {T}
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
-    return idxs == nothing ? out : @view out[idxs]
+    return idxs === nothing ? out : @view out[idxs]
 end
 
 ###  Error check (retcode)

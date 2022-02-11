@@ -208,7 +208,6 @@ function DiffEqBase.__init(
 
     save_start ? ts = [t0] : ts = Float64[]
 
-    u0nv = NVector(u0)
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
@@ -230,7 +229,7 @@ function DiffEqBase.__init(
 
     flag = CVodeInit(mem, getcfunf(userfun), t0, convert(N_Vector, utmp))
 
-    dt != nothing && (flag = CVodeSetInitStep(mem, dt))
+    dt !== nothing && (flag = CVodeSetInitStep(mem, dt))
     flag = CVodeSetMinStep(mem, dtmin)
     flag = CVodeSetMaxStep(mem, dtmax)
     flag = CVodeSetUserData(mem, userfun)
@@ -386,8 +385,8 @@ function DiffEqBase.__init(
         CVodeSetPreconditioner(mem, psetupfun, precfun)
     end
 
-    callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
-    callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
+    callbacks_internal === nothing ? tmp = nothing : tmp = similar(u0)
+    callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
 
     if save_start
@@ -665,7 +664,7 @@ function DiffEqBase.__init(
         end
     end
 
-    dt != nothing && (flag = ARKStepSetInitStep(mem, dt))
+    dt !== nothing && (flag = ARKStepSetInitStep(mem, dt))
     flag = ARKStepSetMinStep(mem, dtmin)
     flag = ARKStepSetMaxStep(mem, dtmax)
     flag = ARKStepSetUserData(mem, userfun)
@@ -687,11 +686,11 @@ function DiffEqBase.__init(
     To choose an explicit table, set itable to a negative value. This automatically calls ARKStepSetExplicit(). However, if the problem is posed in explicit form, i.e. 𝑦 ̇ = 𝑓 (𝑡, 𝑦), then we recommend that the ERKStep time- stepper module be used instead of ARKStep.
     To select an implicit table, set etable to a negative value. This automatically calls ARKStepSetImplicit(). If both itable and etable are non-negative, then these should match an existing implicit/explicit pair, listed in the section Additive Butcher tables. This automatically calls ARKStepSetImEx().
     =#
-    if alg.itable == nothing && alg.etable == nothing
+    if alg.itable === nothing && alg.etable === nothing
         flag = ARKStepSetOrder(mem, alg.order)
-    elseif alg.itable == nothing && alg.etable != nothing
+    elseif alg.itable === nothing && alg.etable !== nothing
         flag = ARKStepSetTableNum(mem, -1, alg.etable)
-    elseif alg.itable != nothing && alg.etable == nothing
+    elseif alg.itable !== nothing && alg.etable === nothing
         flag = ARKStepSetTableNum(mem, alg.itable, -1)
     else
         flag = ARKStepSetTableNum(mem, alg.itable, alg.etable)
@@ -904,8 +903,8 @@ function DiffEqBase.__init(
         ARKStepSetPreconditioner(mem, psetupfun, precfun)
     end
 
-    callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
-    callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
+    callbacks_internal === nothing ? tmp = nothing : tmp = similar(u0)
+    callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
     tout = [tspan[1]]
 
     if save_start
@@ -1072,7 +1071,7 @@ function DiffEqBase.__init(
     save_timeseries = nothing,
     save_end = true,
     progress = false,
-    progress_name = "ODE",
+    progress_name = "DAE IDA",
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
     advance_to_tstop = false,
     stop_at_next_tstop = false,
@@ -1186,7 +1185,7 @@ function DiffEqBase.__init(
     end
     cfun = getcfun(userfun)
     flag = IDAInit(mem, cfun, t0, convert(N_Vector, utmp), convert(N_Vector, dutmp))
-    dt != nothing && (flag = IDASetInitStep(mem, dt))
+    dt !== nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
     if typeof(abstol) <: Array
@@ -1251,7 +1250,7 @@ function DiffEqBase.__init(
         _A = nothing
         _LS = LinSolHandle(LS, PTFQMR())
     elseif LinearSolver == :KLU
-        nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
+        @show nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
         A = SUNSparseMatrix(length(u0), length(u0), nnz, Sundials.CSC_MAT)
         LS = SUNLinSol_KLU(u0, A)
         _A = MatrixHandle(A, SparseMatrix())
@@ -1347,10 +1346,10 @@ function DiffEqBase.__init(
         if prob.differential_vars === nothing && !alg.init_all
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
         end
-        prob.differential_vars != nothing &&
+        prob.differential_vars !== nothing &&
             (flag = IDASetId(mem, collect(Float64, prob.differential_vars)))
 
-        if dt != nothing
+        if dt !== nothing
             _t = float(dt)
         else
             _t = float(tspan[2])
@@ -1382,8 +1381,8 @@ function DiffEqBase.__init(
         dures = Vector{uType}()
     end
 
-    callbacks_internal == nothing ? tmp = nothing : tmp = similar(u0)
-    callbacks_internal == nothing ? uprev = nothing : uprev = similar(u0)
+    callbacks_internal === nothing ? tmp = nothing : tmp = similar(u0)
+    callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
 
     if flag >= 0
         retcode = :Default
@@ -1615,8 +1614,8 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
 
     if early_free
         empty!(integrator.mem)
-        integrator.A != nothing && empty!(integrator.A)
-        integrator.LS != nothing && empty!(integrator.LS)
+        integrator.A !== nothing && empty!(integrator.A)
+        integrator.LS !== nothing && empty!(integrator.LS)
     end
 
     if DiffEqBase.has_analytic(integrator.sol.prob.f)
