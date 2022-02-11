@@ -54,6 +54,8 @@ const libsundials_sunnonlinsol = libsundials_cvode
 # sunmatrix has been renamed to sunmatrix[dense/sparse/band]
 # const libsundials_sunmatrix = libsundials_cvode
 
+const SPARSE_SOLVERS = (:KLU,)
+
 include("../lib/libsundials_common.jl")
 include("types_and_consts_additions.jl")
 
