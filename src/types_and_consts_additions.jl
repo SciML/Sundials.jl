@@ -40,19 +40,23 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
 end
 
 # sparse SUNMatrix uses zero-offset indices, so provide copyto!, not convert
-function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC)
+function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC{Float64, Int64})
     _sunmat = unsafe_load(Asun)
     _mat = convert(SUNMatrixContent_Sparse, _sunmat.content)
     mat = unsafe_load(_mat)
-    # own is false as memory is allocated by sundials    
-    indexvals = unsafe_wrap(Array, mat.indexvals, (mat.NNZ), own = false)
-    indexptrs = unsafe_wrap(Array, mat.indexptrs, (mat.NP + 1), own = false)
-    data = unsafe_wrap(Array, mat.data, (mat.NNZ), own = false)
+    # own is false as memory is allocated by sundials
+    indexvals = unsafe_wrap(Vector{Int}, mat.indexvals, (mat.NNZ), own = false)
+    indexptrs = unsafe_wrap(Vector{Int}, mat.indexptrs, (mat.NP + 1), own = false)
+    data = unsafe_wrap(Matrix{Float64}, mat.data, (mat.NNZ), own = false)
+
+    if size(indexvals) != size(Acsc.rowval) || size(indexptrs) != size(Acsc.colptr)
+        error("Sparsity Pattern in receiving SUNMatrix doesn't match sending SparseMatrix")
+    end
 
     @. indexvals = Acsc.rowval - 1
     @. indexptrs = Acsc.colptr - 1
     data .= Acsc.nzval
-    
+
     return nothing
 end
 
