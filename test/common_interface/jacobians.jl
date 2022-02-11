@@ -120,11 +120,25 @@ jac = testjac_jac,
 jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4))
 )
 
-prob3 = DAEProblem(
+prob5 = DAEProblem(
     testjac_f,
     [0.5, -2.0],
     ones(2),
     (0.0, 10.0),
     differential_vars = [true, true],
 )
-sol3 = solve(prob3, IDA(linear_solver = :KLU))
+sol5 = solve(prob5, IDA())
+
+testjac_f = DAEFunction(testjac,
+jac = testjac_jac,
+jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4))
+)
+prob6 = DAEProblem(
+    testjac_f,
+    [0.5, -2.0],
+    ones(2),
+    (0.0, 10.0),
+    differential_vars = [true, true],
+)
+sol6 = solve(prob6, IDA(linear_solver = :KLU))
+@test maximum(sol5 - sol6) < 1e-6
