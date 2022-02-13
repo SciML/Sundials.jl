@@ -1252,7 +1252,11 @@ function DiffEqBase.__init(
         _A = nothing
         _LS = LinSolHandle(LS, PTFQMR())
     elseif LinearSolver == :KLU
-        nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
+        if prob.f.jac_prototype !== nothing
+            nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
+        else
+            nnz = length(u0)*length(u0)
+        end
         A = SUNSparseMatrix(length(u0), length(u0), nnz, Sundials.CSC_MAT)
         LS = SUNLinSol_KLU(u0, A)
         _A = MatrixHandle(A, SparseMatrix())
