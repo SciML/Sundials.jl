@@ -14,7 +14,7 @@ end
     SUPPORT_CFUNCTION && @testset "Roberts CVODE Direct" begin
         include("cvode_Roberts_dns.jl")
     end
-    @testset "CVODES Direct" begin include("cvodes_dns.jl") end
+    #@testset "CVODES Direct" begin include("cvodes_dns.jl") end
 end
 
 @testset "IDA" begin
