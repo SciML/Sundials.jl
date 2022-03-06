@@ -400,10 +400,10 @@ function DiffEqBase.__init(
                 save_value!(dures, utmp, uType, sizeu, save_idxs)
             end
         else
-            ures = u0[save_idxs]
+            ures = [u0[save_idxs]]
             if dense
                 f!(_u0, u0, prob.p, tspan[1])
-                dures = _u0[save_idxs]
+                dures = [_u0[save_idxs]]
             end
         end
     else
@@ -920,10 +920,10 @@ function DiffEqBase.__init(
                 save_value!(dures, utmp, uType, sizeu, save_idxs)
             end
         else
-            ures = u0[save_idxs]
+            ures = [u0[save_idxs]]
             if dense
                 f!(_u0, u0, prob.p, tspan[1])
-                dures = _u0[save_idxs]
+                dures = [_u0[save_idxs]]
             end
         end
     else
@@ -1373,9 +1373,9 @@ function DiffEqBase.__init(
                 save_value!(dures, du0, uType, sizedu, save_idxs)
             end
         else
-            ures = u0[save_idxs]
+            ures = [u0[save_idxs]]
             if dense
-                dures = du0[save_idxs]
+                dures = [du0[save_idxs]]
             end
         end
     else

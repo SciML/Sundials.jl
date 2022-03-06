@@ -47,7 +47,7 @@ function DiffEqBase.savevalues!(
 )::Tuple{Bool, Bool}
     saved, savedexactly = false, false
     !integrator.opts.save_on && return saved, savedexactly
-    uType = eltype(integrator.sol.u)
+    uType = typeof(integrator.u)
     # The call to first is an overload of Base.first implemented in DataStructures
     while !isempty(integrator.opts.saveat) &&
         integrator.tdir * first(integrator.opts.saveat) < integrator.tdir * integrator.t
