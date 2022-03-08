@@ -55,9 +55,9 @@ sol = solve(prob, CVODE_Adams(), tstops = [0.9])
 sol = solve(prob, CVODE_Adams())
 sol_idxs = solve(prob, CVODE_Adams(), save_idxs = [1], timeseries_errors = false)
 
-@test sol[1, :] == sol_idxs[:]
+@test sol[1, :] == sol_idxs[1, :]
 
-sol_idxs = solve(prob, CVODE_Adams(), save_idxs = [1, 2], timeseries_errors = false)
+sol = solve(prob, CVODE_Adams(), save_idxs = [1, 2], timeseries_errors = false, calculate_error = false)
 @test length(sol[1]) == 2
 @test sol[1, :] == sol_idxs[1, :]
 @test sol[2, :] == sol_idxs[2, :]
