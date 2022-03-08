@@ -7,12 +7,13 @@ function DiffEqBase.__solve(
     ts = [],
     ks = [],
     recompile::Type{Val{recompile_flag}} = Val{true};
+    calculate_error = true,
     kwargs...,
 ) where {algType <: Union{SundialsODEAlgorithm, SundialsDAEAlgorithm}, recompile_flag}
 
     integrator = DiffEqBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
     if integrator.sol.retcode == :Default
-        solve!(integrator,early_free = true)
+        solve!(integrator, early_free = true, calculate_error = calculate_error)
     end
     integrator.sol
 end
@@ -1554,7 +1555,7 @@ function get_iters!(integrator::IDAIntegrator, iters)
     IDAGetNumSteps(integrator.mem, iters)
 end
 
-function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = false)
+function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = false, calculate_error = false)
     uType = eltype(integrator.sol.u)
     iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)
@@ -1620,11 +1621,11 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
         integrator.LS !== nothing && empty!(integrator.LS)
     end
 
-    if DiffEqBase.has_analytic(integrator.sol.prob.f)
+    if DiffEqBase.has_analytic(integrator.sol.prob.f) && calculate_error
         DiffEqBase.calculate_solution_errors!(
             integrator.sol;
             timeseries_errors = integrator.opts.timeseries_errors,
-            dense_errors = integrator.opts.dense_errors,
+            dense_errors = integrator.opts.dense_errors
         )
     end
 
