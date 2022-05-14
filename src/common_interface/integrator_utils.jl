@@ -218,6 +218,7 @@ function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,u0 = integrat
   tstops = integrator.opts.tstops_cache,
   saveat = integrator.opts.saveat_cache,
   reinit_callbacks = true, initialize_save = true,
+  reinit_retcode = true,
   reinit_cache = true)
 
   if isinplace(integrator.sol.prob)
@@ -268,6 +269,10 @@ function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,u0 = integrat
 
   if reinit_callbacks
     initialize_callbacks!(integrator, initialize_save)
+  end
+
+  if reinit_retcode
+    integrator.sol = SciMLBase.solution_new_retcode(integrator.sol, :Default)
   end
 
   nothing
