@@ -1,4 +1,5 @@
-mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, reltolType, abstolType, F5}
+mutable struct DEOptions{SType,TstopType,SType2,TstopType2,SIX,CType,reltolType,abstolType,
+                         F5}
     saveat::SType
     tstops::TstopType
     saveat_cache::SType2
@@ -24,25 +25,23 @@ mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, relto
 end
 
 abstract type AbstractSundialsIntegrator{algType} <:
-              DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
+              DiffEqBase.AbstractODEIntegrator{algType,true,Vector{Float64},Float64} end
 
-mutable struct CVODEIntegrator{
-    uType,
-    pType,
-    memType,
-    solType,
-    algType,
-    fType,
-    UFType,
-    JType,
-    oType,
-    toutType,
-    sizeType,
-    tmpType,
-    LStype,
-    Atype,
-    CallbackCacheType,
-} <: AbstractSundialsIntegrator{algType}
+mutable struct CVODEIntegrator{uType,
+                               pType,
+                               memType,
+                               solType,
+                               algType,
+                               fType,
+                               UFType,
+                               JType,
+                               oType,
+                               toutType,
+                               sizeType,
+                               tmpType,
+                               LStype,
+                               Atype,
+                               CallbackCacheType} <: AbstractSundialsIntegrator{algType}
     u::uType
     p::pType
     t::Float64
@@ -70,45 +69,39 @@ mutable struct CVODEIntegrator{
     last_event_error::Float64
 end
 
-function (integrator::CVODEIntegrator)(
-    t::Number,
-    deriv::Type{Val{T}} = Val{0};
-    idxs = nothing,
-) where {T}
+function (integrator::CVODEIntegrator)(t::Number,
+                                       deriv::Type{Val{T}}=Val{0};
+                                       idxs=nothing) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
     return idxs === nothing ? out : out[idxs]
 end
 
-function (integrator::CVODEIntegrator)(
-    out,
-    t::Number,
-    deriv::Type{Val{T}} = Val{0};
-    idxs = nothing,
-) where {T}
+function (integrator::CVODEIntegrator)(out,
+                                       t::Number,
+                                       deriv::Type{Val{T}}=Val{0};
+                                       idxs=nothing) where {T}
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
     return idxs === nothing ? out : @view out[idxs]
 end
 
-mutable struct ARKODEIntegrator{
-    uType,
-    pType,
-    memType,
-    solType,
-    algType,
-    fType,
-    UFType,
-    JType,
-    oType,
-    toutType,
-    sizeType,
-    tmpType,
-    LStype,
-    Atype,
-    MLStype,
-    Mtype,
-    CallbackCacheType,
-} <: AbstractSundialsIntegrator{ARKODE}
+mutable struct ARKODEIntegrator{uType,
+                                pType,
+                                memType,
+                                solType,
+                                algType,
+                                fType,
+                                UFType,
+                                JType,
+                                oType,
+                                toutType,
+                                sizeType,
+                                tmpType,
+                                LStype,
+                                Atype,
+                                MLStype,
+                                Mtype,
+                                CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
     u::uType
     p::pType
     t::Float64
@@ -138,45 +131,39 @@ mutable struct ARKODEIntegrator{
     last_event_error::Float64
 end
 
-function (integrator::ARKODEIntegrator)(
-    t::Number,
-    deriv::Type{Val{T}} = Val{0};
-    idxs = nothing,
-) where {T}
+function (integrator::ARKODEIntegrator)(t::Number,
+                                        deriv::Type{Val{T}}=Val{0};
+                                        idxs=nothing) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
     return idxs === nothing ? out : out[idxs]
 end
 
-function (integrator::ARKODEIntegrator)(
-    out,
-    t::Number,
-    deriv::Type{Val{T}} = Val{0};
-    idxs = nothing,
-) where {T}
+function (integrator::ARKODEIntegrator)(out,
+                                        t::Number,
+                                        deriv::Type{Val{T}}=Val{0};
+                                        idxs=nothing) where {T}
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
     return idxs === nothing ? out : @view out[idxs]
 end
 
-mutable struct IDAIntegrator{
-    uType,
-    duType,
-    pType,
-    memType,
-    solType,
-    algType,
-    fType,
-    UFType,
-    JType,
-    oType,
-    toutType,
-    sizeType,
-    sizeDType,
-    tmpType,
-    LStype,
-    Atype,
-    CallbackCacheType,
-} <: AbstractSundialsIntegrator{IDA}
+mutable struct IDAIntegrator{uType,
+                             duType,
+                             pType,
+                             memType,
+                             solType,
+                             algType,
+                             fType,
+                             UFType,
+                             JType,
+                             oType,
+                             toutType,
+                             sizeType,
+                             sizeDType,
+                             tmpType,
+                             LStype,
+                             Atype,
+                             CallbackCacheType} <: AbstractSundialsIntegrator{IDA}
     u::uType
     du::duType
     p::pType
@@ -206,30 +193,25 @@ mutable struct IDAIntegrator{
     last_event_error::Float64
 end
 
-function (integrator::IDAIntegrator)(
-    t::Number,
-    deriv::Type{Val{T}} = Val{0};
-    idxs = nothing,
-) where {T}
+function (integrator::IDAIntegrator)(t::Number,
+                                     deriv::Type{Val{T}}=Val{0};
+                                     idxs=nothing) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
     return idxs === nothing ? out : out[idxs]
 end
 
-function (integrator::IDAIntegrator)(
-    out,
-    t::Number,
-    deriv::Type{Val{T}} = Val{0};
-    idxs = nothing,
-) where {T}
+function (integrator::IDAIntegrator)(out,
+                                     t::Number,
+                                     deriv::Type{Val{T}}=Val{0};
+                                     idxs=nothing) where {T}
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
     return idxs === nothing ? out : @view out[idxs]
 end
 
 ###  Error check (retcode)
 
-DiffEqBase.check_error(integrator::AbstractSundialsIntegrator) =
-    interpret_sundials_retcode(integrator.flag)
+DiffEqBase.check_error(integrator::AbstractSundialsIntegrator) = interpret_sundials_retcode(integrator.flag)
 
 DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
 # No-op postamble! to make DiffEqBase.check_error! (and hence iterator interface

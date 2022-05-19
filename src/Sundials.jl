@@ -13,20 +13,17 @@ import LinearAlgebra
 import Libdl
 using CEnum
 
-
-const warnkeywords = (
-    :d_discontinuities,
-    :isoutofdomain,
-    :unstable_check,
-    :calck,
-    :internalnorm,
-    :gamma,
-    :beta1,
-    :beta2,
-    :qmax,
-    :qmin,
-    :qoldinit,
-)
+const warnkeywords = (:d_discontinuities,
+                      :isoutofdomain,
+                      :unstable_check,
+                      :calck,
+                      :internalnorm,
+                      :gamma,
+                      :beta1,
+                      :beta2,
+                      :qmax,
+                      :qmin,
+                      :qoldinit)
 
 warnlist = Set(warnkeywords)
 warnida = union(warnlist, Set((:dtmin,)))
@@ -34,7 +31,8 @@ warnida = union(warnlist, Set((:dtmin,)))
 using Sundials_jll
 
 export solve,
-    SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA, KINSOL
+       SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
+       KINSOL
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)
@@ -67,9 +65,11 @@ include("../lib/libsundials_api.jl")
 for ff in names(@__MODULE__; all=true)
     fname = string(ff)
     if occursin("SetLinearSolver", fname) &&
-        !occursin("#", fname) && # filter out compiler generated names
-        !occursin("Dls", fname) && !occursin("Spils", fname) # filter out old names
-        @eval $ff(mem, LS::SUNLinearSolver, A::Ptr, args...) = $ff(mem, LS, convert(SUNMatrix, A), args...)
+       !occursin("#", fname) && # filter out compiler generated names
+       !occursin("Dls", fname) && !occursin("Spils", fname) # filter out old names
+        @eval $ff(mem, LS::SUNLinearSolver, A::Ptr, args...) = $ff(mem, LS,
+                                                                   convert(SUNMatrix, A),
+                                                                   args...)
     end
 end
 

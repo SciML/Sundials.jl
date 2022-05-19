@@ -1837,4 +1837,3 @@ const SUNSPTFQMR_MAXL_DEFAULT = Cint(5)
 const CSC_MAT = Cint(0)
 
 const CSR_MAT = Cint(1)
-

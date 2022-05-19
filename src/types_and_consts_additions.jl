@@ -3,7 +3,7 @@
 function Base.convert(::Type{Matrix}, J::DlsMat)
     _dlsmat = unsafe_load(J)
     # own is false as memory is allocated by sundials
-    unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N), own = false)
+    unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N); own=false)
 end
 
 CVRhsFn_wrapper(fp::CVRhsFn) = fp
@@ -13,20 +13,20 @@ ARKRhsFn_wrapper(fp::ARKRhsFn) = fp
 ARKRhsFn_wrapper(f) = @cfunction($f, Cint, (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
 
 CVRootFn_wrapper(fp::CVRootFn) = fp
-CVRootFn_wrapper(f) =
-    @cfunction($f, Cint, (realtype, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
+CVRootFn_wrapper(f) = @cfunction($f, Cint,
+                                 (realtype, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
 
 CVQuadRhsFn_wrapper(fp::CVQuadRhsFn) = fp
-CVQuadRhsFn_wrapper(f) =
-    @cfunction($f, Cint, (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
+CVQuadRhsFn_wrapper(f) = @cfunction($f, Cint,
+                                    (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
 
 IDAResFn_wrapper(fp::IDAResFn) = fp
-IDAResFn_wrapper(f) =
-    @cfunction($f, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ptr{Cvoid})).ptr
+IDAResFn_wrapper(f) = @cfunction($f, Cint,
+                                 (realtype, N_Vector, N_Vector, N_Vector, Ptr{Cvoid})).ptr
 
 IDARootFn_wrapper(fp::IDARootFn) = fp
-IDARootFn_wrapper(f) =
-    @cfunction($f, Cint, (realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
+IDARootFn_wrapper(f) = @cfunction($f, Cint,
+                                  (realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
 
 KINSysFn_wrapper(fp::KINSysFn) = fp
 KINSysFn_wrapper(f) = @cfunction($f, Cint, (N_Vector, N_Vector, Ptr{Cvoid})).ptr
@@ -36,18 +36,18 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
     _mat = convert(SUNMatrixContent_Dense, _sunmat.content)
     mat = unsafe_load(_mat)
     # own is false as memory is allocated by sundials
-    unsafe_wrap(Array, mat.data, (mat.M, mat.N), own = false)
+    unsafe_wrap(Array, mat.data, (mat.M, mat.N); own=false)
 end
 
 # sparse SUNMatrix uses zero-offset indices, so provide copyto!, not convert
-function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC{Float64, Int64})
+function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC{Float64,Int64})
     _sunmat = unsafe_load(Asun)
     _mat = convert(SUNMatrixContent_Sparse, _sunmat.content)
     mat = unsafe_load(_mat)
     # own is false as memory is allocated by sundials
-    indexvals = unsafe_wrap(Vector{Int}, mat.indexvals, (mat.NNZ), own = false)
-    indexptrs = unsafe_wrap(Vector{Int}, mat.indexptrs, (mat.NP + 1), own = false)
-    data = unsafe_wrap(Vector{Float64}, mat.data, (mat.NNZ), own = false)
+    indexvals = unsafe_wrap(Vector{Int}, mat.indexvals, (mat.NNZ); own=false)
+    indexptrs = unsafe_wrap(Vector{Int}, mat.indexptrs, (mat.NP + 1); own=false)
+    data = unsafe_wrap(Vector{Float64}, mat.data, (mat.NNZ); own=false)
 
     if size(indexvals) != size(Acsc.rowval) || size(indexptrs) != size(Acsc.colptr)
         error("Sparsity Pattern in receiving SUNMatrix doesn't match sending SparseMatrix")

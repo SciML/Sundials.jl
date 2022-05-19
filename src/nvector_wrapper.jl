@@ -50,8 +50,9 @@ Base.pointer(nv::NVector) = Sundials.N_VGetArrayPointer_Serial(nv.ref_nv[])
 ##################################################################
 
 Base.convert(::Type{NVector}, v::Vector{realtype}) = NVector(v)
-Base.convert(::Type{NVector}, v::Vector{T}) where {T <: Real} =
-    NVector(copy!(similar(v, realtype), v))
+Base.convert(::Type{NVector}, v::Vector{T}) where {T<:Real} = NVector(copy!(similar(v,
+                                                                                    realtype),
+                                                                            v))
 Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Array, v))
 Base.convert(::Type{NVector}, nv::NVector) = nv
 Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
@@ -67,18 +68,18 @@ Base.convert(::Type{Vector}, nv::NVector) = nv.v
     destruction of `N_Vector` object when no longer in use.
 """
 Base.convert(::Type{N_Vector}, v::Vector{realtype}) = N_Vector(NVector(v))
-Base.convert(::Type{N_Vector}, v::Vector{T}) where {T <: Real} = N_Vector(NVector(v))
+Base.convert(::Type{N_Vector}, v::Vector{T}) where {T<:Real} = N_Vector(NVector(v))
 
 Base.similar(nv::NVector) = NVector(similar(nv.v))
 
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 # asarray() creates an array pointing to N_Vector data, but does not take the ownership
-@inline asarray(x::N_Vector) =
-    unsafe_wrap(Array, N_VGetArrayPointer_Serial(x), (nvlength(x),), own = false)
-@inline asarray(x::N_Vector, dims::Tuple) =
-    unsafe_wrap(Array, N_VGetArrayPointer_Serial(x), dims, own = false)
+@inline asarray(x::N_Vector) = unsafe_wrap(Array, N_VGetArrayPointer_Serial(x),
+                                           (nvlength(x),); own=false)
+@inline asarray(x::N_Vector, dims::Tuple) = unsafe_wrap(Array, N_VGetArrayPointer_Serial(x),
+                                                        dims; own=false)
 asarray(x::Vector{realtype}) = x
-asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims, own = false)
+asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims; own=false)
 @inline Base.convert(::Type{Vector{realtype}}, x::N_Vector) = asarray(x)
 @inline Base.convert(::Type{Vector}, x::N_Vector) = asarray(x)
 

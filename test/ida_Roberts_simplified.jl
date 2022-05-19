@@ -8,5 +8,5 @@ function resrob(tres, y, yp, r)
     r[3] = y[1] + y[2] + y[3] - 1.0
 end
 
-t = [0.0; 4 * exp10.(range(-1.0, stop = 5.0, length = 7))]
+t = [0.0; 4 * exp10.(range(-1.0; stop=5.0, length=7))]
 yout, ypout = Sundials.idasol(resrob, [1.0, 0, 0], [-0.04, 0.04, 0.0], t)

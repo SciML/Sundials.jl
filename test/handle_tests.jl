@@ -31,14 +31,10 @@ empty!(h3)
 empty!(h3)
 @test isempty(h3)
 
-h3 = Sundials.MatrixHandle(
-    Sundials.SUNSparseMatrix(neq, neq, neq, Sundials.CSC_MAT),
-    Sundials.SparseMatrix(),
-)
-h3 = Sundials.MatrixHandle(
-    Sundials.SUNSparseMatrix(neq, neq, neq, Sundials.CSC_MAT),
-    Sundials.SparseMatrix(),
-)
+h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq, neq, neq, Sundials.CSC_MAT),
+                           Sundials.SparseMatrix())
+h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq, neq, neq, Sundials.CSC_MAT),
+                           Sundials.SparseMatrix())
 empty!(h3)
 @test isempty(h3)
 empty!(h3)
