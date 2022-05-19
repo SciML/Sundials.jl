@@ -3,73 +3,73 @@ using Sundials_jll
 using MLStyle
 using Pkg
 
-
 # 1st arg name to wrapped arg type map
-const arg1_name2type = Dict(
-    :arkode_mem => :(ARKStepMemPtr),
-    :cvode_mem => :(CVODEMemPtr),
-    :cv_mem => :(CVODEMemPtr),
-    :kinmem => :(KINMemPtr),
-    :kinmemm => :(KINMemPtr), # Sundials typo?
-    :ida_mem => :(IDAMemPtr),
-    :idaa_mem => :(IDAMemPtr), # Sundials typo?
-    :idaadj_mem => :(IDAMemPtr), # Sundials typo?
-)
+const arg1_name2type = Dict(:arkode_mem => :(ARKStepMemPtr),
+                            :cvode_mem => :(CVODEMemPtr),
+                            :cv_mem => :(CVODEMemPtr),
+                            :kinmem => :(KINMemPtr),
+                            :kinmemm => :(KINMemPtr), # Sundials typo?
+                            :ida_mem => :(IDAMemPtr),
+                            :idaa_mem => :(IDAMemPtr), # Sundials typo?
+                            :idaadj_mem => :(IDAMemPtr))
 
 const linear_solvers_and_matrices = [
-    # Linear Solvers
-    "band",
-    "dense",
-    "klu",
-    "lapackend",
-    "lapackdense",
-    "pcg",
-    "spbcgs",
-    "spfgmr",
-    "spgmr",
-    "sptfqmr",
-    # Matrices
-    "sparse",
-    # Non linear solvers
-    "fixedpoint",
-    "newton"
-    ]
+                                     # Linear Solvers
+                                     "band",
+                                     "dense",
+                                     "klu",
+                                     "lapackend",
+                                     "lapackdense",
+                                     "pcg",
+                                     "spbcgs",
+                                     "spfgmr",
+                                     "spgmr",
+                                     "sptfqmr",
+                                     # Matrices
+                                     "sparse",
+                                     # Non linear solvers
+                                     "fixedpoint",
+                                     "newton"]
 
 # substitute Ptr{Void} with the typed pointer
-const ctor_return_type = Dict(
-    "ARKCreate" => :(ARKStepMemPtr),
-    "ARKStepCreate" => :(ARKStepMemPtr),
-    "ERKStepCreate" => :(ERKStepMemPtr),
-    "MRIStepCreate" => :(MRIStepMemPtr),
-    "CVodeCreate" => :(CVODEMemPtr),
-    "IDACreate" => :(IDAMemPtr),
-    "KINCreate" => :(KINMemPtr)
-)
+const ctor_return_type = Dict("ARKCreate" => :(ARKStepMemPtr),
+                              "ARKStepCreate" => :(ARKStepMemPtr),
+                              "ERKStepCreate" => :(ERKStepMemPtr),
+                              "MRIStepCreate" => :(MRIStepMemPtr),
+                              "CVodeCreate" => :(CVODEMemPtr),
+                              "IDACreate" => :(IDAMemPtr),
+                              "KINCreate" => :(KINMemPtr))
 # signatures for C function pointer types
-const FnTypeSignatures = Dict(
-    :ARKRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
-    :CVRhsFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
-    :CVRootFn => (:Cint, :((realtype, N_Vector, Ptr{realtype}, Ptr{Cvoid}))),
-    :IDAResFn => (:Cint, :((realtype, N_Vector, N_Vector, N_Vector, Ptr{Cvoid}))),
-    :IDARootFn => (:Cint, :((realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Cvoid}))),
-    :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Cvoid}))),
-)
+const FnTypeSignatures = Dict(:ARKRhsFn => (:Cint,
+                                            :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
+                              :CVRhsFn => (:Cint,
+                                           :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
+                              :CVRootFn => (:Cint,
+                                            :((realtype, N_Vector, Ptr{realtype},
+                                               Ptr{Cvoid}))),
+                              :IDAResFn => (:Cint,
+                                            :((realtype, N_Vector, N_Vector, N_Vector,
+                                               Ptr{Cvoid}))),
+                              :IDARootFn => (:Cint,
+                                             :((realtype, N_Vector, N_Vector, Ptr{realtype},
+                                                Ptr{Cvoid}))),
+                              :KINSysFn => (:Cint, :((N_Vector, N_Vector, Ptr{Cvoid}))))
 
 function wrap_sundials_api(expr::Expr)
     if expr.head == :function &&
-        expr.args[1].head == :call
+       expr.args[1].head == :call
         func_name = string(expr.args[1].args[1])
         convert_required = false
         if occursin(r"^(ARK|ERK|MRI|CV|KIN|IDA|SUN|N_V)", func_name)
-	        # @show func_name
+            # @show func_name
             if occursin(r"Create$", func_name) && !occursin(r"Butcher", func_name)
                 # create functions return typed pointers
-		        @assert expr.args[2].args[1].args[3] == :(Ptr{Cvoid})
+                @assert expr.args[2].args[1].args[3] == :(Ptr{Cvoid})
                 expr.args[2].args[1].args[3] = ctor_return_type[func_name]
             elseif length(expr.args[1].args) > 1
-		        arg1_type = expr.args[2].args[1].args[4].args[1]
+                arg1_type = expr.args[2].args[1].args[4].args[1]
                 if arg1_type == :(Ptr{Cvoid}) || arg1_type == :(Ptr{Ptr{Cvoid}})
-		            arg1_name = expr.args[1].args[2]
+                    arg1_name = expr.args[1].args[2]
                     arg1_newtype = arg1_name2type[arg1_name]
                     # seperate ARKStepMemPtr from ERK* and MRI*
                     if arg1_newtype == :ARKStepMemPtr
@@ -79,33 +79,39 @@ function wrap_sundials_api(expr::Expr)
                         # adjust for void** type (for CVodeFree()-like funcs)
                         arg1_newtype = Expr(:curly, :Ref, arg1_newtype)
                     end
-		             expr.args[2].args[1].args[4].args[1] = arg1_newtype
+                    expr.args[2].args[1].args[4].args[1] = arg1_newtype
                     convert_required = true
                 end
             end
             if occursin(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[2].args[1].args)
-         	        if !(typeof(arg_expr) <: Symbol) && arg_expr.args[1] in values(ctor_return_type)
-			            if arg_expr.args[2] == :(Ptr{Cvoid})
-		                    arg_expr.args[2] = Any
-		                elseif arg_expr.args[3] == :(Ptr{Cvoid})
-		    	            arg_expr.args[3] = Any
-		                end
-			        end
+                    if !(typeof(arg_expr) <: Symbol) &&
+                       arg_expr.args[1] in values(ctor_return_type)
+                        if arg_expr.args[2] == :(Ptr{Cvoid})
+                            arg_expr.args[2] = Any
+                        elseif arg_expr.args[3] == :(Ptr{Cvoid})
+                            arg_expr.args[3] = Any
+                        end
+                    end
                 end
             end
-            if !(typeof(expr) <: Symbol) && length(expr.args) > 1 && (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol || expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix || expr.args[2].args[1].args[2].args[2] == :libsundials_sunnonlinsol)
+            if !(typeof(expr) <: Symbol) && length(expr.args) > 1 &&
+               (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol ||
+                expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix ||
+                expr.args[2].args[1].args[2].args[2] == :libsundials_sunnonlinsol)
                 if func_name[1:6] == "SUNMAT"
-                    expr.args[2].args[1].args[2].args[2] =
-                    Symbol(string(expr.args[2].args[1].args[2].args[2]) *
-                    lowercase(split(func_name, "_")[end]))
+                    expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2]) *
+                                                                  lowercase(split(func_name,
+                                                                                  "_")[end]))
                 else
-                    name_i = findfirst(lsmn -> occursin(lsmn, lowercase(func_name)), linear_solvers_and_matrices)
+                    name_i = findfirst(lsmn -> occursin(lsmn, lowercase(func_name)),
+                                       linear_solvers_and_matrices)
 
                     @assert name_i > 0
                     name = linear_solvers_and_matrices[name_i]
-                    expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2]) * name)
+                    expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2]) *
+                                                                  name)
                 end
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
@@ -131,14 +137,15 @@ function wrap_sundials_api(expr::Expr)
                     # is not removed by GC
                     return (arg_name_expr,
                             Expr(:call, :convert, :NVector, arg_name_expr), # convert arg to NVector to store in a local var
-                            Expr(:call, :convert, arg_type_expr, Symbol(string("__", arg_name_expr)))) # convert NVector to N_Vector
+                            Expr(:call, :convert, arg_type_expr,
+                                 Symbol(string("__", arg_name_expr)))) # convert NVector to N_Vector
                 elseif arg_type_expr == :Clong || arg_type_expr == :Cint ||
-                    occursin(r"MemPtr$", string(arg_type_expr))
+                       occursin(r"MemPtr$", string(arg_type_expr))
                     # convert(XXXMemPtr, mem), no local var required
                     return (arg_name_expr, nothing,
                             Expr(:call, :convert, arg_type_expr, arg_name_expr))
                 elseif isa(arg_type_expr, Expr) && arg_type_expr.head == :curly &&
-                    arg_type_expr.args[1] == :Ptr && arg_type_expr.args[2] != :FILE
+                       arg_type_expr.args[1] == :Ptr && arg_type_expr.args[2] != :FILE
                     # convert julia arrays to pointer, no local var required
                     # FIXME sometimes these arguments are not really arrays, but just a pointer to a var to be assigned
                     # by the function call. Does that make sense to detect such cases and assume that input arg is a reference to Julia var?
@@ -146,7 +153,8 @@ function wrap_sundials_api(expr::Expr)
                             Expr(:call, :pointer, arg_name_expr))
                 elseif haskey(FnTypeSignatures, arg_type_expr) # wrap Julia function to C function using a defined signature
                     return (arg_name_expr, nothing,
-                            Expr(:call, Symbol(string(arg_type_expr, "_wrapper")), arg_name_expr))
+                            Expr(:call, Symbol(string(arg_type_expr, "_wrapper")),
+                                 arg_name_expr))
                 else # any other case, no argument wrapping
                     return (arg_name_expr, nothing, arg_name_expr)
                 end
@@ -159,18 +167,22 @@ function wrap_sundials_api(expr::Expr)
 
                 # higher-level wrapper function
                 wrapper_func_expr = Expr(:function,
-                    # function declaration with argument types stripped, so it would accept any type
-                    Expr(:call, Symbol(func_name), map(arg_exprs -> arg_exprs[1], args_wrap_exprs)...),
-                    Expr(:block,
-                    # local var defs
-                    map(filter(arg_exprs -> arg_exprs[2] !== nothing, args_wrap_exprs)) do arg_exprs
-                    Expr(:(=), Symbol("__", arg_exprs[1]), arg_exprs[2])
-                end...,
-                    # low-level function call with Julia types converted to low-level arguments
-                    Expr(:call, Symbol(lowlevel_func_name),
-                         map(arg_exprs -> arg_exprs[3], args_wrap_exprs)...)
-                    )
-                )
+                                         # function declaration with argument types stripped, so it would accept any type
+                                         Expr(:call, Symbol(func_name),
+                                              map(arg_exprs -> arg_exprs[1],
+                                                  args_wrap_exprs)...),
+                                         Expr(:block,
+                                              # local var defs
+                                              map(filter(arg_exprs -> arg_exprs[2] !==
+                                                                      nothing,
+                                                         args_wrap_exprs)) do arg_exprs
+                                                  Expr(:(=), Symbol("__", arg_exprs[1]),
+                                                       arg_exprs[2])
+                                              end...,
+                                              # low-level function call with Julia types converted to low-level arguments
+                                              Expr(:call, Symbol(lowlevel_func_name),
+                                                   map(arg_exprs -> arg_exprs[3],
+                                                       args_wrap_exprs)...)))
                 # write down both low-level and higher level wrappers
                 return Any[expr, wrapper_func_expr]
             else
@@ -184,11 +196,11 @@ function wrap_sundials_api(expr::Expr)
         fn_rettype, fn_argtypes = FnTypeSignatures[fn_typename]
         wrapper_name = Symbol(string(string(fn_typename), "_wrapper"))
         c_wrapper_def = Expr(:(=),
-                Expr(:call, wrapper_name, Expr(:(::), :fp, fn_typename)), :fp)
+                             Expr(:call, wrapper_name, Expr(:(::), :fp, fn_typename)), :fp)
         jl_wrapper_def = Expr(:(=),
-            Expr(:call, wrapper_name, :f),
-            # function declaration with argument types stripped
-            Expr(:call, :cfunction, :f, fn_rettype, fn_argtypes))
+                              Expr(:call, wrapper_name, :f),
+                              # function declaration with argument types stripped
+                              Expr(:call, :cfunction, :f, fn_rettype, fn_argtypes))
         return Any[expr, c_wrapper_def, jl_wrapper_def]
     elseif expr.head == :const && expr.args[1].head == :(=) &&
            isa(expr.args[1].args[2], Int)
@@ -198,26 +210,25 @@ function wrap_sundials_api(expr::Expr)
     return Any[expr]
 end
 
-
 function rewrite(ex)
     ex = @match ex begin
         :(const $name = SUNDIALS_F77_FUNC($arg1, $arg2)) => :(const $name = nothing)
-            # Expr(:macro, :($name()), Expr(:macrocall, Symbol("@SUNDIALS_F77_FUNC"), nothing, arg1, arg2))
-        :(const $sun_name = $klu_name) && 
-                if startswith(string(sun_name), "sun_klu_") && startswith(string(klu_name), "klu_") end => 
-            :(const $sun_name = nothing) # skip
+        # Expr(:macro, :($name()), Expr(:macrocall, Symbol("@SUNDIALS_F77_FUNC"), nothing, arg1, arg2))
+        :(const $sun_name = $klu_name) &&
+        if startswith(string(sun_name), "sun_klu_") && startswith(string(klu_name), "klu_")
+        end => :(const $sun_name = nothing) # skip
         _ => ex
     end
     wrap_sundials_api(ex)
 end
 
-
 cd(@__DIR__)
 
 include_dir = joinpath(Sundials_jll.artifact_dir, "include") |> normpath
 
-artifact_toml = joinpath(dirname(pathof(Sundials_jll.SuiteSparse_jll)), "..", "StdlibArtifacts.toml")
-suitespase_dir= Pkg.Artifacts.ensure_artifact_installed("SuiteSparse", artifact_toml)
+artifact_toml = joinpath(dirname(pathof(Sundials_jll.SuiteSparse_jll)), "..",
+                         "StdlibArtifacts.toml")
+suitespase_dir = Pkg.Artifacts.ensure_artifact_installed("SuiteSparse", artifact_toml)
 suitespase_include_sir = joinpath(suitespase_dir, "include")
 
 # wrapper generator options
@@ -227,25 +238,25 @@ options = load_options(joinpath(@__DIR__, "generate.toml"))
 args = get_default_args()
 push!(args, "-I$include_dir", "-isystem$suitespase_include_sir")
 
-library_names = Dict(
-    raw"sundials[\\/].+" => "libsundials_sundials", 
-    raw"sunnonlinsol[\\/].+" => "libsundials_sunnonlinsol", 
-    raw"sunmatrix[\\/].+" => "libsundials_sunmatrix", 
-    raw"kinsol[\\/].+" => "libsundials_kinsol", 
-    raw"ida[\\/].+" => "libsundials_idas", 
-    raw"cvodes[\\/].+" => "libsundials_cvodes", 
-    raw"sunlinsol[\\/].+$(?<!lapackband\.h)(?<!lapackdense\.h)" => "libsundials_sunlinsol", 
-    raw"cvode[\\/].+" => "libsundials_cvodes", 
-    raw"idas[\\/].+" => "libsundials_idas", 
-    raw"arkode[\\/].+" => "libsundials_arkode",
-    raw"nvector[\\/].+" => "libsundials_nvecserial",
-    raw"lapackband\.h" => "libsundials_sunlinsollapackband",
-    raw"lapackdense\.h" => "libsundials_sunlinsollapackdense",
-    )
+library_names = Dict(raw"sundials[\\/].+" => "libsundials_sundials",
+                     raw"sunnonlinsol[\\/].+" => "libsundials_sunnonlinsol",
+                     raw"sunmatrix[\\/].+" => "libsundials_sunmatrix",
+                     raw"kinsol[\\/].+" => "libsundials_kinsol",
+                     raw"ida[\\/].+" => "libsundials_idas",
+                     raw"cvodes[\\/].+" => "libsundials_cvodes",
+                     raw"sunlinsol[\\/].+$(?<!lapackband\.h)(?<!lapackdense\.h)" => "libsundials_sunlinsol",
+                     raw"cvode[\\/].+" => "libsundials_cvodes",
+                     raw"idas[\\/].+" => "libsundials_idas",
+                     raw"arkode[\\/].+" => "libsundials_arkode",
+                     raw"nvector[\\/].+" => "libsundials_nvecserial",
+                     raw"lapackband\.h" => "libsundials_sunlinsollapackband",
+                     raw"lapackdense\.h" => "libsundials_sunlinsollapackdense")
 headers = String[]
 for lib in readdir(include_dir)
     header_dir = joinpath(include_dir, lib)
-    append!(headers, joinpath(header_dir, header) for header in readdir(header_dir) if endswith(header, ".h"))
+    append!(headers,
+            joinpath(header_dir, header)
+            for header in readdir(header_dir) if endswith(header, ".h"))
 end
 options["general"]["library_names"] = library_names
 
@@ -254,6 +265,6 @@ ctx = create_context(headers, args, options)
 # run generator
 build!(ctx, BUILDSTAGE_NO_PRINTING)
 for n in ctx.dag.nodes
-    copy!(n.exprs, reduce(vcat, rewrite.(n.exprs), init=[]))
+    copy!(n.exprs, reduce(vcat, rewrite.(n.exprs); init = []))
 end
 build!(ctx, BUILDSTAGE_PRINTING_ONLY)
