@@ -95,7 +95,7 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
 
     function getcfunband(f::T) where T
         @cfunction(Sundials.idasolfun, Cint,
-                   (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{T}})
+                   (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ref{T}))
      end
     Sundials.@checkflag Sundials.IDAInit(mem, getcfunband(f),
                                          t[1], y0, yp0)
