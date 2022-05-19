@@ -20,9 +20,9 @@ u0 = [50.0, 0.0]
 tspan = (0.0, 15.0)
 prob = ODEProblem(callback_f, u0, tspan)
 
-sol = solve(prob, CVODE_Adams(), callback = callback)
+sol = solve(prob, CVODE_Adams(); callback = callback)
 @test sol(4.0)[1] > 0
-sol = solve(prob, CVODE_BDF(), callback = callback)
+sol = solve(prob, CVODE_BDF(); callback = callback)
 @test sol(4.0)[1] > 0
 
 condition = function (out, u, t, integrator)
@@ -37,9 +37,9 @@ affect_neg! = function (integrator, idx)
 end
 
 callback = VectorContinuousCallback(condition, affect!, affect_neg!, 1)
-sol = solve(prob, CVODE_Adams(), callback = callback)
+sol = solve(prob, CVODE_Adams(); callback = callback)
 @test sol(4.0)[1] > 0
-sol = solve(prob, CVODE_BDF(), callback = callback)
+sol = solve(prob, CVODE_BDF(); callback = callback)
 @test sol(4.0)[1] > 0
 
 u0 = [1.0, 0.0]
@@ -55,11 +55,11 @@ function condition2(u, t, integrator)
 end
 affect2!(integrator) = terminate!(integrator)
 cb = DiscreteCallback(condition2, affect2!)
-sol = solve(prob, CVODE_BDF(), callback = cb)
+sol = solve(prob, CVODE_BDF(); callback = cb)
 @test sol.t[end] < 3.5
 
 condition3(u, t, integrator) = u[2]
 affect3!(integrator) = terminate!(integrator)
 cb = ContinuousCallback(condition3, affect3!)
-sol = solve(prob, CVODE_Adams(), callback = cb, abstol = 1e-12, reltol = 1e-12)
+sol = solve(prob, CVODE_Adams(); callback = cb, abstol = 1e-12, reltol = 1e-12)
 @test sol.t[end] ≈ pi

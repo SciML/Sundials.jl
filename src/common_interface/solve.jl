@@ -1,33 +1,34 @@
 ## Common Interface Solve Functions
 
-function DiffEqBase.__solve(
-    prob::Union{DiffEqBase.AbstractODEProblem, DiffEqBase.AbstractDAEProblem},
-    alg::algType,
-    timeseries = [],
-    ts = [],
-    ks = [],
-    recompile::Type{Val{recompile_flag}} = Val{true};
-    calculate_error = true,
-    kwargs...,
-) where {algType <: Union{SundialsODEAlgorithm, SundialsDAEAlgorithm}, recompile_flag}
-
+function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractODEProblem,
+                                        DiffEqBase.AbstractDAEProblem},
+                            alg::algType,
+                            timeseries = [],
+                            ts = [],
+                            ks = [],
+                            recompile::Type{Val{recompile_flag}} = Val{true};
+                            calculate_error = true,
+                            kwargs...) where {algType<:Union{SundialsODEAlgorithm,
+                                                             SundialsDAEAlgorithm},
+                                              recompile_flag}
     integrator = DiffEqBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
     if integrator.sol.retcode == :Default
-        solve!(integrator, early_free = true, calculate_error = calculate_error)
+        solve!(integrator; early_free = true, calculate_error = calculate_error)
     end
     integrator.sol
 end
 
-function DiffEqBase.__solve(
-    prob::Union{DiffEqBase.AbstractSteadyStateProblem{uType,isinplace},DiffEqBase.AbstractNonlinearProblem{uType,isinplace}},
-    alg::algType,
-    timeseries=[],
-    ts=[],
-    ks=[],
-    recompile::Type{Val{recompile_flag}}=Val{true};
-    kwargs...,
-) where {algType <: SundialsNonlinearSolveAlgorithm,recompile_flag,uType,isinplace}
-
+function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractSteadyStateProblem{uType,
+                                                                              isinplace},
+                                        DiffEqBase.AbstractNonlinearProblem{uType,
+                                                                            isinplace}},
+                            alg::algType,
+                            timeseries = [],
+                            ts = [],
+                            ks = [],
+                            recompile::Type{Val{recompile_flag}} = Val{true};
+                            kwargs...) where {algType<:SundialsNonlinearSolveAlgorithm,
+                                              recompile_flag,uType,isinplace}
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
@@ -54,8 +55,8 @@ function DiffEqBase.__solve(
             f! = (du, u) -> prob.f(du, u, p, t)
         else # Then it's an in-place function on an abstract array
             f! = (du, u) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
-            du = vec(du);
-            0)
+                             du = vec(du);
+                             0)
         end
     elseif typeof(prob.f) <: NonlinearFunction
         if !isinplace && typeof(prob.u0) <: Number
@@ -68,58 +69,57 @@ function DiffEqBase.__solve(
             f! = (du, u) -> prob.f(du, u, p)
         else # Then it's an in-place function on an abstract array
             f! = (du, u) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p);
-            du = vec(du);
-            0)
+                             du = vec(du);
+                             0)
         end
     end
     u = zero(u0)
     resid = similar(u)
-    u = kinsol(f!, u0,
-               userdata=userdata,
-               linear_solver=linsolve,
-               jac_upper=jac_upper,
-               jac_lower=jac_lower)
+    u = kinsol(f!, u0;
+               userdata = userdata,
+               linear_solver = linsolve,
+               jac_upper = jac_upper,
+               jac_lower = jac_lower)
 
     f!(resid, u)
-    DiffEqBase.build_solution(prob, alg, u, resid;retcode=:Success)
+    DiffEqBase.build_solution(prob, alg, u, resid; retcode = :Success)
 end
 
-function DiffEqBase.__init(
-    prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-    alg::SundialsODEAlgorithm{Method, LinearSolver},
-    timeseries = [],
-    ts = [],
-    ks = [];
-    verbose = true,
-    callback = nothing,
-    abstol = 1 / 10^6,
-    reltol = 1 / 10^3,
-    saveat = Float64[],
-    tstops = Float64[],
-    maxiters = Int(1e5),
-    dt = nothing,
-    dtmin = 0.0,
-    dtmax = 0.0,
-    timeseries_errors = true,
-    dense_errors = false,
-    save_everystep = isempty(saveat), save_idxs = nothing,
-    save_on = true,
-    save_start = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true :
-                 prob.tspan[1] in saveat,
-    save_end = save_everystep || isempty(saveat) || typeof(saveat) <: Number ? true :
-               prob.tspan[2] in saveat,
-    dense = save_everystep && isempty(saveat),
-    progress = false,
-    progress_name = "ODE",
-    progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
-    save_timeseries = nothing,
-    advance_to_tstop = false,
-    stop_at_next_tstop = false,
-    userdata = nothing,
-    alias_u0 = false,
-    kwargs...,
-) where {uType, tupType, isinplace, Method, LinearSolver}
-
+function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
+                           alg::SundialsODEAlgorithm{Method,LinearSolver},
+                           timeseries = [],
+                           ts = [],
+                           ks = [];
+                           verbose = true,
+                           callback = nothing,
+                           abstol = 1 / 10^6,
+                           reltol = 1 / 10^3,
+                           saveat = Float64[],
+                           tstops = Float64[],
+                           maxiters = Int(1e5),
+                           dt = nothing,
+                           dtmin = 0.0,
+                           dtmax = 0.0,
+                           timeseries_errors = true,
+                           dense_errors = false,
+                           save_everystep = isempty(saveat), save_idxs = nothing,
+                           save_on = true,
+                           save_start = save_everystep || isempty(saveat) ||
+                                            typeof(saveat) <: Number ? true :
+                                        prob.tspan[1] in saveat,
+                           save_end = save_everystep || isempty(saveat) ||
+                                          typeof(saveat) <: Number ? true :
+                                      prob.tspan[2] in saveat,
+                           dense = save_everystep && isempty(saveat),
+                           progress = false,
+                           progress_name = "ODE",
+                           progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+                           save_timeseries = nothing,
+                           advance_to_tstop = false,
+                           stop_at_next_tstop = false,
+                           userdata = nothing,
+                           alias_u0 = false,
+                           kwargs...) where {uType,tupType,isinplace,Method,LinearSolver}
     tType = eltype(tupType)
 
     if verbose
@@ -155,8 +155,8 @@ function DiffEqBase.__init(
 
     tdir = sign(tspan[2] - tspan[1])
 
-    tstops_internal, saveat_internal =
-        tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
+    tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
+                                                                  tspan, tType)
 
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
@@ -181,8 +181,8 @@ function DiffEqBase.__init(
         f! = prob.f
     else # Then it's an in-place function on an abstract array
         f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
-        du = vec(du);
-        0)
+                               du = vec(du);
+                               0)
     end
 
     if typeof(alg) <: CVODE_BDF
@@ -201,29 +201,27 @@ function DiffEqBase.__init(
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && CVodeSetErrHandlerFn(
-        mem,
-        @cfunction(null_error_handler, Nothing, (Cint, Char, Char, Ptr{Cvoid})),
-        C_NULL,
-    )
+    !verbose && CVodeSetErrHandlerFn(mem,
+                                     @cfunction(null_error_handler, Nothing,
+                                                (Cint, Char, Char, Ptr{Cvoid})),
+                                     C_NULL)
 
     save_start ? ts = [t0] : ts = Float64[]
 
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
-    use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
-    userfun = FunJac(
-        f!,
-        prob.f.jac,
-        prob.p,
-        nothing,
-        use_jac_prototype ? prob.f.jac_prototype : nothing,
-        alg.prec,
-        alg.psetup,
-        u0,
-        _u0,
-    )
+    use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
+                         LinearSolver ∈ SPARSE_SOLVERS)
+    userfun = FunJac(f!,
+                     prob.f.jac,
+                     prob.p,
+                     nothing,
+                     use_jac_prototype ? prob.f.jac_prototype : nothing,
+                     alg.prec,
+                     alg.psetup,
+                     u0,
+                     _u0)
 
     function getcfunf(::T) where {T}
         @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
@@ -321,20 +319,16 @@ function DiffEqBase.__init(
 
     if DiffEqBase.has_jac(prob.f) && Method == :Newton
         function getcfunjac(::T) where {T}
-            @cfunction(
-                cvodejac,
-                Cint,
-                (
-                    realtype,
-                    N_Vector,
-                    N_Vector,
-                    SUNMatrix,
-                    Ref{T},
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                )
-            )
+            @cfunction(cvodejac,
+                       Cint,
+                       (realtype,
+                        N_Vector,
+                        N_Vector,
+                        SUNMatrix,
+                        Ref{T},
+                        N_Vector,
+                        N_Vector,
+                        N_Vector))
         end
         jac = getcfunjac(userfun)
         flag = CVodeSetUserData(mem, userfun)
@@ -345,11 +339,9 @@ function DiffEqBase.__init(
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
         function getcfunjtimes(::T) where {T}
-            @cfunction(
-                jactimes,
-                Cint,
-                (N_Vector, N_Vector, realtype, N_Vector, N_Vector, Ref{T}, N_Vector)
-            )
+            @cfunction(jactimes,
+                       Cint,
+                       (N_Vector, N_Vector, realtype, N_Vector, N_Vector, Ref{T}, N_Vector))
         end
         jtimes = getcfunjtimes(userfun)
         CVodeSetJacTimes(mem, C_NULL, jtimes)
@@ -357,30 +349,24 @@ function DiffEqBase.__init(
 
     if alg.prec !== nothing
         function getpercfun(::T) where {T}
-            @cfunction(
-                precsolve,
-                Cint,
-                (
-                    Float64,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    Float64,
-                    Float64,
-                    Int,
-                    Ref{T},
-                )
-            )
+            @cfunction(precsolve,
+                       Cint,
+                       (Float64,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        Float64,
+                        Float64,
+                        Int,
+                        Ref{T}))
         end
         precfun = getpercfun(userfun)
 
         function getpsetupfun(::T) where {T}
-            @cfunction(
-                precsetup,
-                Cint,
-                (Float64, N_Vector, N_Vector, Int, Ptr{Int}, Float64, Ref{T})
-            )
+            @cfunction(precsetup,
+                       Cint,
+                       (Float64, N_Vector, N_Vector, Int, Ptr{Int}, Float64, Ref{T}))
         end
         psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
 
@@ -412,105 +398,99 @@ function DiffEqBase.__init(
         dures = Vector{uType}()
     end
 
-    sol = DiffEqBase.build_solution(
-        prob,
-        alg,
-        ts,
-        ures,
-        dense = dense,
-        interp = dense ? DiffEqBase.HermiteInterpolation(ts, ures, dures) :
-                     DiffEqBase.LinearInterpolation(ts, ures),
-        timeseries_errors = timeseries_errors,
-        destats = DiffEqBase.DEStats(0),
-        calculate_error = false,
-    )
-    opts = DEOptions(
-        saveat_internal,
-        tstops_internal,
-        saveat,tstops,save_start,
-        save_everystep,save_idxs,
-        dense,
-        timeseries_errors,
-        dense_errors,
-        save_on,
-        save_end,
-        callbacks_internal,
-        abstol,
-        reltol,
-        verbose,
-        advance_to_tstop,
-        stop_at_next_tstop,
-        progress,
-        progress_name,
-        progress_message,
-        maxiters,
-    )
-    integrator = CVODEIntegrator(
-        u0,
-        prob.p,
-        t0,
-        t0,
-        mem,
-        _LS,
-        _A,
-        sol,
-        alg,
-        f!,
-        userfun,
-        jac,
-        opts,
-        tout,
-        tdir,
-        sizeu,
-        false,
-        tmp,
-        uprev,
-        Cint(flag),
-        false,
-        0,
-        1,
-        callback_cache,
-        0.0,
-    )
+    sol = DiffEqBase.build_solution(prob,
+                                    alg,
+                                    ts,
+                                    ures;
+                                    dense = dense,
+                                    interp = dense ?
+                                             DiffEqBase.HermiteInterpolation(ts, ures,
+                                                                             dures) :
+                                             DiffEqBase.LinearInterpolation(ts, ures),
+                                    timeseries_errors = timeseries_errors,
+                                    destats = DiffEqBase.DEStats(0),
+                                    calculate_error = false)
+    opts = DEOptions(saveat_internal,
+                     tstops_internal,
+                     saveat, tstops, save_start,
+                     save_everystep, save_idxs,
+                     dense,
+                     timeseries_errors,
+                     dense_errors,
+                     save_on,
+                     save_end,
+                     callbacks_internal,
+                     abstol,
+                     reltol,
+                     verbose,
+                     advance_to_tstop,
+                     stop_at_next_tstop,
+                     progress,
+                     progress_name,
+                     progress_message,
+                     maxiters)
+    integrator = CVODEIntegrator(u0,
+                                 prob.p,
+                                 t0,
+                                 t0,
+                                 mem,
+                                 _LS,
+                                 _A,
+                                 sol,
+                                 alg,
+                                 f!,
+                                 userfun,
+                                 jac,
+                                 opts,
+                                 tout,
+                                 tdir,
+                                 sizeu,
+                                 false,
+                                 tmp,
+                                 uprev,
+                                 Cint(flag),
+                                 false,
+                                 0,
+                                 1,
+                                 callback_cache,
+                                 0.0)
 
     initialize_callbacks!(integrator)
     integrator
 end # function solve
 
-function DiffEqBase.__init(
-    prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-    alg::ARKODE{Method, LinearSolver, MassLinearSolver},
-    timeseries = [],
-    ts = [],
-    ks = [];
-    verbose = true,
-    callback = nothing,
-    abstol = 1 / 10^6,
-    reltol = 1 / 10^3,
-    saveat = Float64[],
-    tstops = Float64[],
-    maxiters = Int(1e5),
-    dt = nothing,
-    dtmin = 0.0,
-    dtmax = 0.0,
-    timeseries_errors = true,
-    dense_errors = false,
-    save_everystep = isempty(saveat), save_idxs = nothing,
-    dense = save_everystep,
-    save_on = true,
-    save_start = true,
-    save_end = true,
-    save_timeseries = nothing,
-    progress = false,
-    progress_name = "ODE",
-    progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
-    advance_to_tstop = false,
-    stop_at_next_tstop = false,
-    userdata = nothing,
-    alias_u0 = false,
-    kwargs...,
-) where {uType, tupType, isinplace, Method, LinearSolver, MassLinearSolver}
-
+function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
+                           alg::ARKODE{Method,LinearSolver,MassLinearSolver},
+                           timeseries = [],
+                           ts = [],
+                           ks = [];
+                           verbose = true,
+                           callback = nothing,
+                           abstol = 1 / 10^6,
+                           reltol = 1 / 10^3,
+                           saveat = Float64[],
+                           tstops = Float64[],
+                           maxiters = Int(1e5),
+                           dt = nothing,
+                           dtmin = 0.0,
+                           dtmax = 0.0,
+                           timeseries_errors = true,
+                           dense_errors = false,
+                           save_everystep = isempty(saveat), save_idxs = nothing,
+                           dense = save_everystep,
+                           save_on = true,
+                           save_start = true,
+                           save_end = true,
+                           save_timeseries = nothing,
+                           progress = false,
+                           progress_name = "ODE",
+                           progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+                           advance_to_tstop = false,
+                           stop_at_next_tstop = false,
+                           userdata = nothing,
+                           alias_u0 = false,
+                           kwargs...) where {uType,tupType,isinplace,Method,LinearSolver,
+                                             MassLinearSolver}
     tType = eltype(tupType)
 
     if verbose
@@ -542,8 +522,8 @@ function DiffEqBase.__init(
 
     tdir = sign(tspan[2] - tspan[1])
 
-    tstops_internal, saveat_internal =
-        tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
+    tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
+                                                                  tspan, tType)
 
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
@@ -566,11 +546,10 @@ function DiffEqBase.__init(
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
 
-        !verbose && ARKStepSetErrHandlerFn(
-            mem,
-            @cfunction(null_error_handler, Nothing, (Cint, Char, Char, Ptr{Cvoid})),
-            C_NULL,
-        )
+        !verbose && ARKStepSetErrHandlerFn(mem,
+                                           @cfunction(null_error_handler, Nothing,
+                                                      (Cint, Char, Char, Ptr{Cvoid})),
+                                           C_NULL)
         return mem
     end
 
@@ -585,8 +564,8 @@ function DiffEqBase.__init(
         f! = prob.f
     else # Then it's an in-place function on an abstract array
         f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
-        du = vec(du);
-        Cint(0))
+                               du = vec(du);
+                               Cint(0))
     end
 
     if typeof(prob.problem_type) <: SplitODEProblem
@@ -605,30 +584,27 @@ function DiffEqBase.__init(
             f1! = prob.f.f1
             f2! = prob.f.f2
         else # Then it's an in-place function on an abstract array
-            f1! =
-                (du, u, p, t) -> (prob.f.f1(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                du = vec(du);
-                Cint(0))
-            f2! =
-                (du, u, p, t) -> (prob.f.f2(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                du = vec(du);
-                Cint(0))
+            f1! = (du, u, p, t) -> (prob.f.f1(reshape(du, sizeu), reshape(u, sizeu), p, t);
+                                    du = vec(du);
+                                    Cint(0))
+            f2! = (du, u, p, t) -> (prob.f.f2(reshape(du, sizeu), reshape(u, sizeu), p, t);
+                                    du = vec(du);
+                                    Cint(0))
         end
 
-        use_jac_prototype = (isa(prob.f.f1.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
-        userfun = FunJac(
-            f1!,
-            f2!,
-            prob.f.f1.jac,
-            prob.p,
-            prob.f.mass_matrix,
-            use_jac_prototype ? prob.f.f1.jac_prototype : nothing,
-            alg.prec,
-            alg.psetup,
-            u0,
-            _u0,
-            nothing,
-        )
+        use_jac_prototype = (isa(prob.f.f1.jac_prototype, SparseArrays.SparseMatrixCSC) &&
+                             LinearSolver ∈ SPARSE_SOLVERS)
+        userfun = FunJac(f1!,
+                         f2!,
+                         prob.f.f1.jac,
+                         prob.p,
+                         prob.f.mass_matrix,
+                         use_jac_prototype ? prob.f.f1.jac_prototype : nothing,
+                         alg.prec,
+                         alg.psetup,
+                         u0,
+                         _u0,
+                         nothing)
 
         function getcfunjac(::T) where {T}
             @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
@@ -639,32 +615,31 @@ function DiffEqBase.__init(
         cfj1 = getcfunjac(userfun)
         cfj2 = getcfunjac2(userfun)
 
-        mem = arkodemem(fi = cfj1, fe = cfj2)
+        mem = arkodemem(; fi = cfj1, fe = cfj2)
     else
-        use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&  LinearSolver ∈ SPARSE_SOLVERS)
-        userfun = FunJac(
-            f!,
-            prob.f.jac,
-            prob.p,
-            prob.f.mass_matrix,
-            use_jac_prototype ? prob.f.jac_prototype : nothing,
-            alg.prec,
-            alg.psetup,
-            u0,
-            _u0,
-        )
+        use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
+                             LinearSolver ∈ SPARSE_SOLVERS)
+        userfun = FunJac(f!,
+                         prob.f.jac,
+                         prob.p,
+                         prob.f.mass_matrix,
+                         use_jac_prototype ? prob.f.jac_prototype : nothing,
+                         alg.prec,
+                         alg.psetup,
+                         u0,
+                         _u0)
         if alg.stiffness == Explicit()
             function getcfun1(::T) where {T}
                 @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
             end
             cfj1 = getcfun1(userfun)
-            mem = arkodemem(fe = cfj1)
+            mem = arkodemem(; fe = cfj1)
         elseif alg.stiffness == Implicit()
             function getcfun2(::T) where {T}
                 @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
             end
             cfj2 = getcfun2(userfun)
-            mem = arkodemem(fi = cfj2)
+            mem = arkodemem(; fi = cfj2)
         end
     end
 
@@ -768,19 +743,15 @@ function DiffEqBase.__init(
         _LS = nothing
     end
 
-    if (
-        typeof(prob.problem_type) <: SplitODEProblem &&
-        typeof(prob.f.f1.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-    ) || (
-        !(typeof(prob.problem_type) <: SplitODEProblem) &&
-        typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
-    ) && alg.stiffness !== Explicit()
+    if (typeof(prob.problem_type) <: SplitODEProblem &&
+        typeof(prob.f.f1.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator) ||
+       (!(typeof(prob.problem_type) <: SplitODEProblem) &&
+        typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator) &&
+       alg.stiffness !== Explicit()
         function getcfunjtimes(::T) where {T}
-            @cfunction(
-                jactimes,
-                Cint,
-                (N_Vector, N_Vector, realtype, N_Vector, N_Vector, Ref{T}, N_Vector)
-            )
+            @cfunction(jactimes,
+                       Cint,
+                       (N_Vector, N_Vector, realtype, N_Vector, N_Vector, Ref{T}, N_Vector))
         end
         jtimes = getcfunjtimes(userfun)
         ARKStepSetJacTimes(mem, C_NULL, jtimes)
@@ -838,11 +809,9 @@ function DiffEqBase.__init(
         end
         flag = ARKStepSetMassLinearSolver(mem, MLS, _M === nothing ? C_NULL : M, false)
         function getmatfun(::T) where {T}
-            @cfunction(
-                massmat,
-                Cint,
-                (realtype, SUNMatrix, Ref{T}, N_Vector, N_Vector, N_Vector)
-            )
+            @cfunction(massmat,
+                       Cint,
+                       (realtype, SUNMatrix, Ref{T}, N_Vector, N_Vector, N_Vector))
         end
         matfun = getmatfun(userfun)
         ARKStepSetMassFn(mem, matfun)
@@ -853,20 +822,16 @@ function DiffEqBase.__init(
 
     if DiffEqBase.has_jac(prob.f) && alg.stiffness !== Explicit()
         function getfunjac(::T) where {T}
-            @cfunction(
-                cvodejac,
-                Cint,
-                (
-                    realtype,
-                    N_Vector,
-                    N_Vector,
-                    SUNMatrix,
-                    Ref{T},
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                )
-            )
+            @cfunction(cvodejac,
+                       Cint,
+                       (realtype,
+                        N_Vector,
+                        N_Vector,
+                        SUNMatrix,
+                        Ref{T},
+                        N_Vector,
+                        N_Vector,
+                        N_Vector))
         end
         jac = getfunjac(userfun)
         flag = ARKStepSetUserData(mem, userfun)
@@ -877,30 +842,24 @@ function DiffEqBase.__init(
 
     if alg.prec !== nothing && alg.stiffness !== Explicit()
         function getpercfun(::T) where {T}
-            @cfunction(
-                precsolve,
-                Cint,
-                (
-                    Float64,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    Float64,
-                    Float64,
-                    Int,
-                    Ref{T},
-                )
-            )
+            @cfunction(precsolve,
+                       Cint,
+                       (Float64,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        Float64,
+                        Float64,
+                        Int,
+                        Ref{T}))
         end
         precfun = getpercfun(userfun)
 
         function getpsetupfun(::T) where {T}
-            @cfunction(
-                precsetup,
-                Cint,
-                (Float64, N_Vector, N_Vector, Int, Ptr{Int}, Float64, Ref{T})
-            )
+            @cfunction(precsetup,
+                       Cint,
+                       (Float64, N_Vector, N_Vector, Int, Ptr{Int}, Float64, Ref{T}))
         end
         psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
 
@@ -932,85 +891,77 @@ function DiffEqBase.__init(
         dures = Vector{uType}()
     end
 
-    sol = DiffEqBase.build_solution(
-        prob,
-        alg,
-        ts,
-        ures,
-        dense = dense,
-        interp = dense ? DiffEqBase.HermiteInterpolation(ts, ures, dures) :
-                     DiffEqBase.LinearInterpolation(ts, ures),
-        timeseries_errors = timeseries_errors,
-        destats = DiffEqBase.DEStats(0),
-        calculate_error = false,
-    )
-    opts = DEOptions(
-        saveat_internal,
-        tstops_internal,
-        saveat,tstops,save_start,
-        save_everystep,save_idxs,
-        dense,
-        timeseries_errors,
-        dense_errors,
-        save_on,
-        save_end,
-        callbacks_internal,
-        abstol,
-        reltol,
-        verbose,
-        advance_to_tstop,
-        stop_at_next_tstop,
-        progress,
-        progress_name,
-        progress_message,
-        maxiters,
-    )
-    integrator = ARKODEIntegrator(
-        utmp,
-        prob.p,
-        t0,
-        t0,
-        mem,
-        _LS,
-        _A,
-        _MLS,
-        _M,
-        sol,
-        alg,
-        f!,
-        userfun,
-        jac,
-        opts,
-        tout,
-        tdir,
-        sizeu,
-        false,
-        tmp,
-        uprev,
-        Cint(flag),
-        false,
-        0,
-        1,
-        callback_cache,
-        0.0,
-    )
+    sol = DiffEqBase.build_solution(prob,
+                                    alg,
+                                    ts,
+                                    ures;
+                                    dense = dense,
+                                    interp = dense ?
+                                             DiffEqBase.HermiteInterpolation(ts, ures,
+                                                                             dures) :
+                                             DiffEqBase.LinearInterpolation(ts, ures),
+                                    timeseries_errors = timeseries_errors,
+                                    destats = DiffEqBase.DEStats(0),
+                                    calculate_error = false)
+    opts = DEOptions(saveat_internal,
+                     tstops_internal,
+                     saveat, tstops, save_start,
+                     save_everystep, save_idxs,
+                     dense,
+                     timeseries_errors,
+                     dense_errors,
+                     save_on,
+                     save_end,
+                     callbacks_internal,
+                     abstol,
+                     reltol,
+                     verbose,
+                     advance_to_tstop,
+                     stop_at_next_tstop,
+                     progress,
+                     progress_name,
+                     progress_message,
+                     maxiters)
+    integrator = ARKODEIntegrator(utmp,
+                                  prob.p,
+                                  t0,
+                                  t0,
+                                  mem,
+                                  _LS,
+                                  _A,
+                                  _MLS,
+                                  _M,
+                                  sol,
+                                  alg,
+                                  f!,
+                                  userfun,
+                                  jac,
+                                  opts,
+                                  tout,
+                                  tdir,
+                                  sizeu,
+                                  false,
+                                  tmp,
+                                  uprev,
+                                  Cint(flag),
+                                  false,
+                                  0,
+                                  1,
+                                  callback_cache,
+                                  0.0)
 
     initialize_callbacks!(integrator)
     integrator
 end # function solve
 
 function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
-
     if isempty(tstops) # TODO: Specialize more
         tstops_vec = [tspan[2]]
     else
-        tstops_vec = vec(collect(
-            tType,
-            Iterators.filter(
-                x -> tdir * tspan[1] < tdir * x ≤ tdir * tspan[end],
-                Iterators.flatten((tstops, tspan[end])),
-            ),
-        ))
+        tstops_vec = vec(collect(tType,
+                                 Iterators.filter(x -> tdir * tspan[1] < tdir * x ≤
+                                                       tdir * tspan[end],
+                                                  Iterators.flatten((tstops, tspan[end])))))
     end
 
     if tdir > 0
@@ -1021,23 +972,19 @@ function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
 
     if typeof(saveat) <: Number
         if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
-            saveat_vec = convert(
-                Vector{tType},
-                collect(tType, (tspan[1] + saveat):saveat:tspan[end]),
-            )
+            saveat_vec = convert(Vector{tType},
+                                 collect(tType, (tspan[1]+saveat):saveat:tspan[end]))
         else
-            saveat_vec = convert(
-                Vector{tType},
-                collect(tType, (tspan[1] + saveat):saveat:(tspan[end] - saveat)),
-            )
+            saveat_vec = convert(Vector{tType},
+                                 collect(tType,
+                                         (tspan[1]+saveat):saveat:(tspan[end]-saveat)))
         end
     elseif isempty(saveat)
         saveat_vec = saveat
     else
-        saveat_vec = vec(collect(
-            tType,
-            Iterators.filter(x -> tdir * tspan[1] < tdir * x < tdir * tspan[end], saveat),
-        ))
+        saveat_vec = vec(collect(tType,
+                                 Iterators.filter(x -> tdir * tspan[1] < tdir * x <
+                                                       tdir * tspan[end], saveat)))
     end
 
     if tdir > 0
@@ -1051,38 +998,36 @@ end
 
 ## Solve for DAEs uses IDA
 
-function DiffEqBase.__init(
-    prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType, isinplace},
-    alg::SundialsDAEAlgorithm{LinearSolver},
-    timeseries = [],
-    ts = [],
-    ks = [];
-    verbose = true,
-    dt = nothing,
-    dtmax = 0.0,
-    save_on = true,
-    save_start = true,
-    callback = nothing,
-    abstol = 1 / 10^6,
-    reltol = 1 / 10^3,
-    saveat = Float64[],
-    tstops = Float64[],
-    maxiters = Int(1e5),
-    timeseries_errors = true,
-    dense_errors = false,
-    save_everystep = isempty(saveat), save_idxs = nothing,
-    dense = save_everystep,
-    save_timeseries = nothing,
-    save_end = true,
-    progress = false,
-    progress_name = "DAE IDA",
-    progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
-    advance_to_tstop = false,
-    stop_at_next_tstop = false,
-    userdata = nothing,
-    kwargs...,
-) where {uType, duType, tupType, isinplace, LinearSolver}
-
+function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType,duType,tupType,
+                                                               isinplace},
+                           alg::SundialsDAEAlgorithm{LinearSolver},
+                           timeseries = [],
+                           ts = [],
+                           ks = [];
+                           verbose = true,
+                           dt = nothing,
+                           dtmax = 0.0,
+                           save_on = true,
+                           save_start = true,
+                           callback = nothing,
+                           abstol = 1 / 10^6,
+                           reltol = 1 / 10^3,
+                           saveat = Float64[],
+                           tstops = Float64[],
+                           maxiters = Int(1e5),
+                           timeseries_errors = true,
+                           dense_errors = false,
+                           save_everystep = isempty(saveat), save_idxs = nothing,
+                           dense = save_everystep,
+                           save_timeseries = nothing,
+                           save_end = true,
+                           progress = false,
+                           progress_name = "DAE IDA",
+                           progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+                           advance_to_tstop = false,
+                           stop_at_next_tstop = false,
+                           userdata = nothing,
+                           kwargs...) where {uType,duType,tupType,isinplace,LinearSolver}
     tType = eltype(tupType)
 
     if verbose
@@ -1114,8 +1059,8 @@ function DiffEqBase.__init(
 
     tdir = sign(tspan[2] - tspan[1])
 
-    tstops_internal, saveat_internal =
-        tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
+    tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
+                                                                  tspan, tType)
 
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
@@ -1138,28 +1083,25 @@ function DiffEqBase.__init(
     elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
         f! = (out, du, u, p, t) -> (out .= prob.f(du, u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0) <: AbstractArray
-        f! =
-            (out, du, u, p, t) ->
-                (out .= vec(prob.f(reshape(du, sizedu), reshape(u, sizeu), p, t));
-                Cint(0))
+        f! = (out, du, u, p, t) -> (out .= vec(prob.f(reshape(du, sizedu),
+                                                      reshape(u, sizeu), p, t));
+                                    Cint(0))
     elseif typeof(prob.u0) <: Vector{Float64}
         f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! =
-            (out, du, u, p, t) ->
-                (prob.f(reshape(out, sizeu), reshape(du, sizedu), reshape(u, sizeu), p, t);
-                Cint(0))
+        f! = (out, du, u, p, t) -> (prob.f(reshape(out, sizeu), reshape(du, sizedu),
+                                           reshape(u, sizeu), p, t);
+                                    Cint(0))
     end
 
     mem_ptr = IDACreate()
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && IDASetErrHandlerFn(
-        mem,
-        @cfunction(null_error_handler, Nothing, (Cint, Char, Char, Ptr{Cvoid})),
-        C_NULL,
-    )
+    !verbose && IDASetErrHandlerFn(mem,
+                                   @cfunction(null_error_handler, Nothing,
+                                              (Cint, Char, Char, Ptr{Cvoid})),
+                                   C_NULL)
 
     ts = [t0]
 
@@ -1169,19 +1111,18 @@ function DiffEqBase.__init(
     dutmp = NVector(_du0)
     rtest = zeros(length(u0))
 
-    use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) && LinearSolver ∈ SPARSE_SOLVERS)
-    userfun = FunJac(
-        f!,
-        prob.f.jac,
-        prob.p,
-        nothing,
-        use_jac_prototype ? prob.f.jac_prototype : nothing,
-        alg.prec,
-        alg.psetup,
-        _u0,
-        _du0,
-        rtest,
-    )
+    use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
+                         LinearSolver ∈ SPARSE_SOLVERS)
+    userfun = FunJac(f!,
+                     prob.f.jac,
+                     prob.p,
+                     nothing,
+                     use_jac_prototype ? prob.f.jac_prototype : nothing,
+                     alg.prec,
+                     alg.psetup,
+                     _u0,
+                     _du0,
+                     rtest)
 
     function getcfun(::T) where {T}
         @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
@@ -1263,22 +1204,18 @@ function DiffEqBase.__init(
 
     if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
         function getcfunjtimes(::T) where {T}
-            @cfunction(
-                idajactimes,
-                Cint,
-                (
-                    realtype,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    realtype,
-                    Ref{T},
-                    N_Vector,
-                    N_Vector,
-                )
-            )
+            @cfunction(idajactimes,
+                       Cint,
+                       (realtype,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        realtype,
+                        Ref{T},
+                        N_Vector,
+                        N_Vector))
         end
         jtimes = getcfunjtimes(userfun)
         IDASetJacTimes(mem, C_NULL, jtimes)
@@ -1286,30 +1223,24 @@ function DiffEqBase.__init(
 
     if alg.prec !== nothing
         function getprecfun(::T) where {T}
-            @cfunction(
-                idaprecsolve,
-                Cint,
-                (
-                    Float64,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    Float64,
-                    Float64,
-                    Ref{T},
-                )
-            )
+            @cfunction(idaprecsolve,
+                       Cint,
+                       (Float64,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        Float64,
+                        Float64,
+                        Ref{T}))
         end
         precfun = getprecfun(userfun)
 
         function getpsetupfun(::T) where {T}
-            @cfunction(
-                idaprecsetup,
-                Cint,
-                (Float64, N_Vector, N_Vector, N_Vector, Float64, Ref{T})
-            )
+            @cfunction(idaprecsetup,
+                       Cint,
+                       (Float64, N_Vector, N_Vector, N_Vector, Float64, Ref{T}))
         end
         psetupfun = alg.psetup === nothing ? C_NULL : getpsetupfun(userfun)
 
@@ -1318,22 +1249,18 @@ function DiffEqBase.__init(
 
     if DiffEqBase.has_jac(prob.f)
         function getcfunjacc(::T) where {T}
-            @cfunction(
-                idajac,
-                Cint,
-                (
-                    realtype,
-                    realtype,
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                    SUNMatrix,
-                    Ref{T},
-                    N_Vector,
-                    N_Vector,
-                    N_Vector,
-                )
-            )
+            @cfunction(idajac,
+                       Cint,
+                       (realtype,
+                        realtype,
+                        N_Vector,
+                        N_Vector,
+                        N_Vector,
+                        SUNMatrix,
+                        Ref{T},
+                        N_Vector,
+                        N_Vector,
+                        N_Vector))
         end
         jac = getcfunjacc(userfun)
         flag = IDASetUserData(mem, userfun)
@@ -1393,72 +1320,68 @@ function DiffEqBase.__init(
         retcode = :InitialFailure
     end
 
-    sol = DiffEqBase.build_solution(
-        prob,
-        alg,
-        ts,
-        ures,
-        dense = dense,
-        interp = dense ? DiffEqBase.HermiteInterpolation(ts, ures, dures) :
-                     DiffEqBase.LinearInterpolation(ts, ures),
-        calculate_error = false,
-        timeseries_errors = timeseries_errors,
-        retcode = retcode,
-        destats = DiffEqBase.DEStats(0),
-        dense_errors = dense_errors,
-    )
+    sol = DiffEqBase.build_solution(prob,
+                                    alg,
+                                    ts,
+                                    ures;
+                                    dense = dense,
+                                    interp = dense ?
+                                             DiffEqBase.HermiteInterpolation(ts, ures,
+                                                                             dures) :
+                                             DiffEqBase.LinearInterpolation(ts, ures),
+                                    calculate_error = false,
+                                    timeseries_errors = timeseries_errors,
+                                    retcode = retcode,
+                                    destats = DiffEqBase.DEStats(0),
+                                    dense_errors = dense_errors)
 
-    opts = DEOptions(
-        saveat_internal,
-        tstops_internal,
-        saveat,tstops,save_start,
-        save_everystep,save_idxs,
-        dense,
-        timeseries_errors,
-        dense_errors,
-        save_on,
-        save_end,
-        callbacks_internal,
-        abstol,
-        reltol,
-        verbose,
-        advance_to_tstop,
-        stop_at_next_tstop,
-        progress,
-        progress_name,
-        progress_message,
-        maxiters,
-    )
+    opts = DEOptions(saveat_internal,
+                     tstops_internal,
+                     saveat, tstops, save_start,
+                     save_everystep, save_idxs,
+                     dense,
+                     timeseries_errors,
+                     dense_errors,
+                     save_on,
+                     save_end,
+                     callbacks_internal,
+                     abstol,
+                     reltol,
+                     verbose,
+                     advance_to_tstop,
+                     stop_at_next_tstop,
+                     progress,
+                     progress_name,
+                     progress_message,
+                     maxiters)
 
-    integrator = IDAIntegrator(
-        utmp,
-        dutmp,
-        prob.p,
-        t0,
-        t0,
-        mem,
-        _LS,
-        _A,
-        sol,
-        alg,
-        f!,
-        userfun,
-        jac,
-        opts,
-        tout,
-        tdir,
-        sizeu,
-        sizedu,
-        false,
-        tmp,
-        uprev,
-        Cint(flag),
-        false,
-        0,
-        1,
-        callback_cache,
-        0.0,
-    )
+    integrator = IDAIntegrator(utmp,
+                               dutmp,
+                               prob.p,
+                               t0,
+                               t0,
+                               mem,
+                               _LS,
+                               _A,
+                               sol,
+                               alg,
+                               f!,
+                               userfun,
+                               jac,
+                               opts,
+                               tout,
+                               tdir,
+                               sizeu,
+                               sizedu,
+                               false,
+                               tmp,
+                               uprev,
+                               Cint(flag),
+                               false,
+                               0,
+                               1,
+                               callback_cache,
+                               0.0)
 
     initialize_callbacks!(integrator)
     integrator
@@ -1475,63 +1398,49 @@ function interpret_sundials_retcode(flag)
 end
 
 function solver_step(integrator::CVODEIntegrator, tstop)
-    integrator.flag =
-        CVode(integrator.mem, tstop, integrator.u, integrator.tout, CV_ONE_STEP)
+    integrator.flag = CVode(integrator.mem, tstop, integrator.u, integrator.tout,
+                            CV_ONE_STEP)
     if integrator.opts.progress
-        Logging.@logmsg(
-            -1,
-            integrator.opts.progress_name,
-            _id = :Sundials,
-            message = integrator.opts.progress_message(
-                integrator.dt,
-                integrator.u,
-                integrator.p,
-                integrator.t,
-            ),
-            progress = integrator.t / integrator.sol.prob.tspan[2]
-        )
+        Logging.@logmsg(-1,
+                        integrator.opts.progress_name,
+                        _id = :Sundials,
+                        message = integrator.opts.progress_message(integrator.dt,
+                                                                   integrator.u,
+                                                                   integrator.p,
+                                                                   integrator.t),
+                        progress = integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::ARKODEIntegrator, tstop)
-    integrator.flag =
-        ARKStepEvolve(integrator.mem, tstop, integrator.u, integrator.tout, ARK_ONE_STEP)
+    integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u, integrator.tout,
+                                    ARK_ONE_STEP)
     if integrator.opts.progress
-        Logging.@logmsg(
-            -1,
-            integrator.opts.progress_name,
-            _id = :Sundials,
-            message = integrator.opts.progress_message(
-                integrator.dt,
-                integrator.u,
-                integrator.p,
-                integrator.t,
-            ),
-            progress = integrator.t / integrator.sol.prob.tspan[2]
-        )
+        Logging.@logmsg(-1,
+                        integrator.opts.progress_name,
+                        _id = :Sundials,
+                        message = integrator.opts.progress_message(integrator.dt,
+                                                                   integrator.u,
+                                                                   integrator.p,
+                                                                   integrator.t),
+                        progress = integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::IDAIntegrator, tstop)
-    integrator.flag = IDASolve(
-        integrator.mem,
-        tstop,
-        integrator.tout,
-        integrator.u,
-        integrator.du,
-        IDA_ONE_STEP,
-    )
+    integrator.flag = IDASolve(integrator.mem,
+                               tstop,
+                               integrator.tout,
+                               integrator.u,
+                               integrator.du,
+                               IDA_ONE_STEP)
     if integrator.opts.progress
-        Logging.@logmsg(
-            -1,
-            integrator.opts.progress_name,
-            _id = :Sundials,
-            message = integrator.opts.progress_message(
-                integrator.dt,
-                integrator.u,
-                integrator.p,
-                integrator.t,
-            ),
-            progress = integrator.t / integrator.sol.prob.tspan[2]
-        )
+        Logging.@logmsg(-1,
+                        integrator.opts.progress_name,
+                        _id = :Sundials,
+                        message = integrator.opts.progress_message(integrator.dt,
+                                                                   integrator.u,
+                                                                   integrator.p,
+                                                                   integrator.t),
+                        progress = integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 
@@ -1555,7 +1464,8 @@ function get_iters!(integrator::IDAIntegrator, iters)
     IDAGetNumSteps(integrator.mem, iters)
 end
 
-function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = false, calculate_error = false)
+function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = false,
+                           calculate_error = false)
     uType = eltype(integrator.sol.u)
     iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)
@@ -1590,27 +1500,25 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
 
     if integrator.opts.save_end &&
        (isempty(integrator.sol.t) || integrator.sol.t[end] != integrator.t)
-        save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu, integrator.opts.save_idxs)
+        save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu,
+                    integrator.opts.save_idxs)
         push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
             integrator(integrator.u, integrator.t, Val{1})
-            save_value!(integrator.sol.interp.du, integrator.u, uType, integrator.sizeu, integrator.opts.save_idxs)
+            save_value!(integrator.sol.interp.du, integrator.u, uType, integrator.sizeu,
+                        integrator.opts.save_idxs)
         end
     end
 
     if integrator.opts.progress
-        Logging.@logmsg(
-            -1,
-            integrator.opts.progress_name,
-            _id = :Sundials,
-            message = integrator.opts.progress_message(
-                integrator.dt,
-                integrator.u,
-                integrator.p,
-                integrator.t,
-            ),
-            progress = "done"
-        )
+        Logging.@logmsg(-1,
+                        integrator.opts.progress_name,
+                        _id = :Sundials,
+                        message = integrator.opts.progress_message(integrator.dt,
+                                                                   integrator.u,
+                                                                   integrator.p,
+                                                                   integrator.t),
+                        progress = "done")
     end
 
     fill_destats!(integrator)
@@ -1622,18 +1530,14 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
     end
 
     if DiffEqBase.has_analytic(integrator.sol.prob.f) && calculate_error
-        DiffEqBase.calculate_solution_errors!(
-            integrator.sol;
-            timeseries_errors = integrator.opts.timeseries_errors,
-            dense_errors = integrator.opts.dense_errors
-        )
+        DiffEqBase.calculate_solution_errors!(integrator.sol;
+                                              timeseries_errors = integrator.opts.timeseries_errors,
+                                              dense_errors = integrator.opts.dense_errors)
     end
 
     if integrator.sol.retcode === :Default
-        integrator.sol = DiffEqBase.solution_new_retcode(
-            integrator.sol,
-            interpret_sundials_retcode(integrator.flag),
-        )
+        integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,
+                                                         interpret_sundials_retcode(integrator.flag))
     end
 
     return integrator.sol
@@ -1730,13 +1634,11 @@ function initialize_callbacks!(integrator, initialize_save = true)
 
     # if the user modifies u, we need to fix current values
     if u_modified
-
         handle_callback_modifiers!(integrator)
 
-        if initialize_save && (
-            any((c) -> c.save_positions[2], callbacks.discrete_callbacks) ||
-            any((c) -> c.save_positions[2], callbacks.continuous_callbacks)
-        )
+        if initialize_save &&
+           (any((c) -> c.save_positions[2], callbacks.discrete_callbacks) ||
+            any((c) -> c.save_positions[2], callbacks.continuous_callbacks))
             savevalues!(integrator, true)
         end
     end

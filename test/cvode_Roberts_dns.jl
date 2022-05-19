@@ -25,14 +25,10 @@ end
 # broken -- needs a wrapper from Sundials._DlsMat to Matrix and Jac user function wrapper
 function Jac(N, t, ny, fy, Jptr, user_data, tmp1, tmp2, tmp3)
     y = convert(Vector, ny)
-    dlsmat = unpack(
-        IOString(unsafe_wrap(
-            convert(Ptr{UInt8}, Jptr),
-            (sum(map(sizeof, Sundials._DlsMat)) + 10,),
-            false,
-        )),
-        Sundials._DlsMat,
-    )
+    dlsmat = unpack(IOString(unsafe_wrap(convert(Ptr{UInt8}, Jptr),
+                                         (sum(map(sizeof, Sundials._DlsMat)) + 10,),
+                                         false)),
+                    Sundials._DlsMat)
     J = unsafe_wrap(unsafe_ref(dlsmat.cols), (Int(neq), Int(neq)), false)
     J[1, 1] = -0.04
     J[1, 2] = 1.0e4 * y[3]
@@ -60,11 +56,9 @@ userfun = Sundials.UserFunctionAndData(f, userdata)
 Sundials.CVodeSetUserData(cvode_mem, userfun)
 
 function getcfunrob(userfun::T) where {T}
-    @cfunction(
-        Sundials.cvodefun,
-        Cint,
-        (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ref{T})
-    )
+    @cfunction(Sundials.cvodefun,
+               Cint,
+               (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ref{T}))
 end
 
 Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1, convert(Sundials.N_Vector, y0))
