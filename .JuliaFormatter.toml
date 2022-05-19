@@ -1,8 +1,11 @@
 style = "yas"
-always_for_in = false
+always_for_in = true
 import_to_using = false
 pipe_to_function_call = false
 short_to_long_function_def = false
 always_use_return = false
 join_lines_based_on_source = true
 remove_extra_newlines = true
+whitespace_in_kwargs = true
+whitespace_typedefs = true
+whitespace_ops_in_indices = false
