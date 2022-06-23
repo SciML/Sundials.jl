@@ -40,7 +40,7 @@ function handle_callbacks!(integrator)
 end
 
 function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
-                                force_save = false)::Tuple{Bool,Bool}
+                                force_save = false)::Tuple{Bool, Bool}
     saved, savedexactly = false, false
     !integrator.opts.save_on && return saved, savedexactly
     uType = typeof(integrator.sol.prob.u0)
@@ -63,7 +63,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
 
     if force_save || integrator.opts.save_everystep ||
        (integrator.opts.save_everystep && (isempty(integrator.sol.t) ||
-                                           (integrator.t !== integrator.sol.t[end])))
+         (integrator.t !== integrator.sol.t[end])))
         saved = true
         save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu,
                     integrator.opts.save_idxs)
@@ -82,14 +82,14 @@ function save_value!(save_array,
                      val,
                      ::Type{T},
                      sizeu, save_idxs,
-                     make_copy::Type{Val{bool}} = Val{true}) where {T<:Number,bool}
+                     make_copy::Type{Val{bool}} = Val{true}) where {T <: Number, bool}
     push!(save_array, first(val))
 end
 function save_value!(save_array,
                      val,
                      ::Type{T},
                      sizeu, save_idxs,
-                     make_copy::Type{Val{bool}} = Val{true}) where {T<:Vector,bool}
+                     make_copy::Type{Val{bool}} = Val{true}) where {T <: Vector, bool}
     save = if save_idxs !== nothing
         val[save_idxs]
     else
@@ -101,7 +101,8 @@ function save_value!(save_array,
                      val,
                      ::Type{T},
                      sizeu, save_idxs,
-                     make_copy::Type{Val{bool}} = Val{true}) where {T<:AbstractArray,bool}
+                     make_copy::Type{Val{bool}} = Val{true}) where {T <: AbstractArray, bool
+                                                                    }
     save = if save_idxs !== nothing
         reshape(val, sizeu)[save_idxs]
     else
@@ -178,8 +179,12 @@ end
     end
 end
 
-DiffEqBase.reeval_internals_due_to_modification!(integrator::AbstractSundialsIntegrator) = nothing
-DiffEqBase.reeval_internals_due_to_modification!(integrator::IDAIntegrator) = handle_callback_modifiers!(integrator::IDAIntegrator)
+function DiffEqBase.reeval_internals_due_to_modification!(integrator::AbstractSundialsIntegrator)
+    nothing
+end
+function DiffEqBase.reeval_internals_due_to_modification!(integrator::IDAIntegrator)
+    handle_callback_modifiers!(integrator::IDAIntegrator)
+end
 
 # Required for callbacks
 DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing

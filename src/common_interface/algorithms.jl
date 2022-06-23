@@ -1,7 +1,7 @@
 # Sundials.jl algorithms
 
 # Abstract Types
-abstract type SundialsODEAlgorithm{Method,LinearSolver} <: DiffEqBase.AbstractODEAlgorithm end
+abstract type SundialsODEAlgorithm{Method, LinearSolver} <: DiffEqBase.AbstractODEAlgorithm end
 abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgorithm end
 abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
 
@@ -45,7 +45,7 @@ CVODE_BDF(;method=:Newton,linear_solver=:Dense,
           max_convergence_failures = 10,
           prec = nothing, prec_side = 0)
 """
-struct CVODE_BDF{Method,LinearSolver,P,PS} <: SundialsODEAlgorithm{Method,LinearSolver}
+struct CVODE_BDF{Method, LinearSolver, P, PS} <: SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
     jac_lower::Int
     krylov_dim::Int
@@ -92,18 +92,18 @@ Base.@pure function CVODE_BDF(;
                            :KLU))
         error("Linear solver choice not accepted.")
     end
-    CVODE_BDF{method,linear_solver,typeof(prec),typeof(psetup)}(jac_upper,
-                                                                jac_lower,
-                                                                krylov_dim,
-                                                                stability_limit_detect,
-                                                                max_hnil_warns,
-                                                                max_order,
-                                                                max_error_test_failures,
-                                                                max_nonlinear_iters,
-                                                                max_convergence_failures,
-                                                                prec,
-                                                                psetup,
-                                                                prec_side)
+    CVODE_BDF{method, linear_solver, typeof(prec), typeof(psetup)}(jac_upper,
+                                                                   jac_lower,
+                                                                   krylov_dim,
+                                                                   stability_limit_detect,
+                                                                   max_hnil_warns,
+                                                                   max_order,
+                                                                   max_error_test_failures,
+                                                                   max_nonlinear_iters,
+                                                                   max_convergence_failures,
+                                                                   prec,
+                                                                   psetup,
+                                                                   prec_side)
 end
 """
 CVODE_Adams: CVode Adams-Moulton solver.
@@ -137,8 +137,8 @@ CVODE_Adams(;method=:Functional,linear_solver=:None,
             max_convergence_failures = 10,
             prec = nothing, psetup = nothing, prec_side = 0)
 """
-struct CVODE_Adams{Method,LinearSolver,P,PS} <:
-       SundialsODEAlgorithm{Method,LinearSolver}
+struct CVODE_Adams{Method, LinearSolver, P, PS} <:
+       SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
     jac_lower::Int
     krylov_dim::Int
@@ -184,18 +184,18 @@ Base.@pure function CVODE_Adams(;
                            :KLU))
         error("Linear solver choice not accepted.")
     end
-    CVODE_Adams{method,linear_solver,typeof(prec),typeof(psetup)}(jac_upper,
-                                                                  jac_lower,
-                                                                  krylov_dim,
-                                                                  stability_limit_detect,
-                                                                  max_hnil_warns,
-                                                                  max_order,
-                                                                  max_error_test_failures,
-                                                                  max_nonlinear_iters,
-                                                                  max_convergence_failures,
-                                                                  prec,
-                                                                  psetup,
-                                                                  prec_side)
+    CVODE_Adams{method, linear_solver, typeof(prec), typeof(psetup)}(jac_upper,
+                                                                     jac_lower,
+                                                                     krylov_dim,
+                                                                     stability_limit_detect,
+                                                                     max_hnil_warns,
+                                                                     max_order,
+                                                                     max_error_test_failures,
+                                                                     max_nonlinear_iters,
+                                                                     max_convergence_failures,
+                                                                     prec,
+                                                                     psetup,
+                                                                     prec_side)
 end
 """
 ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choice of options.
@@ -262,8 +262,8 @@ ARKODE(stiffness=Sundials.Implicit();
       prec = nothing, psetup = nothing, prec_side = 0
       )
 """
-struct ARKODE{Method,LinearSolver,MassLinearSolver,T,T1,T2,P,PS} <:
-       SundialsODEAlgorithm{Method,LinearSolver}
+struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
+       SundialsODEAlgorithm{Method, LinearSolver}
     stiffness::T
     jac_upper::Int
     jac_lower::Int
@@ -428,7 +428,7 @@ IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0,
     init_all = false,
     prec = nothing, psetup = nothing)
 """
-struct IDA{LinearSolver,P,PS} <: SundialsDAEAlgorithm{LinearSolver}
+struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     jac_upper::Int
     jac_lower::Int
     krylov_dim::Int
@@ -483,23 +483,23 @@ Base.@pure function IDA(;
                            :KLU))
         error("Linear solver choice not accepted.")
     end
-    IDA{linear_solver,typeof(prec),typeof(psetup)}(jac_upper,
-                                                   jac_lower,
-                                                   krylov_dim,
-                                                   max_order,
-                                                   max_error_test_failures,
-                                                   nonlinear_convergence_coefficient,
-                                                   max_nonlinear_iters,
-                                                   max_convergence_failures,
-                                                   nonlinear_convergence_coefficient_ic,
-                                                   max_num_steps_ic,
-                                                   max_num_jacs_ic,
-                                                   max_num_iters_ic,
-                                                   max_num_backs_ic,
-                                                   use_linesearch_ic,
-                                                   init_all,
-                                                   prec,
-                                                   psetup)
+    IDA{linear_solver, typeof(prec), typeof(psetup)}(jac_upper,
+                                                     jac_lower,
+                                                     krylov_dim,
+                                                     max_order,
+                                                     max_error_test_failures,
+                                                     nonlinear_convergence_coefficient,
+                                                     max_nonlinear_iters,
+                                                     max_convergence_failures,
+                                                     nonlinear_convergence_coefficient_ic,
+                                                     max_num_steps_ic,
+                                                     max_num_jacs_ic,
+                                                     max_num_iters_ic,
+                                                     max_num_backs_ic,
+                                                     use_linesearch_ic,
+                                                     init_all,
+                                                     prec,
+                                                     psetup)
 end
 """
 KINSOL: Newton-Krylov technique solver
@@ -535,6 +535,13 @@ end
 
 method_choice(alg::SundialsODEAlgorithm{Method}) where {Method} = Method
 method_choice(alg::SundialsDAEAlgorithm) = :Newton
-linear_solver(alg::SundialsODEAlgorithm{Method,LinearSolver}) where {Method,LinearSolver} = LinearSolver
+function linear_solver(alg::SundialsODEAlgorithm{Method, LinearSolver}) where {Method,
+                                                                               LinearSolver}
+    LinearSolver
+end
 linear_solver(alg::SundialsDAEAlgorithm{LinearSolver}) where {LinearSolver} = LinearSolver
-linear_solver(alg::SundialsNonlinearSolveAlgorithm{LinearSolver}) where {LinearSolver} = LinearSolver
+function linear_solver(alg::SundialsNonlinearSolveAlgorithm{LinearSolver}) where {
+                                                                                  LinearSolver
+                                                                                  }
+    LinearSolver
+end

@@ -1,5 +1,5 @@
 abstract type AbstractFunJac{J2} end
-mutable struct FunJac{F,F2,J,P,M,J2,uType,uType2,Prec,PS} <: AbstractFunJac{J2}
+mutable struct FunJac{F, F2, J, P, M, J2, uType, uType2, Prec, PS} <: AbstractFunJac{J2}
     fun::F
     fun2::F2
     jac::J
@@ -12,14 +12,18 @@ mutable struct FunJac{F,F2,J,P,M,J2,uType,uType2,Prec,PS} <: AbstractFunJac{J2}
     du::uType
     resid::uType2
 end
-FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du) = FunJac(fun, nothing, jac, p, m,
-                                                                    jac_prototype, prec,
-                                                                    psetup, u, du, nothing)
-FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du, resid) = FunJac(fun, nothing,
-                                                                           jac, p, m,
-                                                                           jac_prototype,
-                                                                           prec, psetup, u,
-                                                                           du, resid)
+function FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du)
+    FunJac(fun, nothing, jac, p, m,
+           jac_prototype, prec,
+           psetup, u, du, nothing)
+end
+function FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du, resid)
+    FunJac(fun, nothing,
+           jac, p, m,
+           jac_prototype,
+           prec, psetup, u,
+           du, resid)
+end
 
 function cvodefunjac(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac)
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))

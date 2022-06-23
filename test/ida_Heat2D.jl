@@ -45,13 +45,14 @@ function heatres(t, u, up, r)
     r[:] = u ## Initialize r to u, to take care of boundary equations.
 
     ## Loop over interior points; set res = up - (central difference).
-    for j in 2:(MGRID-2)
+    for j in 2:(MGRID - 2)
         offset = MGRID * j
-        for i in 2:(MGRID-2)
+        for i in 2:(MGRID - 2)
             loc = offset + i
             r[loc] = up[loc] -
                      coeff *
-                     (u[loc-1] + u[loc+1] + u[loc-MGRID] + u[loc+MGRID] - 4.0 * u[loc])
+                     (u[loc - 1] + u[loc + 1] + u[loc - MGRID] + u[loc + MGRID] -
+                      4.0 * u[loc])
         end
     end
 
@@ -66,10 +67,10 @@ function initial()
     id = ones(NEQ)
 
     ## initialize u on all grid points
-    for j in 1:(mm-1)
+    for j in 1:(mm - 1)
         yfact = dx * j
         offset = mm * j
-        for i in 1:(mm-1)
+        for i in 1:(mm - 1)
             xfact = dx * i
             loc = offset + i
             u[loc] = 48.0 * xfact * (1.0 - xfact) * yfact * (1.0 - yfact)
@@ -85,9 +86,9 @@ function initial()
     up[:] = -1.0 * r
 
     ## Finally, set values of u, up, and id at boundary points.
-    for j in 1:(mm-1)
+    for j in 1:(mm - 1)
         offset = mm * j
-        for i in 1:(mm-1)
+        for i in 1:(mm - 1)
             loc = offset + i
             if j == 1 || j == mm1 || i == 1 || i == mm1
                 u[loc] = bval
@@ -154,7 +155,7 @@ end
 
 nsteps = 10
 tstep = 0.005
-t = collect(0.0:tstep:(tstep*nsteps))
+t = collect(0.0:tstep:(tstep * nsteps))
 u0, up0, id, constraints = initial()
 
 idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t); reltol = 0.0, abstol = 1e-3)

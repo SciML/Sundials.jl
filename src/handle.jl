@@ -43,7 +43,7 @@ abstract type SundialsHandle end
 struct Handle{T <: AbstractSundialsObject} <: SundialsHandle
     ptr_ref::Ref{Ptr{T}} # pointer to a pointer
 
-    function Handle(ptr::Ptr{T}) where {T<:AbstractSundialsObject}
+    function Handle(ptr::Ptr{T}) where {T <: AbstractSundialsObject}
         h = new{T}(Ref{Ptr{T}}(ptr))
         finalizer(release_handle, h.ptr_ref)
         return h
@@ -53,7 +53,7 @@ end
 mutable struct MatrixHandle{T <: SundialsMatrix} <: SundialsHandle
     ptr::SUNMatrix
     destroyed::Bool
-    function MatrixHandle(ptr::SUNMatrix, M::T) where {T<:SundialsMatrix}
+    function MatrixHandle(ptr::SUNMatrix, M::T) where {T <: SundialsMatrix}
         h = new{T}(ptr, false)
         finalizer(release_handle, h)
         return h
@@ -63,7 +63,7 @@ end
 mutable struct LinSolHandle{T <: SundialsLinearSolver} <: SundialsHandle
     ptr::SUNLinearSolver
     destroyed::Bool
-    function LinSolHandle(ptr::SUNLinearSolver, M::T) where {T<:SundialsLinearSolver}
+    function LinSolHandle(ptr::SUNLinearSolver, M::T) where {T <: SundialsLinearSolver}
         h = new{T}(ptr, false)
         finalizer(release_handle, h)
         return h
@@ -74,7 +74,7 @@ mutable struct NonLinSolHandle{T <: SundialsNonLinearSolver} <: SundialsHandle
     ptr::SUNNonlinearSolver
     destroyed::Bool
     function NonLinSolHandle(ptr::SUNNonlinearSolver,
-                             M::T) where {T<:SundialsNonLinearSolver}
+                             M::T) where {T <: SundialsNonLinearSolver}
         h = new{T}(ptr, false)
         finalizer(release_handle, h)
         return h
@@ -84,19 +84,38 @@ end
 Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h.ptr_ref[]
 Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::Handle{T}) where {T} = Ptr{Cvoid}(h.ptr_ref[])
 Base.convert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h.ptr_ref[]
-Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T} = convert(Ptr{Ptr{T}},
-                                                                    h.ptr_ref[])
+function Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T}
+    convert(Ptr{Ptr{T}},
+            h.ptr_ref[])
+end
 
-release_handle(ptr_ref::Ref{Ptr{T}}) where {T} = throw(MethodError("Freeing objects of type $T not supported"))
-release_handle(ptr_ref::Ref{Ptr{KINMem}}) = ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
-release_handle(ptr_ref::Ref{Ptr{CVODEMem}}) = ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
-release_handle(ptr_ref::Ref{Ptr{ARKStepMem}}) = ((ptr_ref[] != C_NULL) &&
-                                                     ARKStepFree(ptr_ref); nothing)
-release_handle(ptr_ref::Ref{Ptr{ERKStepMem}}) = ((ptr_ref[] != C_NULL) &&
-                                                     ERKStepFree(ptr_ref); nothing)
-release_handle(ptr_ref::Ref{Ptr{MRIStepMem}}) = ((ptr_ref[] != C_NULL) &&
-                                                     MRIStepFree(ptr_ref); nothing)
-release_handle(ptr_ref::Ref{Ptr{IDAMem}}) = ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)
+function release_handle(ptr_ref::Ref{Ptr{T}}) where {T}
+    throw(MethodError("Freeing objects of type $T not supported"))
+end
+function release_handle(ptr_ref::Ref{Ptr{KINMem}})
+    ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
+end
+function release_handle(ptr_ref::Ref{Ptr{CVODEMem}})
+    ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
+end
+function release_handle(ptr_ref::Ref{Ptr{ARKStepMem}})
+    ((ptr_ref[] != C_NULL) &&
+         ARKStepFree(ptr_ref);
+     nothing)
+end
+function release_handle(ptr_ref::Ref{Ptr{ERKStepMem}})
+    ((ptr_ref[] != C_NULL) &&
+         ERKStepFree(ptr_ref);
+     nothing)
+end
+function release_handle(ptr_ref::Ref{Ptr{MRIStepMem}})
+    ((ptr_ref[] != C_NULL) &&
+         MRIStepFree(ptr_ref);
+     nothing)
+end
+function release_handle(ptr_ref::Ref{Ptr{IDAMem}})
+    ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)
+end
 
 function release_handle(h::MatrixHandle{DenseMatrix})
     if !isempty(h)

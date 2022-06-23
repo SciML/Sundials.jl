@@ -25,7 +25,7 @@ const xsteps = round(Int, L / dx)
 const tf = 10.0
 const dt = 0.1
 const timesteps = round(Int, tf / dt)
-const t = collect(0.0:dt:(dt*(timesteps-1)))
+const t = collect(0.0:dt:(dt * (timesteps - 1)))
 
 const d = 4.0 * 1e-4 ## Cable diameter in cm
 const R_m = 2.5e11 ## Membrane resistance in Ohms/cm^2
@@ -54,10 +54,11 @@ function cableres(t, u, up, r)
     r[:] = u ## Initialize r to u, to take care of boundary equations.
 
     ## Loop over segments; set res = up - (central difference).
-    for i in 2:(xsteps-2)
+    for i in 2:(xsteps - 2)
         loc = i
-        r[loc] = C_m * up[loc] - (d / (4 * R_i)) * (u[loc-1] + u[loc+1] -
-                                                    2.0 * u[loc]) +
+        r[loc] = C_m * up[loc] -
+                 (d / (4 * R_i)) * (u[loc - 1] + u[loc + 1] -
+                                    2.0 * u[loc]) +
                  G_m * u[loc] - R_m * (G_J[loc])[t]
     end
 
@@ -67,7 +68,7 @@ end
 function initial()
     u = zeros(xsteps)
 
-    u[2:xsteps-2] = -60.0 ## initial value -60 mV
+    u[2:(xsteps - 2)] = -60.0 ## initial value -60 mV
 
     id = ones(xsteps)
 
