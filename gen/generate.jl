@@ -14,22 +14,22 @@ const arg1_name2type = Dict(:arkode_mem => :(ARKStepMemPtr),
                             :idaadj_mem => :(IDAMemPtr))
 
 const linear_solvers_and_matrices = [
-                                     # Linear Solvers
-                                     "band",
-                                     "dense",
-                                     "klu",
-                                     "lapackend",
-                                     "lapackdense",
-                                     "pcg",
-                                     "spbcgs",
-                                     "spfgmr",
-                                     "spgmr",
-                                     "sptfqmr",
-                                     # Matrices
-                                     "sparse",
-                                     # Non linear solvers
-                                     "fixedpoint",
-                                     "newton"]
+    # Linear Solvers
+    "band",
+    "dense",
+    "klu",
+    "lapackend",
+    "lapackdense",
+    "pcg",
+    "spbcgs",
+    "spfgmr",
+    "spgmr",
+    "sptfqmr",
+    # Matrices
+    "sparse",
+    # Non linear solvers
+    "fixedpoint",
+    "newton"]
 
 # substitute Ptr{Void} with the typed pointer
 const ctor_return_type = Dict("ARKCreate" => :(ARKStepMemPtr),

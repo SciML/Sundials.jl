@@ -221,7 +221,7 @@ function idasol(f,
                 userdata::Any = nothing;
                 reltol::Float64 = 1e-3,
                 abstol::Float64 = 1e-6,
-                diffstates::Union{Vector{Bool},Nothing} = nothing)
+                diffstates::Union{Vector{Bool}, Nothing} = nothing)
     mem_ptr = IDACreate()
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)

@@ -8,8 +8,9 @@ function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractODEProblem,
                             ks = [],
                             recompile::Type{Val{recompile_flag}} = Val{true};
                             calculate_error = true,
-                            kwargs...) where {algType<:Union{SundialsODEAlgorithm,
-                                                             SundialsDAEAlgorithm},
+                            kwargs...) where {
+                                              algType <: Union{SundialsODEAlgorithm,
+                                                    SundialsDAEAlgorithm},
                                               recompile_flag}
     integrator = DiffEqBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
     if integrator.sol.retcode == :Default
@@ -18,7 +19,8 @@ function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractODEProblem,
     integrator.sol
 end
 
-function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractSteadyStateProblem{uType,
+function DiffEqBase.__solve(prob::Union{
+                                        DiffEqBase.AbstractSteadyStateProblem{uType,
                                                                               isinplace},
                                         DiffEqBase.AbstractNonlinearProblem{uType,
                                                                             isinplace}},
@@ -27,8 +29,8 @@ function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractSteadyStateProblem{uT
                             ts = [],
                             ks = [],
                             recompile::Type{Val{recompile_flag}} = Val{true};
-                            kwargs...) where {algType<:SundialsNonlinearSolveAlgorithm,
-                                              recompile_flag,uType,isinplace}
+                            kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
+                                              recompile_flag, uType, isinplace}
     if typeof(prob.u0) <: Number
         u0 = [prob.u0]
     else
@@ -85,8 +87,8 @@ function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractSteadyStateProblem{uT
     DiffEqBase.build_solution(prob, alg, u, resid; retcode = :Success)
 end
 
-function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
-                           alg::SundialsODEAlgorithm{Method,LinearSolver},
+function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
+                           alg::SundialsODEAlgorithm{Method, LinearSolver},
                            timeseries = [],
                            ts = [],
                            ks = [];
@@ -119,7 +121,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isi
                            stop_at_next_tstop = false,
                            userdata = nothing,
                            alias_u0 = false,
-                           kwargs...) where {uType,tupType,isinplace,Method,LinearSolver}
+                           kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
+                                             }
     tType = eltype(tupType)
 
     if verbose
@@ -139,7 +142,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isi
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id = _id = :Sundials, progress = 0)
+    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
 
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
@@ -202,9 +205,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isi
     mem = Handle(mem_ptr)
 
     !verbose && CVodeSetErrHandlerFn(mem,
-                                     @cfunction(null_error_handler, Nothing,
-                                                (Cint, Char, Char, Ptr{Cvoid})),
-                                     C_NULL)
+                         @cfunction(null_error_handler, Nothing,
+                                    (Cint, Char, Char, Ptr{Cvoid})),
+                         C_NULL)
 
     save_start ? ts = [t0] : ts = Float64[]
 
@@ -459,8 +462,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isi
     integrator
 end # function solve
 
-function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isinplace},
-                           alg::ARKODE{Method,LinearSolver,MassLinearSolver},
+function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
+                           alg::ARKODE{Method, LinearSolver, MassLinearSolver},
                            timeseries = [],
                            ts = [],
                            ks = [];
@@ -489,7 +492,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isi
                            stop_at_next_tstop = false,
                            userdata = nothing,
                            alias_u0 = false,
-                           kwargs...) where {uType,tupType,isinplace,Method,LinearSolver,
+                           kwargs...) where {uType, tupType, isinplace, Method,
+                                             LinearSolver,
                                              MassLinearSolver}
     tType = eltype(tupType)
 
@@ -506,7 +510,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isi
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id = _id = :Sundials, progress = 0)
+    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
 
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
@@ -547,9 +551,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType,tupType,isi
         mem = Handle(mem_ptr)
 
         !verbose && ARKStepSetErrHandlerFn(mem,
-                                           @cfunction(null_error_handler, Nothing,
-                                                      (Cint, Char, Char, Ptr{Cvoid})),
-                                           C_NULL)
+                               @cfunction(null_error_handler, Nothing,
+                                          (Cint, Char, Char, Ptr{Cvoid})),
+                               C_NULL)
         return mem
     end
 
@@ -973,11 +977,11 @@ function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
     if typeof(saveat) <: Number
         if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
             saveat_vec = convert(Vector{tType},
-                                 collect(tType, (tspan[1]+saveat):saveat:tspan[end]))
+                                 collect(tType, (tspan[1] + saveat):saveat:tspan[end]))
         else
             saveat_vec = convert(Vector{tType},
                                  collect(tType,
-                                         (tspan[1]+saveat):saveat:(tspan[end]-saveat)))
+                                         (tspan[1] + saveat):saveat:(tspan[end] - saveat)))
         end
     elseif isempty(saveat)
         saveat_vec = saveat
@@ -998,7 +1002,7 @@ end
 
 ## Solve for DAEs uses IDA
 
-function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType,duType,tupType,
+function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType,
                                                                isinplace},
                            alg::SundialsDAEAlgorithm{LinearSolver},
                            timeseries = [],
@@ -1027,7 +1031,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType,duType,tupT
                            advance_to_tstop = false,
                            stop_at_next_tstop = false,
                            userdata = nothing,
-                           kwargs...) where {uType,duType,tupType,isinplace,LinearSolver}
+                           kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
+                                             }
     tType = eltype(tupType)
 
     if verbose
@@ -1043,7 +1048,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType,duType,tupT
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id = _id = :Sundials, progress = 0)
+    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
 
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
@@ -1099,9 +1104,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType,duType,tupT
     mem = Handle(mem_ptr)
 
     !verbose && IDASetErrHandlerFn(mem,
-                                   @cfunction(null_error_handler, Nothing,
-                                              (Cint, Char, Char, Ptr{Cvoid})),
-                                   C_NULL)
+                       @cfunction(null_error_handler, Nothing,
+                                  (Cint, Char, Char, Ptr{Cvoid})),
+                       C_NULL)
 
     ts = [t0]
 
@@ -1403,12 +1408,12 @@ function solver_step(integrator::CVODEIntegrator, tstop)
     if integrator.opts.progress
         Logging.@logmsg(-1,
                         integrator.opts.progress_name,
-                        _id = :Sundials,
-                        message = integrator.opts.progress_message(integrator.dt,
-                                                                   integrator.u,
-                                                                   integrator.p,
-                                                                   integrator.t),
-                        progress = integrator.t / integrator.sol.prob.tspan[2])
+                        _id=:Sundials,
+                        message=integrator.opts.progress_message(integrator.dt,
+                                                                 integrator.u,
+                                                                 integrator.p,
+                                                                 integrator.t),
+                        progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::ARKODEIntegrator, tstop)
@@ -1417,12 +1422,12 @@ function solver_step(integrator::ARKODEIntegrator, tstop)
     if integrator.opts.progress
         Logging.@logmsg(-1,
                         integrator.opts.progress_name,
-                        _id = :Sundials,
-                        message = integrator.opts.progress_message(integrator.dt,
-                                                                   integrator.u,
-                                                                   integrator.p,
-                                                                   integrator.t),
-                        progress = integrator.t / integrator.sol.prob.tspan[2])
+                        _id=:Sundials,
+                        message=integrator.opts.progress_message(integrator.dt,
+                                                                 integrator.u,
+                                                                 integrator.p,
+                                                                 integrator.t),
+                        progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::IDAIntegrator, tstop)
@@ -1435,12 +1440,12 @@ function solver_step(integrator::IDAIntegrator, tstop)
     if integrator.opts.progress
         Logging.@logmsg(-1,
                         integrator.opts.progress_name,
-                        _id = :Sundials,
-                        message = integrator.opts.progress_message(integrator.dt,
-                                                                   integrator.u,
-                                                                   integrator.p,
-                                                                   integrator.t),
-                        progress = integrator.t / integrator.sol.prob.tspan[2])
+                        _id=:Sundials,
+                        message=integrator.opts.progress_message(integrator.dt,
+                                                                 integrator.u,
+                                                                 integrator.p,
+                                                                 integrator.t),
+                        progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 
@@ -1513,12 +1518,12 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
     if integrator.opts.progress
         Logging.@logmsg(-1,
                         integrator.opts.progress_name,
-                        _id = :Sundials,
-                        message = integrator.opts.progress_message(integrator.dt,
-                                                                   integrator.u,
-                                                                   integrator.p,
-                                                                   integrator.t),
-                        progress = "done")
+                        _id=:Sundials,
+                        message=integrator.opts.progress_message(integrator.dt,
+                                                                 integrator.u,
+                                                                 integrator.p,
+                                                                 integrator.t),
+                        progress="done")
     end
 
     fill_destats!(integrator)

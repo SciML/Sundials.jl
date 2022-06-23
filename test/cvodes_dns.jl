@@ -55,7 +55,7 @@ function sens(f!::Function,
     n = length(y0)
     np = length(p)
     ys0 = zeros(n, np .+ n)
-    ys0[:, np.+(1:n)] = Matrix(1.0I, n, n)
+    ys0[:, np .+ (1:n)] = Matrix(1.0I, n, n)
 
     #t1 = ReverseDiff.JacobianTape((dy,y)->f!(dy,0,y,p), dyt, y0)
     #t2 = ReverseDiff.JacobianTape((dy,p)->f!(dy,0,y0,p), dyt, p)
@@ -76,8 +76,10 @@ struct CVSData
     jdys::Any
 end
 
-CVSData(f, fs, p, n::Int, nS::Int) = CVSData(f, fs, p, Array{Float64}(undef, n, nS),
-                                             Array{Float64}(undef, n, nS))
+function CVSData(f, fs, p, n::Int, nS::Int)
+    CVSData(f, fs, p, Array{Float64}(undef, n, nS),
+            Array{Float64}(undef, n, nS))
+end
 
 function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
     data.f(convert(Vector, dy), t, convert(Vector, y), data.p)

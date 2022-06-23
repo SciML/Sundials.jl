@@ -1,4 +1,5 @@
-mutable struct DEOptions{SType,TstopType,SType2,TstopType2,SIX,CType,reltolType,abstolType,
+mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, reltolType,
+                         abstolType,
                          F5}
     saveat::SType
     tstops::TstopType
@@ -25,7 +26,7 @@ mutable struct DEOptions{SType,TstopType,SType2,TstopType2,SIX,CType,reltolType,
 end
 
 abstract type AbstractSundialsIntegrator{algType} <:
-              DiffEqBase.AbstractODEIntegrator{algType,true,Vector{Float64},Float64} end
+              DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
 
 mutable struct CVODEIntegrator{uType,
                                pType,
@@ -211,7 +212,9 @@ end
 
 ###  Error check (retcode)
 
-DiffEqBase.check_error(integrator::AbstractSundialsIntegrator) = interpret_sundials_retcode(integrator.flag)
+function DiffEqBase.check_error(integrator::AbstractSundialsIntegrator)
+    interpret_sundials_retcode(integrator.flag)
+end
 
 DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
 # No-op postamble! to make DiffEqBase.check_error! (and hence iterator interface

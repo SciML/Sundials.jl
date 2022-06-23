@@ -293,9 +293,7 @@ const ARKLocalFn = Ptr{Cvoid}
 # typedef int ( * ARKCommFn ) ( sunindextype Nlocal , realtype t , N_Vector y , void * user_data )
 const ARKCommFn = Ptr{Cvoid}
 
-@cenum MRISTEP_ID::UInt32 begin
-    MRISTEP_ARKSTEP = 0
-end
+@cenum MRISTEP_ID::UInt32 begin MRISTEP_ARKSTEP = 0 end
 
 # typedef int ( * MRIStepPreInnerFn ) ( realtype t , N_Vector * f , int nvecs , void * user_data )
 const MRIStepPreInnerFn = Ptr{Cvoid}

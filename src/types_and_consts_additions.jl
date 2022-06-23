@@ -13,20 +13,28 @@ ARKRhsFn_wrapper(fp::ARKRhsFn) = fp
 ARKRhsFn_wrapper(f) = @cfunction($f, Cint, (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
 
 CVRootFn_wrapper(fp::CVRootFn) = fp
-CVRootFn_wrapper(f) = @cfunction($f, Cint,
-                                 (realtype, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
+function CVRootFn_wrapper(f)
+    @cfunction($f, Cint,
+               (realtype, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
+end
 
 CVQuadRhsFn_wrapper(fp::CVQuadRhsFn) = fp
-CVQuadRhsFn_wrapper(f) = @cfunction($f, Cint,
-                                    (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
+function CVQuadRhsFn_wrapper(f)
+    @cfunction($f, Cint,
+               (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
+end
 
 IDAResFn_wrapper(fp::IDAResFn) = fp
-IDAResFn_wrapper(f) = @cfunction($f, Cint,
-                                 (realtype, N_Vector, N_Vector, N_Vector, Ptr{Cvoid})).ptr
+function IDAResFn_wrapper(f)
+    @cfunction($f, Cint,
+               (realtype, N_Vector, N_Vector, N_Vector, Ptr{Cvoid})).ptr
+end
 
 IDARootFn_wrapper(fp::IDARootFn) = fp
-IDARootFn_wrapper(f) = @cfunction($f, Cint,
-                                  (realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
+function IDARootFn_wrapper(f)
+    @cfunction($f, Cint,
+               (realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
+end
 
 KINSysFn_wrapper(fp::KINSysFn) = fp
 KINSysFn_wrapper(f) = @cfunction($f, Cint, (N_Vector, N_Vector, Ptr{Cvoid})).ptr
@@ -40,7 +48,7 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
 end
 
 # sparse SUNMatrix uses zero-offset indices, so provide copyto!, not convert
-function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC{Float64,Int64})
+function Base.copyto!(Asun::SUNMatrix, Acsc::SparseArrays.SparseMatrixCSC{Float64, Int64})
     _sunmat = unsafe_load(Asun)
     _mat = convert(SUNMatrixContent_Sparse, _sunmat.content)
     mat = unsafe_load(_mat)
