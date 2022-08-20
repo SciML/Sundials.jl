@@ -1,7 +1,5 @@
-using DiffEqProblemLibrary, Sundials, Test
-using DiffEqProblemLibrary.DAEProblemLibrary: importdaeproblems;
-importdaeproblems();
-using DiffEqProblemLibrary.DAEProblemLibrary: prob_dae_resrob
+using Sundials, Test
+using DAEProblemLibrary: prob_dae_resrob
 
 # Test DAE
 mutable struct precflags

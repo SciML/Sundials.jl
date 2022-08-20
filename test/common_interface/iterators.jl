@@ -1,6 +1,4 @@
-using DiffEqProblemLibrary, Sundials, Test
-using DiffEqProblemLibrary.ODEProblemLibrary: importodeproblems;
-importodeproblems();
+using Sundials, Test
 import ODEProblemLibrary: prob_ode_linear, prob_ode_2Dlinear
 
 prob = prob_ode_2Dlinear
