@@ -109,7 +109,7 @@ SnoopPrecompile.@precompile_all_calls begin
                                           Float64[])]
 
     for prob in prob_list, solver in solver_list
-        solve(prob, solver)(5.0)
+        solve(prob, solver)(0.5)
     end
 
     prob_list = nothing
