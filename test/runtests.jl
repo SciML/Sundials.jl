@@ -34,6 +34,7 @@ end
 @testset "Handle Tests" begin include("handle_tests.jl") end
 
 @testset "Common Interface" begin
+    @testset "Preconditioners" begin include("common_interface/precs.jl") end
     @testset "CVODE" begin include("common_interface/cvode.jl") end
     @testset "ARKODE" begin include("common_interface/arkode.jl") end
     @testset "IDA" begin include("common_interface/ida.jl") end
@@ -42,6 +43,4 @@ end
     @testset "Iterator" begin include("common_interface/iterators.jl") end
     @testset "Errors" begin include("common_interface/errors.jl") end
     @testset "Mass Matrix" begin include("common_interface/mass_matrix.jl") end
-
-    #@testset "Preconditioners" begin include("common_interface/precs.jl") end
 end
