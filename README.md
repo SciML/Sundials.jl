@@ -10,8 +10,9 @@ Introduction
 ------------
 
 Sundials.jl is a Julia package that interfaces to the
-[Sundials](https://computation.llnl.gov/casc/sundials/main.html)
-library. Sundials (the C library and this package) provides the
+[Sundials](https://computing.llnl.gov/projects/sundials)
+library (see [source](https://github.com/LLNL/sundials)).
+Sundials (the C library and this package) provides the
 following:
 
 * *CVODES* - for integration and sensitivity analysis of ODEs.
