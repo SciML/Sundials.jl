@@ -117,7 +117,7 @@ function handle_callback_modifiers!(integrator::CVODEIntegrator)
 end
 
 function handle_callback_modifiers!(integrator::ARKODEIntegrator)
-    ARKStepReInit(integrator.mem, integrator.t, integrator.u)
+    ARKStepReInit(integrator.mem, integrator.userfun.fun2, integrator.userfun.fun, integrator.t, integrator.u)
 end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)
