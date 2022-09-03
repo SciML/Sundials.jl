@@ -100,13 +100,8 @@ SnoopPrecompile.@precompile_all_calls begin
         ARKODE(), CVODE_Adams(), CVODE_BDF(),
     ]
 
-    prob_list = [ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0));
-                 ODEProblem{true, false}(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0));
-                 ODEProblem{true, false}(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0), Float64[]);
-                 ODEProblem(lorenz_oop, [1.0; 0.0; 0.0], (0.0, 1.0));
-                 ODEProblem{false, false}(lorenz_oop, [1.0; 0.0; 0.0], (0.0, 1.0));
-                 ODEProblem{false, false}(lorenz_oop, [1.0; 0.0; 0.0], (0.0, 1.0),
-                                          Float64[])]
+    prob_list = [ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0)),
+                 ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0), Float64[])]
 
     for prob in prob_list, solver in solver_list
         solve(prob, solver)(0.5)
