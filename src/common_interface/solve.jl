@@ -1540,7 +1540,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
                                               dense_errors = integrator.opts.dense_errors)
     end
 
-    if integrator.sol.retcode === :Default
+    if integrator.sol.retcode == :Default
         integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,
                                                          interpret_sundials_retcode(integrator.flag))
     end
