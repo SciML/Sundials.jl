@@ -101,7 +101,7 @@ SnoopPrecompile.@precompile_all_calls begin
     ]
 
     prob_list = [ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0)),
-                 ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0), Float64[])]
+        ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0), Float64[])]
 
     for prob in prob_list, solver in solver_list
         solve(prob, solver)(0.5)
