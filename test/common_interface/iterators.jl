@@ -30,7 +30,7 @@ terminate_if_u_pos = DiscreteCallback(u_positive, terminate!)
 prob = ODEProblem(f_terminate, [1.0], (0.0, 1.0)) # positive initial condition > positive u > :Terminated
 integrator = init(prob, CVODE_BDF(); callback = terminate_if_u_pos)
 sol1 = solve!(integrator)
-@test sol1.retcode === :Terminated
+@test sol1.retcode == :Terminated
 
 reinit!(integrator, [-1.0]) # negative initial condition > negative u > :Success!
 sol2 = solve!(integrator)
