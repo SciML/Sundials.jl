@@ -116,7 +116,7 @@ objects (like `Array`s) instead of Sundials objects (like `N_Vector`s).
 The Julia package [Clang.jl](https://github.com/ihnorton/Clang.jl) was
 used to wrap Sundials. This directly uses Sundials' headers sort-of
 like SWIG. Thus the general
-[C documentation](https://computation.llnl.gov/casc/sundials/documentation/documentation.html)
+[C documentation](https://sundials.readthedocs.io/en/latest/)
 is the documentation for the direct API. See the
 [test directory](https://github.com/JuliaLang/Sundials.jl/blob/master/test) for usage examples
 of the direct interface.
@@ -147,6 +147,15 @@ If you use this library, please cite both Sundials and the JuliaDiffEq project.
   number={1},
   year={2017},
   publisher={Ubiquity Press}
+}
+
+@article{gardner2022sundials,
+  title={Enabling new flexibility in the {SUNDIALS} suite of nonlinear and differential/algebraic equation solvers},
+  author={Gardner, David J and Reynolds, Daniel R and Woodward, Carol S and Balos, Cody J},
+  journal={ACM Transactions on Mathematical Software (TOMS)},
+  publisher={ACM},
+  year={2022},
+  doi={10.1145/3539801}
 }
 
 @article{hindmarsh2005sundials,
