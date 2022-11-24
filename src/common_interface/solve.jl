@@ -13,7 +13,7 @@ function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractODEProblem,
                                                     SundialsDAEAlgorithm},
                                               recompile_flag}
     integrator = DiffEqBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
-    if integrator.sol.retcode == :Default
+    if integrator.sol.retcode == ReturnCode.Default
         solve!(integrator; early_free = true, calculate_error = calculate_error)
     end
     integrator.sol
@@ -84,7 +84,7 @@ function DiffEqBase.__solve(prob::Union{
                jac_lower = jac_lower)
 
     f!(resid, u)
-    DiffEqBase.build_solution(prob, alg, u, resid; retcode = :Success)
+    DiffEqBase.build_solution(prob, alg, u, resid; retcode = ReturnCode.Success)
 end
 
 function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
@@ -1320,9 +1320,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
 
     if flag >= 0
-        retcode = :Default
+        retcode = ReturnCode.Default
     else
-        retcode = :InitialFailure
+        retcode = ReturnCode.InitialFailure
     end
 
     sol = DiffEqBase.build_solution(prob,
@@ -1395,11 +1395,11 @@ end # function solve
 ## Common calls
 
 function interpret_sundials_retcode(flag)
-    flag >= 0 && return :Success
-    flag == -1 && return :MaxIters
-    (flag == -2 || flag == -3) && return :Unstable
-    flag == -4 && return :ConvergenceFailure
-    return :Failure
+    flag >= 0 && return RetrunCode.Success
+    flag == -1 && return ReturnCode.MaxIters
+    (flag == -2 || flag == -3) && return ReturnCode.Unstable
+    flag == -4 && return ReturnCode.ConvergenceFailure
+    return ReturnCode.Failure
 end
 
 function solver_step(integrator::CVODEIntegrator, tstop)
@@ -1540,7 +1540,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
                                               dense_errors = integrator.opts.dense_errors)
     end
 
-    if integrator.sol.retcode == :Default
+    if integrator.sol.retcode == ReturnCode.Default
         integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol,
                                                          interpret_sundials_retcode(integrator.flag))
     end

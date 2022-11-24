@@ -234,9 +234,9 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
             end
             solver_step(integrator, tstop)
             integrator.t = first(integrator.tout)
-            DiffEqBase.check_error!(integrator) != :Success && return
+            DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
             handle_callbacks!(integrator)
-            DiffEqBase.check_error!(integrator) != :Success && return
+            DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
         end
     else
         integrator.tprev = integrator.t
@@ -251,9 +251,9 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
             solver_step(integrator, 1.0) # fake tstop
         end
         integrator.t = first(integrator.tout)
-        DiffEqBase.check_error!(integrator) != :Success && return
+        DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
         handle_callbacks!(integrator)
-        DiffEqBase.check_error!(integrator) != :Success && return
+        DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
     end
     handle_tstop!(integrator)
     nothing

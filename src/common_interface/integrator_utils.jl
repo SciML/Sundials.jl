@@ -145,7 +145,7 @@ DiffEqBase.get_tmp_cache(integrator::AbstractSundialsIntegrator) = (integrator.t
 end
 
 function DiffEqBase.terminate!(integrator::AbstractSundialsIntegrator,
-                               retcode = :Terminated)
+                               retcode = ReturnCode.Terminated)
     integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol, retcode)
     integrator.opts.tstops.valtree = typeof(integrator.opts.tstops.valtree)()
 end
@@ -271,7 +271,7 @@ function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,
     end
 
     if reinit_retcode
-        integrator.sol = SciMLBase.solution_new_retcode(integrator.sol, :Default)
+        integrator.sol = SciMLBase.solution_new_retcode(integrator.sol, ReturnCode.Default)
     end
 
     nothing

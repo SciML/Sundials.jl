@@ -55,4 +55,4 @@ method = ARKODE(Sundials.Explicit();
                 max_convergence_failures = 10)
 # Solve
 sol = solve(prob, method)
-@test sol.retcode == :Success
+@test sol.retcode == ReturnCode.Success
