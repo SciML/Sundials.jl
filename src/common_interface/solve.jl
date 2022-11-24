@@ -1395,7 +1395,7 @@ end # function solve
 ## Common calls
 
 function interpret_sundials_retcode(flag)
-    flag >= 0 && return RetrunCode.Success
+    flag >= 0 && return ReturnCode.Success
     flag == -1 && return ReturnCode.MaxIters
     (flag == -2 || flag == -3) && return ReturnCode.Unstable
     flag == -4 && return ReturnCode.ConvergenceFailure
