@@ -52,7 +52,7 @@ prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
-    if jok
+    if !jok
         prob_ode_brusselator_2d_mtk.f.jac(jaccache, u, p, t)
         jcurPtr[] = true
 
@@ -77,7 +77,7 @@ prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
                                                                                                                                  1)))))
 const preccache2 = Ref(prectmp2)
 function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
-    if jok
+    if !jok
         prob_ode_brusselator_2d_mtk.f.jac(jaccache, u, p, t)
         jcurPtr[] = true
 
