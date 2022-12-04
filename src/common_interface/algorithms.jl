@@ -7,32 +7,7 @@ abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
 
 # ODE Algorithms
 """
-CVODE_BDF: CVode Backward Differentiation Formula (BDF) solver.
-
-method - This is the method for solving the implicit equation. For BDF this defaults to :Newton while for Adams this defaults to :Functional. These choices match the recommended pairing in the Sundials.jl manual. However, note that using the :Newton method may take less iterations but requires more memory than the :Function iteration approach.
-linear_solver - This is the linear solver which is used in the :Newton method.
-The choices for the linear solver are:
-
-:Dense - A dense linear solver.
-:Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-:LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-:LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-:Diagonal - This method is specialized for diagonal Jacobians.
-:GMRES - A GMRES method. Recommended first choice Krylov method
-:BCG - A Biconjugate gradient method.
-:PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
-:TFQMR - A TFQMR method.
-:KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
-
-Example:
-
-CVODE_BDF() # BDF method using Newton + Dense solver
-CVODE_BDF(method=:Functional) # BDF method using Functional iterations
-CVODE_BDF(linear_solver=:Band,jac_upper=3,jac_lower=3) # Banded solver with nonzero diagonals 3 up and 3 down
-CVODE_BDF(linear_solver=:BCG) # Biconjugate gradient method
-
-All of the additional options are available. The full constructor is:
-
+```julia
 CVODE_BDF(;method=:Newton,linear_solver=:Dense,
           jac_upper=0,jac_lower=0,
           stored_upper = jac_upper + jac_lower,
@@ -44,6 +19,77 @@ CVODE_BDF(;method=:Newton,linear_solver=:Dense,
           max_nonlinear_iters = 3,
           max_convergence_failures = 10,
           prec = nothing, prec_side = 0)
+```
+
+CVODE_BDF: CVode Backward Differentiation Formula (BDF) solver.
+
+### Method Choices
+
+* method - This is the method for solving the implicit equation. For BDF this defaults to
+    :Newton while for Adams this defaults to :Functional. These choices match the
+    recommended pairing in the Sundials.jl manual. However, note that using the :Newton
+    method may take less iterations but requires more memory than the :Function iteration
+    approach.
+* linear_solver - This is the linear solver which is used in the :Newton method.
+
+### Linear Solver Choices
+
+The choices for the linear solver are:
+
+* :Dense - A dense linear solver.
+* :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :Diagonal - This method is specialized for diagonal Jacobians.
+* :GMRES - A GMRES method. Recommended first choice Krylov method
+* :BCG - A Biconjugate gradient method.
+* :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+* :TFQMR - A TFQMR method.
+* :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+
+Example:
+
+```julia
+CVODE_BDF() # BDF method using Newton + Dense solver
+CVODE_BDF(method=:Functional) # BDF method using Functional iterations
+CVODE_BDF(linear_solver=:Band,jac_upper=3,jac_lower=3) # Banded solver with nonzero diagonals 3 up and 3 down
+CVODE_BDF(linear_solver=:BCG) # Biconjugate gradient method
+```
+
+### Preconditioners
+
+Note that here `prec` is a preconditioner function
+`prec(z,r,p,t,y,fy,gamma,delta,lr)` where:
+
+- `z`: the computed output vector
+- `r`: the right-hand side vector of the linear system
+- `p`: the parameters
+- `t`: the current independent variable
+- `du`: the current value of `f(u,p,t)`
+- `gamma`: the `gamma` of `W = M - gamma*J`
+- `delta`: the iterative method tolerance
+- `lr`: a flag for whether `lr=1` (left) or `lr=2` (right)
+  preconditioning
+
+and `psetup` is the preconditioner setup function for pre-computing Jacobian
+information `psetup(p, t, u, du, jok, jcurPtr, gamma)`. Where:
+
+- `p`: the parameters
+- `t`: the current independent variable
+- `u`: the current state
+- `du`: the current `f(u,p,t)`
+- `jok`: a bool indicating whether the Jacobian needs to be updated
+- `jcurPtr`: a reference to an Int for whether the Jacobian was updated.
+  `jcurPtr[]=true` should be set if the Jacobian was updated, and
+  `jcurPtr[]=false` should be set if the Jacobian was not updated.
+- `gamma`: the `gamma` of `W = M - gamma*J`
+
+`psetup` is optional when `prec` is set.
+
+### Additional Options
+
+See [the CVODE manual](https://computing.llnl.gov/sites/default/files/cv_guide-5.7.0.pdf)
+for details on the additional options.
 """
 struct CVODE_BDF{Method, LinearSolver, P, PS} <: SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
@@ -106,25 +152,7 @@ Base.@pure function CVODE_BDF(;
                                                                    prec_side)
 end
 """
-CVODE_Adams: CVode Adams-Moulton solver.
-
-method - This is the method for solving the implicit equation. For BDF this defaults to :Newton while for Adams this defaults to :Functional. These choices match the recommended pairing in the Sundials.jl manual. However, note that using the :Newton method may take less iterations but requires more memory than the :Function iteration approach.
-linear_solver - This is the linear solver which is used in the :Newton method.
-The choices for the linear solver are:
-
-:Dense - A dense linear solver.
-:Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-:LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-:LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-:Diagonal - This method is specialized for diagonal Jacobians.
-:GMRES - A GMRES method. Recommended first choice Krylov method
-:BCG - A Biconjugate gradient method.
-:PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
-:TFQMR - A TFQMR method.
-:KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
-
-All of the additional options are available. The full constructor is:
-
+```julia
 CVODE_Adams(;method=:Functional,linear_solver=:None,
             jac_upper=0,jac_lower=0,
             stored_upper = jac_upper + jac_lower,
@@ -136,6 +164,77 @@ CVODE_Adams(;method=:Functional,linear_solver=:None,
             max_nonlinear_iters = 3,
             max_convergence_failures = 10,
             prec = nothing, psetup = nothing, prec_side = 0)
+```
+
+CVODE_Adams: CVode Adams-Moulton solver.
+
+### Method Choices
+
+* method - This is the method for solving the implicit equation. For BDF this defaults to
+    :Newton while for Adams this defaults to :Functional. These choices match the
+    recommended pairing in the Sundials.jl manual. However, note that using the :Newton
+    method may take less iterations but requires more memory than the :Function iteration
+    approach.
+* linear_solver - This is the linear solver which is used in the :Newton method.
+
+### Linear Solver Choices
+
+The choices for the linear solver are:
+
+* :Dense - A dense linear solver.
+* :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :Diagonal - This method is specialized for diagonal Jacobians.
+* :GMRES - A GMRES method. Recommended first choice Krylov method
+* :BCG - A Biconjugate gradient method.
+* :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+* :TFQMR - A TFQMR method.
+* :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+
+Example:
+
+```julia
+CVODE_Adams() # Adams method using Newton + Dense solver
+CVODE_Adams(method=:Functional) # Adams method using Functional iterations
+CVODE_Adams(linear_solver=:Band,jac_upper=3,jac_lower=3) # Banded solver with nonzero diagonals 3 up and 3 down
+CVODE_Adams(linear_solver=:BCG) # Biconjugate gradient method
+```
+
+### Preconditioners
+
+Note that here `prec` is a preconditioner function
+`prec(z,r,p,t,y,fy,gamma,delta,lr)` where:
+
+- `z`: the computed output vector
+- `r`: the right-hand side vector of the linear system
+- `p`: the parameters
+- `t`: the current independent variable
+- `du`: the current value of `f(u,p,t)`
+- `gamma`: the `gamma` of `W = M - gamma*J`
+- `delta`: the iterative method tolerance
+- `lr`: a flag for whether `lr=1` (left) or `lr=2` (right)
+  preconditioning
+
+and `psetup` is the preconditioner setup function for pre-computing Jacobian
+information `psetup(p, t, u, du, jok, jcurPtr, gamma)`. Where:
+
+- `p`: the parameters
+- `t`: the current independent variable
+- `u`: the current state
+- `du`: the current `f(u,p,t)`
+- `jok`: a bool indicating whether the Jacobian needs to be updated
+- `jcurPtr`: a reference to an Int for whether the Jacobian was updated.
+  `jcurPtr[]=true` should be set if the Jacobian was updated, and
+  `jcurPtr[]=false` should be set if the Jacobian was not updated.
+- `gamma`: the `gamma` of `W = M - gamma*J`
+
+`psetup` is optional when `prec` is set.
+
+### Additional Options
+
+See [the CVODE manual](https://computing.llnl.gov/sites/default/files/cv_guide-5.7.0.pdf)
+for details on the additional options.
 """
 struct CVODE_Adams{Method, LinearSolver, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
@@ -198,49 +297,7 @@ Base.@pure function CVODE_Adams(;
                                                                      prec_side)
 end
 """
-ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choice of options.
-
-The main options for ARKODE are the choice between explicit and implicit and the method order, given via:
-
-ARKODE(Sundials.Explicit()) # Solve with explicit tableau of default order 4
-ARKODE(Sundials.Implicit(),order = 3) # Solve with explicit tableau of order 3
-The order choices for explicit are 2 through 8 and for implicit 3 through 5. Specific methods can also be set through the etable and itable options for explicit and implicit tableaus respectively. The available tableaus are:
-
-etable:
-    HEUN_EULER_2_1_2: 2nd order Heun's method
-    BOGACKI_SHAMPINE_4_2_3:
-    ARK324L2SA_ERK_4_2_3: explicit portion of Kennedy and Carpenter's 3rd order method
-    ZONNEVELD_5_3_4: 4th order explicit method
-    ARK436L2SA_ERK_6_3_4: explicit portion of Kennedy and Carpenter's 4th order method
-    SAYFY_ABURUB_6_3_4: 4th order explicit method
-    CASH_KARP_6_4_5: 5th order explicit method
-    FEHLBERG_6_4_5: Fehlberg's classic 5th order method
-    DORMAND_PRINCE_7_4_5: the classic 5th order Dormand-Prince method
-    ARK548L2SA_ERK_8_4_5: explicit portion of Kennedy and Carpenter's 5th order method
-    VERNER_8_5_6: Verner's classic 5th order method
-    FEHLBERG_13_7_8: Fehlberg's 8th order method
-
-itable:
-    SDIRK_2_1_2: An A-B-stable 2nd order SDIRK method
-    BILLINGTON_3_3_2: A second order method with a 3rd order error predictor of less stability
-    TRBDF2_3_3_2: The classic TR-BDF2 method
-    KVAERNO_4_2_3: an L-stable 3rd order ESDIRK method
-    ARK324L2SA_DIRK_4_2_3: implicit portion of Kennedy and Carpenter's 3th order method
-    CASH_5_2_4: Cash's 4th order L-stable SDIRK method
-    CASH_5_3_4: Cash's 2nd 4th order L-stable SDIRK method
-    SDIRK_5_3_4: Hairer's 4th order SDIRK method
-    KVAERNO_5_3_4: Kvaerno's 4th order ESDIRK method
-    ARK436L2SA_DIRK_6_3_4: implicit portion of Kennedy and Carpenter's 4th order method
-    KVAERNO_7_4_5: Kvaerno's 5th order ESDIRK method
-    ARK548L2SA_DIRK_8_4_5: implicit portion of Kennedy and Carpenter's 5th order method
-
-These can be set for example via:
-
-ARKODE(Sundials.Explicit(),etable = Sundials.DORMAND_PRINCE_7_4_5)
-ARKODE(Sundials.Implicit(),itable = Sundials.KVAERNO_4_2_3)
-
-All of the additional options are available. The full constructor is:
-
+```julia
 ARKODE(stiffness=Sundials.Implicit();
       method=:Newton,linear_solver=:Dense,
       jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower,
@@ -261,6 +318,117 @@ ARKODE(stiffness=Sundials.Implicit();
       adaptivity_method = 0,
       prec = nothing, psetup = nothing, prec_side = 0
       )
+```
+
+ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choice of options.
+
+### Tableau Choices
+
+The main options for ARKODE are the choice between explicit and implicit and the method
+order, given via:
+
+ARKODE(Sundials.Explicit()) # Solve with explicit tableau of default order 4
+ARKODE(Sundials.Implicit(),order = 3) # Solve with explicit tableau of order 3
+
+The order choices for explicit are 2 through 8 and for implicit 3 through 5. Specific
+methods can also be set through the etable and itable options for explicit and implicit
+tableaus respectively. The available tableaus are:
+
+etable:
+
+* HEUN_EULER_2_1_2: 2nd order Heun's method
+* BOGACKI_SHAMPINE_4_2_3:
+* ARK324L2SA_ERK_4_2_3: explicit portion of Kennedy and Carpenter's 3rd order method
+* ZONNEVELD_5_3_4: 4th order explicit method
+* ARK436L2SA_ERK_6_3_4: explicit portion of Kennedy and Carpenter's 4th order method
+* SAYFY_ABURUB_6_3_4: 4th order explicit method
+* CASH_KARP_6_4_5: 5th order explicit method
+* FEHLBERG_6_4_5: Fehlberg's classic 5th order method
+* DORMAND_PRINCE_7_4_5: the classic 5th order Dormand-Prince method
+* ARK548L2SA_ERK_8_4_5: explicit portion of Kennedy and Carpenter's 5th order method
+* VERNER_8_5_6: Verner's classic 5th order method
+* FEHLBERG_13_7_8: Fehlberg's 8th order method
+
+itable:
+
+* SDIRK_2_1_2: An A-B-stable 2nd order SDIRK method
+* BILLINGTON_3_3_2: A second order method with a 3rd order error predictor of less stability
+* TRBDF2_3_3_2: The classic TR-BDF2 method
+* KVAERNO_4_2_3: an L-stable 3rd order ESDIRK method
+* ARK324L2SA_DIRK_4_2_3: implicit portion of Kennedy and Carpenter's 3th order method
+* CASH_5_2_4: Cash's 4th order L-stable SDIRK method
+* CASH_5_3_4: Cash's 2nd 4th order L-stable SDIRK method
+* SDIRK_5_3_4: Hairer's 4th order SDIRK method
+* KVAERNO_5_3_4: Kvaerno's 4th order ESDIRK method
+* ARK436L2SA_DIRK_6_3_4: implicit portion of Kennedy and Carpenter's 4th order method
+* KVAERNO_7_4_5: Kvaerno's 5th order ESDIRK method
+* ARK548L2SA_DIRK_8_4_5: implicit portion of Kennedy and Carpenter's 5th order method
+
+These can be set for example via:
+
+```julia
+ARKODE(Sundials.Explicit(),etable = Sundials.DORMAND_PRINCE_7_4_5)
+ARKODE(Sundials.Implicit(),itable = Sundials.KVAERNO_4_2_3)
+```
+
+### Method Choices
+
+* method - This is the method for solving the implicit equation. For BDF this defaults to
+    :Newton while for Adams this defaults to :Functional. These choices match the
+    recommended pairing in the Sundials.jl manual. However, note that using the :Newton
+    method may take less iterations but requires more memory than the :Function iteration
+    approach.
+* linear_solver - This is the linear solver which is used in the :Newton method.
+
+### Linear Solver Choices
+
+The choices for the linear solver are:
+
+* :Dense - A dense linear solver.
+* :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :Diagonal - This method is specialized for diagonal Jacobians.
+* :GMRES - A GMRES method. Recommended first choice Krylov method
+* :BCG - A Biconjugate gradient method.
+* :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+* :TFQMR - A TFQMR method.
+* :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+
+### Preconditioners
+
+Note that here `prec` is a preconditioner function
+`prec(z,r,p,t,y,fy,gamma,delta,lr)` where:
+
+- `z`: the computed output vector
+- `r`: the right-hand side vector of the linear system
+- `p`: the parameters
+- `t`: the current independent variable
+- `du`: the current value of `f(u,p,t)`
+- `gamma`: the `gamma` of `W = M - gamma*J`
+- `delta`: the iterative method tolerance
+- `lr`: a flag for whether `lr=1` (left) or `lr=2` (right)
+  preconditioning
+
+and `psetup` is the preconditioner setup function for pre-computing Jacobian
+information `psetup(p, t, u, du, jok, jcurPtr, gamma)`. Where:
+
+- `p`: the parameters
+- `t`: the current independent variable
+- `u`: the current state
+- `du`: the current `f(u,p,t)`
+- `jok`: a bool indicating whether the Jacobian needs to be updated
+- `jcurPtr`: a reference to an Int for whether the Jacobian was updated.
+  `jcurPtr[]=true` should be set if the Jacobian was updated, and
+  `jcurPtr[]=false` should be set if the Jacobian was not updated.
+- `gamma`: the `gamma` of `W = M - gamma*J`
+
+`psetup` is optional when `prec` is set.
+
+### Additional Options
+
+See the [ARKODE manual](https://computing.llnl.gov/sites/default/files/ark_guide-4.7.0.pdf)
+for details on the additional options.
 """
 struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
        SundialsODEAlgorithm{Method, LinearSolver}
@@ -388,31 +556,7 @@ end
 
 # DAE Algorithms
 """
-IDA: This is the IDA method from the Sundials.jl package.
-
-Note that the constructors for the Sundials algorithms take a main argument:
-linearsolver - This is the linear solver which is used in the Newton iterations. The choices are:
-
-:Dense - A dense linear solver.
-:Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-:LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-:LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-:GMRES - A GMRES method. Recommended first choice Krylov method
-:BCG - A Biconjugate gradient method.
-:PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
-:TFQMR - A TFQMR method.
-:KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
-
-Note that the preconditioner for iterative linear solvers (if supplied) should be a left preconditioner.
-
-Example:
-
-IDA() # Newton + Dense solver
-IDA(linear_solver=:Band,jac_upper=3,jac_lower=3) # Banded solver with nonzero diagonals 3 up and 3 down
-IDA(linear_solver=:BCG) # Biconjugate gradient method
-
-All of the additional options are available. The constructor is:
-
+```julia
 IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0,
     max_order = 5,
     max_error_test_failures = 7,
@@ -427,6 +571,70 @@ IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0,
     max_convergence_failures = 10,
     init_all = false,
     prec = nothing, psetup = nothing)
+```
+
+IDA: This is the IDA method from the Sundials.jl package.
+
+### Linear Solvers
+
+Note that the constructors for the Sundials algorithms take a main argument:
+linearsolver - This is the linear solver which is used in the Newton iterations. The
+choices are:
+
+* :Dense - A dense linear solver.
+* :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :GMRES - A GMRES method. Recommended first choice Krylov method
+* :BCG - A Biconjugate gradient method.
+* :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+* :TFQMR - A TFQMR method.
+* :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+
+Note that the preconditioner for iterative linear solvers (if supplied) should be a left
+preconditioner.
+
+Example:
+
+```julia
+IDA() # Newton + Dense solver
+IDA(linear_solver=:Band,jac_upper=3,jac_lower=3) # Banded solver with nonzero diagonals 3 up and 3 down
+IDA(linear_solver=:BCG) # Biconjugate gradient method
+```
+
+### Preconditioners
+
+Note that here `prec` is a (left) preconditioner function
+`prec(z,r,p,t,y,fy,gamma,delta)` where:
+
+- `z`: the computed output vector
+- `r`: the right-hand side vector of the linear system
+- `p`: the parameters
+- `t`: the current independent variable
+- `du`: the current value of `f(u,p,t)`
+- `gamma`: the `gamma` of `W = M - gamma*J`
+- `delta`: the iterative method tolerance
+
+and `psetup` is the preconditioner setup function for pre-computing Jacobian
+information. Where:
+
+- `p`: the parameters
+- `t`: the current independent variable
+- `resid`: the current residual
+- `u`: the current state
+- `du`: the current derivative of the state
+- `gamma`: the `gamma` of `W = M - gamma*J`
+
+`psetup` is optional when `prec` is set.
+
+### Additional Options
+
+See [the Sundials manual](https://computing.llnl.gov/sites/default/files/ida_guide-5.7.0.pdf)
+for details on the additional options. The option `init_all` controls the initial condition
+consistency routine. If the initial conditions are inconsistent (i.e. they do not satisfy the
+implicit equation), `init_all=false` means that the algebraic variables and derivatives will
+be modified in order to satisfy the DAE. If `init_all=true`, all initial conditions will be
+modified to satisfy the DAE.
 """
 struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     jac_upper::Int
