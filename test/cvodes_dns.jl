@@ -139,7 +139,7 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     mem_ptr = Sundials.CVodeCreate(Sundials.CV_ADAMS)
     #mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF)
     cvode_mem = Sundials.Handle(mem_ptr)
-    Sundials.CVodeInit(cvode_mem, crhs, t0, convert(N_Vector, y0))
+    Sundials.CVodeInit(cvode_mem, crhs, t0, convert(NVector, y0))
     Sundials.CVodeSStolerances(cvode_mem, reltol, abstol)
     Sundials.CVodeSetUserData(cvode_mem, CVSData(f, fS, p, size(yS0)...))
 

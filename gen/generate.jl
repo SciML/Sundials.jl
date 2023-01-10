@@ -132,9 +132,14 @@ function wrap_sundials_api(expr::Expr)
                     arg_type_expr = expr.args[2]
                 end
                 if arg_type_expr == :N_Vector
-                    # first convert argument to NVector() and store in local var,
-                    # this guarantees that the wrapper and associated Sundials object (e.g. N_Vector)
-                    # is not removed by GC
+                    # TODO replace with use of cconvert / unsafe_convert
+                    # The code and comment below is incorrect and leads to memory errors with Julia >= 1.8,
+                    # as storing in a local variable DOES NOT protect against garbage collection.
+                    # Current workaround is to edit the generated files and apply a fix.
+                    #
+                    # Incorrect comment: 'first convert argument to NVector() and store in local var,
+                    #     this guarantees that the wrapper and associated Sundials object (e.g. N_Vector)
+                    #     is not removed by GC'
                     return (arg_name_expr,
                             Expr(:call, :convert, :NVector, arg_name_expr), # convert arg to NVector to store in a local var
                             Expr(:call, :convert, arg_type_expr,

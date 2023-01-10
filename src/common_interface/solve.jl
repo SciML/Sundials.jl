@@ -230,7 +230,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
     end
 
-    flag = CVodeInit(mem, getcfunf(userfun), t0, convert(N_Vector, utmp))
+    flag = CVodeInit(mem, getcfunf(userfun), t0, utmp)
 
     dt !== nothing && (flag = CVodeSetInitStep(mem, dt))
     flag = CVodeSetMinStep(mem, dtmin)
@@ -545,7 +545,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     _u0 = copy(u0)
     utmp = NVector(_u0)
 
-    function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = convert(N_Vector, u0nv))
+    function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = u0nv)
         mem_ptr = ARKStepCreate(fe, fi, t0, u0)
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
@@ -1133,7 +1133,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
     end
     cfun = getcfun(userfun)
-    flag = IDAInit(mem, cfun, t0, convert(N_Vector, utmp), convert(N_Vector, dutmp))
+    flag = IDAInit(mem, cfun, t0, utmp, dutmp)
     dt !== nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
