@@ -5,6 +5,9 @@
    Implements `DenseVector` interface and
    manages automatic destruction of the referenced `N_Vector` when it is
    no longer in use.
+
+   NB: can be supplied to ccall when an N_Vector is required
+   (ie implements cconvert / unsafe_convert).
 """
 struct NVector <: DenseVector{realtype}
     ref_nv::Ref{N_Vector}   # reference to N_Vector
@@ -25,9 +28,6 @@ struct NVector <: DenseVector{realtype}
     end
 end
 
-NVector(v::AbstractArray) = convert(Vector, v)
-N_Vector(x::NVector) = convert(N_Vector, x)
-
 release_handle(ref_nv::Ref{N_Vector}) = N_VDestroy_Serial(ref_nv[])
 
 Base.size(nv::NVector, d...) = size(nv.v, d...)
@@ -46,7 +46,9 @@ Base.pointer(nv::NVector) = Sundials.N_VGetArrayPointer_Serial(nv.ref_nv[])
 ##################################################################
 #
 # Methods to convert between Julia Vectors and Sundials N_Vectors.
-#
+# NB uses:
+# - convert to convert to NVector
+# - cconvert / unsafe_convert to convert to N_Vector (for use within a ccall only)
 ##################################################################
 
 Base.convert(::Type{NVector}, v::Vector{realtype}) = NVector(v)
@@ -58,19 +60,29 @@ end
 Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Array, v))
 Base.convert(::Type{NVector}, nv::NVector) = nv
 Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
-Base.convert(::Type{N_Vector}, nv::NVector) = nv.ref_nv[]
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
 Base.convert(::Type{Vector}, nv::NVector) = nv.v
 
-""" `N_Vector(v::Vector{T})`
 
-    Converts Julia `Vector` to `N_Vector`.
+""" 
+    Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) -> nv::NVector
+    Base.unsafe_convert(::Type{N_Vector}, nv::NVector)
 
-    Implicitly creates `NVector` object that manages automatic
-    destruction of `N_Vector` object when no longer in use.
+Convert NVector to N_Vector, for use by ccall
+
+(NB: actually implemented to convert any Julia Vector, although only NVector is needed?)
+
+This replaces incorrect use of Base.convert, which fails with Julia >= 1.8 if used with a temporary NVector
+
+see https://discourse.julialang.org/t/how-to-keep-a-reference-for-c-structure-to-avoid-gc/9310/21
+
+Conversion happens in two steps within ccall:
+ - cconvert to convert to temporary NVector, which is preserved from garbage collection
+ - unsafe_convert to get the pointer from the temporary NVector
 """
-Base.convert(::Type{N_Vector}, v::Vector{realtype}) = N_Vector(NVector(v))
-Base.convert(::Type{N_Vector}, v::Vector{T}) where {T <: Real} = N_Vector(NVector(v))
+Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) = convert(NVector, v)
+Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.ref_nv[]
+
 
 Base.similar(nv::NVector) = NVector(similar(nv.v))
 
