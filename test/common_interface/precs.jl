@@ -1,6 +1,8 @@
 using Sundials, Test, ModelingToolkit, LinearAlgebra, IncompleteLU
 import AlgebraicMultigrid
 
+println("precs.jl start tests...")
+
 const N = 32
 const xyd_brusselator = range(0; stop = 1, length = N)
 brusselator_f(x, y, t) = (((x - 0.3)^2 + (y - 0.6)^2) <= 0.1^2) * (t >= 1.1) * 5.0
@@ -40,7 +42,8 @@ u0 = init_brusselator_2d(xyd_brusselator)
 prob_ode_brusselator_2d = ODEProblem(brusselator_2d_loop,
                                      u0, (0.0, 11.5), p)
 
-prob_ode_brusselator_2d_mtk = ODEProblem(modelingtoolkitize(prob_ode_brusselator_2d), [],
+println("rob_ode_brusselator_2d_mtk")
+@time prob_ode_brusselator_2d_mtk = ODEProblem(modelingtoolkitize(prob_ode_brusselator_2d), [],
                                          (0.0, 11.5); jac = true, sparse = true);
 
 u0 = prob_ode_brusselator_2d_mtk.u0
@@ -70,7 +73,8 @@ function precilu(z, r, p, t, y, fy, gamma, delta, lr)
     ldiv!(z, preccache[], r)
 end
 
-prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
+println("aspreconditioner")
+@time prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
                                                                               presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
                                                                                                                                 1))),
                                                                               postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
@@ -99,13 +103,16 @@ function precamg(z, r, p, t, y, fy, gamma, delta, lr)
     ldiv!(z, preccache2[], r)
 end
 
-sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
+println("sol1:")
+@time sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
              save_everystep = false);
-sol2 = solve(prob_ode_brusselator_2d,
-             CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
-                       prec_side = 1); save_everystep = false);
-sol3 = solve(prob_ode_brusselator_2d,
-             CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
-                       prec_side = 1); save_everystep = false);
+println("sol2:")
+@time sol2 = solve(prob_ode_brusselator_2d,
+        CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
+                prec_side = 1); save_everystep = false);
+println("sol3:")
+@time sol3 = solve(prob_ode_brusselator_2d,
+        CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
+                prec_side = 1); save_everystep = false);
 @test sol1.destats.nf > sol2.destats.nf
 @test sol1.destats.nf > sol3.destats.nf
