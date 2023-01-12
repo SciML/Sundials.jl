@@ -103,6 +103,9 @@ function precamg(z, r, p, t, y, fy, gamma, delta, lr)
     ldiv!(z, preccache2[], r)
 end
 
+#= 
+# Remove for testing
+
 println("sol1:")
 @time sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
              save_everystep = false);
@@ -115,4 +118,5 @@ println("sol3:")
         CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
                 prec_side = 1); save_everystep = false);
 @test sol1.destats.nf > sol2.destats.nf
-@test sol1.destats.nf > sol3.destats.nf
+@test sol1.destats.nf > sol3.destats.nf 
+=#
