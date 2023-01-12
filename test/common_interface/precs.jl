@@ -1,7 +1,7 @@
 using Sundials, Test, ModelingToolkit, LinearAlgebra, IncompleteLU
 import AlgebraicMultigrid
 
-println("precs.jl start tests...")
+println("precs.jl start tests..."); flush(stdout)
 
 const N = 32
 const xyd_brusselator = range(0; stop = 1, length = N)
@@ -42,7 +42,7 @@ u0 = init_brusselator_2d(xyd_brusselator)
 prob_ode_brusselator_2d = ODEProblem(brusselator_2d_loop,
                                      u0, (0.0, 11.5), p)
 
-println("rob_ode_brusselator_2d_mtk")
+println("rob_ode_brusselator_2d_mtk"); flush(stdout)
 @time prob_ode_brusselator_2d_mtk = ODEProblem(modelingtoolkitize(prob_ode_brusselator_2d), [],
                                          (0.0, 11.5); jac = true, sparse = true);
 
@@ -73,7 +73,7 @@ function precilu(z, r, p, t, y, fy, gamma, delta, lr)
     ldiv!(z, preccache[], r)
 end
 
-println("aspreconditioner")
+println("aspreconditioner"); flush(stdout)
 @time prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
                                                                               presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
                                                                                                                                 1))),
@@ -103,14 +103,14 @@ function precamg(z, r, p, t, y, fy, gamma, delta, lr)
     ldiv!(z, preccache2[], r)
 end
 
-println("sol1:")
+println("sol1:"); flush(stdout)
 @time sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
              save_everystep = false);
-println("sol2:")
+println("sol2:"); flush(stdout)
 @time sol2 = solve(prob_ode_brusselator_2d,
         CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
                 prec_side = 1); save_everystep = false);
-println("sol3:")
+println("sol3:"); flush(stdout)
 @time sol3 = solve(prob_ode_brusselator_2d,
         CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
                 prec_side = 1); save_everystep = false);
