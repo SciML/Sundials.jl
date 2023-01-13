@@ -14,8 +14,6 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 SnoopPrecompile = "66db9d55-30c0-4569-8b51-7e840670fc0c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
-SparsityTracing = "06eadbd4-12ad-4cbc-ab6e-10f8370940a5"
 Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 
 [compat]
@@ -37,7 +35,8 @@ IncompleteLU = "40713840-3770-5561-ab4c-a76e7d0d7895"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 ODEProblemLibrary = "fdc4e326-1af4-4b90-96e7-779fcce2daa5"
 SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
+SparsityTracing = "06eadbd4-12ad-4cbc-ab6e-10f8370940a5"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "AlgebraicMultigrid", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "DiffEqOperators", "SparseDiffTools", "IncompleteLU", "ModelingToolkit"]
+test = ["Test", "AlgebraicMultigrid", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "DiffEqOperators", "SparseDiffTools", "SparsityTracing", "IncompleteLU", "ModelingToolkit"]
