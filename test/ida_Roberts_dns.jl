@@ -44,6 +44,9 @@ function resrob(tres, yy_nv, yp_nv, rr_nv, user_data)
     return Sundials.IDA_SUCCESS
 end
 
+resrob_C = @cfunction(resrob, Cint,
+                (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+
 ## Root function routine. Compute functions g_i(t,y) for i = 0,1.
 function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
     yy = convert(Vector, yy_nv)
@@ -52,6 +55,9 @@ function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
     gout[2] = yy[3] - 0.01
     return Sundials.IDA_SUCCESS
 end
+
+grob_C = @cfunction(grob, Cint,
+                (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Sundials.realtype}, Ptr{Cvoid}))
 
 ## Define the Jacobian function. BROKEN - JJ is wrong
 function jacrob(Neq, tt, cj, yy, yp, resvec, JJ, user_data, tempv1, tempv2, tempv3)
@@ -78,11 +84,11 @@ avtol = [1e-8, 1e-14, 1e-6]
 tout1 = 0.4
 
 mem = Sundials.IDACreate()
-Sundials.@checkflag Sundials.IDAInit(mem, resrob, t0, yy0, yp0)
+Sundials.@checkflag Sundials.IDAInit(mem, resrob_C, t0, yy0, yp0)
 Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
 
 ## Call IDARootInit to specify the root function grob with 2 components
-Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob)
+Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob_C)
 
 ## Call IDADense and set up the linear solver.
 A = Sundials.SUNDenseMatrix(length(y0), length(y0))

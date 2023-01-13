@@ -6,39 +6,6 @@ function Base.convert(::Type{Matrix}, J::DlsMat)
     unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N); own = false)
 end
 
-CVRhsFn_wrapper(fp::CVRhsFn) = fp
-CVRhsFn_wrapper(f) = @cfunction($f, Cint, (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
-
-ARKRhsFn_wrapper(fp::ARKRhsFn) = fp
-ARKRhsFn_wrapper(f) = @cfunction($f, Cint, (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
-
-CVRootFn_wrapper(fp::CVRootFn) = fp
-function CVRootFn_wrapper(f)
-    @cfunction($f, Cint,
-               (realtype, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
-end
-
-CVQuadRhsFn_wrapper(fp::CVQuadRhsFn) = fp
-function CVQuadRhsFn_wrapper(f)
-    @cfunction($f, Cint,
-               (realtype, N_Vector, N_Vector, Ptr{Cvoid})).ptr
-end
-
-IDAResFn_wrapper(fp::IDAResFn) = fp
-function IDAResFn_wrapper(f)
-    @cfunction($f, Cint,
-               (realtype, N_Vector, N_Vector, N_Vector, Ptr{Cvoid})).ptr
-end
-
-IDARootFn_wrapper(fp::IDARootFn) = fp
-function IDARootFn_wrapper(f)
-    @cfunction($f, Cint,
-               (realtype, N_Vector, N_Vector, Ptr{realtype}, Ptr{Cvoid})).ptr
-end
-
-KINSysFn_wrapper(fp::KINSysFn) = fp
-KINSysFn_wrapper(f) = @cfunction($f, Cint, (N_Vector, N_Vector, Ptr{Cvoid})).ptr
-
 function Base.convert(::Type{Matrix}, J::SUNMatrix)
     _sunmat = unsafe_load(J)
     _mat = convert(SUNMatrixContent_Dense, _sunmat.content)

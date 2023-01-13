@@ -21,6 +21,9 @@ function g(t, y_nv, gout_ptr, user_data)
     return Sundials.CV_SUCCESS
 end
 
+g_C = @cfunction(g, Cint,
+                (Sundials.realtype, Sundials.N_Vector, Ptr{Sundials.realtype}, Ptr{Cvoid}))
+
 ## Jacobian routine. Compute J(t,y) = df/dy.
 # broken -- needs a wrapper from Sundials._DlsMat to Matrix and Jac user function wrapper
 function Jac(N, t, ny, fy, Jptr, user_data, tmp1, tmp2, tmp3)
@@ -61,10 +64,10 @@ function getcfunrob(userfun::T) where {T}
                (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ref{T}))
 end
 
-Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1, convert(Sundials.NVector, y0))
-Sundials.@checkflag Sundials.CVodeInit(cvode_mem, f, t0, y0)
+Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1, convert(Sundials.NVector, y0))
+Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
-Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g)
+Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g_C)
 A = Sundials.SUNDenseMatrix(neq, neq)
 mat_handle = Sundials.MatrixHandle(A, Sundials.DenseMatrix())
 LS = Sundials.SUNLinSol_Dense(convert(Sundials.NVector, y0), A)
