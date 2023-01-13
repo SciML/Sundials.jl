@@ -20,6 +20,8 @@ function sysfn(y_nv, fy_nv, a_in)
     return Sundials.KIN_SUCCESS
 end
 
+sysfn_C = @cfunction(sysfn, Cint, (Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+
 ## Initialize problem
 neq = 2
 kmem = Sundials.KINCreate()
@@ -27,7 +29,7 @@ Sundials.@checkflag Sundials.KINSetFuncNormTol(kmem, 1.0e-5)
 Sundials.@checkflag Sundials.KINSetScaledStepTol(kmem, 1.0e-4)
 Sundials.@checkflag Sundials.KINSetMaxSetupCalls(kmem, 1)
 y = ones(neq)
-Sundials.@checkflag Sundials.KINInit(kmem, sysfn, y)
+Sundials.@checkflag Sundials.KINInit(kmem, sysfn_C, y)
 A = Sundials.SUNDenseMatrix(length(y), length(y))
 LS = Sundials.SUNLinSol_Dense(y, A)
 Sundials.@checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A)
