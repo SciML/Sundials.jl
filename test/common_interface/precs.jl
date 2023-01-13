@@ -1,7 +1,6 @@
-using Sundials, Test, ModelingToolkit, LinearAlgebra, IncompleteLU
+using Sundials, Test, LinearAlgebra, IncompleteLU
 import AlgebraicMultigrid
-
-println("precs.jl start tests..."); flush(stdout)
+import SparsityTracing, SparseDiffTools
 
 const N = 32
 const xyd_brusselator = range(0; stop = 1, length = N)
@@ -25,6 +24,14 @@ function brusselator_2d_loop(du, u, p, t)
                       A * u[i, j, 1] - u[i, j, 1]^2 * u[i, j, 2]
     end
 end
+
+# vector arguments to simplify Jacobian setup
+function brusselator_2d_vec(du_vec, u_vec, p, t)
+    du = reshape(du_vec, N, N, 2)
+    u = reshape(u_vec, N, N, 2)
+    return brusselator_2d_loop(du, u, p, t)
+end
+
 p = (3.4, 1.0, 10.0, step(xyd_brusselator))
 
 function init_brusselator_2d(xyd)
@@ -38,25 +45,34 @@ function init_brusselator_2d(xyd)
     end
     u
 end
-u0 = init_brusselator_2d(xyd_brusselator)
-prob_ode_brusselator_2d = ODEProblem(brusselator_2d_loop,
+u0 = vec(init_brusselator_2d(xyd_brusselator))
+
+prob_ode_brusselator_2d = ODEProblem(brusselator_2d_vec,
                                      u0, (0.0, 11.5), p)
 
-println("rob_ode_brusselator_2d_mtk"); flush(stdout)
-@time prob_ode_brusselator_2d_mtk = ODEProblem(modelingtoolkitize(prob_ode_brusselator_2d), [],
-                                         (0.0, 11.5); jac = true, sparse = true);
 
-u0 = prob_ode_brusselator_2d_mtk.u0
-p = prob_ode_brusselator_2d_mtk.p
-const jaccache = prob_ode_brusselator_2d_mtk.f.jac(u0, p, 0.0)
+# find Jacobian sparsity pattern
+u0_st = SparsityTracing.create_advec(u0)
+du_st = similar(u0_st)
+brusselator_2d_vec(du_st, u0_st, p, 0.0)
+const jaccache = SparsityTracing.jacobian(du_st, length(du_st))
 const W = I - 1.0 * jaccache
+
+# setup sparse AD for Jacobian
+colors = SparseDiffTools.matrix_colors(jaccache)
+const jaccache_fc = SparseDiffTools.ForwardColorJacCache(
+    nothing, # don't use f to create unique Tag
+    u0, 
+    colorvec=colors,
+    sparsity=jaccache,
+)
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        prob_ode_brusselator_2d_mtk.f.jac(jaccache, u, p, t)
+        SparseDiffTools.forwarddiff_color_jacobian!(jaccache, (y, x) -> brusselator_2d_vec(y, x, p, t), u, jaccache_fc)
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -73,8 +89,7 @@ function precilu(z, r, p, t, y, fy, gamma, delta, lr)
     ldiv!(z, preccache[], r)
 end
 
-println("aspreconditioner"); flush(stdout)
-@time prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
+prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
                                                                               presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
                                                                                                                                 1))),
                                                                               postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
@@ -82,7 +97,7 @@ println("aspreconditioner"); flush(stdout)
 const preccache2 = Ref(prectmp2)
 function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        prob_ode_brusselator_2d_mtk.f.jac(jaccache, u, p, t)
+        SparseDiffTools.forwarddiff_color_jacobian!(jaccache, (y, x) -> brusselator_2d_vec(y, x, p, t), u, jaccache_fc)
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -103,16 +118,13 @@ function precamg(z, r, p, t, y, fy, gamma, delta, lr)
     ldiv!(z, preccache2[], r)
 end
 
-println("sol1:"); flush(stdout)
-@time sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
+sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
              save_everystep = false);
-println("sol2:"); flush(stdout)
-@time sol2 = solve(prob_ode_brusselator_2d,
-        CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
-                prec_side = 1); save_everystep = false);
-println("sol3:"); flush(stdout)
-@time sol3 = solve(prob_ode_brusselator_2d,
-        CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
-                prec_side = 1); save_everystep = false);
+sol2 = solve(prob_ode_brusselator_2d,
+             CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
+                       prec_side = 1); save_everystep = false);
+sol3 = solve(prob_ode_brusselator_2d,
+             CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
+                       prec_side = 1); save_everystep = false);
 @test sol1.destats.nf > sol2.destats.nf
 @test sol1.destats.nf > sol3.destats.nf
