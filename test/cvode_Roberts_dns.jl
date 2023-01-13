@@ -22,7 +22,7 @@ function g(t, y_nv, gout_ptr, user_data)
 end
 
 g_C = @cfunction(g, Cint,
-                (Sundials.realtype, Sundials.N_Vector, Ptr{Sundials.realtype}, Ptr{Cvoid}))
+                 (Sundials.realtype, Sundials.N_Vector, Ptr{Sundials.realtype}, Ptr{Cvoid}))
 
 ## Jacobian routine. Compute J(t,y) = df/dy.
 # broken -- needs a wrapper from Sundials._DlsMat to Matrix and Jac user function wrapper
@@ -64,7 +64,8 @@ function getcfunrob(userfun::T) where {T}
                (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ref{T}))
 end
 
-Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1, convert(Sundials.NVector, y0))
+Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1,
+                                       convert(Sundials.NVector, y0))
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g_C)

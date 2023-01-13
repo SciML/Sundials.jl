@@ -8,7 +8,8 @@
 # Remove automatic use of @cfunction by CVRhsFn_wrapper and similar
 # (this is unsafe as a C ptr is returned from the temporary @cfunction closure which may then be garbage collected)
 
-function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
+function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
+                       y0::Union{N_Vector, NVector})
     ccall((:ARKStepCreate, libsundials_arkode), ARKStepMemPtr,
           (ARKRhsFn, ARKRhsFn, realtype, N_Vector), fe, fi, t0, y0)
 end
@@ -18,7 +19,8 @@ function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
     ARKStepCreate(fe, fi, t0, __y0)
 end
 
-function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype, t0::realtype,
+function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
+                       t0::realtype,
                        resize::ARKVecResizeFn, resize_data)
     ccall((:ARKStepResize, libsundials_arkode), Cint,
           (ARKStepMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}),
@@ -30,7 +32,8 @@ function ARKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
     ARKStepResize(arkode_mem, __ynew, hscale, t0, resize, resize_data)
 end
 
-function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
+function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
+                       y0::Union{N_Vector, NVector})
     ccall((:ARKStepReInit, libsundials_arkode), Cint,
           (ARKStepMemPtr, ARKRhsFn, ARKRhsFn, realtype, N_Vector), arkode_mem, fe, fi, t0,
           y0)
@@ -513,7 +516,8 @@ function ARKStepSetLinSysFn(arkode_mem, linsys::ARKLsLinSysFn)
           arkode_mem, linsys)
 end
 
-function ARKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret, itask::Cint)
+function ARKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+                       itask::Cint)
     ccall((:ARKStepEvolve, libsundials_arkode), Cint,
           (ARKStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout,
           tret, itask)
@@ -949,7 +953,8 @@ function ERKStepCreate(f::ARKRhsFn, t0, y0)
     ERKStepCreate(f, t0, __y0)
 end
 
-function ERKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype, t0::realtype,
+function ERKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
+                       t0::realtype,
                        resize::ARKVecResizeFn, resize_data)
     ccall((:ERKStepResize, libsundials_arkode), Cint,
           (ERKStepMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}),
@@ -1231,7 +1236,8 @@ function ERKStepSetPostprocessStageFn(arkode_mem, ProcessStage::ARKPostProcessFn
           (ERKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage)
 end
 
-function ERKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret, itask::Cint)
+function ERKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+                       itask::Cint)
     ccall((:ERKStepEvolve, libsundials_arkode), Cint,
           (ERKStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout,
           tret, itask)
@@ -1392,7 +1398,8 @@ function ERKStepPrintMem(arkode_mem, outfile)
           arkode_mem, outfile)
 end
 
-function MRIStepCreate(fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector}, inner_step_id::MRISTEP_ID,
+function MRIStepCreate(fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector},
+                       inner_step_id::MRISTEP_ID,
                        inner_step_mem)
     ccall((:MRIStepCreate, libsundials_arkode), MRIStepMemPtr,
           (ARKRhsFn, realtype, N_Vector, MRISTEP_ID, Ptr{Cvoid}), fs, t0, y0, inner_step_id,
@@ -1404,7 +1411,8 @@ function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem)
     MRIStepCreate(fs, t0, __y0, inner_step_id, inner_step_mem)
 end
 
-function MRIStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype, resize::ARKVecResizeFn,
+function MRIStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype,
+                       resize::ARKVecResizeFn,
                        resize_data)
     ccall((:MRIStepResize, libsundials_arkode), Cint,
           (MRIStepMemPtr, N_Vector, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew,
@@ -1562,7 +1570,8 @@ function MRIStepSetPostInnerFn(arkode_mem, postfn::MRIStepPostInnerFn)
           (MRIStepMemPtr, MRIStepPostInnerFn), arkode_mem, postfn)
 end
 
-function MRIStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret, itask::Cint)
+function MRIStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+                       itask::Cint)
     ccall((:MRIStepEvolve, libsundials_arkode), Cint,
           (MRIStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout,
           tret, itask)
@@ -2331,7 +2340,8 @@ function CVodeQuadSStolerances(cvode_mem, reltolQ::realtype, abstolQ::realtype)
           (CVODEMemPtr, realtype, realtype), cvode_mem, reltolQ, abstolQ)
 end
 
-function CVodeQuadSVtolerances(cvode_mem, reltolQ::realtype, abstolQ::Union{N_Vector, NVector})
+function CVodeQuadSVtolerances(cvode_mem, reltolQ::realtype,
+                               abstolQ::Union{N_Vector, NVector})
     ccall((:CVodeQuadSVtolerances, libsundials_cvodes), Cint,
           (CVODEMemPtr, realtype, N_Vector), cvode_mem, reltolQ, abstolQ)
 end
@@ -2517,7 +2527,8 @@ function CVodeGetSensDky(cvode_mem, t, k, dkyA)
     CVodeGetSensDky(cvode_mem, t, convert(Cint, k), dkyA)
 end
 
-function CVodeGetSensDky1(cvode_mem, t::realtype, k::Cint, is::Cint, dky::Union{N_Vector, NVector})
+function CVodeGetSensDky1(cvode_mem, t::realtype, k::Cint, is::Cint,
+                          dky::Union{N_Vector, NVector})
     ccall((:CVodeGetSensDky1, libsundials_cvodes), Cint,
           (CVODEMemPtr, realtype, Cint, Cint, N_Vector), cvode_mem, t, k, is, dky)
 end
@@ -2645,7 +2656,8 @@ function CVodeGetQuadSensDky(cvode_mem, t, k, dkyQS_all)
     CVodeGetQuadSensDky(cvode_mem, t, convert(Cint, k), dkyQS_all)
 end
 
-function CVodeGetQuadSensDky1(cvode_mem, t::realtype, k::Cint, is::Cint, dkyQS::Union{N_Vector, NVector})
+function CVodeGetQuadSensDky1(cvode_mem, t::realtype, k::Cint, is::Cint,
+                              dkyQS::Union{N_Vector, NVector})
     ccall((:CVodeGetQuadSensDky1, libsundials_cvodes), Cint,
           (CVODEMemPtr, realtype, Cint, Cint, N_Vector), cvode_mem, t, k, is, dkyQS)
 end
@@ -2706,7 +2718,8 @@ function CVodeCreateB(cvode_mem, lmmB, which)
     CVodeCreateB(cvode_mem, convert(Cint, lmmB), which)
 end
 
-function CVodeInitB(cvode_mem, which::Cint, fB::CVRhsFnB, tB0::realtype, yB0::Union{N_Vector, NVector})
+function CVodeInitB(cvode_mem, which::Cint, fB::CVRhsFnB, tB0::realtype,
+                    yB0::Union{N_Vector, NVector})
     ccall((:CVodeInitB, libsundials_cvodes), Cint,
           (CVODEMemPtr, Cint, CVRhsFnB, realtype, N_Vector), cvode_mem, which, fB, tB0, yB0)
 end
@@ -2716,7 +2729,8 @@ function CVodeInitB(cvode_mem, which, fB, tB0, yB0)
     CVodeInitB(cvode_mem, convert(Cint, which), fB, tB0, __yB0)
 end
 
-function CVodeInitBS(cvode_mem, which::Cint, fBs::CVRhsFnBS, tB0::realtype, yB0::Union{N_Vector, NVector})
+function CVodeInitBS(cvode_mem, which::Cint, fBs::CVRhsFnBS, tB0::realtype,
+                     yB0::Union{N_Vector, NVector})
     ccall((:CVodeInitBS, libsundials_cvodes), Cint,
           (CVODEMemPtr, Cint, CVRhsFnBS, realtype, N_Vector), cvode_mem, which, fBs, tB0,
           yB0)
@@ -2746,7 +2760,8 @@ function CVodeSStolerancesB(cvode_mem, which, reltolB, abstolB)
     CVodeSStolerancesB(cvode_mem, convert(Cint, which), reltolB, abstolB)
 end
 
-function CVodeSVtolerancesB(cvode_mem, which::Cint, reltolB::realtype, abstolB::Union{N_Vector, NVector})
+function CVodeSVtolerancesB(cvode_mem, which::Cint, reltolB::realtype,
+                            abstolB::Union{N_Vector, NVector})
     ccall((:CVodeSVtolerancesB, libsundials_cvodes), Cint,
           (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, reltolB, abstolB)
 end
@@ -2757,7 +2772,8 @@ function CVodeSVtolerancesB(cvode_mem, which, reltolB, abstolB)
                        __abstolB)
 end
 
-function CVodeQuadInitB(cvode_mem, which::Cint, fQB::CVQuadRhsFnB, yQB0::Union{N_Vector, NVector})
+function CVodeQuadInitB(cvode_mem, which::Cint, fQB::CVQuadRhsFnB,
+                        yQB0::Union{N_Vector, NVector})
     ccall((:CVodeQuadInitB, libsundials_cvodes), Cint,
           (CVODEMemPtr, Cint, CVQuadRhsFnB, N_Vector), cvode_mem, which, fQB, yQB0)
 end
@@ -2767,7 +2783,8 @@ function CVodeQuadInitB(cvode_mem, which, fQB, yQB0)
     CVodeQuadInitB(cvode_mem, convert(Cint, which), fQB, __yQB0)
 end
 
-function CVodeQuadInitBS(cvode_mem, which::Cint, fQBs::CVQuadRhsFnBS, yQB0::Union{N_Vector, NVector})
+function CVodeQuadInitBS(cvode_mem, which::Cint, fQBs::CVQuadRhsFnBS,
+                         yQB0::Union{N_Vector, NVector})
     ccall((:CVodeQuadInitBS, libsundials_cvodes), Cint,
           (CVODEMemPtr, Cint, CVQuadRhsFnBS, N_Vector), cvode_mem, which, fQBs, yQB0)
 end
@@ -2809,7 +2826,8 @@ function CVodeQuadSVtolerancesB(cvode_mem, which, reltolQB, abstolQB)
                            __abstolQB)
 end
 
-function CVodeF(cvode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret, itask::Cint, ncheckPtr)
+function CVodeF(cvode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+                itask::Cint, ncheckPtr)
     ccall((:CVodeF, libsundials_cvodes), Cint,
           (CVODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint, Ptr{Cint}), cvode_mem,
           tout, yout, tret, itask, ncheckPtr)
@@ -2897,7 +2915,8 @@ function CVodeSetMaxStepB(cvode_mem, which, hmaxB)
     CVodeSetMaxStepB(cvode_mem, convert(Cint, which), hmaxB)
 end
 
-function CVodeSetConstraintsB(cvode_mem, which::Cint, constraintsB::Union{N_Vector, NVector})
+function CVodeSetConstraintsB(cvode_mem, which::Cint,
+                              constraintsB::Union{N_Vector, NVector})
     ccall((:CVodeSetConstraintsB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, N_Vector),
           cvode_mem, which, constraintsB)
 end
@@ -2969,7 +2988,8 @@ function CVodeGetAdjCheckPointsInfo(cvode_mem, ckpnt)
           (CVODEMemPtr, Ptr{CVadjCheckPointRec}), cvode_mem, ckpnt)
 end
 
-function CVodeGetAdjDataPointHermite(cvode_mem, which::Cint, t, y::Union{N_Vector, NVector}, yd::Union{N_Vector, NVector})
+function CVodeGetAdjDataPointHermite(cvode_mem, which::Cint, t, y::Union{N_Vector, NVector},
+                                     yd::Union{N_Vector, NVector})
     ccall((:CVodeGetAdjDataPointHermite, libsundials_cvodes), Cint,
           (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), cvode_mem, which, t, y,
           yd)
@@ -2982,7 +3002,8 @@ function CVodeGetAdjDataPointHermite(cvode_mem, which, t, y, yd)
                                 __yd)
 end
 
-function CVodeGetAdjDataPointPolynomial(cvode_mem, which::Cint, t, order, y::Union{N_Vector, NVector})
+function CVodeGetAdjDataPointPolynomial(cvode_mem, which::Cint, t, order,
+                                        y::Union{N_Vector, NVector})
     ccall((:CVodeGetAdjDataPointPolynomial, libsundials_cvodes), Cint,
           (CVODEMemPtr, Cint, Ptr{realtype}, Ptr{Cint}, N_Vector), cvode_mem, which, t,
           order, y)
@@ -3244,7 +3265,8 @@ function IDACreate()
     ccall((:IDACreate, libsundials_idas), IDAMemPtr, ())
 end
 
-function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector}, yp0::Union{N_Vector, NVector})
+function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector},
+                 yp0::Union{N_Vector, NVector})
     ccall((:IDAInit, libsundials_idas), Cint,
           (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
 end
@@ -3255,7 +3277,8 @@ function IDAInit(ida_mem, res::IDAResFn, t0, yy0, yp0)
     IDAInit(ida_mem, res, t0, __yy0, __yp0)
 end
 
-function IDAReInit(ida_mem, t0::realtype, yy0::Union{N_Vector, NVector}, yp0::Union{N_Vector, NVector})
+function IDAReInit(ida_mem, t0::realtype, yy0::Union{N_Vector, NVector},
+                   yp0::Union{N_Vector, NVector})
     ccall((:IDAReInit, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector),
           ida_mem, t0, yy0, yp0)
 end
@@ -3471,7 +3494,8 @@ function IDASetNoInactiveRootWarn(ida_mem)
     ccall((:IDASetNoInactiveRootWarn, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
-function IDASolve(ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector}, ypret::Union{N_Vector, NVector},
+function IDASolve(ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector},
+                  ypret::Union{N_Vector, NVector},
                   itask::Cint)
     ccall((:IDASolve, libsundials_idas), Cint,
           (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint), ida_mem, tout,
@@ -3547,7 +3571,8 @@ function IDAGetNumBacktrackOps(ida_mem, nbacktr)
           ida_mem, nbacktr)
 end
 
-function IDAGetConsistentIC(ida_mem, yy0_mod::Union{N_Vector, NVector}, yp0_mod::Union{N_Vector, NVector})
+function IDAGetConsistentIC(ida_mem, yy0_mod::Union{N_Vector, NVector},
+                            yp0_mod::Union{N_Vector, NVector})
     ccall((:IDAGetConsistentIC, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector),
           ida_mem, yy0_mod, yp0_mod)
 end
@@ -4129,7 +4154,8 @@ function IDAGetSensDky(ida_mem, t, k, dkyS)
     IDAGetSensDky(ida_mem, t, convert(Cint, k), dkyS)
 end
 
-function IDAGetSensDky1(ida_mem, t::realtype, k::Cint, is::Cint, dkyS::Union{N_Vector, NVector})
+function IDAGetSensDky1(ida_mem, t::realtype, k::Cint, is::Cint,
+                        dkyS::Union{N_Vector, NVector})
     ccall((:IDAGetSensDky1, libsundials_idas), Cint,
           (IDAMemPtr, realtype, Cint, Cint, N_Vector), ida_mem, t, k, is, dkyS)
 end
@@ -4247,7 +4273,8 @@ function IDAGetQuadSensDky(ida_mem, t, k, dkyQS)
     IDAGetQuadSensDky(ida_mem, t, convert(Cint, k), dkyQS)
 end
 
-function IDAGetQuadSensDky1(ida_mem, t::realtype, k::Cint, is::Cint, dkyQS::Union{N_Vector, NVector})
+function IDAGetQuadSensDky1(ida_mem, t::realtype, k::Cint, is::Cint,
+                            dkyQS::Union{N_Vector, NVector})
     ccall((:IDAGetQuadSensDky1, libsundials_idas), Cint,
           (IDAMemPtr, realtype, Cint, Cint, N_Vector), ida_mem, t, k, is, dkyQS)
 end
@@ -4303,7 +4330,8 @@ function IDACreateB(ida_mem, which)
     ccall((:IDACreateB, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, which)
 end
 
-function IDAInitB(ida_mem, which::Cint, resB::IDAResFnB, tB0::realtype, yyB0::Union{N_Vector, NVector},
+function IDAInitB(ida_mem, which::Cint, resB::IDAResFnB, tB0::realtype,
+                  yyB0::Union{N_Vector, NVector},
                   ypB0::Union{N_Vector, NVector})
     ccall((:IDAInitB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, IDAResFnB, realtype, N_Vector, N_Vector), ida_mem, which, resB,
@@ -4317,7 +4345,8 @@ function IDAInitB(ida_mem, which, resB, tB0, yyB0, ypB0)
              __ypB0)
 end
 
-function IDAInitBS(ida_mem, which::Cint, resS::IDAResFnBS, tB0::realtype, yyB0::Union{N_Vector, NVector},
+function IDAInitBS(ida_mem, which::Cint, resS::IDAResFnBS, tB0::realtype,
+                   yyB0::Union{N_Vector, NVector},
                    ypB0::Union{N_Vector, NVector})
     ccall((:IDAInitBS, libsundials_idas), Cint,
           (IDAMemPtr, Cint, IDAResFnBS, realtype, N_Vector, N_Vector), ida_mem, which, resS,
@@ -4331,7 +4360,8 @@ function IDAInitBS(ida_mem, which, resS, tB0, yyB0, ypB0)
               __ypB0)
 end
 
-function IDAReInitB(ida_mem, which::Cint, tB0::realtype, yyB0::Union{N_Vector, NVector}, ypB0::Union{N_Vector, NVector})
+function IDAReInitB(ida_mem, which::Cint, tB0::realtype, yyB0::Union{N_Vector, NVector},
+                    ypB0::Union{N_Vector, NVector})
     ccall((:IDAReInitB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, realtype, N_Vector, N_Vector), ida_mem, which, tB0, yyB0, ypB0)
 end
@@ -4352,7 +4382,8 @@ function IDASStolerancesB(ida_mem, which, relTolB, absTolB)
     IDASStolerancesB(ida_mem, convert(Cint, which), relTolB, absTolB)
 end
 
-function IDASVtolerancesB(ida_mem, which::Cint, relTolB::realtype, absTolB::Union{N_Vector, NVector})
+function IDASVtolerancesB(ida_mem, which::Cint, relTolB::realtype,
+                          absTolB::Union{N_Vector, NVector})
     ccall((:IDASVtolerancesB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, realtype, N_Vector), ida_mem, which, relTolB, absTolB)
 end
@@ -4362,7 +4393,8 @@ function IDASVtolerancesB(ida_mem, which, relTolB, absTolB)
     IDASVtolerancesB(ida_mem, convert(Cint, which), relTolB, __absTolB)
 end
 
-function IDAQuadInitB(ida_mem, which::Cint, rhsQB::IDAQuadRhsFnB, yQB0::Union{N_Vector, NVector})
+function IDAQuadInitB(ida_mem, which::Cint, rhsQB::IDAQuadRhsFnB,
+                      yQB0::Union{N_Vector, NVector})
     ccall((:IDAQuadInitB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, IDAQuadRhsFnB, N_Vector), ida_mem, which, rhsQB, yQB0)
 end
@@ -4372,7 +4404,8 @@ function IDAQuadInitB(ida_mem, which, rhsQB, yQB0)
     IDAQuadInitB(ida_mem, convert(Cint, which), rhsQB, __yQB0)
 end
 
-function IDAQuadInitBS(ida_mem, which::Cint, rhsQS::IDAQuadRhsFnBS, yQB0::Union{N_Vector, NVector})
+function IDAQuadInitBS(ida_mem, which::Cint, rhsQS::IDAQuadRhsFnBS,
+                       yQB0::Union{N_Vector, NVector})
     ccall((:IDAQuadInitBS, libsundials_idas), Cint,
           (IDAMemPtr, Cint, IDAQuadRhsFnBS, N_Vector), ida_mem, which, rhsQS, yQB0)
 end
@@ -4401,7 +4434,8 @@ function IDAQuadSStolerancesB(ida_mem, which, reltolQB, abstolQB)
     IDAQuadSStolerancesB(ida_mem, convert(Cint, which), reltolQB, abstolQB)
 end
 
-function IDAQuadSVtolerancesB(ida_mem, which::Cint, reltolQB::realtype, abstolQB::Union{N_Vector, NVector})
+function IDAQuadSVtolerancesB(ida_mem, which::Cint, reltolQB::realtype,
+                              abstolQB::Union{N_Vector, NVector})
     ccall((:IDAQuadSVtolerancesB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, realtype, N_Vector), ida_mem, which, reltolQB, abstolQB)
 end
@@ -4412,7 +4446,8 @@ function IDAQuadSVtolerancesB(ida_mem, which, reltolQB, abstolQB)
                          __abstolQB)
 end
 
-function IDACalcICB(ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector}, yp0::Union{N_Vector, NVector})
+function IDACalcICB(ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector},
+                    yp0::Union{N_Vector, NVector})
     ccall((:IDACalcICB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, realtype, N_Vector, N_Vector), ida_mem, which, tout1, yy0, yp0)
 end
@@ -4424,7 +4459,8 @@ function IDACalcICB(ida_mem, which, tout1, yy0, yp0)
                __yp0)
 end
 
-function IDACalcICBS(ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector}, yp0::Union{N_Vector, NVector},
+function IDACalcICBS(ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector},
+                     yp0::Union{N_Vector, NVector},
                      yyS0, ypS0)
     ccall((:IDACalcICBS, libsundials_idas), Cint,
           (IDAMemPtr, Cint, realtype, N_Vector, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}),
@@ -4438,7 +4474,8 @@ function IDACalcICBS(ida_mem, which, tout1, yy0, yp0, yyS0, ypS0)
                 __yp0, yyS0, ypS0)
 end
 
-function IDASolveF(ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector}, ypret::Union{N_Vector, NVector},
+function IDASolveF(ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector},
+                   ypret::Union{N_Vector, NVector},
                    itask::Cint, ncheckPtr)
     ccall((:IDASolveF, libsundials_idas), Cint,
           (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint, Ptr{Cint}),
@@ -4557,7 +4594,8 @@ function IDASetNonlinearSolverB(ida_mem, which, NLS)
     IDASetNonlinearSolverB(ida_mem, convert(Cint, which), NLS)
 end
 
-function IDAGetB(ida_mem, which::Cint, tret, yy::Union{N_Vector, NVector}, yp::Union{N_Vector, NVector})
+function IDAGetB(ida_mem, which::Cint, tret, yy::Union{N_Vector, NVector},
+                 yp::Union{N_Vector, NVector})
     ccall((:IDAGetB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), ida_mem, which, tret, yy,
           yp)
@@ -4589,7 +4627,8 @@ function IDAGetAdjIDABmem(ida_mem, which)
     IDAGetAdjIDABmem(ida_mem, convert(Cint, which))
 end
 
-function IDAGetConsistentICB(ida_mem, which::Cint, yyB0::Union{N_Vector, NVector}, ypB0::Union{N_Vector, NVector})
+function IDAGetConsistentICB(ida_mem, which::Cint, yyB0::Union{N_Vector, NVector},
+                             ypB0::Union{N_Vector, NVector})
     ccall((:IDAGetConsistentICB, libsundials_idas), Cint,
           (IDAMemPtr, Cint, N_Vector, N_Vector), ida_mem, which, yyB0, ypB0)
 end
@@ -4601,7 +4640,8 @@ function IDAGetConsistentICB(ida_mem, which, yyB0, ypB0)
                         __ypB0)
 end
 
-function IDAGetAdjY(ida_mem, t::realtype, yy::Union{N_Vector, NVector}, yp::Union{N_Vector, NVector})
+function IDAGetAdjY(ida_mem, t::realtype, yy::Union{N_Vector, NVector},
+                    yp::Union{N_Vector, NVector})
     ccall((:IDAGetAdjY, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector),
           ida_mem, t, yy, yp)
 end
@@ -4617,7 +4657,8 @@ function IDAGetAdjCheckPointsInfo(ida_mem, ckpnt)
           (IDAMemPtr, Ptr{IDAadjCheckPointRec}), ida_mem, ckpnt)
 end
 
-function IDAGetAdjDataPointHermite(ida_mem, which::Cint, t, yy::Union{N_Vector, NVector}, yd::Union{N_Vector, NVector})
+function IDAGetAdjDataPointHermite(ida_mem, which::Cint, t, yy::Union{N_Vector, NVector},
+                                   yd::Union{N_Vector, NVector})
     ccall((:IDAGetAdjDataPointHermite, libsundials_idas), Cint,
           (IDAMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), ida_mem, which, t, yy, yd)
 end
@@ -4629,7 +4670,8 @@ function IDAGetAdjDataPointHermite(ida_mem, which, t, yy, yd)
                               __yd)
 end
 
-function IDAGetAdjDataPointPolynomial(ida_mem, which::Cint, t, order, y::Union{N_Vector, NVector})
+function IDAGetAdjDataPointPolynomial(ida_mem, which::Cint, t, order,
+                                      y::Union{N_Vector, NVector})
     ccall((:IDAGetAdjDataPointPolynomial, libsundials_idas), Cint,
           (IDAMemPtr, Cint, Ptr{realtype}, Ptr{Cint}, N_Vector), ida_mem, which, t, order,
           y)
@@ -4882,7 +4924,8 @@ function KINInit(kinmem, func::KINSysFn, tmpl)
     KINInit(kinmem, func, __tmpl)
 end
 
-function KINSol(kinmem, uu::Union{N_Vector, NVector}, strategy::Cint, u_scale::Union{N_Vector, NVector}, f_scale::Union{N_Vector, NVector})
+function KINSol(kinmem, uu::Union{N_Vector, NVector}, strategy::Cint,
+                u_scale::Union{N_Vector, NVector}, f_scale::Union{N_Vector, NVector})
     ccall((:KINSol, libsundials_kinsol), Cint,
           (KINMemPtr, N_Vector, Cint, N_Vector, N_Vector), kinmem, uu, strategy, u_scale,
           f_scale)
@@ -5324,7 +5367,8 @@ function N_VGetSubvector_ManyVector(v, vec_num)
     N_VGetSubvector_ManyVector(__v, vec_num)
 end
 
-function N_VGetSubvectorArrayPointer_ManyVector(v::Union{N_Vector, NVector}, vec_num::sunindextype)
+function N_VGetSubvectorArrayPointer_ManyVector(v::Union{N_Vector, NVector},
+                                                vec_num::sunindextype)
     ccall((:N_VGetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Ptr{realtype},
           (N_Vector, sunindextype), v, vec_num)
 end
@@ -5334,7 +5378,8 @@ function N_VGetSubvectorArrayPointer_ManyVector(v, vec_num)
     N_VGetSubvectorArrayPointer_ManyVector(__v, vec_num)
 end
 
-function N_VSetSubvectorArrayPointer_ManyVector(v_data, v::Union{N_Vector, NVector}, vec_num::sunindextype)
+function N_VSetSubvectorArrayPointer_ManyVector(v_data, v::Union{N_Vector, NVector},
+                                                vec_num::sunindextype)
     ccall((:N_VSetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Cint,
           (Ptr{realtype}, N_Vector, sunindextype), v_data, v, vec_num)
 end
@@ -5409,7 +5454,8 @@ function N_VGetLength_ManyVector(v)
     N_VGetLength_ManyVector(__v)
 end
 
-function N_VLinearSum_ManyVector(a::realtype, x::Union{N_Vector, NVector}, b::realtype, y::Union{N_Vector, NVector},
+function N_VLinearSum_ManyVector(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
+                                 y::Union{N_Vector, NVector},
                                  z::Union{N_Vector, NVector})
     ccall((:N_VLinearSum_ManyVector, libsundials_nvecserial), Cvoid,
           (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
@@ -5432,7 +5478,8 @@ function N_VConst_ManyVector(c, z)
     N_VConst_ManyVector(c, __z)
 end
 
-function N_VProd_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VProd_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+                            z::Union{N_Vector, NVector})
     ccall((:N_VProd_ManyVector, libsundials_nvecserial), Cvoid,
           (N_Vector, N_Vector, N_Vector), x, y, z)
 end
@@ -5445,7 +5492,8 @@ function N_VProd_ManyVector(x, y, z)
                        __z)
 end
 
-function N_VDiv_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VDiv_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+                           z::Union{N_Vector, NVector})
     ccall((:N_VDiv_ManyVector, libsundials_nvecserial), Cvoid,
           (N_Vector, N_Vector, N_Vector), x, y, z)
 end
@@ -5458,7 +5506,8 @@ function N_VDiv_ManyVector(x, y, z)
                       __z)
 end
 
-function N_VScale_ManyVector(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VScale_ManyVector(c::realtype, x::Union{N_Vector, NVector},
+                             z::Union{N_Vector, NVector})
     ccall((:N_VScale_ManyVector, libsundials_nvecserial), Cvoid,
           (realtype, N_Vector, N_Vector), c, x, z)
 end
@@ -5489,7 +5538,8 @@ function N_VInv_ManyVector(x, z)
     N_VInv_ManyVector(__x, __z)
 end
 
-function N_VAddConst_ManyVector(x::Union{N_Vector, NVector}, b::realtype, z::Union{N_Vector, NVector})
+function N_VAddConst_ManyVector(x::Union{N_Vector, NVector}, b::realtype,
+                                z::Union{N_Vector, NVector})
     ccall((:N_VAddConst_ManyVector, libsundials_nvecserial), Cvoid,
           (N_Vector, realtype, N_Vector), x, b, z)
 end
@@ -5511,7 +5561,9 @@ function N_VWrmsNorm_ManyVector(x, w)
     N_VWrmsNorm_ManyVector(__x, __w)
 end
 
-function N_VWrmsNormMask_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector}, id::Union{N_Vector, NVector})
+function N_VWrmsNormMask_ManyVector(x::Union{N_Vector, NVector},
+                                    w::Union{N_Vector, NVector},
+                                    id::Union{N_Vector, NVector})
     ccall((:N_VWrmsNormMask_ManyVector, libsundials_nvecserial), realtype,
           (N_Vector, N_Vector, N_Vector), x, w, id)
 end
@@ -5535,7 +5587,8 @@ function N_VWL2Norm_ManyVector(x, w)
     N_VWL2Norm_ManyVector(__x, __w)
 end
 
-function N_VCompare_ManyVector(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VCompare_ManyVector(c::realtype, x::Union{N_Vector, NVector},
+                               z::Union{N_Vector, NVector})
     ccall((:N_VCompare_ManyVector, libsundials_nvecserial), Cvoid,
           (realtype, N_Vector, N_Vector), c, x, z)
 end
@@ -5613,7 +5666,8 @@ function N_VWrmsNormVectorArray_ManyVector(nvecs, X, W, nrm)
     N_VWrmsNormVectorArray_ManyVector(convert(Cint, nvecs), X, W, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray_ManyVector(nvec::Cint, X, W, id::Union{N_Vector, NVector}, nrm)
+function N_VWrmsNormMaskVectorArray_ManyVector(nvec::Cint, X, W,
+                                               id::Union{N_Vector, NVector}, nrm)
     ccall((:N_VWrmsNormMaskVectorArray_ManyVector, libsundials_nvecserial), Cint,
           (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvec, X, W, id,
           nrm)
@@ -5625,7 +5679,8 @@ function N_VWrmsNormMaskVectorArray_ManyVector(nvec, X, W, id, nrm)
                                           __id, nrm)
 end
 
-function N_VDotProdLocal_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
+function N_VDotProdLocal_ManyVector(x::Union{N_Vector, NVector},
+                                    y::Union{N_Vector, NVector})
     ccall((:N_VDotProdLocal_ManyVector, libsundials_nvecserial), realtype,
           (N_Vector, N_Vector), x, y)
 end
@@ -5663,7 +5718,8 @@ function N_VL1NormLocal_ManyVector(x)
     N_VL1NormLocal_ManyVector(__x)
 end
 
-function N_VWSqrSumLocal_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
+function N_VWSqrSumLocal_ManyVector(x::Union{N_Vector, NVector},
+                                    w::Union{N_Vector, NVector})
     ccall((:N_VWSqrSumLocal_ManyVector, libsundials_nvecserial), realtype,
           (N_Vector, N_Vector), x, w)
 end
@@ -5674,7 +5730,9 @@ function N_VWSqrSumLocal_ManyVector(x, w)
     N_VWSqrSumLocal_ManyVector(__x, __w)
 end
 
-function N_VWSqrSumMaskLocal_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector}, id::Union{N_Vector, NVector})
+function N_VWSqrSumMaskLocal_ManyVector(x::Union{N_Vector, NVector},
+                                        w::Union{N_Vector, NVector},
+                                        id::Union{N_Vector, NVector})
     ccall((:N_VWSqrSumMaskLocal_ManyVector, libsundials_nvecserial), realtype,
           (N_Vector, N_Vector, N_Vector), x, w, id)
 end
@@ -5687,7 +5745,8 @@ function N_VWSqrSumMaskLocal_ManyVector(x, w, id)
                                    __id)
 end
 
-function N_VInvTestLocal_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VInvTestLocal_ManyVector(x::Union{N_Vector, NVector},
+                                    z::Union{N_Vector, NVector})
     ccall((:N_VInvTestLocal_ManyVector, libsundials_nvecserial), Cint, (N_Vector, N_Vector),
           x, z)
 end
@@ -5698,7 +5757,9 @@ function N_VInvTestLocal_ManyVector(x, z)
     N_VInvTestLocal_ManyVector(__x, __z)
 end
 
-function N_VConstrMaskLocal_ManyVector(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector}, m::Union{N_Vector, NVector})
+function N_VConstrMaskLocal_ManyVector(c::Union{N_Vector, NVector},
+                                       x::Union{N_Vector, NVector},
+                                       m::Union{N_Vector, NVector})
     ccall((:N_VConstrMaskLocal_ManyVector, libsundials_nvecserial), Cint,
           (N_Vector, N_Vector, N_Vector), c, x, m)
 end
@@ -5711,7 +5772,8 @@ function N_VConstrMaskLocal_ManyVector(c, x, m)
                                   __m)
 end
 
-function N_VMinQuotientLocal_ManyVector(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
+function N_VMinQuotientLocal_ManyVector(num::Union{N_Vector, NVector},
+                                        denom::Union{N_Vector, NVector})
     ccall((:N_VMinQuotientLocal_ManyVector, libsundials_nvecserial), realtype,
           (N_Vector, N_Vector), num, denom)
 end
@@ -5949,7 +6011,8 @@ function N_VSetArrayPointer_Serial(v_data, v)
     N_VSetArrayPointer_Serial(v_data, __v)
 end
 
-function N_VLinearSum_Serial(a::realtype, x::Union{N_Vector, NVector}, b::realtype, y::Union{N_Vector, NVector},
+function N_VLinearSum_Serial(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
+                             y::Union{N_Vector, NVector},
                              z::Union{N_Vector, NVector})
     ccall((:N_VLinearSum_Serial, libsundials_nvecserial), Cvoid,
           (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
@@ -5972,7 +6035,8 @@ function N_VConst_Serial(c, z)
     N_VConst_Serial(c, __z)
 end
 
-function N_VProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+                        z::Union{N_Vector, NVector})
     ccall((:N_VProd_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector),
           x, y, z)
 end
@@ -5984,7 +6048,8 @@ function N_VProd_Serial(x, y, z)
     N_VProd_Serial(__x, __y, __z)
 end
 
-function N_VDiv_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VDiv_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+                       z::Union{N_Vector, NVector})
     ccall((:N_VDiv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector),
           x, y, z)
 end
@@ -5996,7 +6061,8 @@ function N_VDiv_Serial(x, y, z)
     N_VDiv_Serial(__x, __y, __z)
 end
 
-function N_VScale_Serial(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VScale_Serial(c::realtype, x::Union{N_Vector, NVector},
+                         z::Union{N_Vector, NVector})
     ccall((:N_VScale_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector, N_Vector),
           c, x, z)
 end
@@ -6027,7 +6093,8 @@ function N_VInv_Serial(x, z)
     N_VInv_Serial(__x, __z)
 end
 
-function N_VAddConst_Serial(x::Union{N_Vector, NVector}, b::realtype, z::Union{N_Vector, NVector})
+function N_VAddConst_Serial(x::Union{N_Vector, NVector}, b::realtype,
+                            z::Union{N_Vector, NVector})
     ccall((:N_VAddConst_Serial, libsundials_nvecserial), Cvoid,
           (N_Vector, realtype, N_Vector), x, b, z)
 end
@@ -6069,7 +6136,8 @@ function N_VWrmsNorm_Serial(x, w)
     N_VWrmsNorm_Serial(__x, __w)
 end
 
-function N_VWrmsNormMask_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector}, id::Union{N_Vector, NVector})
+function N_VWrmsNormMask_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
+                                id::Union{N_Vector, NVector})
     ccall((:N_VWrmsNormMask_Serial, libsundials_nvecserial), realtype,
           (N_Vector, N_Vector, N_Vector), x, w, id)
 end
@@ -6111,7 +6179,8 @@ function N_VL1Norm_Serial(x)
     N_VL1Norm_Serial(__x)
 end
 
-function N_VCompare_Serial(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VCompare_Serial(c::realtype, x::Union{N_Vector, NVector},
+                           z::Union{N_Vector, NVector})
     ccall((:N_VCompare_Serial, libsundials_nvecserial), Cvoid,
           (realtype, N_Vector, N_Vector), c, x, z)
 end
@@ -6132,7 +6201,8 @@ function N_VInvTest_Serial(x, z)
     N_VInvTest_Serial(__x, __z)
 end
 
-function N_VConstrMask_Serial(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector}, m::Union{N_Vector, NVector})
+function N_VConstrMask_Serial(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
+                              m::Union{N_Vector, NVector})
     ccall((:N_VConstrMask_Serial, libsundials_nvecserial), Cint,
           (N_Vector, N_Vector, N_Vector), c, x, m)
 end
@@ -6145,7 +6215,8 @@ function N_VConstrMask_Serial(c, x, m)
                          __m)
 end
 
-function N_VMinQuotient_Serial(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
+function N_VMinQuotient_Serial(num::Union{N_Vector, NVector},
+                               denom::Union{N_Vector, NVector})
     ccall((:N_VMinQuotient_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector),
           num, denom)
 end
@@ -6223,7 +6294,8 @@ function N_VWrmsNormVectorArray_Serial(nvecs, X, W, nrm)
     N_VWrmsNormVectorArray_Serial(convert(Cint, nvecs), X, W, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray_Serial(nvecs::Cint, X, W, id::Union{N_Vector, NVector}, nrm)
+function N_VWrmsNormMaskVectorArray_Serial(nvecs::Cint, X, W, id::Union{N_Vector, NVector},
+                                           nrm)
     ccall((:N_VWrmsNormMaskVectorArray_Serial, libsundials_nvecserial), Cint,
           (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvecs, X, W, id,
           nrm)
@@ -6267,7 +6339,9 @@ function N_VWSqrSumLocal_Serial(x, w)
     N_VWSqrSumLocal_Serial(__x, __w)
 end
 
-function N_VWSqrSumMaskLocal_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector}, id::Union{N_Vector, NVector})
+function N_VWSqrSumMaskLocal_Serial(x::Union{N_Vector, NVector},
+                                    w::Union{N_Vector, NVector},
+                                    id::Union{N_Vector, NVector})
     ccall((:N_VWSqrSumMaskLocal_Serial, libsundials_nvecserial), realtype,
           (N_Vector, N_Vector, N_Vector), x, w, id)
 end
@@ -6870,7 +6944,8 @@ function SUNLinSolSetPreconditioner(S::SUNLinearSolver, P_data, Pset::PSetupFn,
           (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
-function SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::Union{N_Vector, NVector}, s2::Union{N_Vector, NVector})
+function SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::Union{N_Vector, NVector},
+                                    s2::Union{N_Vector, NVector})
     ccall((:SUNLinSolSetScalingVectors, libsundials_sundials), Cint,
           (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
@@ -6889,7 +6964,8 @@ function SUNLinSolSetup(S::SUNLinearSolver, A::SUNMatrix)
     ccall((:SUNLinSolSetup, libsundials_sundials), Cint, (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+                        b::Union{N_Vector, NVector},
                         tol::realtype)
     ccall((:SUNLinSolSolve, libsundials_sundials), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -6985,7 +7061,8 @@ function SUNMatMatvecSetup(A::SUNMatrix)
     ccall((:SUNMatMatvecSetup, libsundials_sundials), Cint, (SUNMatrix,), A)
 end
 
-function SUNMatMatvec(A::SUNMatrix, x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
+function SUNMatMatvec(A::SUNMatrix, x::Union{N_Vector, NVector},
+                      y::Union{N_Vector, NVector})
     ccall((:SUNMatMatvec, libsundials_sundials), Cint, (SUNMatrix, N_Vector, N_Vector), A,
           x, y)
 end
@@ -7029,7 +7106,8 @@ function SUNNonlinSolSetup(NLS, y, mem)
     SUNNonlinSolSetup(NLS, __y, mem)
 end
 
-function SUNNonlinSolSolve(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
+function SUNNonlinSolSolve(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
+                           y::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
                            tol::realtype, callLSetup::Cint, mem)
     ccall((:SUNNonlinSolSolve, libsundials_sundials), Cint,
           (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}),
@@ -7201,7 +7279,8 @@ function N_VGetLength(v)
     N_VGetLength(__v)
 end
 
-function N_VLinearSum(a::realtype, x::Union{N_Vector, NVector}, b::realtype, y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VLinearSum(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
+                      y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VLinearSum, libsundials_sundials), Cvoid,
           (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
@@ -7223,7 +7302,8 @@ function N_VConst(c, z)
     N_VConst(c, __z)
 end
 
-function N_VProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+                 z::Union{N_Vector, NVector})
     ccall((:N_VProd, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
@@ -7234,7 +7314,8 @@ function N_VProd(x, y, z)
     N_VProd(__x, __y, __z)
 end
 
-function N_VDiv(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
+function N_VDiv(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+                z::Union{N_Vector, NVector})
     ccall((:N_VDiv, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
@@ -7315,7 +7396,8 @@ function N_VWrmsNorm(x, w)
     N_VWrmsNorm(__x, __w)
 end
 
-function N_VWrmsNormMask(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector}, id::Union{N_Vector, NVector})
+function N_VWrmsNormMask(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
+                         id::Union{N_Vector, NVector})
     ccall((:N_VWrmsNormMask, libsundials_sundials), realtype,
           (N_Vector, N_Vector, N_Vector), x, w, id)
 end
@@ -7376,7 +7458,8 @@ function N_VInvTest(x, z)
     N_VInvTest(__x, __z)
 end
 
-function N_VConstrMask(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector}, m::Union{N_Vector, NVector})
+function N_VConstrMask(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
+                       m::Union{N_Vector, NVector})
     ccall((:N_VConstrMask, libsundials_sundials), Cint, (N_Vector, N_Vector, N_Vector), c,
           x, m)
 end
@@ -7544,7 +7627,8 @@ function N_VWSqrSumLocal(x, w)
     N_VWSqrSumLocal(__x, __w)
 end
 
-function N_VWSqrSumMaskLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector}, id::Union{N_Vector, NVector})
+function N_VWSqrSumMaskLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
+                             id::Union{N_Vector, NVector})
     ccall((:N_VWSqrSumMaskLocal, libsundials_sundials), realtype,
           (N_Vector, N_Vector, N_Vector), x, w, id)
 end
@@ -7567,7 +7651,8 @@ function N_VInvTestLocal(x, z)
     N_VInvTestLocal(__x, __z)
 end
 
-function N_VConstrMaskLocal(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector}, m::Union{N_Vector, NVector})
+function N_VConstrMaskLocal(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
+                            m::Union{N_Vector, NVector})
     ccall((:N_VConstrMaskLocal, libsundials_sundials), Cint, (N_Vector, N_Vector, N_Vector),
           c, x, m)
 end
@@ -7704,7 +7789,8 @@ function SUNLinSolSetup_Band(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_Band(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_Band(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+                             b::Union{N_Vector, NVector},
                              tol::realtype)
     ccall((:SUNLinSolSolve_Band, libsundials_sunlinsolband), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -7770,7 +7856,8 @@ function SUNLinSolSetup_Dense(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_Dense(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_Dense(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+                              b::Union{N_Vector, NVector},
                               tol::realtype)
     ccall((:SUNLinSolSolve_Dense, libsundials_sunlinsoldense), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -7887,7 +7974,8 @@ function SUNLinSolSetup_KLU(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_KLU(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_KLU(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+                            b::Union{N_Vector, NVector},
                             tol::realtype)
     ccall((:SUNLinSolSolve_KLU, libsundials_sunlinsolklu), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -7953,7 +8041,8 @@ function SUNLinSolSetup_LapackBand(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_LapackBand(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+function SUNLinSolSolve_LapackBand(S::SUNLinearSolver, A::SUNMatrix,
+                                   x::Union{N_Vector, NVector},
                                    b::Union{N_Vector, NVector}, tol::realtype)
     ccall((:SUNLinSolSolve_LapackBand, libsundials_sunlinsollapackband), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -8020,7 +8109,8 @@ function SUNLinSolSetup_LapackDense(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_LapackDense(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+function SUNLinSolSolve_LapackDense(S::SUNLinearSolver, A::SUNMatrix,
+                                    x::Union{N_Vector, NVector},
                                     b::Union{N_Vector, NVector}, tol::realtype)
     ccall((:SUNLinSolSolve_LapackDense, libsundials_sunlinsollapackdense), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -8128,7 +8218,8 @@ function SUNLinSolSetPreconditioner_PCG(S::SUNLinearSolver, P_data, Pset::PSetup
           (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
-function SUNLinSolSetScalingVectors_PCG(S::SUNLinearSolver, s::Union{N_Vector, NVector}, nul::Union{N_Vector, NVector})
+function SUNLinSolSetScalingVectors_PCG(S::SUNLinearSolver, s::Union{N_Vector, NVector},
+                                        nul::Union{N_Vector, NVector})
     ccall((:SUNLinSolSetScalingVectors_PCG, libsundials_sunlinsolpcg), Cint,
           (SUNLinearSolver, N_Vector, N_Vector), S, s, nul)
 end
@@ -8144,7 +8235,8 @@ function SUNLinSolSetup_PCG(S::SUNLinearSolver, nul::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, nul)
 end
 
-function SUNLinSolSolve_PCG(S::SUNLinearSolver, nul::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_PCG(S::SUNLinearSolver, nul::SUNMatrix, x::Union{N_Vector, NVector},
+                            b::Union{N_Vector, NVector},
                             tol::realtype)
     ccall((:SUNLinSolSolve_PCG, libsundials_sunlinsolpcg), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, nul, x, b, tol)
@@ -8265,7 +8357,8 @@ function SUNLinSolSetPreconditioner_SPBCGS(S::SUNLinearSolver, P_data, Pset::PSe
           (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
-function SUNLinSolSetScalingVectors_SPBCGS(S::SUNLinearSolver, s1::Union{N_Vector, NVector}, s2::Union{N_Vector, NVector})
+function SUNLinSolSetScalingVectors_SPBCGS(S::SUNLinearSolver, s1::Union{N_Vector, NVector},
+                                           s2::Union{N_Vector, NVector})
     ccall((:SUNLinSolSetScalingVectors_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
           (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
@@ -8281,7 +8374,8 @@ function SUNLinSolSetup_SPBCGS(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_SPBCGS(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_SPBCGS(S::SUNLinearSolver, A::SUNMatrix,
+                               x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
                                tol::realtype)
     ccall((:SUNLinSolSolve_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -8422,7 +8516,8 @@ function SUNLinSolSetPreconditioner_SPFGMR(S::SUNLinearSolver, P_data, Pset::PSe
           (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
-function SUNLinSolSetScalingVectors_SPFGMR(S::SUNLinearSolver, s1::Union{N_Vector, NVector}, s2::Union{N_Vector, NVector})
+function SUNLinSolSetScalingVectors_SPFGMR(S::SUNLinearSolver, s1::Union{N_Vector, NVector},
+                                           s2::Union{N_Vector, NVector})
     ccall((:SUNLinSolSetScalingVectors_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
           (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
@@ -8438,7 +8533,8 @@ function SUNLinSolSetup_SPFGMR(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_SPFGMR(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_SPFGMR(S::SUNLinearSolver, A::SUNMatrix,
+                               x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
                                tol::realtype)
     ccall((:SUNLinSolSolve_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -8579,7 +8675,8 @@ function SUNLinSolSetPreconditioner_SPGMR(S::SUNLinearSolver, P_data, Pset::PSet
           (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
-function SUNLinSolSetScalingVectors_SPGMR(S::SUNLinearSolver, s1::Union{N_Vector, NVector}, s2::Union{N_Vector, NVector})
+function SUNLinSolSetScalingVectors_SPGMR(S::SUNLinearSolver, s1::Union{N_Vector, NVector},
+                                          s2::Union{N_Vector, NVector})
     ccall((:SUNLinSolSetScalingVectors_SPGMR, libsundials_sunlinsolspgmr), Cint,
           (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
@@ -8595,7 +8692,8 @@ function SUNLinSolSetup_SPGMR(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_SPGMR(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_SPGMR(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+                              b::Union{N_Vector, NVector},
                               tol::realtype)
     ccall((:SUNLinSolSolve_SPGMR, libsundials_sunlinsolspgmr), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -8718,7 +8816,9 @@ function SUNLinSolSetPreconditioner_SPTFQMR(S::SUNLinearSolver, P_data, Pset::PS
           (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
 end
 
-function SUNLinSolSetScalingVectors_SPTFQMR(S::SUNLinearSolver, s1::Union{N_Vector, NVector}, s2::Union{N_Vector, NVector})
+function SUNLinSolSetScalingVectors_SPTFQMR(S::SUNLinearSolver,
+                                            s1::Union{N_Vector, NVector},
+                                            s2::Union{N_Vector, NVector})
     ccall((:SUNLinSolSetScalingVectors_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
           (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
@@ -8734,7 +8834,8 @@ function SUNLinSolSetup_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix)
           (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
+function SUNLinSolSolve_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix,
+                                x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
                                 tol::realtype)
     ccall((:SUNLinSolSolve_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
           (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
@@ -8864,7 +8965,8 @@ function SUNMatScaleAddI_Band(c::realtype, A::SUNMatrix)
           c, A)
 end
 
-function SUNMatMatvec_Band(A::SUNMatrix, x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
+function SUNMatMatvec_Band(A::SUNMatrix, x::Union{N_Vector, NVector},
+                           y::Union{N_Vector, NVector})
     ccall((:SUNMatMatvec_Band, libsundials_sunmatrixband), Cint,
           (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
@@ -8950,7 +9052,8 @@ function SUNMatScaleAddI_Dense(c::realtype, A::SUNMatrix)
           c, A)
 end
 
-function SUNMatMatvec_Dense(A::SUNMatrix, x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
+function SUNMatMatvec_Dense(A::SUNMatrix, x::Union{N_Vector, NVector},
+                            y::Union{N_Vector, NVector})
     ccall((:SUNMatMatvec_Dense, libsundials_sunmatrixdense), Cint,
           (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
@@ -9087,7 +9190,8 @@ function SUNMatScaleAddI_Sparse(c::realtype, A::SUNMatrix)
           (realtype, SUNMatrix), c, A)
 end
 
-function SUNMatMatvec_Sparse(A::SUNMatrix, x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
+function SUNMatMatvec_Sparse(A::SUNMatrix, x::Union{N_Vector, NVector},
+                             y::Union{N_Vector, NVector})
     ccall((:SUNMatMatvec_Sparse, libsundials_sunmatrixsparse), Cint,
           (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
@@ -9134,8 +9238,10 @@ function SUNNonlinSolInitialize_FixedPoint(NLS::SUNNonlinearSolver)
           (SUNNonlinearSolver,), NLS)
 end
 
-function SUNNonlinSolSolve_FixedPoint(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-                                      w::Union{N_Vector, NVector}, tol::realtype, callSetup::Cint, mem)
+function SUNNonlinSolSolve_FixedPoint(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
+                                      y::Union{N_Vector, NVector},
+                                      w::Union{N_Vector, NVector}, tol::realtype,
+                                      callSetup::Cint, mem)
     ccall((:SUNNonlinSolSolve_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
           (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}),
           NLS, y0, y, w, tol, callSetup, mem)
@@ -9230,8 +9336,10 @@ function SUNNonlinSolInitialize_Newton(NLS::SUNNonlinearSolver)
           (SUNNonlinearSolver,), NLS)
 end
 
-function SUNNonlinSolSolve_Newton(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-                                  w::Union{N_Vector, NVector}, tol::realtype, callLSetup::Cint, mem)
+function SUNNonlinSolSolve_Newton(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
+                                  y::Union{N_Vector, NVector},
+                                  w::Union{N_Vector, NVector}, tol::realtype,
+                                  callLSetup::Cint, mem)
     ccall((:SUNNonlinSolSolve_Newton, libsundials_sunnonlinsolnewton), Cint,
           (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}),
           NLS, y0, y, w, tol, callLSetup, mem)

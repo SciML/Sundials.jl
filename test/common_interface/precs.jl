@@ -50,7 +50,6 @@ u0 = vec(init_brusselator_2d(xyd_brusselator))
 prob_ode_brusselator_2d = ODEProblem(brusselator_2d_vec,
                                      u0, (0.0, 11.5), p)
 
-
 # find Jacobian sparsity pattern
 u0_st = SparsityTracing.create_advec(u0)
 du_st = similar(u0_st)
@@ -60,19 +59,19 @@ const W = I - 1.0 * jaccache
 
 # setup sparse AD for Jacobian
 colors = SparseDiffTools.matrix_colors(jaccache)
-const jaccache_fc = SparseDiffTools.ForwardColorJacCache(
-    nothing, # don't use f to create unique Tag
-    u0, 
-    colorvec=colors,
-    sparsity=jaccache,
-)
+const jaccache_fc = SparseDiffTools.ForwardColorJacCache(nothing, # don't use f to create unique Tag
+                                                         u0,
+                                                         colorvec = colors,
+                                                         sparsity = jaccache)
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        SparseDiffTools.forwarddiff_color_jacobian!(jaccache, (y, x) -> brusselator_2d_vec(y, x, p, t), u, jaccache_fc)
+        SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
+                                                    (y, x) -> brusselator_2d_vec(y, x, p, t),
+                                                    u, jaccache_fc)
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -97,7 +96,9 @@ prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
 const preccache2 = Ref(prectmp2)
 function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        SparseDiffTools.forwarddiff_color_jacobian!(jaccache, (y, x) -> brusselator_2d_vec(y, x, p, t), u, jaccache_fc)
+        SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
+                                                    (y, x) -> brusselator_2d_vec(y, x, p, t),
+                                                    u, jaccache_fc)
         jcurPtr[] = true
 
         # W = I - gamma*J
