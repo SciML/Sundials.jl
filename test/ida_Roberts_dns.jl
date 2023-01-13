@@ -45,7 +45,8 @@ function resrob(tres, yy_nv, yp_nv, rr_nv, user_data)
 end
 
 resrob_C = @cfunction(resrob, Cint,
-                (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+                      (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
+                       Sundials.N_Vector, Ptr{Cvoid}))
 
 ## Root function routine. Compute functions g_i(t,y) for i = 0,1.
 function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
@@ -57,7 +58,8 @@ function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
 end
 
 grob_C = @cfunction(grob, Cint,
-                (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Sundials.realtype}, Ptr{Cvoid}))
+                    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
+                     Ptr{Sundials.realtype}, Ptr{Cvoid}))
 
 ## Define the Jacobian function. BROKEN - JJ is wrong
 function jacrob(Neq, tt, cj, yy, yp, resvec, JJ, user_data, tempv1, tempv2, tempv3)

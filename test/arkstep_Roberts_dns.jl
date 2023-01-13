@@ -11,7 +11,8 @@ function f(t, y_nv, ydot_nv, user_data)
     return Sundials.ARK_SUCCESS
 end
 
-f_C = @cfunction(f, Cint, (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+f_C = @cfunction(f, Cint,
+                 (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
 
 neq = 3
 

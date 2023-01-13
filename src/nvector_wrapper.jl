@@ -63,7 +63,6 @@ Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
 Base.convert(::Type{Vector}, nv::NVector) = nv.v
 
-
 """ 
     Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) -> NVector
     Base.unsafe_convert(::Type{N_Vector}, nv::NVector) -> N_Vector
@@ -78,7 +77,6 @@ Conversion happens in two steps within ccall:
 """
 Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) = convert(NVector, v) # will just return v if v is an NVector
 Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.n_v
-
 
 Base.similar(nv::NVector) = NVector(similar(nv.v))
 

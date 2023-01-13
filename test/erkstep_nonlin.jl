@@ -45,7 +45,8 @@ function f(t, y, ydot, user_data)
     return Sundials.ARK_SUCCESS
 end
 
-f_C = @cfunction(f, Cint, (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+f_C = @cfunction(f, Cint,
+                 (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
 
 mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0)
 erkStep_mem = Sundials.Handle(mem_ptr)
