@@ -5108,10 +5108,6 @@ function KINSetSysFunc(kinmem, func::KINSysFn)
     ccall((:KINSetSysFunc, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn), kinmem, func)
 end
 
-function KINSetSysFunc(kinmem, func::KINSysFn)
-    KINSetSysFunc(kinmem, func)
-end
-
 function KINGetWorkSpace(kinmem, lenrw, leniw)
     ccall((:KINGetWorkSpace, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}, Ptr{Clong}),
           kinmem, lenrw, leniw)
