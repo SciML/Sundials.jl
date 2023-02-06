@@ -340,7 +340,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         jac = nothing
     end
 
-    if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
+    if typeof(prob.f.jac_prototype) <: AbstractSciMLOperator
         function getcfunjtimes(::T) where {T}
             @cfunction(jactimes,
                        Cint,
@@ -748,9 +748,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     end
 
     if (typeof(prob.problem_type) <: SplitODEProblem &&
-        typeof(prob.f.f1.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator) ||
+        typeof(prob.f.f1.jac_prototype) <: AbstractSciMLOperator) ||
        (!(typeof(prob.problem_type) <: SplitODEProblem) &&
-        typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator) &&
+        typeof(prob.f.jac_prototype) <: AbstractSciMLOperator) &&
        alg.stiffness !== Explicit()
         function getcfunjtimes(::T) where {T}
             @cfunction(jactimes,
@@ -1207,7 +1207,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     end
     flag = IDASetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
 
-    if typeof(prob.f.jac_prototype) <: DiffEqBase.AbstractDiffEqLinearOperator
+    if typeof(prob.f.jac_prototype) <: AbstractSciMLOperator
         function getcfunjtimes(::T) where {T}
             @cfunction(idajactimes,
                        Cint,
