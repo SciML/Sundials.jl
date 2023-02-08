@@ -29,7 +29,6 @@ julia = "1.6"
 [extras]
 AlgebraicMultigrid = "2169fc97-5a83-5252-b627-83903c6c433c"
 DAEProblemLibrary = "dfb8ca35-80a1-48ba-a605-84916a45b4f8"
-DiffEqOperators = "9fdde737-9c7f-55bf-ade8-46b3f136cc48"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 IncompleteLU = "40713840-3770-5561-ab4c-a76e7d0d7895"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
@@ -39,4 +38,4 @@ SparsityTracing = "06eadbd4-12ad-4cbc-ab6e-10f8370940a5"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "AlgebraicMultigrid", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "DiffEqOperators", "SparseDiffTools", "SparsityTracing", "IncompleteLU", "ModelingToolkit"]
+test = ["Test", "AlgebraicMultigrid", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "SparseDiffTools", "SparsityTracing", "IncompleteLU", "ModelingToolkit"]
