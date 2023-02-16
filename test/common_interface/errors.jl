@@ -15,7 +15,7 @@ prob = DAEProblem(f_error2, u0, du0, (0.0, 1.0); differential_vars = [1])
 sol = solve(prob, IDA())
 sol = solve(prob, IDA(); verbose = false)
 
-@test sol.retcode == :InitialFailure
+@test sol.retcode == ReturnCode.InitialFailure
 
 u = zeros(Float64, 0)
 du = zeros(Float64, 0)
