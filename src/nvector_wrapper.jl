@@ -57,7 +57,7 @@ function Base.convert(::Type{NVector}, v::Vector{T}) where {T <: Real}
                           realtype),
                   v))
 end
-Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Array, v))
+Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Vector{realtype}, v))
 Base.convert(::Type{NVector}, nv::NVector) = nv
 Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
