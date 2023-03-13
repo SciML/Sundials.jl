@@ -75,7 +75,7 @@ du₀ = [0.0, 0.0, 0.0]
 p = [0.04, 3.0e7, 1.0e4, 1.0]
 tspan = (0.0, 100.0)
 differential_vars = BitVector([true, true, false])
-bvcond(u, t, integrator) = t-round(t)
+bvcond(u, t, integrator) = t - round(t)
 bvaffect!(integrator) = integrator.p[4] = 2.0
 cb = ContinuousCallback(bvcond, bvaffect!)
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
