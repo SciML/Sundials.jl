@@ -411,7 +411,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                                                                              dures) :
                                              DiffEqBase.LinearInterpolation(ts, ures),
                                     timeseries_errors = timeseries_errors,
-                                    destats = DiffEqBase.DEStats(0),
+                                    stats = DiffEqBase.Stats(0),
                                     calculate_error = false)
     opts = DEOptions(saveat_internal,
                      tstops_internal,
@@ -905,7 +905,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                                                                              dures) :
                                              DiffEqBase.LinearInterpolation(ts, ures),
                                     timeseries_errors = timeseries_errors,
-                                    destats = DiffEqBase.DEStats(0),
+                                    stats = DiffEqBase.Stats(0),
                                     calculate_error = false)
     opts = DEOptions(saveat_internal,
                      tstops_internal,
@@ -1337,7 +1337,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                     calculate_error = false,
                                     timeseries_errors = timeseries_errors,
                                     retcode = retcode,
-                                    destats = DiffEqBase.DEStats(0),
+                                    stats = DiffEqBase.Stats(0),
                                     dense_errors = dense_errors)
 
     opts = DEOptions(saveat_internal,
@@ -1526,7 +1526,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
                         progress="done")
     end
 
-    fill_destats!(integrator)
+    fill_stats!(integrator)
 
     if early_free
         empty!(integrator.mem)
@@ -1559,73 +1559,73 @@ function handle_tstop!(integrator::AbstractSundialsIntegrator)
     end
 end
 
-function fill_destats!(integrator::AbstractSundialsIntegrator) end
+function fill_stats!(integrator::AbstractSundialsIntegrator) end
 
-function fill_destats!(integrator::CVODEIntegrator)
-    destats = integrator.sol.destats
+function fill_stats!(integrator::CVODEIntegrator)
+    stats = integrator.sol.stats
     mem = integrator.mem
     tmp = Ref(Clong(-1))
     CVodeGetNumRhsEvals(mem, tmp)
-    destats.nf = tmp[]
+    stats.nf = tmp[]
     CVodeGetNumLinSolvSetups(mem, tmp)
-    destats.nw = tmp[]
+    stats.nw = tmp[]
     CVodeGetNumErrTestFails(mem, tmp)
-    destats.nreject = tmp[]
+    stats.nreject = tmp[]
     CVodeGetNumSteps(mem, tmp)
-    destats.naccept = tmp[] - destats.nreject
+    stats.naccept = tmp[] - stats.nreject
     CVodeGetNumNonlinSolvIters(mem, tmp)
-    destats.nnonliniter = tmp[]
+    stats.nnonliniter = tmp[]
     CVodeGetNumNonlinSolvConvFails(mem, tmp)
-    destats.nnonlinconvfail = tmp[]
+    stats.nnonlinconvfail = tmp[]
     if method_choice(integrator.alg) == :Newton
         CVodeGetNumJacEvals(mem, tmp)
-        destats.njacs = tmp[]
+        stats.njacs = tmp[]
     end
 end
 
-function fill_destats!(integrator::ARKODEIntegrator)
-    destats = integrator.sol.destats
+function fill_stats!(integrator::ARKODEIntegrator)
+    stats = integrator.sol.stats
     mem = integrator.mem
     tmp = Ref(Clong(-1))
     tmp2 = Ref(Clong(-1))
     ARKStepGetNumRhsEvals(mem, tmp, tmp2)
-    destats.nf = tmp[]
-    destats.nf2 = tmp2[]
+    stats.nf = tmp[]
+    stats.nf2 = tmp2[]
     integrator.alg.stiffness !== Explicit() && ARKStepGetNumLinSolvSetups(mem, tmp)
-    destats.nw = tmp[]
+    stats.nw = tmp[]
     ARKStepGetNumErrTestFails(mem, tmp)
-    destats.nreject = tmp[]
+    stats.nreject = tmp[]
     ARKStepGetNumSteps(mem, tmp)
-    destats.naccept = tmp[] - destats.nreject
+    stats.naccept = tmp[] - stats.nreject
     integrator.alg.stiffness !== Explicit() && ARKStepGetNumNonlinSolvIters(mem, tmp)
-    destats.nnonliniter = tmp[]
+    stats.nnonliniter = tmp[]
     integrator.alg.stiffness !== Explicit() && ARKStepGetNumNonlinSolvConvFails(mem, tmp)
-    destats.nnonlinconvfail = tmp[]
+    stats.nnonlinconvfail = tmp[]
     if integrator.alg.stiffness !== Explicit() && method_choice(integrator.alg) == :Newton
         ARKStepGetNumJacEvals(mem, tmp)
-        destats.njacs = tmp[]
+        stats.njacs = tmp[]
     end
 end
 
-function fill_destats!(integrator::IDAIntegrator)
-    destats = integrator.sol.destats
+function fill_stats!(integrator::IDAIntegrator)
+    stats = integrator.sol.stats
     mem = integrator.mem
     tmp = Ref(Clong(-1))
     IDAGetNumResEvals(mem, tmp)
-    destats.nf = tmp[]
+    stats.nf = tmp[]
     IDAGetNumLinSolvSetups(mem, tmp)
-    destats.nw = tmp[]
+    stats.nw = tmp[]
     IDAGetNumErrTestFails(mem, tmp)
-    destats.nreject = tmp[]
+    stats.nreject = tmp[]
     IDAGetNumSteps(mem, tmp)
-    destats.naccept = tmp[] - destats.nreject
+    stats.naccept = tmp[] - stats.nreject
     IDAGetNumNonlinSolvIters(mem, tmp)
-    destats.nnonliniter = tmp[]
+    stats.nnonliniter = tmp[]
     IDAGetNumNonlinSolvConvFails(mem, tmp)
-    destats.nnonlinconvfail = tmp[]
+    stats.nnonlinconvfail = tmp[]
     if method_choice(integrator.alg) == :Newton
         IDAGetNumJacEvals(mem, tmp)
-        destats.njacs = tmp[]
+        stats.njacs = tmp[]
     end
 end
 

@@ -127,5 +127,5 @@ sol2 = solve(prob_ode_brusselator_2d,
 sol3 = solve(prob_ode_brusselator_2d,
              CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
                        prec_side = 1); save_everystep = false);
-@test sol1.destats.nf > sol2.destats.nf
-@test sol1.destats.nf > sol3.destats.nf
+@test sol1.stats.nf > sol2.stats.nf
+@test sol1.stats.nf > sol3.stats.nf
