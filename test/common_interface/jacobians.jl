@@ -33,7 +33,7 @@ sol9 = solve(prob, CVODE_BDF(; linear_solver = :KLU))
 @test jac_called == true
 @test Array(sol9) ≈ Array(good_sol)
 
-Lotka_fj = ODEFunction(Lotka; jac_prototype = JacVec(Lotka, ones(2)))
+Lotka_fj = ODEFunction(Lotka; jac_prototype = JacVec((du,u)->Lotka(du,u,p,0.0), ones(2)))
 
 prob = ODEProblem(Lotka_fj, ones(2), (0.0, 10.0))
 sol9 = solve(prob, CVODE_BDF(; linear_solver = :GMRES))
