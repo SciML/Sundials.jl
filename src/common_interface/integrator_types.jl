@@ -164,7 +164,8 @@ mutable struct IDAIntegrator{uType,
                              tmpType,
                              LStype,
                              Atype,
-                             CallbackCacheType} <: AbstractSundialsIntegrator{IDA}
+                             CallbackCacheType,
+                             IA} <: AbstractSundialsIntegrator{IDA}
     u::uType
     du::duType
     p::pType
@@ -192,6 +193,7 @@ mutable struct IDAIntegrator{uType,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    initializealg::IA
 end
 
 function (integrator::IDAIntegrator)(t::Number,
