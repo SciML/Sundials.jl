@@ -1033,6 +1033,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                            stop_at_next_tstop = false,
                            userdata = nothing,
                            initialize_integrator = true,
+                           initializealg = IDADefaultInit(),
                            kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
                                              }
     tType = eltype(tupType)
@@ -1278,27 +1279,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     tout = [tspan[1]]
 
-    f!(rtest, du0, u0, prob.p, t0)
-    if any(abs.(rtest) .>= reltol)
-        if prob.differential_vars === nothing && !alg.init_all
-            error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
-        end
-        prob.differential_vars !== nothing &&
-            (flag = IDASetId(mem, collect(Float64, prob.differential_vars)))
-
-        if dt !== nothing
-            _t = float(dt)
-        else
-            _t = float(tspan[2])
-        end
-        if alg.init_all
-            init_type = IDA_Y_INIT
-        else
-            init_type = IDA_YA_YDP_INIT
-        end
-        flag = IDACalcIC(mem, init_type, _t)
-    end
-
     if save_start
         if save_idxs === nothing
             ures = Vector{uType}()
@@ -1388,7 +1368,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                0,
                                1,
                                callback_cache,
-                               0.0)
+                               0.0,
+                               initializealg)
 
     if initialize_integrator
         DiffEqBase.initialize_dae!(integrator)

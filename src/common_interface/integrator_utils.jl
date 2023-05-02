@@ -191,7 +191,18 @@ end
 DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing
 
 DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator) = nothing
-function DiffEqBase.initialize_dae!(integrator::IDAIntegrator)
+
+struct IDADefaultInit <: DiffEqBase.DAEInitializationAlgorithm
+end
+
+function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
+                                    initializealg = integrator.initializealg)
+    _initialize_dae!(integrator, integrator.sol.prob,
+                     initializealg,
+                     Val(DiffEqBase.isinplace(integrator.sol.prob)))
+end
+function _initialize_dae!(integrator::IDAIntegrator, prob::DAEProblem,
+                                    alg::IDADefaultInit, isinplace)
     integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
     if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
         if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all
