@@ -21,6 +21,7 @@ end
 Lotka_f = ODEFunction(Lotka; jac = Lotka_jac)
 prob = ODEProblem(Lotka_f, ones(2), (0.0, 10.0))
 good_sol = solve(prob, CVODE_BDF())
+testsol = solve(prob, CVODE_BDF(), saveat=0.1, abstol=1e-12, reltol=1e-12)
 @test jac_called == true
 
 Lotka_f = ODEFunction(Lotka;
@@ -36,7 +37,8 @@ sol9 = solve(prob, CVODE_BDF(; linear_solver = :KLU))
 Lotka_fj = ODEFunction(Lotka; jac_prototype = JacVec((du,u)->Lotka(du,u,(),0.0), ones(2), SciMLBase.NullParameters()))
 
 prob = ODEProblem(Lotka_fj, ones(2), (0.0, 10.0))
-sol9 = solve(prob, CVODE_BDF(; linear_solver = :GMRES))
+sol9 = solve(prob, CVODE_BDF(; linear_solver = :GMRES), saveat=0.1, abstol=1e-12, reltol=1e-12)
+@test Array(sol9) ≈ Array(testsol)
 
 function f2!(res, du, u, p, t)
     res[1] = 1.01du[1]
