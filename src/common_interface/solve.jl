@@ -215,7 +215,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     utmp = NVector(_u0)
 
     use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
-                         LinearSolver ∈ SPARSE_SOLVERS)
+                         LinearSolver ∈ SPARSE_SOLVERS) || 
+                         prob.f.jac_prototype isa AbstractSciMLOperator
     userfun = FunJac(f!,
                      prob.f.jac,
                      prob.p,
@@ -225,6 +226,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                      alg.psetup,
                      u0,
                      _u0)
+    @show userfun.jac_prototype
 
     function getcfunf(::T) where {T}
         @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
@@ -340,7 +342,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         jac = nothing
     end
 
+    @show typeof(prob.f.jac_prototype) <: AbstractSciMLOperator
     if typeof(prob.f.jac_prototype) <: AbstractSciMLOperator
+        "here!!!!"
         function getcfunjtimes(::T) where {T}
             @cfunction(jactimes,
                        Cint,

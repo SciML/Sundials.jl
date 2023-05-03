@@ -77,6 +77,7 @@ Conversion happens in two steps within ccall:
 """
 Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) = convert(NVector, v) # will just return v if v is an NVector
 Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.n_v
+Base.copy!(v::Vector,nv::Ptr{Sundials._generic_N_Vector}) = copy!(v,convert(NVector, nv))
 
 Base.similar(nv::NVector) = NVector(similar(nv.v))
 
