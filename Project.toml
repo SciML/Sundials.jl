@@ -1,7 +1,7 @@
 name = "Sundials"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "4.16.0"
+version = "4.17.0"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
