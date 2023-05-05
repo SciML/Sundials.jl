@@ -196,9 +196,8 @@ struct IDADefaultInit <: DiffEqBase.DAEInitializationAlgorithm
 end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-                                    initializealg = integrator.initializealg)
-    _initialize_dae!(integrator, integrator.sol.prob,
-                     initializealg,
+                                    initializealg::IDADefaultInit)
+    _initialize_dae!(integrator, integrator.sol.prob, initializealg,
                      Val(DiffEqBase.isinplace(integrator.sol.prob)))
 end
 function _initialize_dae!(integrator::IDAIntegrator, prob::DAEProblem,
@@ -215,7 +214,13 @@ function _initialize_dae!(integrator::IDAIntegrator, prob::DAEProblem,
             integrator.flag = IDASetId(integrator.mem,
                                        integrator.sol.prob.differential_vars)
         end
-        integrator.flag = IDACalcIC(integrator.mem, init_type, integrator.dt)
+        tstart, tend = integrator.sol.prob.tspan
+        dt = integrator.dt == tstart ? tstart + 1e-6(tend-tstart) : integrator.dt
+        integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
+    end
+
+    if integrator.flag < 0
+        integrator.sol = SciMLBase.solution_new_retcode(integrator.sol, ReturnCode.InitialFailure)
     end
 end
 
