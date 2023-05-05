@@ -1032,7 +1032,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                            advance_to_tstop = false,
                            stop_at_next_tstop = false,
                            userdata = nothing,
-                           initialize_integrator = true,
                            initializealg = IDADefaultInit(),
                            kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
                                              }
@@ -1278,7 +1277,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     end
 
     tout = [tspan[1]]
-
     if save_start
         if save_idxs === nothing
             ures = Vector{uType}()
@@ -1300,13 +1298,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     callbacks_internal === nothing ? tmp = nothing : tmp = similar(u0)
     callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
-
-    if flag >= 0
-        retcode = ReturnCode.Default
-    else
-        retcode = ReturnCode.InitialFailure
-    end
-
+    retcode = flag >= 0 ? ReturnCode.Default : ReturnCode.InitialFailure
     sol = DiffEqBase.build_solution(prob,
                                     alg,
                                     ts,
@@ -1371,9 +1363,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                0.0,
                                initializealg)
 
-    if initialize_integrator
-        DiffEqBase.initialize_dae!(integrator)
-    end
+    DiffEqBase.initialize_dae!(integrator, initializealg)
     initialize_callbacks!(integrator)
     integrator
 end # function solve

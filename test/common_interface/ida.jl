@@ -1,5 +1,6 @@
 using Sundials, Test
 using DAEProblemLibrary: prob_dae_resrob
+using OrdinaryDiffEq
 
 # Test DAE
 mutable struct precflags
@@ -69,17 +70,29 @@ function f!(res, du, u, p, t)
 end
 
 u0 = [0.0]
-du0 = [1.01]
+du0 = [1.01] #consistant
 tspan = (0.0, 10.0)
 
-println("With consistent initial conditions:")
+dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [true])
+sol = solve(dae_prob, IDA())
+@test sol.retcode == ReturnCode.Success
 
+
+du0 = [0.0] # inconsistant
 dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [true])
 sol = solve(dae_prob, IDA())
 
-println("With inconsistent initial conditions:")
 
+
+function f!(res, du, u, p, t)
+    res[1] = u[1] - 1.01
+    return
+end
+
+u0 = [0.0] #inconsistant
 du0 = [0.0]
+tspan = (0.0, 10.0)
 
-dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [true])
-sol = solve(dae_prob, IDA())
+dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [false])
+#Currently broken because initialize_dae! in OrdiniaryDiffEq specializes on ODEIntegrator
+@test_broken solve(dae_prob, IDA(), initializealg=NoInit()).retcode == ReturnCode.InitialFailure
