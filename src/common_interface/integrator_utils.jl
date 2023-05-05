@@ -201,7 +201,7 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
                      Val(DiffEqBase.isinplace(integrator.sol.prob)))
 end
 function _initialize_dae!(integrator::IDAIntegrator, prob::DAEProblem,
-                                    alg::IDADefaultInit, isinplace)
+                          alg::IDADefaultInit, isinplace)
     integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
     if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
         if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all
@@ -215,12 +215,13 @@ function _initialize_dae!(integrator::IDAIntegrator, prob::DAEProblem,
                                        integrator.sol.prob.differential_vars)
         end
         tstart, tend = integrator.sol.prob.tspan
-        dt = integrator.dt == tstart ? tstart + 1e-6(tend-tstart) : integrator.dt
+        dt = integrator.dt == tstart ? tstart + 1e-6(tend - tstart) : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
     end
 
     if integrator.flag < 0
-        integrator.sol = SciMLBase.solution_new_retcode(integrator.sol, ReturnCode.InitialFailure)
+        integrator.sol = SciMLBase.solution_new_retcode(integrator.sol,
+                                                        ReturnCode.InitialFailure)
     end
 end
 
