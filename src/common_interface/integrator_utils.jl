@@ -123,7 +123,7 @@ end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)
     IDAReInit(integrator.mem, integrator.t, integrator.u, integrator.du)
-    DiffEqBase.initialize_dae!(integrator)
+    DiffEqBase.initialize_dae!(integrator, IDADefaultInit())
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
@@ -197,12 +197,8 @@ end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
                                     initializealg::IDADefaultInit)
-    _initialize_dae!(integrator, integrator.sol.prob, initializealg,
-                     Val(DiffEqBase.isinplace(integrator.sol.prob)))
-end
-function _initialize_dae!(integrator::IDAIntegrator, prob::DAEProblem,
-                          alg::IDADefaultInit, isinplace)
     integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
+    tstart, tend = integrator.sol.prob.tspan
     if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
         if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all
             error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
@@ -214,12 +210,10 @@ function _initialize_dae!(integrator::IDAIntegrator, prob::DAEProblem,
             integrator.flag = IDASetId(integrator.mem,
                                        integrator.sol.prob.differential_vars)
         end
-        tstart, tend = integrator.sol.prob.tspan
-        dt = integrator.dt == tstart ? tstart + 1e-6(tend - tstart) : integrator.dt
+        dt = integrator.dt == tstart ? tend : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
     end
-
-    if integrator.flag < 0
+    if integrator.t == tstart && integrator.flag < 0
         integrator.sol = SciMLBase.solution_new_retcode(integrator.sol,
                                                         ReturnCode.InitialFailure)
     end
