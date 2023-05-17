@@ -197,7 +197,11 @@ end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
                                     initializealg::IDADefaultInit)
-    integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
+    integrator.f(integrator.tmp.v,
+                 integrator.du.v,
+                 integrator.u.v,
+                 integrator.p,
+                 integrator.t)
     tstart, tend = integrator.sol.prob.tspan
     if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
         if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all

@@ -81,7 +81,8 @@ du0 = [0.0] # inconsistant
 dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [true])
 sol = solve(dae_prob, IDA())
 
-function f!(res, du, u, p, t)
+# Vector Float64 to make sure Sundials.NVector isn't messing with stuff
+function f!(res::Vector{Float64}, du, u, p, t)
     res[1] = u[1] - 1.01
     return
 end
