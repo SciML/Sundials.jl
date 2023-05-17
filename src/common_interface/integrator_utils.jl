@@ -197,7 +197,7 @@ end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
                                     initializealg::IDADefaultInit)
-    integrator.f(integrator.tmp.v,
+    integrator.f(integrator.tmp,
                  integrator.du.v,
                  integrator.u.v,
                  integrator.p,
