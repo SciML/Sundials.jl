@@ -92,4 +92,4 @@ tspan = (0.0, 10.0)
 
 dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [false])
 #Currently broken because initialize_dae! in OrdiniaryDiffEq specializes on ODEIntegrator
-init(dae_prob, IDA(), initializealg = NoInit()).retcode == ReturnCode.Default
+init(dae_prob, IDA(), initializealg = NoInit()).u == [0.0]
