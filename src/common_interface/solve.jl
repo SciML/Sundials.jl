@@ -1046,7 +1046,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         error("Sundials only allows scalar reltol.")
     end
 
-    if length(prob.u0) <= 0
+    if length(prob.u0) == 0
         error("Sundials requires at least one state variable.")
     end
 
@@ -1068,37 +1068,23 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
                                                                   tspan, tType)
-
-    if typeof(prob.u0) <: Number
+    @assert size(prob.u0) == size(prob.du0)
+    if prob.u0 isa Number
         u0 = [prob.u0]
-    else
-        u0 = vec(copy(prob.u0))
-    end
-
-    if typeof(prob.du0) <: Number
         du0 = [prob.du0]
     else
-        du0 = vec(copy(prob.du0))
+        u0 = copy(prob.u0)
+        du0 = copy(prob.du0)
     end
-
-    sizeu = size(prob.u0)
-    sizedu = size(prob.du0)
+    sizeu = size(u0)
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && typeof(prob.u0) <: Number
         f! = (out, du, u, p, t) -> (out .= prob.f(first(du), first(u), p, t); Cint(0))
-    elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
-        f! = (out, du, u, p, t) -> (out .= prob.f(du, u, p, t); Cint(0))
     elseif !isinplace && typeof(prob.u0) <: AbstractArray
-        f! = (out, du, u, p, t) -> (out .= vec(prob.f(reshape(du, sizedu),
-                                                      reshape(u, sizeu), p, t));
-                                    Cint(0))
-    elseif typeof(prob.u0) <: Vector{Float64}
-        f! = prob.f
+        f! = (out, du, u, p, t) -> (out .= prob.f(du, u, p, t); Cint(0))
     else # Then it's an in-place function on an abstract array
-        f! = (out, du, u, p, t) -> (prob.f(reshape(out, sizeu), reshape(du, sizedu),
-                                           reshape(u, sizeu), p, t);
-                                    Cint(0))
+        f! = prob.f
     end
 
     mem_ptr = IDACreate()
@@ -1112,11 +1098,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     ts = [t0]
 
-    _u0 = copy(u0)
-    utmp = NVector(_u0)
-    _du0 = copy(du0)
-    dutmp = NVector(_du0)
-    rtest = zeros(length(u0))
+    # vec shares memory
+    utmp = NVector(vec(u0))
+    dutmp = NVector(vec(du0))
+    rtest = zeros(size(u0))
 
     use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
                          LinearSolver ∈ SPARSE_SOLVERS)
@@ -1127,8 +1112,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                      use_jac_prototype ? prob.f.jac_prototype : nothing,
                      alg.prec,
                      alg.psetup,
-                     _u0,
-                     _du0,
+                     u0,
+                     du0,
                      rtest)
 
     function getcfun(::T) where {T}
@@ -1163,7 +1148,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         A = SUNDenseMatrix(length(u0), length(u0))
         _A = MatrixHandle(A, DenseMatrix())
         if LinearSolver === :Dense
-            LS = SUNLinSol_Dense(u0, A)
+            LS = SUNLinSol_Dense(utmp, A)
             _LS = LinSolHandle(LS, Dense())
         else
             LS = SUNLinSol_LapackDense(u0, A)
@@ -1174,36 +1159,36 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
         _A = MatrixHandle(A, BandMatrix())
         if LinearSolver === :Band
-            LS = SUNLinSol_Band(u0, A)
+            LS = SUNLinSol_Band(utmp, A)
             _LS = LinSolHandle(LS, Band())
         else
-            LS = SUNLinSol_LapackBand(u0, A)
+            LS = SUNLinSol_LapackBand(utmp, A)
             _LS = LinSolHandle(LS, LapackBand())
         end
     elseif LinearSolver == :GMRES
-        LS = SUNLinSol_SPGMR(u0, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPGMR(utmp, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, SPGMR())
     elseif LinearSolver == :FGMRES
-        LS = SUNLinSol_SPFGMR(u0, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPFGMR(utmp, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, SPFGMR())
     elseif LinearSolver == :BCG
-        LS = SUNLinSol_SPBCGS(u0, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPBCGS(utmp, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, SPBCGS())
     elseif LinearSolver == :PCG
-        LS = SUNLinSol_PCG(u0, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_PCG(utmp, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, PCG())
     elseif LinearSolver == :TFQMR
-        LS = SUNLinSol_SPTFQMR(u0, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPTFQMR(utmp, prec_side, alg.krylov_dim)
         _A = nothing
         _LS = LinSolHandle(LS, PTFQMR())
     elseif LinearSolver == :KLU
         nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
         A = SUNSparseMatrix(length(u0), length(u0), nnz, Sundials.CSC_MAT)
-        LS = SUNLinSol_KLU(u0, A)
+        LS = SUNLinSol_KLU(utmp, A)
         _A = MatrixHandle(A, SparseMatrix())
         _LS = LinSolHandle(LS, KLU())
     end
@@ -1283,7 +1268,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
             dures = Vector{uType}()
             save_value!(ures, u0, uType, sizeu, save_idxs)
             if dense
-                save_value!(dures, du0, uType, sizedu, save_idxs)
+                save_value!(dures, du0, uType, sizeu, save_idxs)
             end
         else
             ures = [u0[save_idxs]]
@@ -1334,8 +1319,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                      progress_message,
                      maxiters)
 
-    integrator = IDAIntegrator(utmp,
-                               dutmp,
+    integrator = IDAIntegrator(u0,
+                               du0,
                                prob.p,
                                t0,
                                t0,
@@ -1351,7 +1336,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                tout,
                                tdir,
                                sizeu,
-                               sizedu,
+                               sizeu,
                                false,
                                tmp,
                                uprev,
@@ -1361,6 +1346,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                1,
                                callback_cache,
                                0.0,
+                               utmp,
+                               dutmp,
                                initializealg)
 
     DiffEqBase.initialize_dae!(integrator, initializealg)
@@ -1410,8 +1397,8 @@ function solver_step(integrator::IDAIntegrator, tstop)
     integrator.flag = IDASolve(integrator.mem,
                                tstop,
                                integrator.tout,
-                               integrator.u,
-                               integrator.du,
+                               integrator.u_nvec,
+                               integrator.du_nvec,
                                IDA_ONE_STEP)
     if integrator.opts.progress
         Logging.@logmsg(-1,
