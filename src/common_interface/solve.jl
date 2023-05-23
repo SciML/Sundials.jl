@@ -31,13 +31,12 @@ function DiffEqBase.__solve(prob::Union{
                             recompile::Type{Val{recompile_flag}} = Val{true};
                             kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
                                               recompile_flag, uType, isinplace}
-    if typeof(prob.u0) <: Number
+    if prob.u0 isa Number
         u0 = [prob.u0]
     else
         u0 = deepcopy(prob.u0)
     end
 
-    sizeu = size(prob.u0)
     p = prob.p
     userdata = alg.userdata
     linsolve = linear_solver(alg)
@@ -45,34 +44,22 @@ function DiffEqBase.__solve(prob::Union{
     jac_lower = alg.jac_lower
 
     ### Fix the more general function to Sundials allowed style
-    if typeof(prob.f) <: ODEFunction
+    if prob.f isa ODEFunction
         t = Inf
-        if !isinplace && typeof(prob.u0) <: Number
+        if !isinplace && prob.u0 isa Number
             f! = (du, u) -> (du .= prob.f(first(u), p, t); Cint(0))
-        elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
+        elseif !isinplace
             f! = (du, u) -> (du .= prob.f(u, p, t); Cint(0))
-        elseif !isinplace && typeof(prob.u0) <: AbstractArray
-            f! = (du, u) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
-        elseif typeof(prob.u0) <: Vector{Float64}
+        else # Then it's an in-place function on an abstract array
             f! = (du, u) -> prob.f(du, u, p, t)
-        else # Then it's an in-place function on an abstract array
-            f! = (du, u) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                             du = vec(du);
-                             0)
         end
-    elseif typeof(prob.f) <: NonlinearFunction
-        if !isinplace && typeof(prob.u0) <: Number
+    elseif prob.f isa NonlinearFunction
+        if !isinplace && prob.u0 isa Number
             f! = (du, u) -> (du .= prob.f(first(u), p); Cint(0))
-        elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
+        elseif !isinplace
             f! = (du, u) -> (du .= prob.f(u, p); Cint(0))
-        elseif !isinplace && typeof(prob.u0) <: AbstractArray
-            f! = (du, u) -> (du .= vec(prob.f(reshape(u, sizeu), p)); Cint(0))
-        elseif typeof(prob.u0) <: Vector{Float64}
-            f! = (du, u) -> prob.f(du, u, p)
         else # Then it's an in-place function on an abstract array
-            f! = (du, u) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p);
-                             du = vec(du);
-                             0)
+            f! = (du, u) -> prob.f(du, u, p)
         end
     end
     u = zero(u0)
@@ -107,10 +94,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                            save_everystep = isempty(saveat), save_idxs = nothing,
                            save_on = true,
                            save_start = save_everystep || isempty(saveat) ||
-                                            typeof(saveat) <: Number ? true :
+                                            saveat isa Number ? true :
                                         prob.tspan[1] in saveat,
                            save_end = save_everystep || isempty(saveat) ||
-                                          typeof(saveat) <: Number ? true :
+                                          saveat isa Number ? true :
                                       prob.tspan[2] in saveat,
                            dense = save_everystep && isempty(saveat),
                            progress = false,
@@ -121,8 +108,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                            stop_at_next_tstop = false,
                            userdata = nothing,
                            alias_u0 = false,
-                           kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
-                                             }
+                           kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
     tType = eltype(tupType)
 
     if verbose
@@ -134,7 +120,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         error("This solver is not able to use mass matrices.")
     end
 
-    if typeof(reltol) <: AbstractArray
+    if reltol isa AbstractArray
         error("Sundials only allows scalar reltol.")
     end
 
@@ -161,36 +147,28 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
                                                                   tspan, tType)
 
-    if typeof(prob.u0) <: Number
+    if prob.u0 isa Number
         u0 = [prob.u0]
     else
         if alias_u0
-            u0 = vec(prob.u0)
+            u0 = prob.u0
         else
-            u0 = vec(copy(prob.u0))
+            u0 = copy(prob.u0)
         end
     end
 
-    sizeu = size(prob.u0)
-
     ### Fix the more general function to Sundials allowed style
-    if !isinplace && typeof(prob.u0) <: Number
+    if !isinplace && prob.u0 isa Number
         f! = (du, u, p, t) -> (du .= prob.f(first(u), p, t); Cint(0))
-    elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
+    elseif !isinplace
         f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
-    elseif !isinplace && typeof(prob.u0) <: AbstractArray
-        f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
-    elseif typeof(prob.u0) <: Vector{Float64}
-        f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                               du = vec(du);
-                               0)
+        f! = prob.f
     end
 
-    if typeof(alg) <: CVODE_BDF
+    if alg isa CVODE_BDF
         alg_code = CV_BDF
-    elseif typeof(alg) <: CVODE_Adams
+    elseif alg isa CVODE_Adams
         alg_code = CV_ADAMS
     end
 
@@ -211,8 +189,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     save_start ? ts = [t0] : ts = Float64[]
 
-    _u0 = copy(u0)
-    utmp = NVector(_u0)
+    out = copy(u0)
+    uvec = vec(u0) # aliases u0
+    utmp = NVector(uvec) # aliases u0
 
     use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
                          LinearSolver ∈ SPARSE_SOLVERS) ||
@@ -225,7 +204,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                      alg.prec,
                      alg.psetup,
                      u0,
-                     _u0)
+                     out)
 
     function getcfunf(::T) where {T}
         @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
@@ -237,7 +216,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = CVodeSetMinStep(mem, dtmin)
     flag = CVodeSetMaxStep(mem, dtmax)
     flag = CVodeSetUserData(mem, userfun)
-    if typeof(abstol) <: Array
+    if abstol isa Array
         flag = CVodeSVtolerances(mem, reltol, abstol)
     else
         flag = CVodeSStolerances(mem, reltol, abstol)
@@ -255,24 +234,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(u0), length(u0))
+            A = SUNDenseMatrix(length(uvec), length(uvec))
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(u0, A)
+                LS = SUNLinSol_Dense(uvec, A)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(u0, A)
+                LS = SUNLinSol_LapackDense(uvec, A)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(u0, A)
+                LS = SUNLinSol_Band(uvec, A)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(u0, A)
+                LS = SUNLinSol_LapackBand(uvec, A)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :Diagonal
@@ -281,43 +260,43 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             _A = nothing
             _LS = nothing
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNLinSol_SPFGMR(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPFGMR(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNLinSol_SPBCGS(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPBCGS(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNLinSol_PCG(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_PCG(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNLinSol_SPTFQMR(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPTFQMR(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PTFQMR())
         elseif LinearSolver == :KLU
             nojacobian = false
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
-            A = SUNSparseMatrix(length(u0), length(u0), nnz, CSC_MAT)
-            LS = SUNLinSol_KLU(u0, A)
+            A = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT)
+            LS = SUNLinSol_KLU(uvec, A)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
         end
         if LinearSolver !== :Diagonal
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
-        NLS = SUNNonlinSol_Newton(u0)
+        NLS = SUNNonlinSol_Newton(uvec)
     else
         _A = nothing
         _LS = nothing
         # TODO: Anderson Acceleration
         anderson_m = 0
-        NLS = SUNNonlinSol_FixedPoint(u0, anderson_m)
+        NLS = SUNNonlinSol_FixedPoint(uvec, anderson_m)
     end
     CVodeSetNonlinearSolver(mem, NLS)
 
@@ -341,7 +320,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         jac = nothing
     end
 
-    if typeof(prob.f.jac_prototype) <: AbstractSciMLOperator
+    if prob.f.jac_prototype isa AbstractSciMLOperator
         "here!!!!"
         function getcfunjtimes(::T) where {T}
             @cfunction(jactimes,
@@ -378,24 +357,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         CVodeSetPreconditioner(mem, psetupfun, precfun)
     end
 
-    callbacks_internal === nothing ? tmp = nothing : tmp = similar(u0)
-    callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
+    tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
+    uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     tout = [tspan[1]]
 
     if save_start
         if save_idxs === nothing
             ures = Vector{uType}()
             dures = Vector{uType}()
-            save_value!(ures, u0, uType, sizeu, save_idxs)
+            save_value!(ures, u0, uType, save_idxs)
             if dense
-                f!(_u0, u0, prob.p, tspan[1])
-                save_value!(dures, utmp, uType, sizeu, save_idxs)
+                f!(out, u0, prob.p, tspan[1])
+                save_value!(dures, out, uType, save_idxs)
             end
         else
             ures = [u0[save_idxs]]
             if dense
-                f!(_u0, u0, prob.p, tspan[1])
-                dures = [_u0[save_idxs]]
+                f!(out, u0, prob.p, tspan[1])
+                dures = [out[save_idxs]]
             end
         end
     else
@@ -435,6 +414,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                      progress_message,
                      maxiters)
     integrator = CVODEIntegrator(u0,
+                                 utmp,
                                  prob.p,
                                  t0,
                                  t0,
@@ -449,7 +429,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                                  opts,
                                  tout,
                                  tdir,
-                                 sizeu,
                                  false,
                                  tmp,
                                  uprev,
@@ -503,7 +482,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         warned && DiffEqBase.warn_compat()
     end
 
-    if typeof(reltol) <: AbstractArray
+    if reltol isa AbstractArray
         error("Sundials only allows scalar reltol.")
     end
 
@@ -530,23 +509,22 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
                                                                   tspan, tType)
 
-    if typeof(prob.u0) <: Number
+    if prob.u0 isa Number
         u0 = [prob.u0]
     else
         if alias_u0
-            u0 = vec(prob.u0)
+            u0 = prob.u0
         else
-            u0 = vec(copy(prob.u0))
+            u0 = copy(prob.u0)
         end
     end
 
-    sizeu = size(prob.u0)
     save_start ? ts = [t0] : ts = Float64[]
-    u0nv = NVector(u0)
-    _u0 = copy(u0)
-    utmp = NVector(_u0)
+    out = copy(u0)
+    uvec = vec(u0)
+    utmp = NVector(uvec)
 
-    function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = u0nv)
+    function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = utmp)
         mem_ptr = ARKStepCreate(fe, fi, t0, u0)
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
@@ -559,42 +537,26 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     end
 
     ### Fix the more general function to Sundials allowed style
-    if !isinplace && typeof(prob.u0) <: Number
+    if !isinplace && prob.u0 isa Number
         f! = (du, u, p, t) -> (du .= prob.f(first(u), p, t); Cint(0))
-    elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
+    elseif !isinplace
         f! = (du, u, p, t) -> (du .= prob.f(u, p, t); Cint(0))
-    elseif !isinplace && typeof(prob.u0) <: AbstractArray
-        f! = (du, u, p, t) -> (du .= vec(prob.f(reshape(u, sizeu), p, t)); Cint(0))
-    elseif typeof(prob.u0) <: Vector{Float64}
-        f! = prob.f
     else # Then it's an in-place function on an abstract array
-        f! = (du, u, p, t) -> (prob.f(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                               du = vec(du);
-                               Cint(0))
+        f! = prob.f
     end
 
-    if typeof(prob.problem_type) <: SplitODEProblem
+    if prob.problem_type isa SplitODEProblem
 
         ### Fix the more general function to Sundials allowed style
-        if !isinplace && typeof(prob.u0) <: Number
+        if !isinplace && prob.u0 isa Number
             f1! = (du, u, p, t) -> (du .= prob.f.f1(first(u), p, t); Cint(0))
             f2! = (du, u, p, t) -> (du .= prob.f.f2(first(u), p, t); Cint(0))
-        elseif !isinplace && typeof(prob.u0) <: Vector{Float64}
+        elseif !isinplace
             f1! = (du, u, p, t) -> (du .= prob.f.f1(u, p, t); Cint(0))
             f2! = (du, u, p, t) -> (du .= prob.f.f2(u, p, t); Cint(0))
-        elseif !isinplace && typeof(prob.u0) <: AbstractArray
-            f1! = (du, u, p, t) -> (du .= vec(prob.f.f1(reshape(u, sizeu), p, t)); Cint(0))
-            f2! = (du, u, p, t) -> (du .= vec(prob.f.f2(reshape(u, sizeu), p, t)); Cint(0))
-        elseif typeof(prob.u0) <: Vector{Float64}
+        else # Then it's an in-place function on an abstract array
             f1! = prob.f.f1
             f2! = prob.f.f2
-        else # Then it's an in-place function on an abstract array
-            f1! = (du, u, p, t) -> (prob.f.f1(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                                    du = vec(du);
-                                    Cint(0))
-            f2! = (du, u, p, t) -> (prob.f.f2(reshape(du, sizeu), reshape(u, sizeu), p, t);
-                                    du = vec(du);
-                                    Cint(0))
         end
 
         use_jac_prototype = (isa(prob.f.f1.jac_prototype, SparseArrays.SparseMatrixCSC) &&
@@ -608,7 +570,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                          alg.prec,
                          alg.psetup,
                          u0,
-                         _u0,
+                         out,
                          nothing)
 
         function getcfunjac(::T) where {T}
@@ -632,7 +594,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                          alg.prec,
                          alg.psetup,
                          u0,
-                         _u0)
+                         out)
         if alg.stiffness == Explicit()
             function getcfun1(::T) where {T}
                 @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
@@ -652,7 +614,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = ARKStepSetMinStep(mem, dtmin)
     flag = ARKStepSetMaxStep(mem, dtmax)
     flag = ARKStepSetUserData(mem, userfun)
-    if typeof(abstol) <: Array
+    if abstol isa Array
         flag = ARKStepSVtolerances(mem, reltol, abstol)
     else
         flag = ARKStepSStolerances(mem, reltol, abstol)
@@ -692,50 +654,50 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(u0), length(u0))
+            A = SUNDenseMatrix(length(uvec), length(uvec))
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(u0, A)
+                LS = SUNLinSol_Dense(uvec, A)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(u0, A)
+                LS = SUNLinSol_LapackDense(uvec, A)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(u0, A)
+                LS = SUNLinSol_Band(uvec, A)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(u0, A)
+                LS = SUNLinSol_LapackBand(uvec, A)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNLinSol_SPFGMR(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPFGMR(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNLinSol_SPBCGS(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPBCGS(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNLinSol_PCG(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_PCG(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNLinSol_SPTFQMR(u0, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPTFQMR(uvec, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PTFQMR())
         elseif LinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
-            A = SUNSparseMatrix(length(u0), length(u0), nnz, CSC_MAT)
-            LS = SUNLinSol_KLU(u0, A)
+            A = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT)
+            LS = SUNLinSol_KLU(uvec, A)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
         end
@@ -748,10 +710,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         _LS = nothing
     end
 
-    if (typeof(prob.problem_type) <: SplitODEProblem &&
-        typeof(prob.f.f1.jac_prototype) <: AbstractSciMLOperator) ||
-       (!(typeof(prob.problem_type) <: SplitODEProblem) &&
-        typeof(prob.f.jac_prototype) <: AbstractSciMLOperator) &&
+    if (prob.problem_type isa SplitODEProblem &&
+        prob.f.f1.jac_prototype isa AbstractSciMLOperator) ||
+       (!(prob.problem_type isa SplitODEProblem) &&
+        prob.f.jac_prototype isa AbstractSciMLOperator) &&
        alg.stiffness !== Explicit()
         function getcfunjtimes(::T) where {T}
             @cfunction(jactimes,
@@ -765,50 +727,50 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if prob.f.mass_matrix != LinearAlgebra.I && alg.stiffness !== Explicit()
         if MassLinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            M = SUNDenseMatrix(length(u0), length(u0))
+            M = SUNDenseMatrix(length(uvec), length(uvec))
             _M = MatrixHandle(M, DenseMatrix())
             if MassLinearSolver === :Dense
-                MLS = SUNLinSol_Dense(u0, M)
+                MLS = SUNLinSol_Dense(uvec, M)
                 _MLS = LinSolHandle(MLS, Dense())
             else
-                MLS = SUNLinSol_LapackDense(u0, M)
+                MLS = SUNLinSol_LapackDense(uvec, M)
                 _MLS = LinSolHandle(MLS, LapackDense())
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            M = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
+            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
             _M = MatrixHandle(M, BandMatrix())
             if MassLinearSolver === :Band
-                MLS = SUNLinSol_Band(u0, M)
+                MLS = SUNLinSol_Band(uvec, M)
                 _MLS = LinSolHandle(MLS, Band())
             else
-                MLS = SUNLinSol_LapackBand(u0, M)
+                MLS = SUNLinSol_LapackBand(uvec, M)
                 _MLS = LinSolHandle(MLS, LapackBand())
             end
         elseif MassLinearSolver == :GMRES
-            MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPGMR())
         elseif MassLinearSolver == :FGMRES
-            MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPFGMR())
         elseif MassLinearSolver == :BCG
-            MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPBCGS())
         elseif MassLinearSolver == :PCG
-            MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, PCG())
         elseif MassLinearSolver == :TFQMR
-            MLS = SUNLinSol_SPGMR(u0, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, PTFQMR())
         elseif MassLinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.mass_matrix))
-            M = SUNSparseMatrix(length(u0), length(u0), nnz, CSC_MAT)
-            MLS = SUNLinSol_KLU(u0, M)
+            M = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT)
+            MLS = SUNLinSol_KLU(uvec, M)
             _M = MatrixHandle(M, SparseMatrix())
             _MLS = LinSolHandle(MLS, KLU())
         end
@@ -871,24 +833,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         ARKStepSetPreconditioner(mem, psetupfun, precfun)
     end
 
-    callbacks_internal === nothing ? tmp = nothing : tmp = similar(u0)
-    callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
+    tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
+    uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     tout = [tspan[1]]
 
     if save_start
         if save_idxs === nothing
             ures = Vector{uType}()
             dures = Vector{uType}()
-            save_value!(ures, u0, uType, sizeu, save_idxs)
+            save_value!(ures, u0, uType, save_idxs)
             if dense
-                f!(_u0, u0, prob.p, tspan[1])
-                save_value!(dures, utmp, uType, sizeu, save_idxs)
+                f!(out, u0, prob.p, tspan[1])
+                save_value!(dures, out, uType, save_idxs)
             end
         else
             ures = [u0[save_idxs]]
             if dense
-                f!(_u0, u0, prob.p, tspan[1])
-                dures = [_u0[save_idxs]]
+                f!(out, u0, prob.p, tspan[1])
+                dures = [out[save_idxs]]
             end
         end
     else
@@ -927,7 +889,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                      progress_name,
                      progress_message,
                      maxiters)
-    integrator = ARKODEIntegrator(utmp,
+    integrator = ARKODEIntegrator(u0,
+                                  utmp,
                                   prob.p,
                                   t0,
                                   t0,
@@ -944,7 +907,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                                   opts,
                                   tout,
                                   tdir,
-                                  sizeu,
                                   false,
                                   tmp,
                                   uprev,
@@ -975,7 +937,7 @@ function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
         tstops_internal = DataStructures.BinaryMaxHeap(tstops_vec)
     end
 
-    if typeof(saveat) <: Number
+    if saveat isa Number
         if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
             saveat_vec = convert(Vector{tType},
                                  collect(tType, (tspan[1] + saveat):saveat:tspan[end]))
@@ -1042,7 +1004,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         warned && DiffEqBase.warn_compat()
     end
 
-    if typeof(reltol) <: AbstractArray
+    if reltol isa AbstractArray
         error("Sundials only allows scalar reltol.")
     end
 
@@ -1076,12 +1038,11 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         u0 = copy(prob.u0)
         du0 = copy(prob.du0)
     end
-    sizeu = size(u0)
 
     ### Fix the more general function to Sundials allowed style
-    if !isinplace && typeof(prob.u0) <: Number
+    if !isinplace && prob.u0 isa Number
         f! = (out, du, u, p, t) -> (out .= prob.f(first(du), first(u), p, t); Cint(0))
-    elseif !isinplace && typeof(prob.u0) <: AbstractArray
+    elseif !isinplace
         f! = (out, du, u, p, t) -> (out .= prob.f(du, u, p, t); Cint(0))
     else # Then it's an in-place function on an abstract array
         f! = prob.f
@@ -1124,7 +1085,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     dt !== nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
-    if typeof(abstol) <: Array
+    if abstol isa Array
         flag = IDASVtolerances(mem, reltol, abstol)
     else
         flag = IDASStolerances(mem, reltol, abstol)
@@ -1194,7 +1155,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     end
     flag = IDASetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
 
-    if typeof(prob.f.jac_prototype) <: AbstractSciMLOperator
+    if prob.f.jac_prototype isa AbstractSciMLOperator
         function getcfunjtimes(::T) where {T}
             @cfunction(idajactimes,
                        Cint,
@@ -1266,9 +1227,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         if save_idxs === nothing
             ures = Vector{uType}()
             dures = Vector{uType}()
-            save_value!(ures, u0, uType, sizeu, save_idxs)
+            save_value!(ures, u0, uType, save_idxs)
             if dense
-                save_value!(dures, du0, uType, sizeu, save_idxs)
+                save_value!(dures, du0, uType, save_idxs)
             end
         else
             ures = [u0[save_idxs]]
@@ -1281,8 +1242,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         dures = Vector{uType}()
     end
 
-    callbacks_internal === nothing ? tmp = nothing : tmp = similar(u0)
-    callbacks_internal === nothing ? uprev = nothing : uprev = similar(u0)
+    tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
+    uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     retcode = flag >= 0 ? ReturnCode.Default : ReturnCode.InitialFailure
     sol = DiffEqBase.build_solution(prob,
                                     alg,
@@ -1335,7 +1296,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                opts,
                                tout,
                                tdir,
-                               sizeu,
                                false,
                                tmp,
                                uprev,
@@ -1365,7 +1325,7 @@ function interpret_sundials_retcode(flag)
 end
 
 function solver_step(integrator::CVODEIntegrator, tstop)
-    integrator.flag = CVode(integrator.mem, tstop, integrator.u, integrator.tout,
+    integrator.flag = CVode(integrator.mem, tstop, integrator.u_nvec, integrator.tout,
                             CV_ONE_STEP)
     if integrator.opts.progress
         Logging.@logmsg(-1,
@@ -1379,14 +1339,14 @@ function solver_step(integrator::CVODEIntegrator, tstop)
     end
 end
 function solver_step(integrator::ARKODEIntegrator, tstop)
-    integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u, integrator.tout,
-                                    ARK_ONE_STEP)
+    integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u_nvec,
+                                    integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
         Logging.@logmsg(-1,
                         integrator.opts.progress_name,
                         _id=:Sundials,
                         message=integrator.opts.progress_message(integrator.dt,
-                                                                 integrator.u,
+                                                                 integrator.u_nvec,
                                                                  integrator.p,
                                                                  integrator.t),
                         progress=integrator.t / integrator.sol.prob.tspan[2])
@@ -1443,7 +1403,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
             tstop = first(integrator.opts.tstops)
             set_stop_time(integrator, tstop)
             integrator.tprev = integrator.t
-            if !(typeof(integrator.opts.callback.continuous_callbacks) <: Tuple{})
+            if !(integrator.opts.callback.continuous_callbacks isa Tuple{})
                 integrator.uprev .= integrator.u
             end
             integrator.userfun.p = integrator.p
@@ -1467,12 +1427,12 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
 
     if integrator.opts.save_end &&
        (isempty(integrator.sol.t) || integrator.sol.t[end] != integrator.t)
-        save_value!(integrator.sol.u, integrator.u, uType, integrator.sizeu,
+        save_value!(integrator.sol.u, integrator.u, uType,
                     integrator.opts.save_idxs)
         push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
             integrator(integrator.u, integrator.t, Val{1})
-            save_value!(integrator.sol.interp.du, integrator.u, uType, integrator.sizeu,
+            save_value!(integrator.sol.interp.du, integrator.u, uType,
                         integrator.opts.save_idxs)
         end
     end
