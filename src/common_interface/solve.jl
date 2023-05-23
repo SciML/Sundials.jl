@@ -108,7 +108,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                            stop_at_next_tstop = false,
                            userdata = nothing,
                            alias_u0 = false,
-                           kwargs...) where {uType, tupType, isinplace, Method, LinearSolver}
+                           kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
+                                             }
     tType = eltype(tupType)
 
     if verbose
