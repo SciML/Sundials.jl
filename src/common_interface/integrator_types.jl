@@ -148,9 +148,7 @@ function (integrator::ARKODEIntegrator)(out,
     return idxs === nothing ? out : @view out[idxs]
 end
 
-mutable struct IDAIntegrator{uType,
-                             duType,
-                             pType,
+mutable struct IDAIntegrator{pType,
                              memType,
                              solType,
                              algType,
@@ -159,15 +157,13 @@ mutable struct IDAIntegrator{uType,
                              JType,
                              oType,
                              toutType,
-                             sizeType,
-                             sizeDType,
-                             tmpType,
                              LStype,
                              Atype,
                              CallbackCacheType,
-                             IA} <: AbstractSundialsIntegrator{IDA}
-    u::uType
-    du::duType
+                             IA,
+                             N} <: AbstractSundialsIntegrator{IDA}
+    u::Array{Float64, N}
+    du::Array{Float64, N}
     p::pType
     t::Float64
     tprev::Float64
@@ -182,17 +178,19 @@ mutable struct IDAIntegrator{uType,
     opts::oType
     tout::toutType
     tdir::Float64
-    sizeu::sizeType
-    sizedu::sizeDType
+    sizeu::NTuple{N, Int}
+    sizedu::NTuple{N, Int}
     u_modified::Bool
-    tmp::tmpType
-    uprev::tmpType
+    tmp::Array{Float64, N}
+    uprev::Array{Float64, N}
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    u_nvec::NVector
+    du_nvec::NVector
     initializealg::IA
 end
 
@@ -200,7 +198,7 @@ function (integrator::IDAIntegrator)(t::Number,
                                      deriv::Type{Val{T}} = Val{0};
                                      idxs = nothing) where {T}
     out = similar(integrator.u)
-    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
+    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : out[idxs]
 end
 

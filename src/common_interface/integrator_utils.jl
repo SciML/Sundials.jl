@@ -208,7 +208,7 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
         else
             init_type = IDA_YA_YDP_INIT
             integrator.flag = IDASetId(integrator.mem,
-                                       integrator.sol.prob.differential_vars)
+                                       vec(integrator.sol.prob.differential_vars))
         end
         dt = integrator.dt == tstart ? tend : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
