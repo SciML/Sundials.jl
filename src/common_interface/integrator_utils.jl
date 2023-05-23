@@ -102,7 +102,8 @@ function save_value!(save_array,
                      val,
                      ::Type{T},
                      save_idxs,
-                     make_copy::Type{Val{bool}} = Val{true}) where {T <: AbstractArray, bool}
+                     make_copy::Type{Val{bool}} = Val{true}) where {T <: AbstractArray, bool
+                                                                    }
     @assert val isa Array
     save = if save_idxs !== nothing
         val[save_idxs]
