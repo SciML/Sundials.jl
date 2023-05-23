@@ -28,26 +28,23 @@ end
 abstract type AbstractSundialsIntegrator{algType} <:
               DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
 
-mutable struct CVODEIntegrator{uType,
+mutable struct CVODEIntegrator{N,
                                pType,
-                               memType,
                                solType,
                                algType,
                                fType,
                                UFType,
                                JType,
                                oType,
-                               toutType,
-                               sizeType,
-                               tmpType,
                                LStype,
                                Atype,
                                CallbackCacheType} <: AbstractSundialsIntegrator{algType}
-    u::uType
+    u::Array{Float64, N}
+    u_nvec::NVector
     p::pType
     t::Float64
     tprev::Float64
-    mem::memType
+    mem::Handle{CVODEMem}
     LS::LStype
     A::Atype
     sol::solType
@@ -56,12 +53,11 @@ mutable struct CVODEIntegrator{uType,
     userfun::UFType
     jac::JType
     opts::oType
-    tout::toutType
+    tout::Vector{Float64}
     tdir::Float64
-    sizeu::sizeType
     u_modified::Bool
-    tmp::tmpType
-    uprev::tmpType
+    tmp::Array{Float64, N}
+    uprev::Array{Float64, N}
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
@@ -74,7 +70,7 @@ function (integrator::CVODEIntegrator)(t::Number,
                                        deriv::Type{Val{T}} = Val{0};
                                        idxs = nothing) where {T}
     out = similar(integrator.u)
-    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
+    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : out[idxs]
 end
 
@@ -82,32 +78,29 @@ function (integrator::CVODEIntegrator)(out,
                                        t::Number,
                                        deriv::Type{Val{T}} = Val{0};
                                        idxs = nothing) where {T}
-    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out)
+    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : @view out[idxs]
 end
 
-mutable struct ARKODEIntegrator{uType,
+mutable struct ARKODEIntegrator{N,
                                 pType,
-                                memType,
                                 solType,
                                 algType,
                                 fType,
                                 UFType,
                                 JType,
                                 oType,
-                                toutType,
-                                sizeType,
-                                tmpType,
                                 LStype,
                                 Atype,
                                 MLStype,
                                 Mtype,
                                 CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
-    u::uType
+    u::Array{Float64, N}
+    u_nvec::NVector
     p::pType
     t::Float64
     tprev::Float64
-    mem::memType
+    mem::Handle{ARKStepMem}
     LS::LStype
     A::Atype
     MLS::MLStype
@@ -118,12 +111,11 @@ mutable struct ARKODEIntegrator{uType,
     userfun::UFType
     jac::JType
     opts::oType
-    tout::toutType
+    tout::Vector{Float64}
     tdir::Float64
-    sizeu::sizeType
     u_modified::Bool
-    tmp::tmpType
-    uprev::tmpType
+    tmp::Array{Float64, N}
+    uprev::Array{Float64, N}
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
@@ -136,7 +128,7 @@ function (integrator::ARKODEIntegrator)(t::Number,
                                         deriv::Type{Val{T}} = Val{0};
                                         idxs = nothing) where {T}
     out = similar(integrator.u)
-    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : out[idxs]
 end
 
@@ -144,30 +136,28 @@ function (integrator::ARKODEIntegrator)(out,
                                         t::Number,
                                         deriv::Type{Val{T}} = Val{0};
                                         idxs = nothing) where {T}
-    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out)
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : @view out[idxs]
 end
 
-mutable struct IDAIntegrator{pType,
-                             memType,
+mutable struct IDAIntegrator{N,
+                             pType,
                              solType,
                              algType,
                              fType,
                              UFType,
                              JType,
                              oType,
-                             toutType,
                              LStype,
                              Atype,
                              CallbackCacheType,
-                             IA,
-                             N} <: AbstractSundialsIntegrator{IDA}
+                             IA} <: AbstractSundialsIntegrator{IDA}
     u::Array{Float64, N}
     du::Array{Float64, N}
     p::pType
     t::Float64
     tprev::Float64
-    mem::memType
+    mem::Handle{IDAMem}
     LS::LStype
     A::Atype
     sol::solType
@@ -176,9 +166,8 @@ mutable struct IDAIntegrator{pType,
     userfun::UFType
     jac::JType
     opts::oType
-    tout::toutType
+    tout::Vector{Float64}
     tdir::Float64
-    sizeu::NTuple{N, Int}
     u_modified::Bool
     tmp::Array{Float64, N}
     uprev::Array{Float64, N}
@@ -205,7 +194,7 @@ function (integrator::IDAIntegrator)(out,
                                      t::Number,
                                      deriv::Type{Val{T}} = Val{0};
                                      idxs = nothing) where {T}
-    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out)
+    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : @view out[idxs]
 end
 
