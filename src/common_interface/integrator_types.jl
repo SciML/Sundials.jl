@@ -179,7 +179,6 @@ mutable struct IDAIntegrator{pType,
     tout::toutType
     tdir::Float64
     sizeu::NTuple{N, Int}
-    sizedu::NTuple{N, Int}
     u_modified::Bool
     tmp::Array{Float64, N}
     uprev::Array{Float64, N}

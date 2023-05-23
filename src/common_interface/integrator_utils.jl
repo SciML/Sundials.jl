@@ -159,11 +159,11 @@ end
 end
 
 @inline function DiffEqBase.get_du(integrator::IDAIntegrator)
-    reshape(integrator.du, integrator.sizedu)
+    integrator.du
 end
 
 @inline function DiffEqBase.get_du!(out, integrator::IDAIntegrator)
-    out .= reshape(integrator.du, integrator.sizedu)
+    out .= integrator.du
 end
 
 function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator, t)

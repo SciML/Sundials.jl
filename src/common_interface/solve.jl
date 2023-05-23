@@ -1336,7 +1336,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                tout,
                                tdir,
                                sizeu,
-                               sizeu,
                                false,
                                tmp,
                                uprev,
