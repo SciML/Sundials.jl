@@ -99,8 +99,20 @@ function handle_callback_modifiers!(integrator::ARKODEIntegrator)
                   integrator.t, integrator.u)
 end
 
-function handle_callback_modifiers!(integrator::IDAIntegrator)
+"""
+    IDAReinit!(integrator)
+
+The `integrator` object keeps a shadow copy of `u`, `du` and `t`. If these are
+modified, this function needs to be called in order to update the solver's
+internal datastructures to re-gain consistency.
+"""
+function IDAReinit!(integrator::IDAIntegrator)
     IDAReInit(integrator.mem, integrator.t, integrator.u, integrator.du)
+    integrator.u_modified = false
+end
+
+function handle_callback_modifiers!(integrator::IDAIntegrator)
+    # Implicitly does IDAReinit!
     DiffEqBase.initialize_dae!(integrator, IDADefaultInit())
 end
 
@@ -175,6 +187,9 @@ end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
                                     initializealg::IDADefaultInit)
+    if integrator.u_modified
+        IDAReinit!(integrator)
+    end
     integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
     tstart, tend = integrator.sol.prob.tspan
     if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
@@ -190,6 +205,10 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
         end
         dt = integrator.dt == tstart ? tend : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
+
+        # Reflect consistent initial conditions back into the integrator's
+        # shadow copy. N.B.: ({du, u}_nvec are aliased to {du, u}).
+        IDAGetConsistentIC(integrator.mem, integrator.u_nvec, integrator.du_nvec)
     end
     if integrator.t == tstart && integrator.flag < 0
         integrator.sol = SciMLBase.solution_new_retcode(integrator.sol,
