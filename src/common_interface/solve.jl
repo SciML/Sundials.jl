@@ -1223,26 +1223,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         jac = nothing
     end
 
-    tout = [tspan[1]]
-    if save_start
-        if save_idxs === nothing
-            ures = Vector{uType}()
-            dures = Vector{uType}()
-            save_value!(ures, u0, uType, save_idxs)
-            if dense
-                save_value!(dures, du0, uType, save_idxs)
-            end
-        else
-            ures = [u0[save_idxs]]
-            if dense
-                dures = [du0[save_idxs]]
-            end
-        end
-    else
-        ures = Vector{uType}()
-        dures = Vector{uType}()
-    end
-
+    tout = Float64[]
+    ures = Vector{uType}()
+    dures = Vector{uType}()
     tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
     uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     retcode = flag >= 0 ? ReturnCode.Default : ReturnCode.InitialFailure
@@ -1312,6 +1295,13 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     DiffEqBase.initialize_dae!(integrator, initializealg)
     integrator.u_modified && IDAReinit!(integrator)
+
+    if save_start
+        push!(tout, integrator.t)
+        save_value!(ures, integrator.u, uType, save_idxs)
+        save_value!(dures, integrator.u, uType, save_idxs)
+    end
+
     initialize_callbacks!(integrator)
     integrator
 end # function solve
