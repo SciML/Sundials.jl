@@ -1311,6 +1311,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
                                initializealg)
 
     DiffEqBase.initialize_dae!(integrator, initializealg)
+    integrator.u_modified && IDAReinit!(integrator)
     initialize_callbacks!(integrator)
     integrator
 end # function solve
