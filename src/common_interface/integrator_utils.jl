@@ -69,7 +69,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
                     integrator.opts.save_idxs)
         push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
-            tmp = integrator(integrator.t, Val{1})
+            tmp = DiffEqBase.get_du(integrator)
             save_value!(integrator.sol.interp.du, tmp, uType,
                         integrator.opts.save_idxs)
         end
@@ -151,11 +151,11 @@ function DiffEqBase.terminate!(integrator::AbstractSundialsIntegrator,
     integrator.opts.tstops.valtree = typeof(integrator.opts.tstops.valtree)()
 end
 
-@inline function DiffEqBase.get_du(integrator::CVODEIntegrator)
+@inline function DiffEqBase.get_du(integrator::AbstractSundialsIntegrator)
     integrator(integrator.t, Val{1})
 end
 
-@inline function DiffEqBase.get_du!(out, integrator::CVODEIntegrator)
+@inline function DiffEqBase.get_du!(out, integrator::AbstractSundialsIntegrator)
     integrator(out, integrator.t, Val{1})
 end
 
