@@ -96,10 +96,10 @@ init(dae_prob, IDA(), initializealg = NoInit()).u == [0.0]
 
 # test that initializers which modify states actually modify the states
 struct DumbInit <: DiffEqBase.DAEInitializationAlgorithm end
-function DiffEqBase.initialize_dae!(integrator::IDAIntegrator, initializealg::DumbInit)
+function DiffEqBase.initialize_dae!(integrator::Sundials.IDAIntegrator, initializealg::DumbInit)
     integrator.u .= 1
     integrator.u_modified = true
-    DiffEqBase.initialize_dae!(integrator, IDADefaultInit())
+    DiffEqBase.initialize_dae!(integrator, Sundials.IDADefaultInit())
 end
 f(du, u, p, t) = du - u # u(t) = exp(t)
 prob = DAEProblem(f, zeros(1), zeros(1), (0, 1), differential_vars = trues(1))
