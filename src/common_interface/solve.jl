@@ -1432,7 +1432,6 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
                     integrator.opts.save_idxs)
         push!(integrator.sol.t, integrator.t)
         if integrator.opts.dense
-            integrator(integrator.u, integrator.t, Val{1})
             save_value!(integrator.sol.interp.du, integrator.u, uType,
                         integrator.opts.save_idxs)
         end
