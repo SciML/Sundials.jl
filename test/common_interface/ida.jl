@@ -93,3 +93,18 @@ tspan = (0.0, 10.0)
 dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [false])
 #Currently broken because initialize_dae! in OrdiniaryDiffEq specializes on ODEIntegrator
 init(dae_prob, IDA(), initializealg = NoInit()).u == [0.0]
+
+# test that initializers which modify states actually modify the states
+struct DumbInit <: DiffEqBase.DAEInitializationAlgorithm end
+function DiffEqBase.initialize_dae!(integrator::IDAIntegrator, initializealg::DumbInit)
+    integrator.u .= 1
+    integrator.u_modified = true
+    DiffEqBase.initialize_dae!(integrator, IDADefaultInit())
+end
+f(du, u, p, t) = du - u # u(t) = exp(t)
+prob = DAEProblem(f, zeros(1), zeros(1), (0, 1), differential_vars = trues(1))
+sol = solve(prob, IDA(), initializealg = DumbInit())
+# test that initializealg is refected in the sol
+isapprox(only(sol.u[begin]), 1, rtol = 1e-3)
+# test that solve produced the right answer.
+isapprox(only(sol.u[end]), exp(1), rtol = 1e-3)
