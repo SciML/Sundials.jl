@@ -140,7 +140,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         callback_cache = nothing
     end
 
-    tspan = prob.tspan
+    tspan = Float64.(prob.tspan)
     t0 = tspan[1]
 
     tdir = sign(tspan[2] - tspan[1])
@@ -213,9 +213,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     flag = CVodeInit(mem, getcfunf(userfun), t0, utmp)
 
-    dt !== nothing && (flag = CVodeSetInitStep(mem, dt))
-    flag = CVodeSetMinStep(mem, dtmin)
-    flag = CVodeSetMaxStep(mem, dtmax)
+    dt !== nothing && (flag = CVodeSetInitStep(mem, Float64(dt)))
+    flag = CVodeSetMinStep(mem, Float64(dtmin))
+    flag = CVodeSetMaxStep(mem, Float64(dtmax))
     flag = CVodeSetUserData(mem, userfun)
     if abstol isa Array
         flag = CVodeSVtolerances(mem, reltol, abstol)
@@ -611,9 +611,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         end
     end
 
-    dt !== nothing && (flag = ARKStepSetInitStep(mem, dt))
-    flag = ARKStepSetMinStep(mem, dtmin)
-    flag = ARKStepSetMaxStep(mem, dtmax)
+    dt !== nothing && (flag = ARKStepSetInitStep(mem, Float64(dt)))
+    flag = ARKStepSetMinStep(mem, Float64(dtmin))
+    flag = ARKStepSetMaxStep(mem, Float64(dtmax))
     flag = ARKStepSetUserData(mem, userfun)
     if abstol isa Array
         flag = ARKStepSVtolerances(mem, reltol, abstol)
@@ -1411,7 +1411,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
             solver_step(integrator, tstop)
             integrator.t = first(integrator.tout)
             integrator.flag < 0 && break
-            handle_callbacks!(integrator)
+            handle_callbacks!(integrator) # this also updates the interpolation
             integrator.flag < 0 && break
             if isempty(integrator.opts.tstops)
                 break
@@ -1426,13 +1426,14 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
         handle_tstop!(integrator)
     end
 
+    tend = integrator.t
     if integrator.opts.save_end &&
-       (isempty(integrator.sol.t) || integrator.sol.t[end] != integrator.t)
+       (isempty(integrator.sol.t) || integrator.sol.t[end] != tend)
         save_value!(integrator.sol.u, integrator.u, uType,
                     integrator.opts.save_idxs)
-        push!(integrator.sol.t, integrator.t)
+        push!(integrator.sol.t, tend)
         if integrator.opts.dense
-            save_value!(integrator.sol.interp.du, integrator.u, uType,
+            save_value!(integrator.sol.interp.du, get_du(integrator), uType,
                         integrator.opts.save_idxs)
         end
     end
