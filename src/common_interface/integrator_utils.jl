@@ -78,37 +78,14 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
     return saved, savedexactly
 end
 
-function save_value!(save_array,
-                     val,
-                     ::Type{T},
-                     save_idxs,
-                     make_copy::Type{Val{bool}} = Val{true}) where {T <: Number, bool}
+function save_value!(save_array, val, ::Type{<:Number}, save_idxs, make_copy::Bool = true)
     push!(save_array, first(val))
 end
-function save_value!(save_array,
-                     val,
-                     ::Type{T},
-                     save_idxs,
-                     make_copy::Type{Val{bool}} = Val{true}) where {T <: Vector, bool}
-    @assert val isa Array
+function save_value!(save_array, val, ::Type{<:AbstractArray}, save_idxs, make_copy::Bool = true)
     save = if save_idxs !== nothing
         val[save_idxs]
     else
-        bool ? copy(val) : val
-    end
-    push!(save_array, save)
-end
-function save_value!(save_array,
-                     val,
-                     ::Type{T},
-                     save_idxs,
-                     make_copy::Type{Val{bool}} = Val{true}) where {T <: AbstractArray, bool
-                                                                    }
-    @assert val isa Array
-    save = if save_idxs !== nothing
-        val[save_idxs]
-    else
-        x = bool ? copy(val) : val
+        make_copy ? copy(val) : val
     end
     push!(save_array, save)
 end
