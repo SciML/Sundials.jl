@@ -52,12 +52,12 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
 
         tmp = integrator(curt)
         save_value!(integrator.sol.u, tmp, uType,
-                    integrator.opts.save_idxs, Val{false})
+                    integrator.opts.save_idxs, false)
         push!(integrator.sol.t, curt)
         if integrator.opts.dense
             tmp = integrator(curt, Val{1})
             save_value!(integrator.sol.interp.du, tmp, uType,
-                        integrator.opts.save_idxs, Val{false})
+                        integrator.opts.save_idxs, false)
         end
     end
 
