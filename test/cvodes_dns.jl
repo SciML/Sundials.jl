@@ -46,12 +46,12 @@ ys[i, j, t] is the i-th component sensivity wrt the j-th parameter at timestep t
 ys[i, np+j, t] the i-th component sensivity wrt the j-th initial condition value.
 """
 function sens(f!::Function,
-              t0::Float64,
-              y0::Vector{Float64},
-              p::Vector{Float64},
-              tout::Vector{Float64};
-              reltol::Float64 = 1e-5,
-              abstol::Float64 = 1e-5)
+    t0::Float64,
+    y0::Vector{Float64},
+    p::Vector{Float64},
+    tout::Vector{Float64};
+    reltol::Float64 = 1e-5,
+    abstol::Float64 = 1e-5)
     n = length(y0)
     np = length(p)
     ys0 = zeros(n, np .+ n)
@@ -78,7 +78,7 @@ end
 
 function CVSData(f, fs, p, n::Int, nS::Int)
     CVSData(f, fs, p, Array{Float64}(undef, n, nS),
-            Array{Float64}(undef, n, nS))
+        Array{Float64}(undef, n, nS))
 end
 
 function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
@@ -87,14 +87,14 @@ function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
 end
 
 function cvsensrhsfn(ns::Cint,
-                     t::Float64,
-                     y::N_Vector,
-                     dy::N_Vector,
-                     ys::N_Vector_S,
-                     dys::N_Vector_S,
-                     data::CVSData,
-                     tmp1::N_Vector,
-                     tmp2::N_Vector)
+    t::Float64,
+    y::N_Vector,
+    dy::N_Vector,
+    ys::N_Vector_S,
+    dys::N_Vector_S,
+    data::CVSData,
+    tmp1::N_Vector,
+    tmp2::N_Vector)
     jys = data.jys
     jdys = data.jdys
     mycopy!(ys, data.jys)
@@ -120,19 +120,19 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     yS0nv = [N_Vector(n) for n in yS0n]
     pyS0 = pointer(yS0nv)
     crhs = Sundials.@cfunction(cvrhsfn,
-                               Cint,
-                               (Sundials.realtype, N_Vector, N_Vector, Ref{CVSData}))
+        Cint,
+        (Sundials.realtype, N_Vector, N_Vector, Ref{CVSData}))
     csensrhs = Sundials.@cfunction(cvsensrhsfn,
-                                   Cint,
-                                   (Cint,
-                                    Sundials.realtype,
-                                    N_Vector,
-                                    N_Vector,
-                                    N_Vector_S,
-                                    N_Vector_S,
-                                    Ref{CVSData},
-                                    N_Vector,
-                                    N_Vector))
+        Cint,
+        (Cint,
+            Sundials.realtype,
+            N_Vector,
+            N_Vector,
+            N_Vector_S,
+            N_Vector_S,
+            Ref{CVSData},
+            N_Vector,
+            N_Vector))
 
     ##
 

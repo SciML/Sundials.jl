@@ -84,18 +84,18 @@ function initial()
 end
 
 function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
-                    id::Vector{Float64}, t::Vector{Float64};
-                    reltol::Float64 = 1e-4, abstol::Float64 = 1e-6)
+    id::Vector{Float64}, t::Vector{Float64};
+    reltol::Float64 = 1e-4, abstol::Float64 = 1e-6)
     neq = length(y0)
     mem = Sundials.IDACreate()
 
     function getcfunband(f::T) where {T}
         @cfunction(Sundials.idasolfun, Cint,
-                   (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
-                    Sundials.N_Vector, Ref{T}))
+            (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
+                Sundials.N_Vector, Ref{T}))
     end
     Sundials.@checkflag Sundials.IDAInit(mem, getcfunband(f),
-                                         t[1], y0, yp0)
+        t[1], y0, yp0)
     Sundials.@checkflag Sundials.IDASetId(mem, id)
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
@@ -121,4 +121,4 @@ end
 u0, up0, id = initial()
 
 yout, ypout = @time idabandsol(cableres, u0, up0, id, map(x -> x, t);
-                               reltol = 1e-3, abstol = 1e-4)
+    reltol = 1e-3, abstol = 1e-4)

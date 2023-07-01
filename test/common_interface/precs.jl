@@ -14,7 +14,7 @@ function brusselator_2d_loop(du, u, p, t)
         i, j = Tuple(I)
         x, y = xyd_brusselator[I[1]], xyd_brusselator[I[2]]
         ip1, im1, jp1, jm1 = limit(i + 1, N), limit(i - 1, N), limit(j + 1, N),
-                             limit(j - 1, N)
+        limit(j - 1, N)
         du[i, j, 1] = alpha * (u[im1, j, 1] + u[ip1, j, 1] + u[i, jp1, 1] + u[i, jm1, 1] -
                        4u[i, j, 1]) +
                       B + u[i, j, 1]^2 * u[i, j, 2] - (A + 1) * u[i, j, 1] +
@@ -48,7 +48,7 @@ end
 u0 = vec(init_brusselator_2d(xyd_brusselator))
 
 prob_ode_brusselator_2d = ODEProblem(brusselator_2d_vec,
-                                     u0, (0.0, 11.5), p)
+    u0, (0.0, 11.5), p)
 
 # find Jacobian sparsity pattern
 u0_st = SparsityTracing.create_advec(u0)
@@ -60,9 +60,9 @@ const W = I - 1.0 * jaccache
 # setup sparse AD for Jacobian
 colors = SparseDiffTools.matrix_colors(jaccache)
 const jaccache_fc = SparseDiffTools.ForwardColorJacCache(nothing, # don't use f to create unique Tag
-                                                         u0,
-                                                         colorvec = colors,
-                                                         sparsity = jaccache)
+    u0,
+    colorvec = colors,
+    sparsity = jaccache)
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
@@ -70,8 +70,8 @@ const preccache = Ref(prectmp)
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
     if jok
         SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
-                                                    (y, x) -> brusselator_2d_vec(y, x, p, t),
-                                                    u, jaccache_fc)
+            (y, x) -> brusselator_2d_vec(y, x, p, t),
+            u, jaccache_fc)
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -89,16 +89,16 @@ function precilu(z, r, p, t, y, fy, gamma, delta, lr)
 end
 
 prectmp2 = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
-                                                                              presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-                                                                                                                                1))),
-                                                                              postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-                                                                                                                                 1)))))
+    presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
+        1))),
+    postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
+        1)))))
 const preccache2 = Ref(prectmp2)
 function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     if jok
         SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
-                                                    (y, x) -> brusselator_2d_vec(y, x, p, t),
-                                                    u, jaccache_fc)
+            (y, x) -> brusselator_2d_vec(y, x, p, t),
+            u, jaccache_fc)
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -108,10 +108,10 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
 
         # Build preconditioner on W
         preccache2[] = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
-                                                                                          presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-                                                                                                                                            1))),
-                                                                                          postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-                                                                                                                                             1)))))
+            presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
+                1))),
+            postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
+                1)))))
     end
 end
 
@@ -120,12 +120,12 @@ function precamg(z, r, p, t, y, fy, gamma, delta, lr)
 end
 
 sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
-             save_everystep = false);
+    save_everystep = false);
 sol2 = solve(prob_ode_brusselator_2d,
-             CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
-                       prec_side = 1); save_everystep = false);
+    CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
+        prec_side = 1); save_everystep = false);
 sol3 = solve(prob_ode_brusselator_2d,
-             CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
-                       prec_side = 1); save_everystep = false);
+    CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
+        prec_side = 1); save_everystep = false);
 @test sol1.stats.nf > sol2.stats.nf
 @test sol1.stats.nf > sol3.stats.nf

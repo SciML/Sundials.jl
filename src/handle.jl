@@ -74,7 +74,7 @@ mutable struct NonLinSolHandle{T <: SundialsNonLinearSolver} <: SundialsHandle
     ptr::SUNNonlinearSolver
     destroyed::Bool
     function NonLinSolHandle(ptr::SUNNonlinearSolver,
-                             M::T) where {T <: SundialsNonLinearSolver}
+        M::T) where {T <: SundialsNonLinearSolver}
         h = new{T}(ptr, false)
         finalizer(release_handle, h)
         return h
@@ -86,7 +86,7 @@ Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::Handle{T}) where {T} = Ptr{Cvoid}(h.p
 Base.convert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h.ptr_ref[]
 function Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T}
     convert(Ptr{Ptr{T}},
-            h.ptr_ref[])
+        h.ptr_ref[])
 end
 
 function release_handle(ptr_ref::Ref{Ptr{T}}) where {T}
@@ -100,18 +100,18 @@ function release_handle(ptr_ref::Ref{Ptr{CVODEMem}})
 end
 function release_handle(ptr_ref::Ref{Ptr{ARKStepMem}})
     ((ptr_ref[] != C_NULL) &&
-         ARKStepFree(ptr_ref);
-     nothing)
+        ARKStepFree(ptr_ref);
+    nothing)
 end
 function release_handle(ptr_ref::Ref{Ptr{ERKStepMem}})
     ((ptr_ref[] != C_NULL) &&
-         ERKStepFree(ptr_ref);
-     nothing)
+        ERKStepFree(ptr_ref);
+    nothing)
 end
 function release_handle(ptr_ref::Ref{Ptr{MRIStepMem}})
     ((ptr_ref[] != C_NULL) &&
-         MRIStepFree(ptr_ref);
-     nothing)
+        MRIStepFree(ptr_ref);
+    nothing)
 end
 function release_handle(ptr_ref::Ref{Ptr{IDAMem}})
     ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)

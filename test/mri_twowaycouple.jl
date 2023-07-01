@@ -67,8 +67,8 @@ y0 = [0.90001, -9.999, 1000.0]
 _mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0);
 inner_arkode_mem = Sundials.Handle(_mem_ptr)
 Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem,
-                                                -1,
-                                                Sundials.KNOTH_WOLKE_3_3)
+    -1,
+    Sundials.KNOTH_WOLKE_3_3)
 Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
 
 # Slow integrator portion

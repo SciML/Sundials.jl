@@ -21,6 +21,6 @@ u = zeros(Float64, 0)
 du = zeros(Float64, 0)
 function F(du, u, p, t) end
 prob = DAEProblem{false}(F, du,
-                         u,
-                         (0.0, 1e-7);
-                         differential_vars = fill(true, 0))
+    u,
+    (0.0, 1e-7);
+    differential_vars = fill(true, 0))

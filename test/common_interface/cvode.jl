@@ -55,7 +55,7 @@ sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1], timeseries_errors = false
 @test sol[1, :] == sol_idxs[1, :]
 
 sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1, 2], timeseries_errors = false,
-                 calculate_error = false)
+    calculate_error = false)
 @test length(sol_idxs[1]) == 2
 @test sol[1, :] == sol_idxs[1, :]
 @test sol[2, :] == sol_idxs[2, :]
@@ -66,7 +66,7 @@ prob = ODEProblem(k, [1.0], (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 h = (u, p, t) -> u
 u0 = [1.0 2.0
-      3.0 2.0]
+    3.0 2.0]
 prob = ODEProblem(h, u0, (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 
@@ -102,8 +102,8 @@ sol4 = solve(prob, CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = pre
 @test isapprox(sol1[end], sol4[end]; rtol = 1e-3)
 @test prec_used
 sol4 = solve(prob,
-             CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec,
-                       psetup = psetup))
+    CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec,
+        psetup = psetup))
 @test isapprox(sol1[end], sol4[end]; rtol = 1e-3)
 @test psetup_used
 

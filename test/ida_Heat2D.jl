@@ -103,26 +103,26 @@ function initial()
 end
 
 function idabandsol(f::Function,
-                    y0::Vector{Float64},
-                    yp0::Vector{Float64},
-                    id::Vector{Float64},
-                    constraints::Vector{Float64},
-                    t::Vector{Float64};
-                    reltol::Float64 = 1e-4,
-                    abstol::Float64 = 1e-6)
+    y0::Vector{Float64},
+    yp0::Vector{Float64},
+    id::Vector{Float64},
+    constraints::Vector{Float64},
+    t::Vector{Float64};
+    reltol::Float64 = 1e-4,
+    abstol::Float64 = 1e-6)
     neq = length(y0)
     mem = Sundials.IDACreate()
     Sundials.@checkflag Sundials.IDAInit(mem,
-                                         @cfunction(Sundials.idasolfun,
-                                                    Cint,
-                                                    (Sundials.realtype,
-                                                     Sundials.N_Vector,
-                                                     Sundials.N_Vector,
-                                                     Sundials.N_Vector,
-                                                     Ref{Function})),
-                                         t[1],
-                                         y0,
-                                         yp0)
+        @cfunction(Sundials.idasolfun,
+            Cint,
+            (Sundials.realtype,
+                Sundials.N_Vector,
+                Sundials.N_Vector,
+                Sundials.N_Vector,
+                Ref{Function})),
+        t[1],
+        y0,
+        yp0)
     Sundials.@checkflag Sundials.IDASetId(mem, id)
     Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints)
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)

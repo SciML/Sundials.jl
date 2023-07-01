@@ -12,7 +12,7 @@ function f(t, y_nv, ydot_nv, user_data)
 end
 
 f_C = @cfunction(f, Cint,
-                 (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
 
 neq = 3
 

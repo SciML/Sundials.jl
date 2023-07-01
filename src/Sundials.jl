@@ -15,16 +15,16 @@ import Libdl
 using CEnum
 
 const warnkeywords = (:d_discontinuities,
-                      :isoutofdomain,
-                      :unstable_check,
-                      :calck,
-                      :internalnorm,
-                      :gamma,
-                      :beta1,
-                      :beta2,
-                      :qmax,
-                      :qmin,
-                      :qoldinit)
+    :isoutofdomain,
+    :unstable_check,
+    :calck,
+    :internalnorm,
+    :gamma,
+    :beta1,
+    :beta2,
+    :qmax,
+    :qmin,
+    :qoldinit)
 
 warnlist = Set(warnkeywords)
 warnida = union(warnlist, Set((:dtmin,)))
@@ -32,8 +32,8 @@ warnida = union(warnlist, Set((:dtmin,)))
 using Sundials_jll
 
 export solve,
-       SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
-       KINSOL
+    SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
+    KINSOL
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)

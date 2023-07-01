@@ -54,8 +54,8 @@ Base.pointer(nv::NVector) = Sundials.N_VGetArrayPointer_Serial(nv.n_v)
 Base.convert(::Type{NVector}, v::Vector{realtype}) = NVector(v)
 function Base.convert(::Type{NVector}, v::Vector{T}) where {T <: Real}
     NVector(copy!(similar(v,
-                          realtype),
-                  v))
+            realtype),
+        v))
 end
 Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Vector{realtype}, v))
 Base.convert(::Type{NVector}, nv::NVector) = nv
@@ -85,11 +85,11 @@ nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 # asarray() creates an array pointing to N_Vector data, but does not take the ownership
 @inline function asarray(x::N_Vector)
     unsafe_wrap(Array, N_VGetArrayPointer_Serial(x),
-                (nvlength(x),); own = false)
+        (nvlength(x),); own = false)
 end
 @inline function asarray(x::N_Vector, dims::Tuple)
     unsafe_wrap(Array, N_VGetArrayPointer_Serial(x),
-                dims; own = false)
+        dims; own = false)
 end
 asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims; own = false)
