@@ -5,6 +5,8 @@ abstract type SundialsODEAlgorithm{Method, LinearSolver} <: DiffEqBase.AbstractO
 abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgorithm end
 abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
 
+SciMLBase.alg_order(alg::Union{SundialsODEAlgorithm,SundialsDAEAlgorithm}) = alg.max_order
+
 # ODE Algorithms
 """
 ```julia
@@ -553,6 +555,8 @@ Base.@pure function ARKODE(stiffness = Implicit();
         psetup,
         prec_side)
 end
+
+SciMLBase.alg_order(alg::Union{SundialsODEAlgorithm,SundialsDAEAlgorithm}) = 5
 
 # DAE Algorithms
 """
