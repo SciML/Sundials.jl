@@ -556,7 +556,7 @@ Base.@pure function ARKODE(stiffness = Implicit();
         prec_side)
 end
 
-SciMLBase.alg_order(alg::Union{SundialsODEAlgorithm,SundialsDAEAlgorithm}) = 5
+SciMLBase.alg_order(alg::ARKODE) = 5
 
 # DAE Algorithms
 """
