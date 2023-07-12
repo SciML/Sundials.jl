@@ -46,7 +46,7 @@ sol4 = solve(prob, IDA(; linear_solver = :GMRES, prec = prec, psetup = psetup))
 @test p.psetup_used
 
 @info "IDA with save_start=false"
-@test_broken SciMLBase.successful_retcode(solve(prob, IDA(); save_start=false))
+@test SciMLBase.successful_retcode(solve(prob, IDA(); save_start=false))
 
 @info "IDA with saveat"
 sol = solve(prob, IDA(); saveat = saveat)

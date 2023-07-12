@@ -1223,7 +1223,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         jac = nothing
     end
 
-    tout = Float64[]
+    tout = Float64[first(tspan)]
     ures = Vector{uType}()
     dures = Vector{uType}()
     tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
@@ -1297,7 +1297,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     integrator.u_modified && IDAReinit!(integrator)
 
     if save_start
-        push!(tout, integrator.t)
         save_value!(ures, integrator.u, uType, save_idxs)
         save_value!(dures, integrator.u, uType, save_idxs)
     end
