@@ -23,8 +23,8 @@ DiffEqBase = "6.154"
 PrecompileTools = "1"
 Reexport = "1.0"
 SciMLBase = "2.9"
-Sundials_jll = "5.2"
-julia = "1.9"
+Sundials_jll = "6"
+julia = "1.10"
 
 [extras]
 AlgebraicMultigrid = "2169fc97-5a83-5252-b627-83903c6c433c"
