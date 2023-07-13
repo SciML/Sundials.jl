@@ -4,32 +4,32 @@ struct klu_l_symbolic
     lnz::Cdouble
     unz::Cdouble
     Lnz::Ptr{Cdouble}
-    n::Clong
-    nz::Clong
-    P::Ptr{Clong}
-    Q::Ptr{Clong}
-    R::Ptr{Clong}
-    nzoff::Clong
-    nblocks::Clong
-    maxblock::Clong
-    ordering::Clong
-    do_btf::Clong
-    structural_rank::Clong
+    n::Int64
+    nz::Int64
+    P::Ptr{Int64}
+    Q::Ptr{Int64}
+    R::Ptr{Int64}
+    nzoff::Int64
+    nblocks::Int64
+    maxblock::Int64
+    ordering::Int64
+    do_btf::Int64
+    structural_rank::Int64
 end
 
 struct klu_l_numeric
-    n::Clong
-    nblocks::Clong
-    lnz::Clong
-    unz::Clong
-    max_lnz_block::Clong
-    max_unz_block::Clong
-    Pnum::Ptr{Clong}
-    Pinv::Ptr{Clong}
-    Lip::Ptr{Clong}
-    Uip::Ptr{Clong}
-    Llen::Ptr{Clong}
-    Ulen::Ptr{Clong}
+    n::Int64
+    nblocks::Int64
+    lnz::Int64
+    unz::Int64
+    max_lnz_block::Int64
+    max_unz_block::Int64
+    Pnum::Ptr{Int64}
+    Pinv::Ptr{Int64}
+    Lip::Ptr{Int64}
+    Uip::Ptr{Int64}
+    Llen::Ptr{Int64}
+    Ulen::Ptr{Int64}
     LUbx::Ptr{Ptr{Cvoid}}
     LUsize::Ptr{Csize_t}
     Udiag::Ptr{Cvoid}
@@ -37,11 +37,11 @@ struct klu_l_numeric
     worksize::Csize_t
     Work::Ptr{Cvoid}
     Xwork::Ptr{Cvoid}
-    Iwork::Ptr{Clong}
-    Offp::Ptr{Clong}
-    Offi::Ptr{Clong}
+    Iwork::Ptr{Int64}
+    Offp::Ptr{Int64}
+    Offi::Ptr{Int64}
     Offx::Ptr{Cvoid}
-    nzoff::Clong
+    nzoff::Int64
 end
 
 struct klu_l_common_struct
@@ -50,18 +50,18 @@ struct klu_l_common_struct
     initmem_amd::Cdouble
     initmem::Cdouble
     maxwork::Cdouble
-    btf::Clong
-    ordering::Clong
-    scale::Clong
+    btf::Cint
+    ordering::Cint
+    scale::Cint
     user_order::Ptr{Cvoid}
     user_data::Ptr{Cvoid}
-    halt_if_singular::Clong
-    status::Clong
-    nrealloc::Clong
-    structural_rank::Clong
-    numerical_rank::Clong
-    singular_col::Clong
-    noffdiag::Clong
+    halt_if_singular::Cint
+    status::Cint
+    nrealloc::Cint
+    structural_rank::Int64
+    numerical_rank::Int64
+    singular_col::Int64
+    noffdiag::Int64
     flops::Cdouble
     rcond::Cdouble
     condest::Cdouble
@@ -661,14 +661,14 @@ end
 
 const DlsMat = Ptr{_DlsMat}
 
-@cenum __JL_Ctag_173::UInt32 begin
+@cenum __JL_Ctag_95::UInt32 begin
     PREC_NONE = 0
     PREC_LEFT = 1
     PREC_RIGHT = 2
     PREC_BOTH = 3
 end
 
-@cenum __JL_Ctag_174::UInt32 begin
+@cenum __JL_Ctag_96::UInt32 begin
     MODIFIED_GS = 1
     CLASSICAL_GS = 2
 end
@@ -1837,3 +1837,4 @@ const SUNSPTFQMR_MAXL_DEFAULT = Cint(5)
 const CSC_MAT = Cint(0)
 
 const CSR_MAT = Cint(1)
+
