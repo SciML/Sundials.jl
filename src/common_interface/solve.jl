@@ -1400,6 +1400,9 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
             integrator.userfun.p = integrator.p
             solver_step(integrator, tstop)
             integrator.t = first(integrator.tout)
+            if integrator.t == integrator.tprev
+                integrator.flag = -3
+            end
             integrator.flag < 0 && break
             handle_callbacks!(integrator) # this also updates the interpolation
             integrator.flag < 0 && break
