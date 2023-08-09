@@ -112,3 +112,8 @@ sol = solve(prob, IDA(), initializealg = DumbInit())
 isapprox(only(sol.u[begin]), 1, rtol = 1e-3)
 # test that solve produced the right answer.
 isapprox(only(sol.u[end]), exp(1), rtol = 1e-3)
+
+f_noconverge(out, du, u, p, t) = out .= [du[1]+u[1]/(t-1)]
+prob= DAEProblem(f, [1.], [1.], (0,2); differential_vars=[true])
+sol = solve(prob, IDA())
+@test !(sol.retcode in (ReturnCode.Success, ReturnCode.MaxIters)
