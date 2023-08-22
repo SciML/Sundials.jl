@@ -61,7 +61,7 @@ include("types_and_consts_additions.jl")
 include("handle.jl")
 include("nvector_wrapper.jl")
 
-include("./lib/libsundials_api.jl")
+include("./lib/libsundials_api_rewrite.jl")
 
 for ff in names(@__MODULE__; all = true)
     fname = string(ff)
