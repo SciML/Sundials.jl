@@ -100,11 +100,25 @@ const ARKVecResizeFn = Ptr{Cvoid}
 # typedef int ( * ARKPostProcessFn ) ( realtype t , N_Vector y , void * user_data )
 const ARKPostProcessFn = Ptr{Cvoid}
 
-# typedef int ( * ARKPostProcessStepFn ) ( realtype t , N_Vector y , void * user_data )
-const ARKPostProcessStepFn = Ptr{Cvoid}
+# typedef int ( * ARKStagePredictFn ) ( realtype t , N_Vector zpred , void * user_data )
+const ARKStagePredictFn = Ptr{Cvoid}
 
-# typedef int ( * ARKStepStagePredictFn ) ( realtype t , N_Vector zpred , void * user_data )
-const ARKStepStagePredictFn = Ptr{Cvoid}
+# typedef int ( * ARKRelaxFn ) ( N_Vector y , realtype * r , void * user_data )
+const ARKRelaxFn = Ptr{Cvoid}
+
+# typedef int ( * ARKRelaxJacFn ) ( N_Vector y , N_Vector J , void * user_data )
+const ARKRelaxJacFn = Ptr{Cvoid}
+
+mutable struct _MRIStepInnerStepper end
+
+const MRIStepInnerStepper = Ptr{_MRIStepInnerStepper}
+
+@cenum ARKRelaxSolver::UInt32 begin
+    ARK_RELAX_BRENT = 0
+    ARK_RELAX_NEWTON = 1
+end
+
+const ARKStepStagePredictFn = ARKStagePredictFn
 
 const realtype = Cdouble
 
@@ -115,9 +129,11 @@ struct _generic_N_Vector_Ops
     nvdestroy::Ptr{Cvoid}
     nvspace::Ptr{Cvoid}
     nvgetarraypointer::Ptr{Cvoid}
+    nvgetdevicearraypointer::Ptr{Cvoid}
     nvsetarraypointer::Ptr{Cvoid}
     nvgetcommunicator::Ptr{Cvoid}
     nvgetlength::Ptr{Cvoid}
+    nvgetlocallength::Ptr{Cvoid}
     nvlinearsum::Ptr{Cvoid}
     nvconst::Ptr{Cvoid}
     nvprod::Ptr{Cvoid}
@@ -156,13 +172,25 @@ struct _generic_N_Vector_Ops
     nvminquotientlocal::Ptr{Cvoid}
     nvwsqrsumlocal::Ptr{Cvoid}
     nvwsqrsummasklocal::Ptr{Cvoid}
+    nvdotprodmultilocal::Ptr{Cvoid}
+    nvdotprodmultiallreduce::Ptr{Cvoid}
+    nvbufsize::Ptr{Cvoid}
+    nvbufpack::Ptr{Cvoid}
+    nvbufunpack::Ptr{Cvoid}
+    nvprint::Ptr{Cvoid}
+    nvprintfile::Ptr{Cvoid}
 end
 
 const N_Vector_Ops = Ptr{_generic_N_Vector_Ops}
 
+mutable struct _SUNContext end
+
+const SUNContext = Ptr{_SUNContext}
+
 struct _generic_N_Vector
     content::Ptr{Cvoid}
     ops::N_Vector_Ops
+    sunctx::SUNContext
 end
 
 const N_Vector = Ptr{_generic_N_Vector}
@@ -173,6 +201,7 @@ struct _generic_SUNLinearSolver_Ops
     setatimes::Ptr{Cvoid}
     setpreconditioner::Ptr{Cvoid}
     setscalingvectors::Ptr{Cvoid}
+    setzeroguess::Ptr{Cvoid}
     initialize::Ptr{Cvoid}
     setup::Ptr{Cvoid}
     solve::Ptr{Cvoid}
@@ -189,6 +218,7 @@ const SUNLinearSolver_Ops = Ptr{_generic_SUNLinearSolver_Ops}
 struct _generic_SUNLinearSolver
     content::Ptr{Cvoid}
     ops::SUNLinearSolver_Ops
+    sunctx::SUNContext
 end
 
 const SUNLinearSolver = Ptr{_generic_SUNLinearSolver}
@@ -211,6 +241,7 @@ const SUNMatrix_Ops = Ptr{_generic_SUNMatrix_Ops}
 struct _generic_SUNMatrix
     content::Ptr{Cvoid}
     ops::SUNMatrix_Ops
+    sunctx::SUNContext
 end
 
 const SUNMatrix = Ptr{_generic_SUNMatrix}
@@ -236,6 +267,7 @@ const SUNNonlinearSolver_Ops = Ptr{_generic_SUNNonlinearSolver_Ops}
 struct _generic_SUNNonlinearSolver
     content::Ptr{Cvoid}
     ops::SUNNonlinearSolver_Ops
+    sunctx::SUNContext
 end
 
 const SUNNonlinearSolver = Ptr{_generic_SUNNonlinearSolver}
@@ -251,6 +283,58 @@ struct ARKodeButcherTableMem
 end
 
 const ARKodeButcherTable = Ptr{ARKodeButcherTableMem}
+
+@cenum ARKODE_DIRKTableID::Int32 begin
+    ARKODE_DIRK_NONE = -1
+    ARKODE_MIN_DIRK_NUM = 100
+    ARKODE_SDIRK_2_1_2 = 100
+    ARKODE_BILLINGTON_3_3_2 = 101
+    ARKODE_TRBDF2_3_3_2 = 102
+    ARKODE_KVAERNO_4_2_3 = 103
+    ARKODE_ARK324L2SA_DIRK_4_2_3 = 104
+    ARKODE_CASH_5_2_4 = 105
+    ARKODE_CASH_5_3_4 = 106
+    ARKODE_SDIRK_5_3_4 = 107
+    ARKODE_KVAERNO_5_3_4 = 108
+    ARKODE_ARK436L2SA_DIRK_6_3_4 = 109
+    ARKODE_KVAERNO_7_4_5 = 110
+    ARKODE_ARK548L2SA_DIRK_8_4_5 = 111
+    ARKODE_ARK437L2SA_DIRK_7_3_4 = 112
+    ARKODE_ARK548L2SAb_DIRK_8_4_5 = 113
+    ARKODE_ESDIRK324L2SA_4_2_3 = 114
+    ARKODE_ESDIRK325L2SA_5_2_3 = 115
+    ARKODE_ESDIRK32I5L2SA_5_2_3 = 116
+    ARKODE_ESDIRK436L2SA_6_3_4 = 117
+    ARKODE_ESDIRK43I6L2SA_6_3_4 = 118
+    ARKODE_QESDIRK436L2SA_6_3_4 = 119
+    ARKODE_ESDIRK437L2SA_7_3_4 = 120
+    ARKODE_ESDIRK547L2SA_7_4_5 = 121
+    ARKODE_ESDIRK547L2SA2_7_4_5 = 122
+    ARKODE_ARK2_DIRK_3_1_2 = 123
+    ARKODE_MAX_DIRK_NUM = 123
+end
+
+@cenum ARKODE_ERKTableID::Int32 begin
+    ARKODE_ERK_NONE = -1
+    ARKODE_MIN_ERK_NUM = 0
+    ARKODE_HEUN_EULER_2_1_2 = 0
+    ARKODE_BOGACKI_SHAMPINE_4_2_3 = 1
+    ARKODE_ARK324L2SA_ERK_4_2_3 = 2
+    ARKODE_ZONNEVELD_5_3_4 = 3
+    ARKODE_ARK436L2SA_ERK_6_3_4 = 4
+    ARKODE_SAYFY_ABURUB_6_3_4 = 5
+    ARKODE_CASH_KARP_6_4_5 = 6
+    ARKODE_FEHLBERG_6_4_5 = 7
+    ARKODE_DORMAND_PRINCE_7_4_5 = 8
+    ARKODE_ARK548L2SA_ERK_8_4_5 = 9
+    ARKODE_VERNER_8_5_6 = 10
+    ARKODE_FEHLBERG_13_7_8 = 11
+    ARKODE_KNOTH_WOLKE_3_3 = 12
+    ARKODE_ARK437L2SA_ERK_7_3_4 = 13
+    ARKODE_ARK548L2SAb_ERK_8_4_5 = 14
+    ARKODE_ARK2_ERK_3_1_2 = 15
+    ARKODE_MAX_ERK_NUM = 15
+end
 
 # typedef int ( * ARKLsJacFn ) ( realtype t , N_Vector y , N_Vector fy , SUNMatrix Jac , void * user_data , N_Vector tmp1 , N_Vector tmp2 , N_Vector tmp3 )
 const ARKLsJacFn = Ptr{Cvoid}
@@ -285,6 +369,13 @@ const ARKLsMassTimesVecFn = Ptr{Cvoid}
 # typedef int ( * ARKLsLinSysFn ) ( realtype t , N_Vector y , N_Vector fy , SUNMatrix A , SUNMatrix M , booleantype jok , booleantype * jcur , realtype gamma , void * user_data , N_Vector tmp1 , N_Vector tmp2 , N_Vector tmp3 )
 const ARKLsLinSysFn = Ptr{Cvoid}
 
+@cenum SUNOutputFormat::UInt32 begin
+    SUN_OUTPUTFORMAT_TABLE = 0
+    SUN_OUTPUTFORMAT_CSV = 1
+end
+
+const sunrealtype = Cdouble
+
 const sunindextype = Int64
 
 # typedef int ( * ARKLocalFn ) ( sunindextype Nlocal , realtype t , N_Vector y , N_Vector g , void * user_data )
@@ -293,15 +384,80 @@ const ARKLocalFn = Ptr{Cvoid}
 # typedef int ( * ARKCommFn ) ( sunindextype Nlocal , realtype t , N_Vector y , void * user_data )
 const ARKCommFn = Ptr{Cvoid}
 
-@cenum MRISTEP_ID::UInt32 begin
-    MRISTEP_ARKSTEP = 0
+@cenum MRISTEP_METHOD_TYPE::UInt32 begin
+    MRISTEP_EXPLICIT = 0
+    MRISTEP_IMPLICIT = 1
+    MRISTEP_IMEX = 2
 end
+
+@cenum ARKODE_MRITableID::Int32 begin
+    ARKODE_MRI_NONE = -1
+    ARKODE_MIN_MRI_NUM = 200
+    ARKODE_MIS_KW3 = 200
+    ARKODE_MRI_GARK_ERK33a = 201
+    ARKODE_MRI_GARK_ERK45a = 202
+    ARKODE_MRI_GARK_IRK21a = 203
+    ARKODE_MRI_GARK_ESDIRK34a = 204
+    ARKODE_MRI_GARK_ESDIRK46a = 205
+    ARKODE_IMEX_MRI_GARK3a = 206
+    ARKODE_IMEX_MRI_GARK3b = 207
+    ARKODE_IMEX_MRI_GARK4 = 208
+    ARKODE_MAX_MRI_NUM = 208
+end
+
+# typedef int ( * MRIStepInnerEvolveFn ) ( MRIStepInnerStepper stepper , realtype t0 , realtype tout , N_Vector y )
+const MRIStepInnerEvolveFn = Ptr{Cvoid}
+
+# typedef int ( * MRIStepInnerFullRhsFn ) ( MRIStepInnerStepper stepper , realtype t , N_Vector y , N_Vector f , int mode )
+const MRIStepInnerFullRhsFn = Ptr{Cvoid}
+
+# typedef int ( * MRIStepInnerResetFn ) ( MRIStepInnerStepper stepper , realtype tR , N_Vector yR )
+const MRIStepInnerResetFn = Ptr{Cvoid}
+
+struct MRIStepCouplingMem
+    nmat::Cint
+    stages::Cint
+    q::Cint
+    p::Cint
+    c::Ptr{realtype}
+    W::Ptr{Ptr{Ptr{realtype}}}
+    G::Ptr{Ptr{Ptr{realtype}}}
+end
+
+const MRIStepCoupling = Ptr{MRIStepCouplingMem}
 
 # typedef int ( * MRIStepPreInnerFn ) ( realtype t , N_Vector * f , int nvecs , void * user_data )
 const MRIStepPreInnerFn = Ptr{Cvoid}
 
 # typedef int ( * MRIStepPostInnerFn ) ( realtype t , N_Vector y , void * user_data )
 const MRIStepPostInnerFn = Ptr{Cvoid}
+
+@cenum ARKODE_SPRKMethodID::Int32 begin
+    ARKODE_SPRK_NONE = -1
+    ARKODE_MIN_SPRK_NUM = 0
+    ARKODE_SPRK_EULER_1_1 = 0
+    ARKODE_SPRK_LEAPFROG_2_2 = 1
+    ARKODE_SPRK_PSEUDO_LEAPFROG_2_2 = 2
+    ARKODE_SPRK_RUTH_3_3 = 3
+    ARKODE_SPRK_MCLACHLAN_2_2 = 4
+    ARKODE_SPRK_MCLACHLAN_3_3 = 5
+    ARKODE_SPRK_CANDY_ROZMUS_4_4 = 6
+    ARKODE_SPRK_MCLACHLAN_4_4 = 7
+    ARKODE_SPRK_MCLACHLAN_5_6 = 8
+    ARKODE_SPRK_YOSHIDA_6_8 = 9
+    ARKODE_SPRK_SUZUKI_UMENO_8_16 = 10
+    ARKODE_SPRK_SOFRONIOU_10_36 = 11
+    ARKODE_MAX_SPRK_NUM = 11
+end
+
+struct ARKodeSPRKTableMem
+    q::Cint
+    stages::Cint
+    a::Ptr{sunrealtype}
+    ahat::Ptr{sunrealtype}
+end
+
+const ARKodeSPRKTable = Ptr{ARKodeSPRKTableMem}
 
 # typedef int ( * CVRhsFn ) ( realtype t , N_Vector y , N_Vector ydot , void * user_data )
 const CVRhsFn = Ptr{Cvoid}
@@ -314,6 +470,9 @@ const CVEwtFn = Ptr{Cvoid}
 
 # typedef void ( * CVErrHandlerFn ) ( int error_code , const char * module , const char * function , char * msg , void * user_data )
 const CVErrHandlerFn = Ptr{Cvoid}
+
+# typedef int ( * CVMonitorFn ) ( void * cvode_mem , void * user_data )
+const CVMonitorFn = Ptr{Cvoid}
 
 # typedef int ( * CVLocalFn ) ( sunindextype Nlocal , realtype t , N_Vector y , N_Vector g , void * user_data )
 const CVLocalFn = Ptr{Cvoid}
@@ -340,6 +499,9 @@ const CVLsJacTimesVecFn = Ptr{Cvoid}
 
 # typedef int ( * CVLsLinSysFn ) ( realtype t , N_Vector y , N_Vector fy , SUNMatrix A , booleantype jok , booleantype * jcur , realtype gamma , void * user_data , N_Vector tmp1 , N_Vector tmp2 , N_Vector tmp3 )
 const CVLsLinSysFn = Ptr{Cvoid}
+
+# typedef int ( * CVProjFn ) ( realtype t , N_Vector ycur , N_Vector corr , realtype epsProj , N_Vector err , void * user_data )
+const CVProjFn = Ptr{Cvoid}
 
 const CVSpilsPrecSetupFn = CVLsPrecSetupFn
 
@@ -629,13 +791,16 @@ const N_VectorContent_ManyVector = Ptr{_N_VectorContent_ManyVector}
     SUNDIALS_NVEC_PARHYP = 4
     SUNDIALS_NVEC_PETSC = 5
     SUNDIALS_NVEC_CUDA = 6
-    SUNDIALS_NVEC_RAJA = 7
-    SUNDIALS_NVEC_OPENMPDEV = 8
-    SUNDIALS_NVEC_TRILINOS = 9
-    SUNDIALS_NVEC_MANYVECTOR = 10
-    SUNDIALS_NVEC_MPIMANYVECTOR = 11
-    SUNDIALS_NVEC_MPIPLUSX = 12
-    SUNDIALS_NVEC_CUSTOM = 13
+    SUNDIALS_NVEC_HIP = 7
+    SUNDIALS_NVEC_SYCL = 8
+    SUNDIALS_NVEC_RAJA = 9
+    SUNDIALS_NVEC_KOKKOS = 10
+    SUNDIALS_NVEC_OPENMPDEV = 11
+    SUNDIALS_NVEC_TRILINOS = 12
+    SUNDIALS_NVEC_MANYVECTOR = 13
+    SUNDIALS_NVEC_MPIMANYVECTOR = 14
+    SUNDIALS_NVEC_MPIPLUSX = 15
+    SUNDIALS_NVEC_CUSTOM = 16
 end
 
 struct _N_VectorContent_Serial
@@ -659,33 +824,68 @@ struct _DlsMat
     cols::Ptr{Ptr{realtype}}
 end
 
-const DlsMat = Ptr{_DlsMat}
+const SUNDlsMat = Ptr{_DlsMat}
 
-@cenum __JL_Ctag_95::UInt32 begin
+const DlsMat = SUNDlsMat
+
+mutable struct _SUNProfiler end
+
+const SUNProfiler = Ptr{_SUNProfiler}
+
+mutable struct SUNLogger_ end
+
+const SUNLogger = Ptr{SUNLogger_}
+
+@cenum __JL_Ctag_277::UInt32 begin
     PREC_NONE = 0
     PREC_LEFT = 1
     PREC_RIGHT = 2
     PREC_BOTH = 3
 end
 
-@cenum __JL_Ctag_96::UInt32 begin
+@cenum __JL_Ctag_278::UInt32 begin
+    SUN_PREC_NONE = 0
+    SUN_PREC_LEFT = 1
+    SUN_PREC_RIGHT = 2
+    SUN_PREC_BOTH = 3
+end
+
+@cenum __JL_Ctag_279::UInt32 begin
     MODIFIED_GS = 1
     CLASSICAL_GS = 2
+end
+
+@cenum __JL_Ctag_280::UInt32 begin
+    SUN_MODIFIED_GS = 1
+    SUN_CLASSICAL_GS = 2
 end
 
 # typedef int ( * ATimesFn ) ( void * A_data , N_Vector v , N_Vector z )
 const ATimesFn = Ptr{Cvoid}
 
+# typedef int ( * SUNATimesFn ) ( void * A_data , N_Vector v , N_Vector z )
+const SUNATimesFn = Ptr{Cvoid}
+
 # typedef int ( * PSetupFn ) ( void * P_data )
 const PSetupFn = Ptr{Cvoid}
 
+# typedef int ( * SUNPSetupFn ) ( void * P_data )
+const SUNPSetupFn = Ptr{Cvoid}
+
 # typedef int ( * PSolveFn ) ( void * P_data , N_Vector r , N_Vector z , realtype tol , int lr )
 const PSolveFn = Ptr{Cvoid}
+
+# typedef int ( * SUNPSolveFn ) ( void * P_data , N_Vector r , N_Vector z , realtype tol , int lr )
+const SUNPSolveFn = Ptr{Cvoid}
+
+# typedef int ( * SUNQRAddFn ) ( N_Vector * Q , realtype * R , N_Vector f , int m , int mMax , void * QR_data )
+const SUNQRAddFn = Ptr{Cvoid}
 
 @cenum SUNLinearSolver_Type::UInt32 begin
     SUNLINEARSOLVER_DIRECT = 0
     SUNLINEARSOLVER_ITERATIVE = 1
     SUNLINEARSOLVER_MATRIX_ITERATIVE = 2
+    SUNLINEARSOLVER_MATRIX_EMBEDDED = 3
 end
 
 @cenum SUNLinearSolver_ID::UInt32 begin
@@ -702,17 +902,70 @@ end
     SUNLINEARSOLVER_SUPERLUDIST = 10
     SUNLINEARSOLVER_SUPERLUMT = 11
     SUNLINEARSOLVER_CUSOLVERSP_BATCHQR = 12
-    SUNLINEARSOLVER_CUSTOM = 13
+    SUNLINEARSOLVER_MAGMADENSE = 13
+    SUNLINEARSOLVER_ONEMKLDENSE = 14
+    SUNLINEARSOLVER_GINKGO = 15
+    SUNLINEARSOLVER_KOKKOSDENSE = 16
+    SUNLINEARSOLVER_CUSTOM = 17
+end
+
+@cenum SUNLogLevel::Int32 begin
+    SUN_LOGLEVEL_ALL = -1
+    SUN_LOGLEVEL_NONE = 0
+    SUN_LOGLEVEL_ERROR = 1
+    SUN_LOGLEVEL_WARNING = 2
+    SUN_LOGLEVEL_INFO = 3
+    SUN_LOGLEVEL_DEBUG = 4
 end
 
 @cenum SUNMatrix_ID::UInt32 begin
     SUNMATRIX_DENSE = 0
-    SUNMATRIX_BAND = 1
-    SUNMATRIX_SPARSE = 2
-    SUNMATRIX_SLUNRLOC = 3
-    SUNMATRIX_CUSPARSE = 4
-    SUNMATRIX_CUSTOM = 5
+    SUNMATRIX_MAGMADENSE = 1
+    SUNMATRIX_ONEMKLDENSE = 2
+    SUNMATRIX_BAND = 3
+    SUNMATRIX_SPARSE = 4
+    SUNMATRIX_SLUNRLOC = 5
+    SUNMATRIX_CUSPARSE = 6
+    SUNMATRIX_GINKGO = 7
+    SUNMATRIX_KOKKOSDENSE = 8
+    SUNMATRIX_CUSTOM = 9
 end
+
+@cenum SUNMemoryType::UInt32 begin
+    SUNMEMTYPE_HOST = 0
+    SUNMEMTYPE_PINNED = 1
+    SUNMEMTYPE_DEVICE = 2
+    SUNMEMTYPE_UVM = 3
+end
+
+struct _SUNMemory
+    ptr::Ptr{Cvoid}
+    type::SUNMemoryType
+    own::Cint
+    bytes::Csize_t
+end
+
+const SUNMemory = Ptr{_SUNMemory}
+
+struct _SUNMemoryHelper_Ops
+    alloc::Ptr{Cvoid}
+    dealloc::Ptr{Cvoid}
+    copy::Ptr{Cvoid}
+    copyasync::Ptr{Cvoid}
+    getallocstats::Ptr{Cvoid}
+    clone::Ptr{Cvoid}
+    destroy::Ptr{Cvoid}
+end
+
+const SUNMemoryHelper_Ops = Ptr{_SUNMemoryHelper_Ops}
+
+struct _SUNMemoryHelper
+    content::Ptr{Cvoid}
+    ops::SUNMemoryHelper_Ops
+    sunctx::SUNContext
+end
+
+const SUNMemoryHelper = Ptr{_SUNMemoryHelper}
 
 # typedef int ( * SUNNonlinSolSysFn ) ( N_Vector y , N_Vector F , void * mem )
 const SUNNonlinSolSysFn = Ptr{Cvoid}
@@ -780,19 +1033,22 @@ const SUNLinearSolverContent_LapackDense = Ptr{_SUNLinearSolverContent_LapackDen
 struct _SUNLinearSolverContent_PCG
     maxl::Cint
     pretype::Cint
+    zeroguess::Cint
     numiters::Cint
     resnorm::realtype
     last_flag::Cint
-    ATimes::ATimesFn
+    ATimes::SUNATimesFn
     ATData::Ptr{Cvoid}
-    Psetup::PSetupFn
-    Psolve::PSolveFn
+    Psetup::SUNPSetupFn
+    Psolve::SUNPSolveFn
     PData::Ptr{Cvoid}
     s::N_Vector
     r::N_Vector
     p::N_Vector
     z::N_Vector
     Ap::N_Vector
+    print_level::Cint
+    info_file::Ptr{Libc.FILE}
 end
 
 const SUNLinearSolverContent_PCG = Ptr{_SUNLinearSolverContent_PCG}
@@ -800,13 +1056,14 @@ const SUNLinearSolverContent_PCG = Ptr{_SUNLinearSolverContent_PCG}
 struct _SUNLinearSolverContent_SPBCGS
     maxl::Cint
     pretype::Cint
+    zeroguess::Cint
     numiters::Cint
     resnorm::realtype
     last_flag::Cint
-    ATimes::ATimesFn
+    ATimes::SUNATimesFn
     ATData::Ptr{Cvoid}
-    Psetup::PSetupFn
-    Psolve::PSolveFn
+    Psetup::SUNPSetupFn
+    Psolve::SUNPSolveFn
     PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
@@ -817,6 +1074,8 @@ struct _SUNLinearSolverContent_SPBCGS
     u::N_Vector
     Ap::N_Vector
     vtemp::N_Vector
+    print_level::Cint
+    info_file::Ptr{Libc.FILE}
 end
 
 const SUNLinearSolverContent_SPBCGS = Ptr{_SUNLinearSolverContent_SPBCGS}
@@ -826,13 +1085,14 @@ struct _SUNLinearSolverContent_SPFGMR
     pretype::Cint
     gstype::Cint
     max_restarts::Cint
+    zeroguess::Cint
     numiters::Cint
     resnorm::realtype
     last_flag::Cint
-    ATimes::ATimesFn
+    ATimes::SUNATimesFn
     ATData::Ptr{Cvoid}
-    Psetup::PSetupFn
-    Psolve::PSolveFn
+    Psetup::SUNPSetupFn
+    Psolve::SUNPSolveFn
     PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
@@ -845,6 +1105,8 @@ struct _SUNLinearSolverContent_SPFGMR
     vtemp::N_Vector
     cv::Ptr{realtype}
     Xv::Ptr{N_Vector}
+    print_level::Cint
+    info_file::Ptr{Libc.FILE}
 end
 
 const SUNLinearSolverContent_SPFGMR = Ptr{_SUNLinearSolverContent_SPFGMR}
@@ -854,13 +1116,14 @@ struct _SUNLinearSolverContent_SPGMR
     pretype::Cint
     gstype::Cint
     max_restarts::Cint
+    zeroguess::Cint
     numiters::Cint
     resnorm::realtype
     last_flag::Cint
-    ATimes::ATimesFn
+    ATimes::SUNATimesFn
     ATData::Ptr{Cvoid}
-    Psetup::PSetupFn
-    Psolve::PSolveFn
+    Psetup::SUNPSetupFn
+    Psolve::SUNPSolveFn
     PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
@@ -872,6 +1135,8 @@ struct _SUNLinearSolverContent_SPGMR
     vtemp::N_Vector
     cv::Ptr{realtype}
     Xv::Ptr{N_Vector}
+    print_level::Cint
+    info_file::Ptr{Libc.FILE}
 end
 
 const SUNLinearSolverContent_SPGMR = Ptr{_SUNLinearSolverContent_SPGMR}
@@ -879,13 +1144,14 @@ const SUNLinearSolverContent_SPGMR = Ptr{_SUNLinearSolverContent_SPGMR}
 struct _SUNLinearSolverContent_SPTFQMR
     maxl::Cint
     pretype::Cint
+    zeroguess::Cint
     numiters::Cint
     resnorm::realtype
     last_flag::Cint
-    ATimes::ATimesFn
+    ATimes::SUNATimesFn
     ATData::Ptr{Cvoid}
-    Psetup::PSetupFn
-    Psolve::PSolveFn
+    Psetup::SUNPSetupFn
+    Psolve::SUNPSolveFn
     PData::Ptr{Cvoid}
     s1::N_Vector
     s2::N_Vector
@@ -899,6 +1165,8 @@ struct _SUNLinearSolverContent_SPTFQMR
     vtemp1::N_Vector
     vtemp2::N_Vector
     vtemp3::N_Vector
+    print_level::Cint
+    info_file::Ptr{Libc.FILE}
 end
 
 const SUNLinearSolverContent_SPTFQMR = Ptr{_SUNLinearSolverContent_SPTFQMR}
@@ -968,6 +1236,8 @@ struct _SUNNonlinearSolverContent_FixedPoint
     niters::Clong
     nconvfails::Clong
     ctest_data::Ptr{Cvoid}
+    print_level::Cint
+    info_file::Ptr{Libc.FILE}
 end
 
 const SUNNonlinearSolverContent_FixedPoint = Ptr{_SUNNonlinearSolverContent_FixedPoint}
@@ -984,27 +1254,49 @@ struct _SUNNonlinearSolverContent_Newton
     niters::Clong
     nconvfails::Clong
     ctest_data::Ptr{Cvoid}
+    print_level::Cint
+    info_file::Ptr{Libc.FILE}
 end
 
 const SUNNonlinearSolverContent_Newton = Ptr{_SUNNonlinearSolverContent_Newton}
 
-const ARK_NORMAL = Cint(1)
+const ARK_NORMAL = 1
 
-const ARK_ONE_STEP = Cint(2)
+const ARK_ONE_STEP = 2
 
-const ARK_INTERP_MAX_DEGREE = Cint(5)
+const ARK_ADAPT_CUSTOM = -1
 
-const ARK_INTERP_HERMITE = Cint(0)
+const ARK_ADAPT_PID = 0
 
-const ARK_INTERP_LAGRANGE = Cint(1)
+const ARK_ADAPT_PI = 1
 
-const ARK_SUCCESS = Cint(0)
+const ARK_ADAPT_I = 2
 
-const ARK_TSTOP_RETURN = Cint(1)
+const ARK_ADAPT_EXP_GUS = 3
 
-const ARK_ROOT_RETURN = Cint(2)
+const ARK_ADAPT_IMP_GUS = 4
 
-const ARK_WARNING = Cint(99)
+const ARK_ADAPT_IMEX_GUS = 5
+
+const ARK_FULLRHS_START = 0
+
+const ARK_FULLRHS_END = 1
+
+const ARK_FULLRHS_OTHER = 2
+
+const ARK_INTERP_MAX_DEGREE = 5
+
+const ARK_INTERP_HERMITE = 0
+
+const ARK_INTERP_LAGRANGE = 1
+
+const ARK_SUCCESS = 0
+
+const ARK_TSTOP_RETURN = 1
+
+const ARK_ROOT_RETURN = 2
+
+const ARK_WARNING = 99
 
 const ARK_TOO_MUCH_WORK = -1
 
@@ -1088,107 +1380,111 @@ const ARK_USER_PREDICT_FAIL = -39
 
 const ARK_INTERP_FAIL = -40
 
+const ARK_INVALID_TABLE = -41
+
+const ARK_CONTEXT_ERR = -42
+
+const ARK_RELAX_FAIL = -43
+
+const ARK_RELAX_MEM_NULL = -44
+
+const ARK_RELAX_FUNC_FAIL = -45
+
+const ARK_RELAX_JAC_FAIL = -46
+
 const ARK_UNRECOGNIZED_ERROR = -99
 
-const HEUN_EULER_2_1_2 = Cint(0)
+const DEFAULT_ERK_2 = ARKSTEP_ERK_DEFAULT_2
 
-const DEFAULT_ERK_2 = HEUN_EULER_2_1_2
+const DEFAULT_ERK_3 = ARKSTEP_ERK_DEFAULT_3
 
-const BOGACKI_SHAMPINE_4_2_3 = Cint(1)
+const DEFAULT_ERK_4 = ARKSTEP_ERK_DEFAULT_4
 
-const DEFAULT_ERK_3 = BOGACKI_SHAMPINE_4_2_3
+const DEFAULT_ERK_5 = ARKSTEP_ERK_DEFAULT_5
 
-const ZONNEVELD_5_3_4 = Cint(3)
+const DEFAULT_ERK_6 = ARKSTEP_ERK_DEFAULT_6
 
-const DEFAULT_ERK_4 = ZONNEVELD_5_3_4
+const DEFAULT_ERK_8 = ARKSTEP_ERK_DEFAULT_8
 
-const CASH_KARP_6_4_5 = Cint(6)
+const DEFAULT_ARK_ETABLE_3 = ARKSTEP_DEFAULT_ARK_ETABLE_3
 
-const DEFAULT_ERK_5 = CASH_KARP_6_4_5
+const DEFAULT_ARK_ETABLE_4 = ARKSTEP_DEFAULT_ARK_ETABLE_4
 
-const VERNER_8_5_6 = Cint(10)
+const DEFAULT_ARK_ETABLE_5 = ARKSTEP_DEFAULT_ARK_ETABLE_5
 
-const DEFAULT_ERK_6 = VERNER_8_5_6
+const DEFAULT_ARK_ITABLE_3 = ARKSTEP_DEFAULT_ARK_ITABLE_3
 
-const FEHLBERG_13_7_8 = Cint(11)
+const DEFAULT_ARK_ITABLE_4 = ARKSTEP_DEFAULT_ARK_ITABLE_4
 
-const DEFAULT_ERK_8 = FEHLBERG_13_7_8
+const DEFAULT_ARK_ITABLE_5 = ARKSTEP_DEFAULT_ARK_ITABLE_5
 
-const SDIRK_2_1_2 = Cint(100)
+const SDIRK_2_1_2 = 100
 
-const DEFAULT_DIRK_2 = SDIRK_2_1_2
+const BILLINGTON_3_3_2 = 101
 
-const ARK324L2SA_DIRK_4_2_3 = Cint(104)
+const TRBDF2_3_3_2 = 102
 
-const DEFAULT_DIRK_3 = ARK324L2SA_DIRK_4_2_3
+const KVAERNO_4_2_3 = 103
 
-const SDIRK_5_3_4 = Cint(107)
+const ARK324L2SA_DIRK_4_2_3 = 104
 
-const DEFAULT_DIRK_4 = SDIRK_5_3_4
+const CASH_5_2_4 = 105
 
-const ARK548L2SA_DIRK_8_4_5 = Cint(111)
+const CASH_5_3_4 = 106
 
-const DEFAULT_DIRK_5 = ARK548L2SA_DIRK_8_4_5
+const SDIRK_5_3_4 = 107
 
-const ARK324L2SA_ERK_4_2_3 = Cint(2)
+const KVAERNO_5_3_4 = 108
 
-const DEFAULT_ARK_ETABLE_3 = ARK324L2SA_ERK_4_2_3
+const ARK436L2SA_DIRK_6_3_4 = 109
 
-const ARK436L2SA_ERK_6_3_4 = Cint(4)
+const KVAERNO_7_4_5 = 110
 
-const DEFAULT_ARK_ETABLE_4 = ARK436L2SA_ERK_6_3_4
+const ARK548L2SA_DIRK_8_4_5 = 111
 
-const ARK548L2SA_ERK_8_4_5 = Cint(9)
+const ARK437L2SA_DIRK_7_3_4 = 112
 
-const DEFAULT_ARK_ETABLE_5 = ARK548L2SA_ERK_8_4_5
+const ARK548L2SAb_DIRK_8_4_5 = 113
 
-const DEFAULT_ARK_ITABLE_3 = ARK324L2SA_DIRK_4_2_3
+const MIN_DIRK_NUM = 100
 
-const ARK436L2SA_DIRK_6_3_4 = Cint(109)
+const MAX_DIRK_NUM = 113
 
-const DEFAULT_ARK_ITABLE_4 = ARK436L2SA_DIRK_6_3_4
+const HEUN_EULER_2_1_2 = 0
 
-const DEFAULT_ARK_ITABLE_5 = ARK548L2SA_DIRK_8_4_5
+const BOGACKI_SHAMPINE_4_2_3 = 1
 
-const BILLINGTON_3_3_2 = Cint(101)
+const ARK324L2SA_ERK_4_2_3 = 2
 
-const TRBDF2_3_3_2 = Cint(102)
+const ZONNEVELD_5_3_4 = 3
 
-const KVAERNO_4_2_3 = Cint(103)
+const ARK436L2SA_ERK_6_3_4 = 4
 
-const CASH_5_2_4 = Cint(105)
+const SAYFY_ABURUB_6_3_4 = 5
 
-const CASH_5_3_4 = Cint(106)
+const CASH_KARP_6_4_5 = 6
 
-const KVAERNO_5_3_4 = Cint(108)
+const FEHLBERG_6_4_5 = 7
 
-const KVAERNO_7_4_5 = Cint(110)
+const DORMAND_PRINCE_7_4_5 = 8
 
-const ARK437L2SA_DIRK_7_3_4 = Cint(112)
+const ARK548L2SA_ERK_8_4_5 = 9
 
-const ARK548L2SAb_DIRK_8_4_5 = Cint(113)
+const VERNER_8_5_6 = 10
 
-const MIN_DIRK_NUM = Cint(100)
+const FEHLBERG_13_7_8 = 11
 
-const MAX_DIRK_NUM = Cint(113)
+const KNOTH_WOLKE_3_3 = 12
 
-const SAYFY_ABURUB_6_3_4 = Cint(5)
+const ARK437L2SA_ERK_7_3_4 = 13
 
-const FEHLBERG_6_4_5 = Cint(7)
+const ARK548L2SAb_ERK_8_4_5 = 14
 
-const DORMAND_PRINCE_7_4_5 = Cint(8)
+const MIN_ERK_NUM = 0
 
-const KNOTH_WOLKE_3_3 = Cint(12)
+const MAX_ERK_NUM = 14
 
-const ARK437L2SA_ERK_7_3_4 = Cint(13)
-
-const ARK548L2SAb_ERK_8_4_5 = Cint(14)
-
-const MIN_ERK_NUM = Cint(0)
-
-const MAX_ERK_NUM = Cint(14)
-
-const ARKLS_SUCCESS = Cint(0)
+const ARKLS_SUCCESS = 0
 
 const ARKLS_MEM_NULL = -1
 
@@ -1214,23 +1510,59 @@ const ARKLS_SUNMAT_FAIL = -11
 
 const ARKLS_SUNLS_FAIL = -12
 
-const DEFAULT_MRI_TABLE_3 = KNOTH_WOLKE_3_3
+const MIS_KW3 = 200
 
-const CV_ADAMS = Cint(1)
+const MRI_GARK_ERK33a = 201
 
-const CV_BDF = Cint(2)
+const MRI_GARK_ERK45a = 202
 
-const CV_NORMAL = Cint(1)
+const MRI_GARK_IRK21a = 203
 
-const CV_ONE_STEP = Cint(2)
+const MRI_GARK_ESDIRK34a = 204
 
-const CV_SUCCESS = Cint(0)
+const MRI_GARK_ESDIRK46a = 205
 
-const CV_TSTOP_RETURN = Cint(1)
+const IMEX_MRI_GARK3a = 206
 
-const CV_ROOT_RETURN = Cint(2)
+const IMEX_MRI_GARK3b = 207
 
-const CV_WARNING = Cint(99)
+const IMEX_MRI_GARK4 = 208
+
+const MIN_MRI_NUM = 200
+
+const MAX_MRI_NUM = 208
+
+const DEFAULT_MRI_TABLE_3 = MRISTEP_DEFAULT_3
+
+const DEFAULT_EXPL_MRI_TABLE_3 = MRISTEP_DEFAULT_EXPL_3
+
+const DEFAULT_EXPL_MRI_TABLE_4 = MRISTEP_DEFAULT_EXPL_4
+
+const DEFAULT_IMPL_SD_MRI_TABLE_2 = MRISTEP_DEFAULT_IMPL_SD_2
+
+const DEFAULT_IMPL_SD_MRI_TABLE_3 = MRISTEP_DEFAULT_IMPL_SD_3
+
+const DEFAULT_IMPL_SD_MRI_TABLE_4 = MRISTEP_DEFAULT_IMPL_SD_4
+
+const DEFAULT_IMEX_SD_MRI_TABLE_3 = MRISTEP_DEFAULT_IMEX_SD_3
+
+const DEFAULT_IMEX_SD_MRI_TABLE_4 = MRISTEP_DEFAULT_IMEX_SD_4
+
+const CV_ADAMS = 1
+
+const CV_BDF = 2
+
+const CV_NORMAL = 1
+
+const CV_ONE_STEP = 2
+
+const CV_SUCCESS = 0
+
+const CV_TSTOP_RETURN = 1
+
+const CV_ROOT_RETURN = 2
+
+const CV_WARNING = 99
 
 const CV_TOO_MUCH_WORK = -1
 
@@ -1282,9 +1614,17 @@ const CV_TOO_CLOSE = -27
 
 const CV_VECTOROP_ERR = -28
 
+const CV_PROJ_MEM_NULL = -29
+
+const CV_PROJFUNC_FAIL = -30
+
+const CV_REPTD_PROJFUNC_ERR = -31
+
+const CV_CONTEXT_ERR = -32
+
 const CV_UNRECOGNIZED_ERR = -99
 
-const CVDIAG_SUCCESS = Cint(0)
+const CVDIAG_SUCCESS = 0
 
 const CVDIAG_MEM_NULL = -1
 
@@ -1300,7 +1640,7 @@ const CVDIAG_RHSFUNC_UNRECVR = -6
 
 const CVDIAG_RHSFUNC_RECVR = -7
 
-const CVLS_SUCCESS = Cint(0)
+const CVLS_SUCCESS = 0
 
 const CVLS_MEM_NULL = -1
 
@@ -1320,19 +1660,19 @@ const CVLS_SUNMAT_FAIL = -8
 
 const CVLS_SUNLS_FAIL = -9
 
-const CV_SIMULTANEOUS = Cint(1)
+const CV_SIMULTANEOUS = 1
 
-const CV_STAGGERED = Cint(2)
+const CV_STAGGERED = 2
 
-const CV_STAGGERED1 = Cint(3)
+const CV_STAGGERED1 = 3
 
-const CV_CENTERED = Cint(1)
+const CV_CENTERED = 1
 
-const CV_FORWARD = Cint(2)
+const CV_FORWARD = 2
 
-const CV_HERMITE = Cint(1)
+const CV_HERMITE = 1
 
-const CV_POLYNOMIAL = Cint(2)
+const CV_POLYNOMIAL = 2
 
 const CV_NO_QUAD = -30
 
@@ -1386,21 +1726,21 @@ const CVLS_NO_ADJ = -101
 
 const CVLS_LMEMB_NULL = -102
 
-const IDA_NORMAL = Cint(1)
+const IDA_NORMAL = 1
 
-const IDA_ONE_STEP = Cint(2)
+const IDA_ONE_STEP = 2
 
-const IDA_YA_YDP_INIT = Cint(1)
+const IDA_YA_YDP_INIT = 1
 
-const IDA_Y_INIT = Cint(2)
+const IDA_Y_INIT = 2
 
-const IDA_SUCCESS = Cint(0)
+const IDA_SUCCESS = 0
 
-const IDA_TSTOP_RETURN = Cint(1)
+const IDA_TSTOP_RETURN = 1
 
-const IDA_ROOT_RETURN = Cint(2)
+const IDA_ROOT_RETURN = 2
 
-const IDA_WARNING = Cint(99)
+const IDA_WARNING = 99
 
 const IDA_TOO_MUCH_WORK = -1
 
@@ -1454,9 +1794,11 @@ const IDA_BAD_DKY = -27
 
 const IDA_VECTOROP_ERR = -28
 
+const IDA_CONTEXT_ERR = -29
+
 const IDA_UNRECOGNIZED_ERROR = -99
 
-const IDALS_SUCCESS = Cint(0)
+const IDALS_SUCCESS = 0
 
 const IDALS_MEM_NULL = -1
 
@@ -1476,17 +1818,17 @@ const IDALS_SUNMAT_FAIL = -8
 
 const IDALS_SUNLS_FAIL = -9
 
-const IDA_SIMULTANEOUS = Cint(1)
+const IDA_SIMULTANEOUS = 1
 
-const IDA_STAGGERED = Cint(2)
+const IDA_STAGGERED = 2
 
-const IDA_CENTERED = Cint(1)
+const IDA_CENTERED = 1
 
-const IDA_FORWARD = Cint(2)
+const IDA_FORWARD = 2
 
-const IDA_HERMITE = Cint(1)
+const IDA_HERMITE = 1
 
-const IDA_POLYNOMIAL = Cint(2)
+const IDA_POLYNOMIAL = 2
 
 const IDA_NO_QUAD = -30
 
@@ -1530,13 +1872,13 @@ const IDALS_NO_ADJ = -101
 
 const IDALS_LMEMB_NULL = -102
 
-const KIN_SUCCESS = Cint(0)
+const KIN_SUCCESS = 0
 
-const KIN_INITIAL_GUESS_OK = Cint(1)
+const KIN_INITIAL_GUESS_OK = 1
 
-const KIN_STEP_LT_STPTOL = Cint(2)
+const KIN_STEP_LT_STPTOL = 2
 
-const KIN_WARNING = Cint(99)
+const KIN_WARNING = 99
 
 const KIN_MEM_NULL = -1
 
@@ -1570,27 +1912,37 @@ const KIN_REPTD_SYSFUNC_ERR = -15
 
 const KIN_VECTOROP_ERR = -16
 
-const KIN_ETACHOICE1 = Cint(1)
+const KIN_CONTEXT_ERR = -17
 
-const KIN_ETACHOICE2 = Cint(2)
+const KIN_ORTH_MGS = 0
 
-const KIN_ETACONSTANT = Cint(3)
+const KIN_ORTH_ICWY = 1
 
-const KIN_NONE = Cint(0)
+const KIN_ORTH_CGS2 = 2
 
-const KIN_LINESEARCH = Cint(1)
+const KIN_ORTH_DCGS2 = 3
 
-const KIN_PICARD = Cint(2)
+const KIN_ETACHOICE1 = 1
 
-const KIN_FP = Cint(3)
+const KIN_ETACHOICE2 = 2
 
-const KINBBDPRE_SUCCESS = Cint(0)
+const KIN_ETACONSTANT = 3
+
+const KIN_NONE = 0
+
+const KIN_LINESEARCH = 1
+
+const KIN_PICARD = 2
+
+const KIN_FP = 3
+
+const KINBBDPRE_SUCCESS = 0
 
 const KINBBDPRE_PDATA_NULL = -11
 
 const KINBBDPRE_FUNC_UNRECVR = -12
 
-const KINLS_SUCCESS = Cint(0)
+const KINLS_SUCCESS = 0
 
 const KINLS_MEM_NULL = -1
 
@@ -1608,93 +1960,155 @@ const KINLS_SUNMAT_FAIL = -7
 
 const KINLS_SUNLS_FAIL = -8
 
-const SUNDIALS_VERSION = "5.2.0"
+# Skipping MacroDefinition: SUNDIALS_EXPORT __attribute__ ( ( visibility ( "default" ) ) )
 
-const SUNDIALS_VERSION_MAJOR = Cint(5)
+# Skipping MacroDefinition: SUNDIALS_NO_EXPORT __attribute__ ( ( visibility ( "hidden" ) ) )
 
-const SUNDIALS_VERSION_MINOR = Cint(2)
+const SUNDIALS_VERSION = "6.6.0"
 
-const SUNDIALS_VERSION_PATCH = Cint(0)
+const SUNDIALS_VERSION_MAJOR = 6
+
+const SUNDIALS_VERSION_MINOR = 6
+
+const SUNDIALS_VERSION_PATCH = 0
 
 const SUNDIALS_VERSION_LABEL = ""
 
-const SUNDIALS_DOUBLE_PRECISION = Cint(1)
+const SUNDIALS_GIT_VERSION = ""
 
-const SUNDIALS_INT64_T = Cint(1)
+const SUNDIALS_DOUBLE_PRECISION = 1
+
+const SUNDIALS_INT64_T = 1
 
 const SUNDIALS_INDEX_TYPE = int64_t
 
-const SUNDIALS_MPI_COMM_F2C = Cint(0)
+const SUNDIALS_LOGGING_LEVEL = 0
 
-const SUNDIALS_DENSE = Cint(1)
+const SUNDIALS_MPI_ENABLED = 0
 
-const SUNDIALS_BAND = Cint(2)
+const SUNDIALS_SUPERLUMT_THREAD_TYPE = ""
 
-const FCMIX_CVODE = Cint(1)
+const SUNDIALS_ARKODE = 1
 
-const FCMIX_IDA = Cint(2)
+const SUNDIALS_CVODE = 1
 
-const FCMIX_KINSOL = Cint(3)
+const SUNDIALS_CVODES = 1
 
-const FCMIX_ARKODE = Cint(4)
+const SUNDIALS_IDA = 1
 
-const dcopy_f77 = nothing
+const SUNDIALS_IDAS = 1
 
-const dscal_f77 = nothing
+const SUNDIALS_KINSOL = 1
 
-const dgemv_f77 = nothing
+const SUNDIALS_NVECTOR_SERIAL = 1
 
-const dtrsv_f77 = nothing
+const SUNDIALS_NVECTOR_MANYVECTOR = 1
 
-const dsyrk_f77 = nothing
+const SUNDIALS_SUNMATRIX_BAND = 1
 
-const dgbtrf_f77 = nothing
+const SUNDIALS_SUNMATRIX_DENSE = 1
 
-const dgbtrs_f77 = nothing
+const SUNDIALS_SUNMATRIX_SPARSE = 1
 
-const dgetrf_f77 = nothing
+const SUNDIALS_SUNLINSOL_BAND = 1
 
-const dgetrs_f77 = nothing
+const SUNDIALS_SUNLINSOL_DENSE = 1
 
-const dgeqp3_f77 = nothing
+const SUNDIALS_SUNLINSOL_PCG = 1
 
-const dgeqrf_f77 = nothing
+const SUNDIALS_SUNLINSOL_SPBCGS = 1
 
-const dormqr_f77 = nothing
+const SUNDIALS_SUNLINSOL_SPFGMR = 1
 
-const dpotrf_f77 = nothing
+const SUNDIALS_SUNLINSOL_SPGMR = 1
 
-const dpotrs_f77 = nothing
+const SUNDIALS_SUNLINSOL_SPTFQMR = 1
 
-const scopy_f77 = nothing
+const SUNDIALS_SUNLINSOL_KLU = 1
 
-const sscal_f77 = nothing
+const SUNDIALS_SUNLINSOL_LAPACKBAND = 1
 
-const sgemv_f77 = nothing
+const SUNDIALS_SUNLINSOL_LAPACKDENSE = 1
 
-const strsv_f77 = nothing
+const SUNDIALS_SUNNONLINSOL_NEWTON = 1
 
-const ssyrk_f77 = nothing
+const SUNDIALS_SUNNONLINSOL_FIXEDPOINT = 1
 
-const sgbtrf_f77 = nothing
+# Skipping MacroDefinition: SUNDIALS_CXX_INLINE inline
 
-const sgbtrs_f77 = nothing
+# Skipping MacroDefinition: SUNDIALS_C_INLINE inline
 
-const sgetrf_f77 = nothing
+const SUNDIALS_INLINE = SUNDIALS_C_INLINE
 
-const sgetrs_f77 = nothing
+# Skipping MacroDefinition: SUNDIALS_STATIC_INLINE static SUNDIALS_INLINE
 
-const sgeqp3_f77 = nothing
+const SUNDIALS_DENSE = 1
 
-const sgeqrf_f77 = nothing
+const SUNDIALS_BAND = 2
 
-const sormqr_f77 = nothing
+# Skipping MacroDefinition: SUNDIALS_DEPRECATED __attribute__ ( ( __deprecated__ ) )
 
-const spotrf_f77 = nothing
+const SUNDIALS_DEPRECATED_EXPORT = SUNDIALS_EXPORT(SUNDIALS_DEPRECATED)
 
-const spotrs_f77 = nothing
+const SUNDIALS_DEPRECATED_NO_EXPORT = SUNDIALS_NO_EXPORT(SUNDIALS_DEPRECATED)
 
-const SUNLS_SUCCESS = Cint(0)
+const dcopy_f77 = SUNDIALS_F77_FUNC(dcopy, DCOPY)
+
+const dscal_f77 = SUNDIALS_F77_FUNC(dscal, DSCAL)
+
+const dgemv_f77 = SUNDIALS_F77_FUNC(dgemv, DGEMV)
+
+const dtrsv_f77 = SUNDIALS_F77_FUNC(dtrsv, DTRSV)
+
+const dsyrk_f77 = SUNDIALS_F77_FUNC(dsyrk, DSKYR)
+
+const dgbtrf_f77 = SUNDIALS_F77_FUNC(dgbtrf, DGBTRF)
+
+const dgbtrs_f77 = SUNDIALS_F77_FUNC(dgbtrs, DGBTRS)
+
+const dgetrf_f77 = SUNDIALS_F77_FUNC(dgetrf, DGETRF)
+
+const dgetrs_f77 = SUNDIALS_F77_FUNC(dgetrs, DGETRS)
+
+const dgeqp3_f77 = SUNDIALS_F77_FUNC(dgeqp3, DGEQP3)
+
+const dgeqrf_f77 = SUNDIALS_F77_FUNC(dgeqrf, DGEQRF)
+
+const dormqr_f77 = SUNDIALS_F77_FUNC(dormqr, DORMQR)
+
+const dpotrf_f77 = SUNDIALS_F77_FUNC(dpotrf, DPOTRF)
+
+const dpotrs_f77 = SUNDIALS_F77_FUNC(dpotrs, DPOTRS)
+
+const scopy_f77 = SUNDIALS_F77_FUNC(scopy, SCOPY)
+
+const sscal_f77 = SUNDIALS_F77_FUNC(sscal, SSCAL)
+
+const sgemv_f77 = SUNDIALS_F77_FUNC(sgemv, SGEMV)
+
+const strsv_f77 = SUNDIALS_F77_FUNC(strsv, STRSV)
+
+const ssyrk_f77 = SUNDIALS_F77_FUNC(ssyrk, SSKYR)
+
+const sgbtrf_f77 = SUNDIALS_F77_FUNC(sgbtrf, SGBTRF)
+
+const sgbtrs_f77 = SUNDIALS_F77_FUNC(sgbtrs, SGBTRS)
+
+const sgetrf_f77 = SUNDIALS_F77_FUNC(sgetrf, SGETRF)
+
+const sgetrs_f77 = SUNDIALS_F77_FUNC(sgetrs, SGETRS)
+
+const sgeqp3_f77 = SUNDIALS_F77_FUNC(sgeqp3, SGEQP3)
+
+const sgeqrf_f77 = SUNDIALS_F77_FUNC(sgeqrf, SGEQRF)
+
+const sormqr_f77 = SUNDIALS_F77_FUNC(sormqr, SORMQR)
+
+const spotrf_f77 = SUNDIALS_F77_FUNC(spotrf, SPOTRF)
+
+const spotrs_f77 = SUNDIALS_F77_FUNC(spotrs, SPOTRS)
+
+const SUNLS_SUCCESS = 0
 
 const SUNLS_MEM_NULL = -801
 
@@ -1702,37 +2116,43 @@ const SUNLS_ILL_INPUT = -802
 
 const SUNLS_MEM_FAIL = -803
 
-const SUNLS_ATIMES_FAIL_UNREC = -804
+const SUNLS_ATIMES_NULL = -804
 
-const SUNLS_PSET_FAIL_UNREC = -805
+const SUNLS_ATIMES_FAIL_UNREC = -805
 
-const SUNLS_PSOLVE_FAIL_UNREC = -806
+const SUNLS_PSET_FAIL_UNREC = -806
 
-const SUNLS_PACKAGE_FAIL_UNREC = -807
+const SUNLS_PSOLVE_NULL = -807
 
-const SUNLS_GS_FAIL = -808
+const SUNLS_PSOLVE_FAIL_UNREC = -808
 
-const SUNLS_QRSOL_FAIL = -809
+const SUNLS_PACKAGE_FAIL_UNREC = -809
 
-const SUNLS_VECTOROP_ERR = -810
+const SUNLS_GS_FAIL = -810
 
-const SUNLS_RES_REDUCED = Cint(801)
+const SUNLS_QRSOL_FAIL = -811
 
-const SUNLS_CONV_FAIL = Cint(802)
+const SUNLS_VECTOROP_ERR = -812
 
-const SUNLS_ATIMES_FAIL_REC = Cint(803)
+const SUNLS_RES_REDUCED = 801
 
-const SUNLS_PSET_FAIL_REC = Cint(804)
+const SUNLS_CONV_FAIL = 802
 
-const SUNLS_PSOLVE_FAIL_REC = Cint(805)
+const SUNLS_ATIMES_FAIL_REC = 803
 
-const SUNLS_PACKAGE_FAIL_REC = Cint(806)
+const SUNLS_PSET_FAIL_REC = 804
 
-const SUNLS_QRFACT_FAIL = Cint(807)
+const SUNLS_PSOLVE_FAIL_REC = 805
 
-const SUNLS_LUFACT_FAIL = Cint(808)
+const SUNLS_PACKAGE_FAIL_REC = 806
 
-const SUNMAT_SUCCESS = Cint(0)
+const SUNLS_QRFACT_FAIL = 807
+
+const SUNLS_LUFACT_FAIL = 808
+
+const SUNLS_MSG_RESIDUAL = "\t\tlin. iteration %ld, lin. residual: %g\n"
+
+const SUNMAT_SUCCESS = 0
 
 const SUNMAT_ILL_INPUT = -701
 
@@ -1746,11 +2166,7 @@ const MPI_SUNREALTYPE = MPI_DOUBLE
 
 const MPI_SUNINDEXTYPE = MPI_INT64_T
 
-const PVEC_REAL_MPI_TYPE = MPI_SUNREALTYPE
-
-const PVEC_INTEGER_MPI_TYPE = MPI_SUNINDEXTYPE
-
-const SUN_NLS_SUCCESS = Cint(0)
+const SUN_NLS_SUCCESS = 0
 
 const SUN_NLS_CONTINUE = +901
 
@@ -1766,6 +2182,8 @@ const SUN_NLS_VECTOROP_ERR = -904
 
 const SUN_NLS_EXT_FAIL = -905
 
+const SUN_NLS_MSG_RESIDUAL = "\tnonlin. iteration %ld, nonlin. residual: %g\n"
+
 # Skipping MacroDefinition: _SUNDIALS_STRUCT_ struct
 
 const BIG_REAL = DBL_MAX
@@ -1774,67 +2192,67 @@ const SMALL_REAL = DBL_MIN
 
 const UNIT_ROUNDOFF = DBL_EPSILON
 
+const SUN_BIG_REAL = DBL_MAX
+
+const SUN_SMALL_REAL = DBL_MIN
+
+const SUN_UNIT_ROUNDOFF = DBL_EPSILON
+
 const booleantype = Cint
 
-const SUNFALSE = Cint(0)
+const sunbooleantype = Cint
 
-const SUNTRUE = Cint(1)
+const SUNFALSE = 0
 
-const SUNKLU_ORDERING_DEFAULT = Cint(1)
+const SUNTRUE = 1
 
-const SUNKLU_REINIT_FULL = Cint(1)
+const SUNKLU_ORDERING_DEFAULT = 1
 
-const SUNKLU_REINIT_PARTIAL = Cint(2)
+const SUNKLU_REINIT_FULL = 1
 
-const sun_klu_symbolic = nothing
+const SUNKLU_REINIT_PARTIAL = 2
 
-const sun_klu_numeric = nothing
+const sun_klu_symbolic = klu_l_symbolic
 
-const sun_klu_common = nothing
+const sun_klu_numeric = klu_l_numeric
 
-const sun_klu_analyze = nothing
+const sun_klu_common = klu_l_common
 
-const sun_klu_factor = nothing
+const sun_klu_analyze = klu_l_analyze
 
-const sun_klu_refactor = nothing
+const sun_klu_factor = klu_l_factor
 
-const sun_klu_rcond = nothing
+const sun_klu_refactor = klu_l_refactor
 
-const sun_klu_condest = nothing
+const sun_klu_rcond = klu_l_rcond
 
-const sun_klu_defaults = nothing
+const sun_klu_condest = klu_l_condest
 
-const sun_klu_free_symbolic = nothing
+const sun_klu_defaults = klu_l_defaults
 
-const sun_klu_free_numeric = nothing
+const sun_klu_free_symbolic = klu_l_free_symbolic
 
-const xgbtrf_f77 = dgbtrf_f77
+const sun_klu_free_numeric = klu_l_free_numeric
 
-const xgbtrs_f77 = dgbtrs_f77
+const SUNPCG_MAXL_DEFAULT = 5
 
-const xgetrf_f77 = dgetrf_f77
+const SUNSPBCGS_MAXL_DEFAULT = 5
 
-const xgetrs_f77 = dgetrs_f77
+const SUNSPFGMR_MAXL_DEFAULT = 5
 
-const SUNPCG_MAXL_DEFAULT = Cint(5)
+const SUNSPFGMR_MAXRS_DEFAULT = 0
 
-const SUNSPBCGS_MAXL_DEFAULT = Cint(5)
+const SUNSPFGMR_GSTYPE_DEFAULT = SUN_MODIFIED_GS
 
-const SUNSPFGMR_MAXL_DEFAULT = Cint(5)
+const SUNSPGMR_MAXL_DEFAULT = 5
 
-const SUNSPFGMR_MAXRS_DEFAULT = Cint(0)
+const SUNSPGMR_MAXRS_DEFAULT = 0
 
-const SUNSPFGMR_GSTYPE_DEFAULT = MODIFIED_GS
+const SUNSPGMR_GSTYPE_DEFAULT = SUN_MODIFIED_GS
 
-const SUNSPGMR_MAXL_DEFAULT = Cint(5)
+const SUNSPTFQMR_MAXL_DEFAULT = 5
 
-const SUNSPGMR_MAXRS_DEFAULT = Cint(0)
+const CSC_MAT = 0
 
-const SUNSPGMR_GSTYPE_DEFAULT = MODIFIED_GS
-
-const SUNSPTFQMR_MAXL_DEFAULT = Cint(5)
-
-const CSC_MAT = Cint(0)
-
-const CSR_MAT = Cint(1)
+const CSR_MAT = 1
 

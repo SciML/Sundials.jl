@@ -1,5 +1,6 @@
 [deps]
 Clang = "40e3b903-d033-50b4-a0cc-940c62c95e31"
+Debugger = "31a5f54b-26ea-5ae9-a837-f05ce5417438"
 MLStyle = "d8e11817-5142-5d16-987a-aa16d5891078"
 Sundials = "c3572dad-4567-51f8-b174-8c6c989267f4"
 Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
