@@ -6,3 +6,5 @@ Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 
 [compat]
 Clang = "0.17"
+Sundials_jll = "6.6"
+julia = "1.10"
