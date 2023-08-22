@@ -55,13 +55,13 @@ const libsundials_sunnonlinsol = libsundials_cvode
 
 const SPARSE_SOLVERS = (:KLU,)
 
-include("../lib/libsundials_common.jl")
+include("./lib/libsundials_common.jl")
 include("types_and_consts_additions.jl")
 
 include("handle.jl")
 include("nvector_wrapper.jl")
 
-include("../lib/libsundials_api.jl")
+include("./lib/libsundials_api.jl")
 
 for ff in names(@__MODULE__; all = true)
     fname = string(ff)
