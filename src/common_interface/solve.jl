@@ -1224,8 +1224,13 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     end
 
     tout = Float64[first(tspan)]
-    ures = Vector{uType}()
-    dures = Vector{uType}()
+    if save_idxs isa Integer
+        ures = Vector{eltype(uType)}()
+        dures = Vector{eltype(uType)}()
+    else
+        ures = Vector{uType}()
+        dures = Vector{uType}()
+    end
     tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
     uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     retcode = flag >= 0 ? ReturnCode.Default : ReturnCode.InitialFailure
