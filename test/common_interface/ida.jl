@@ -59,8 +59,9 @@ sol = solve(prob, IDA(); saveat = saveat, save_everystep = true)
 @test intersect(sol.t, saveat) == saveat
 @info "IDA with tstops"
 sol = solve(prob, IDA(); tstops = [0.9])
-
 @test 0.9 ∈ sol.t
+
+@test solve(prob, IDA(); save_idxs=1).u isa Vector{Float64}
 
 prob = deepcopy(prob_dae_resrob)
 prob2 = DAEProblem(prob.f, prob.du0, prob.u0, (1.0, 0.0))
