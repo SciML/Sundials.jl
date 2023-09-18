@@ -44,7 +44,7 @@ function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
     return KIN_SUCCESS
 end
 
-function kinsol(f,
+function ___kinsol(f,
     y0::Vector{Float64};
     userdata::Any = nothing,
     linear_solver = :Dense,
@@ -81,8 +81,9 @@ function kinsol(f,
     strategy = KIN_NONE
     flag = @checkflag KINSol(kmem, y, strategy, scale, scale) true
 
-    return y
+    return y, flag
 end
+kinsol(args...; kwargs...) = first(___kinsol(args...; kwargs...))
 
 function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::UserFunctionAndData)
     userfun.func(t, convert(Vector, y), convert(Vector, yp), userfun.data)

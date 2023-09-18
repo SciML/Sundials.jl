@@ -64,14 +64,15 @@ function DiffEqBase.__solve(prob::Union{
     end
     u = zero(u0)
     resid = similar(u)
-    u = kinsol(f!, u0;
+    u,flag = ___kinsol(f!, u0;
         userdata = userdata,
         linear_solver = linsolve,
         jac_upper = jac_upper,
         jac_lower = jac_lower)
 
     f!(resid, u)
-    DiffEqBase.build_solution(prob, alg, u, resid; retcode = ReturnCode.Success)
+    retcode = interpret_sundials_retcode(flag)
+    DiffEqBase.build_solution(prob, alg, u, resid; retcode = retcode)
 end
 
 function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
