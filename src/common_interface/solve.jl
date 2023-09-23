@@ -1406,9 +1406,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
             integrator.userfun.p = integrator.p
             solver_step(integrator, tstop)
             integrator.t = first(integrator.tout)
-            if integrator.t == integrator.tprev
-                integrator.flag = -3
-            end
+            # NB: CVode, ARKode may warn and then recover if integrator.t == integrator.tprev so don't flag this as an error 
             integrator.flag < 0 && break
             handle_callbacks!(integrator) # this also updates the interpolation
             integrator.flag < 0 && break
