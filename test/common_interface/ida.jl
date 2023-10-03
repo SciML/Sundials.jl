@@ -61,6 +61,9 @@ sol = solve(prob, IDA(); saveat = saveat, save_everystep = true)
 sol = solve(prob, IDA(); tstops = [0.9])
 @test 0.9 ∈ sol.t
 
+sol = solve(prob, IDA(); d_discontinuities = [0.9])
+@test 0.9 ∈ sol.t
+
 @test solve(prob, IDA(); save_idxs=1).u isa Vector{Float64}
 
 prob = deepcopy(prob_dae_resrob)
