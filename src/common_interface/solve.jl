@@ -85,7 +85,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     abstol = 1 / 10^6,
     reltol = 1 / 10^3,
     saveat = Float64[],
-    d_discontinuities = Float64[]
+    d_discontinuities = Float64[],
     tstops = Float64[],
     maxiters = Int(1e5),
     dt = nothing,
@@ -995,7 +995,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     reltol = 1 / 10^3,
     saveat = Float64[],
     tstops = Float64[],
-    d_discontinuities = Float64[]
+    d_discontinuities = Float64[],
     maxiters = Int(1e5),
     timeseries_errors = true,
     dense_errors = false,
