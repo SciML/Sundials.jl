@@ -22,6 +22,7 @@ mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, relto
     progress::Bool
     progress_name::String
     progress_message::F5
+    progress_id::Symbol
     maxiters::Int
 end
 

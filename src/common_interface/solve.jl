@@ -104,6 +104,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     progress = false,
     progress_name = "ODE",
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = gensym("Sundials"),
     save_timeseries = nothing,
     advance_to_tstop = false,
     stop_at_next_tstop = false,
@@ -130,7 +131,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
+    progress && Logging.@logmsg(-1, progress_name, _id=progress_id, progress=0)
 
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
@@ -414,6 +415,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         progress,
         progress_name,
         progress_message,
+        progress_id,
         maxiters)
     integrator = CVODEIntegrator(u0,
         utmp,
@@ -470,6 +472,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     progress = false,
     progress_name = "ODE",
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = gensym("Sundials"),
     advance_to_tstop = false,
     stop_at_next_tstop = false,
     userdata = nothing,
@@ -492,7 +495,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
+    progress && Logging.@logmsg(-1, progress_name, _id=progress_id, progress=0)
 
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
@@ -890,6 +893,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         progress,
         progress_name,
         progress_message,
+        progress_id,
         maxiters)
     integrator = ARKODEIntegrator(u0,
         utmp,
@@ -993,6 +997,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     progress = false,
     progress_name = "DAE IDA",
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = gensym("Sundials"),
     advance_to_tstop = false,
     stop_at_next_tstop = false,
     userdata = nothing,
@@ -1014,7 +1019,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
+    progress && Logging.@logmsg(-1, progress_name, _id=progress_id, progress=0)
 
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
@@ -1268,6 +1273,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         progress,
         progress_name,
         progress_message,
+        progress_id,
         maxiters)
 
     integrator = IDAIntegrator(u0,
@@ -1327,7 +1333,7 @@ function solver_step(integrator::CVODEIntegrator, tstop)
     if integrator.opts.progress
         Logging.@logmsg(-1,
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u,
                 integrator.p,
@@ -1341,7 +1347,7 @@ function solver_step(integrator::ARKODEIntegrator, tstop)
     if integrator.opts.progress
         Logging.@logmsg(-1,
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u_nvec,
                 integrator.p,
@@ -1359,7 +1365,7 @@ function solver_step(integrator::IDAIntegrator, tstop)
     if integrator.opts.progress
         Logging.@logmsg(-1,
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u,
                 integrator.p,
@@ -1440,7 +1446,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
     if integrator.opts.progress
         Logging.@logmsg(-1,
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u,
                 integrator.p,
