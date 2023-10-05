@@ -20,6 +20,7 @@ mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, relto
     advance_to_tstop::Bool
     stop_at_next_tstop::Bool
     progress::Bool
+    progress_steps::Int
     progress_name::String
     progress_message::F5
     progress_id::Symbol
@@ -173,6 +174,7 @@ mutable struct IDAIntegrator{N,
     tmp::Array{Float64, N}
     uprev::Array{Float64, N}
     flag::Cint
+    iter::Int
     just_hit_tstop::Bool
     event_last_time::Int
     vector_event_last_time::Int
