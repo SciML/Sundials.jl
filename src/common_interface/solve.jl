@@ -398,7 +398,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             dures) :
                  DiffEqBase.LinearInterpolation(ts, ures),
         timeseries_errors = timeseries_errors,
-        stats = DiffEqBase.Stats(0),
+        stats = SciMLBase.DEStats(0),
         calculate_error = false)
     opts = DEOptions(saveat_internal,
         tstops_internal,
@@ -880,7 +880,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             dures) :
                  DiffEqBase.LinearInterpolation(ts, ures),
         timeseries_errors = timeseries_errors,
-        stats = DiffEqBase.Stats(0),
+        stats = SciMLBase.DEStats(0),
         calculate_error = false)
     opts = DEOptions(saveat_internal,
         tstops_internal,
@@ -1242,7 +1242,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         calculate_error = false,
         timeseries_errors = timeseries_errors,
         retcode = retcode,
-        stats = DiffEqBase.Stats(0),
+        stats = SciMLBase.DEStats(0),
         dense_errors = dense_errors)
 
     opts = DEOptions(saveat_internal,
