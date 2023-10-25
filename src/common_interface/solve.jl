@@ -1254,12 +1254,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     sol = DiffEqBase.build_solution(prob,
         alg,
         ts,
-        ures;
+        ures, dense ? dures : nothing;
         dense = dense,
-        interp = dense ?
-                 DiffEqBase.HermiteInterpolation(ts, ures,
-            dures) :
-                 DiffEqBase.LinearInterpolation(ts, ures),
         calculate_error = false,
         timeseries_errors = timeseries_errors,
         retcode = retcode,
@@ -1323,7 +1319,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     if save_start
         save_value!(ures, integrator.u, uType, save_idxs)
-        save_value!(dures, integrator.u, uType, save_idxs)
+        save_value!(dures, integrator.du, duType, save_idxs)
     end
 
     initialize_callbacks!(integrator)
