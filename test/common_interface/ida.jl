@@ -121,3 +121,13 @@ f_noconverge(out, du, u, p, t) = out .= [du[1] + u[1] / (t - 1)]
 prob = DAEProblem(f_noconverge, [1.0], [1.0], (0, 2); differential_vars = [true])
 sol = solve(prob, IDA())
 @test !(sol.retcode in (ReturnCode.Success, ReturnCode.MaxIters))
+
+# Test that we're saving the correct initial data for du
+function f_inital_data(du, u, p, t)
+    return [du[1] - (u[1] + 10.0)]
+end
+prob = DAEProblem(f_inital_data, [0.0], [1.0], (0.0, 1.0); differential_vars = [true])
+sol = solve(prob, IDA())
+# If this is one, it incorrectly saved u, if it is 0., it incorrectly solved
+# the pre-init value rather than the post-init one.
+@test sol(0.0, Val{1})[1] ≈ 11.0
