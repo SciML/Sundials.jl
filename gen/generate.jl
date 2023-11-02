@@ -86,7 +86,7 @@ function wrap_sundials_api(expr::Expr)
             if occursin(r"UserDataB?$", func_name)
                 # replace Ptr{Void} with Any to allow passing Julia objects through user data
                 for (i, arg_expr) in enumerate(expr.args[2].args[1].args)
-                    if !(typeof(arg_expr) <: Symbol) &&
+                    if !(arg_expr isa Symbol) &&
                        arg_expr.args[1] in values(ctor_return_type)
                         if arg_expr.args[2] == :(Ptr{Cvoid})
                             arg_expr.args[2] = Any
@@ -96,7 +96,7 @@ function wrap_sundials_api(expr::Expr)
                     end
                 end
             end
-            if !(typeof(expr) <: Symbol) && length(expr.args) > 1 &&
+            if !(expr isa Symbol) && length(expr.args) > 1 &&
                (expr.args[2].args[1].args[2].args[2] == :libsundials_sunlinsol ||
                 expr.args[2].args[1].args[2].args[2] == :libsundials_sunmatrix ||
                 expr.args[2].args[1].args[2].args[2] == :libsundials_sunnonlinsol)
@@ -124,7 +124,7 @@ function wrap_sundials_api(expr::Expr)
                 #   2) expr for local var definition, nothing if not required
                 #   3) expr for low-level wrapper call
                 # if 1)==3), then no wrapping is required
-                if typeof(expr) <: Symbol
+                if expr isa Symbol
                     arg_name_expr = expr
                     arg_type_expr = Any
                 else

@@ -146,7 +146,7 @@ function massmat(t::Float64,
     tmp1::N_Vector,
     tmp2::N_Vector,
     tmp3::N_Vector)
-    if typeof(mmf.mass_matrix) <: Array
+    if mmf.mass_matrix isa Array
         M = convert(Matrix, _M)
         M .= mmf.mass_matrix
     else
