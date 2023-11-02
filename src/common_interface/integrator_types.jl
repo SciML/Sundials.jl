@@ -220,7 +220,7 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
             tstop = first(integrator.opts.tstops)
             set_stop_time(integrator, tstop)
             integrator.tprev = integrator.t
-            if !(typeof(integrator.opts.callback.continuous_callbacks) <: Tuple{})
+            if !(integrator.opts.callback.continuous_callbacks isa Tuple{})
                 integrator.uprev .= integrator.u
             end
             solver_step(integrator, tstop)
@@ -231,7 +231,7 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
         end
     else
         integrator.tprev = integrator.t
-        if !(typeof(integrator.opts.callback.continuous_callbacks) <: Tuple{})
+        if !(integrator.opts.callback.continuous_callbacks isa Tuple{})
             integrator.uprev .= integrator.u
         end
         if !isempty(integrator.opts.tstops)

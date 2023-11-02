@@ -6,7 +6,7 @@ function handle_callbacks!(integrator)
     continuous_modified = false
     discrete_modified = false
     saved_in_cb = false
-    if !(typeof(continuous_callbacks) <: Tuple{})
+    if !(continuous_callbacks isa Tuple{})
         time, upcrossing, event_occured, event_idx, idx, counter = DiffEqBase.find_first_continuous_callback(integrator,
             continuous_callbacks...)
         if event_occured
@@ -22,7 +22,7 @@ function handle_callbacks!(integrator)
             integrator.vector_event_last_time = 1
         end
     end
-    if !(typeof(discrete_callbacks) <: Tuple{})
+    if !(discrete_callbacks isa Tuple{})
         discrete_modified, saved_in_cb = DiffEqBase.apply_discrete_callback!(integrator,
             discrete_callbacks...)
     end
