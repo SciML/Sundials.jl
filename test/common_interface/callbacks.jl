@@ -54,9 +54,11 @@ function condition2(u, t, integrator)
     get_du(integrator)[1] > 0
 end
 affect2!(integrator) = terminate!(integrator)
-cb = DiscreteCallback(condition2, affect2!)
+times_finalize_called = 0
+cb = DiscreteCallback(condition2, affect2!, finalize=(args...)->times_finalize_called+=1)
 sol = solve(prob, CVODE_BDF(); callback = cb)
 @test sol.t[end] < 3.5
+@test times_finalize_called = 1
 
 condition3(u, t, integrator) = u[2]
 affect3!(integrator) = terminate!(integrator)
