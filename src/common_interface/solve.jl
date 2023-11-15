@@ -1441,6 +1441,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
         handle_tstop!(integrator)
     end
 
+    DiffEqBase.finalize!(integrator.opts.callback, integrator.u, integrator.t, integrator)
     tend = integrator.t
     if integrator.opts.save_end &&
        (isempty(integrator.sol.t) || integrator.sol.t[end] != tend)
