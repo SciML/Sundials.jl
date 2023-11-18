@@ -200,6 +200,13 @@ function (integrator::IDAIntegrator)(out,
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : @view out[idxs]
 end
+function (integrator::IDAIntegrator)(out::SubArray,
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
+    throw(ArgumentError("Views are not supported with IDA!"))
+end
+
 
 ###  Error check (retcode)
 
