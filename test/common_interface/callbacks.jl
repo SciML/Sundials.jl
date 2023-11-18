@@ -83,3 +83,10 @@ cb = ContinuousCallback(bvcond, bvaffect!)
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
 sol = solve(prob, IDA(), callback = cb, tstops = [50.0], abstol = 1e-12, reltol = 1e-12)
 @test sol.t[end] ≈ 100.0
+
+# Test that SubArrays are not allowed as outputs to the integrator
+u_out = similar(u₀)
+cb = DiscreteCallback(Returns(true), integ -> integ(@view(u_out), integ.t)
+prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
+@test_throws ArgumentError solve(prob, IDA(), callback = cb)
+
