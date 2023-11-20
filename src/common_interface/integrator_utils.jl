@@ -46,7 +46,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
     uType = typeof(integrator.sol.prob.u0)
     # The call to first is an overload of Base.first implemented in DataStructures
     while !isempty(integrator.opts.saveat) &&
-        integrator.tdir * first(integrator.opts.saveat) < integrator.tdir * integrator.t
+        first(integrator.opts.saveat) <= integrator.tdir * integrator.t
         saved = true
         curt = pop!(integrator.opts.saveat)
 
@@ -123,13 +123,13 @@ end
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
     integrator.tdir * (t - integrator.t) < 0 &&
         error("Tried to add a tstop that is behind the current time. This is strictly forbidden")
-    push!(integrator.opts.tstops, t)
+    push!(integrator.opts.tstops, integrator.tdir * t)
 end
 
 function DiffEqBase.add_saveat!(integrator::AbstractSundialsIntegrator, t)
     integrator.tdir * (t - integrator.t) < 0 &&
         error("Tried to add a saveat that is behind the current time. This is strictly forbidden")
-    push!(integrator.opts.saveat, t)
+    push!(integrator.opts.saveat, integrator.tdir * t)
 end
 
 DiffEqBase.get_tmp_cache(integrator::AbstractSundialsIntegrator) = (integrator.tmp,)
