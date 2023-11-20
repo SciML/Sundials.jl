@@ -936,42 +936,25 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 end # function solve
 
 function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
-    if isempty(tstops) # TODO: Specialize more
-        tstops_vec = [tspan[2]]
-    else
-        tstops_vec = vec(collect(tType,
-            Iterators.filter(x -> tdir * tspan[1] < tdir * x ≤
-                                  tdir * tspan[end],
-                Iterators.flatten((tstops, tspan[end])))))
-    end
+    tstops_internal = DataStructures.BinaryHeap{tType}(DataStructures.FasterForward())
+    saveat_internal = DataStructures.BinaryHeap{tType}(DataStructures.FasterForward())
 
-    if tdir > 0
-        tstops_internal = DataStructures.BinaryMinHeap(tstops_vec)
-    else
-        tstops_internal = DataStructures.BinaryMaxHeap(tstops_vec)
+    t0, tf = tspan
+    tdir_t0 = tdir * t0
+    tdir_tf = tdir * tf
+
+    for t in tstops
+        tdir_t = tdir * t
+        tdir_t0 < tdir_t ≤ tdir_tf && push!(tstops_internal, tdir_t)
     end
+    push!(tstops_internal, tdir_tf)
 
     if saveat isa Number
-        if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
-            saveat_vec = convert(Vector{tType},
-                collect(tType, (tspan[1] + saveat):saveat:tspan[end]))
-        else
-            saveat_vec = convert(Vector{tType},
-                collect(tType,
-                    (tspan[1] + saveat):saveat:(tspan[end] - saveat)))
-        end
-    elseif isempty(saveat)
-        saveat_vec = saveat
-    else
-        saveat_vec = vec(collect(tType,
-            Iterators.filter(x -> tdir * tspan[1] < tdir * x <
-                                  tdir * tspan[end], saveat)))
+        saveat = (t0:tdir*abs(saveat):tf)[2:end]
     end
-
-    if tdir > 0
-        saveat_internal = DataStructures.BinaryMinHeap(saveat_vec)
-    else
-        saveat_internal = DataStructures.BinaryMaxHeap(saveat_vec)
+    for t in saveat
+        tdir_t = tdir * t
+        tdir_t0 < tdir_t ≤ tdir_tf && push!(saveat_internal, tdir_t)
     end
 
     tstops_internal, saveat_internal
@@ -1409,11 +1392,9 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
     uType = eltype(integrator.sol.u)
     iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)
-        # Sundials can have floating point issues approaching a tstop if
-        # there is a modifying event each
         # The call to first is an overload of Base.first implemented in DataStructures
-        while integrator.tdir * (integrator.t - first(integrator.opts.tstops)) < -1e6eps()
-            tstop = first(integrator.opts.tstops)
+        while integrator.tdir * integrator.t < first(integrator.opts.tstops)
+            tstop = integrator.tdir * first(integrator.opts.tstops)
             set_stop_time(integrator, tstop)
             integrator.tprev = integrator.t
             if !(integrator.opts.callback.continuous_callbacks isa Tuple{})
@@ -1490,7 +1471,7 @@ end
 function handle_tstop!(integrator::AbstractSundialsIntegrator)
     tstops = integrator.opts.tstops
     if !isempty(tstops)
-        if integrator.tdir * (integrator.t - first(integrator.opts.tstops)) > -1e6eps()
+        if integrator.tdir * integrator.t < first(integrator.opts.tstops)
             pop!(tstops)
             t = integrator.t
             integrator.just_hit_tstop = true
