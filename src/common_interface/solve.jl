@@ -1469,12 +1469,13 @@ end
 
 function handle_tstop!(integrator::AbstractSundialsIntegrator)
     tstops = integrator.opts.tstops
-    if !isempty(tstops)
-        if integrator.tdir * integrator.t < first(integrator.opts.tstops)
+    if !isempty(tstops) && integrator.tdir * integrator.t >= first(tstops)
+        pop!(tstops)
+        # If we passed multiple tstops at once (possible if Sundials ignores us or we had redundant tstops)
+        while !isempty(tstops) && integrator.tdir * integrator.t >= first(tstops)
             pop!(tstops)
-            t = integrator.t
-            integrator.just_hit_tstop = true
         end
+        integrator.just_hit_tstop = true
     end
 end
 

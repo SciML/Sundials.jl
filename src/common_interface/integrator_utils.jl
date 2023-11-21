@@ -48,8 +48,7 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
     while !isempty(integrator.opts.saveat) &&
         first(integrator.opts.saveat) <= integrator.tdir * integrator.t
         saved = true
-        curt = pop!(integrator.opts.saveat)
-
+        curt = integrator.tdir * pop!(integrator.opts.saveat)
         tmp = integrator(curt)
         save_value!(integrator.sol.u, tmp, uType,
             integrator.opts.save_idxs, false)
