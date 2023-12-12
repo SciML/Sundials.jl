@@ -29,6 +29,7 @@ function DiffEqBase.__solve(prob::Union{
     ts = [],
     ks = [],
     recompile::Type{Val{recompile_flag}} = Val{true};
+    abstol = 1e-6,
     kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
     recompile_flag, uType, isinplace}
     if prob.u0 isa Number
@@ -68,7 +69,8 @@ function DiffEqBase.__solve(prob::Union{
         userdata = userdata,
         linear_solver = linsolve,
         jac_upper = jac_upper,
-        jac_lower = jac_lower)
+        jac_lower = jac_lower,
+        abstol)
 
     f!(resid, u)
     retcode = interpret_sundials_retcode(flag)

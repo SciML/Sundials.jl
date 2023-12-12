@@ -49,7 +49,8 @@ function ___kinsol(f,
     userdata::Any = nothing,
     linear_solver = :Dense,
     jac_upper = 0,
-    jac_lower = 0)
+    jac_lower = 0,
+    abstol::Float64 = 1e-6)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -74,6 +75,7 @@ function ___kinsol(f,
         A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
         LS = Sundials.SUNLinSol_Band(y0, A)
     end
+    flag = @checkflag KINSetFuncNormTol(kmem, abstol) true
     flag = @checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
     ## Solve problem
