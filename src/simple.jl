@@ -71,12 +71,41 @@ function ___kinsol(f,
     if linear_solver == :Dense
         A = Sundials.SUNDenseMatrix(length(y0), length(y0))
         LS = Sundials.SUNLinSol_Dense(y0, A)
+    elseif linear_solver == :LapackDense
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0))
+        LS = Sundials.SUNLinSol_LapackDense(y0, A)
     elseif linear_solver == :Band
         A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
         LS = Sundials.SUNLinSol_Band(y0, A)
+    elseif linear_solver == :LapackBand
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
+        LS = Sundials.SUNLinSol_LapackBand(y0, A)
+    elseif linear_solver == :Diagonal
+        error("Diagonal linear solver not implemented")
+    elseif linear_solver == :GMRES
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPGMR(y0, alg.prec_side, alg.krylov_dim)
+    elseif linear_solver == :FGMRES
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPFGMR(y0, alg.prec_side, alg.krylov_dim)
+    elseif linear_solver == :BCG
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPBCGS(y0, alg.prec_side, alg.krylov_dim)
+    elseif linear_solver == :PCG
+        A = C_NULL
+        LS = Sundials.SUNLinSol_PCG(y0, alg.prec_side, alg.krylov_dim)
+    elseif linear_solver == :TFQMR
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPTFQMR(y0, alg.prec_side, alg.krylov_dim)
+    elseif linear_solver == :KLU
+        nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
+        A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT)
+        LS = SUNLinSol_KLU(y0, A)
+    else
+        error("Unknown linear solver")
     end
     flag = @checkflag KINSetFuncNormTol(kmem, abstol) true
-    flag = @checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A) true
+    flag = @checkflag Sundials.KINSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
     ## Solve problem
     scale = ones(length(y0))

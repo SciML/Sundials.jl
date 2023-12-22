@@ -752,12 +752,16 @@ struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
     jac_upper::Int
     jac_lower::Int
     userdata::Any
-end
+    prec_side::Int
+    krylov_dim::Int
+end # TODO: Add globalization options
 Base.@pure function KINSOL(;
     linear_solver = :Dense,
     jac_upper = 0,
     jac_lower = 0,
-    userdata = nothing)
+    userdata = nothing,
+    prec_side = 0,
+    krylov_dim = 0)
     if !(linear_solver in (:None,
         :Diagonal,
         :Dense,
@@ -774,7 +778,9 @@ Base.@pure function KINSOL(;
     end
     KINSOL{linear_solver}(jac_upper,
         jac_lower,
-        userdata)
+        userdata,
+        prec_side,
+        krylov_dim)
 end
 
 method_choice(alg::SundialsODEAlgorithm{Method}) where {Method} = Method
