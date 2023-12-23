@@ -29,7 +29,8 @@ function DiffEqBase.__solve(prob::Union{
     ts = [],
     ks = [],
     recompile::Type{Val{recompile_flag}} = Val{true};
-    abstol = 1e-6,
+    abstol = eps(Float64) ^ (4 // 5),
+    maxiters = 1000,
     kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
     recompile_flag, uType, isinplace}
     if prob.u0 isa Number
@@ -70,7 +71,12 @@ function DiffEqBase.__solve(prob::Union{
         linear_solver = linsolve,
         jac_upper = jac_upper,
         jac_lower = jac_lower,
-        abstol)
+        abstol,
+        prob.f.jac_prototype,
+        alg.prec_side,
+        alg.krylov_dim,
+        maxiters,
+        strategy = alg.globalization_strategy)
 
     f!(resid, u)
     retcode = interpret_sundials_retcode(flag)
