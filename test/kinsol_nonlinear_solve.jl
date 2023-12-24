@@ -37,3 +37,20 @@ prob_oop = NonlinearProblem{false}(f_oop, u0)
     f_oop(sol.u, nothing)
     @test maximum(abs, du) < 1e-6
 end
+
+# Scalar
+f_scalar(u, p) = 2 - 2u
+u0 = 0.0
+prob_scalar = NonlinearProblem{false}(f_scalar, u0)
+
+@testset "linear_solver = $(linear_solver) | globalization_strategy = $(globalization_strategy)" for linear_solver in (:Dense,
+        :LapackDense, :GMRES, :FGMRES, :PCG, :TFQMR), globalization_strategy in (:LineSearch, :None)
+    local sol
+    alg = KINSOL(; linear_solver, globalization_strategy)
+    sol = solve(prob_scalar, alg; abstol)
+    @test SciMLBase.successful_retcode(sol.retcode)
+    @test sol.u isa Number
+
+    resid = f_scalar(sol.u, nothing)
+    @test abs(resid) < 1e-6
+end
