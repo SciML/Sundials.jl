@@ -3,7 +3,7 @@
 # Abstract Types
 abstract type SundialsODEAlgorithm{Method, LinearSolver} <: DiffEqBase.AbstractODEAlgorithm end
 abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgorithm end
-abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
+abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} <: SciMLBase.AbstractNonlinearAlgorithm end
 
 SciMLBase.alg_order(alg::Union{SundialsODEAlgorithm, SundialsDAEAlgorithm}) = alg.max_order
 

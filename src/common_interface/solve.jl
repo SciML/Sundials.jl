@@ -80,7 +80,11 @@ function DiffEqBase.__solve(prob::Union{
 
     f!(resid, u)
     retcode = interpret_sundials_retcode(flag)
-    DiffEqBase.build_solution(prob, alg, u, resid; retcode = retcode)
+    if prob.u0 isa Number
+        DiffEqBase.build_solution(prob, alg, u[1], resid[1]; retcode = retcode)
+    else
+        DiffEqBase.build_solution(prob, alg, u, resid; retcode = retcode)
+    end
 end
 
 function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
