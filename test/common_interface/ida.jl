@@ -61,6 +61,9 @@ sol = solve(prob, IDA(); saveat = saveat, save_everystep = true)
 sol = solve(prob, IDA(); tstops = [0.9])
 @test 0.9 ∈ sol.t
 
+sol = solve(prob, IDA(); d_discontinuities = [0.9])
+@test 0.9 ∈ sol.t
+
 @test solve(prob, IDA(); save_idxs=1).u isa Vector{Float64}
 
 prob = deepcopy(prob_dae_resrob)
@@ -118,3 +121,13 @@ f_noconverge(out, du, u, p, t) = out .= [du[1] + u[1] / (t - 1)]
 prob = DAEProblem(f_noconverge, [1.0], [1.0], (0, 2); differential_vars = [true])
 sol = solve(prob, IDA())
 @test !(sol.retcode in (ReturnCode.Success, ))
+
+# Test that we're saving the correct initial data for du
+function f_inital_data(du, u, p, t)
+    return [du[1] - (u[1] + 10.0)]
+end
+prob = DAEProblem(f_inital_data, [0.0], [1.0], (0.0, 1.0); differential_vars = [true])
+sol = solve(prob, IDA())
+# If this is one, it incorrectly saved u, if it is 0., it incorrectly solved
+# the pre-init value rather than the post-init one.
+@test sol(0.0, Val{1})[1] ≈ 11.0

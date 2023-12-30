@@ -54,9 +54,11 @@ function condition2(u, t, integrator)
     get_du(integrator)[1] > 0
 end
 affect2!(integrator) = terminate!(integrator)
-cb = DiscreteCallback(condition2, affect2!)
+times_finalize_called = 0
+cb = DiscreteCallback(condition2, affect2!, finalize=(args...)->global times_finalize_called+=1)
 sol = solve(prob, CVODE_BDF(); callback = cb)
 @test sol.t[end] < 3.5
+@test times_finalize_called == 1
 
 condition3(u, t, integrator) = u[2]
 affect3!(integrator) = terminate!(integrator)
@@ -81,3 +83,10 @@ cb = ContinuousCallback(bvcond, bvaffect!)
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
 sol = solve(prob, IDA(), callback = cb, tstops = [50.0], abstol = 1e-12, reltol = 1e-12)
 @test sol.t[end] ≈ 100.0
+
+# Test that SubArrays are not allowed as outputs to the integrator
+u_out = similar(u₀)
+cb = DiscreteCallback(Returns(true), integ -> integ(@view(u_out[2:2]), integ.t))
+prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
+@test_throws ArgumentError solve(prob, IDA(), callback = cb)
+
