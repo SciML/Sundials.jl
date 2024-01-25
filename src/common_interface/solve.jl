@@ -147,7 +147,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
-    append!(tstops, d_discontinuities)
+    tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
@@ -515,7 +515,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
-    append!(tstops, d_discontinuities)
+    tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
@@ -1026,7 +1026,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
-    append!(tstops, d_discontinuities)
+    tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
