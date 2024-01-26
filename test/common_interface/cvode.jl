@@ -45,9 +45,10 @@ sol = solve(prob, CVODE_Adams(); saveat = saveat, save_everystep = false)
 
 @test sol.t == saveat
 
-sol = solve(prob, CVODE_Adams(); tstops = [0.9])
-
-@test 0.9 ∈ sol.t
+for tstops in [0.9, [0.9]]
+    sol = solve(prob,  CVODE_Adams(); tstops)
+    @test 0.9 ∈ sol.t
+end
 
 sol = solve(prob, CVODE_Adams())
 sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1], timeseries_errors = false)

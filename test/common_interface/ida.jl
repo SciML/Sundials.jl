@@ -58,8 +58,10 @@ sol = solve(prob, IDA(); saveat = saveat, save_everystep = true)
 @test sol.t != saveat
 @test intersect(sol.t, saveat) == saveat
 @info "IDA with tstops"
-sol = solve(prob, IDA(); tstops = [0.9])
-@test 0.9 ∈ sol.t
+for tstops in [0.9, [0.9]]
+    sol = solve(prob, IDA(); tstops)
+    @test 0.9 ∈ sol.t
+end
 
 sol = solve(prob, IDA(); d_discontinuities = [0.9])
 @test 0.9 ∈ sol.t
