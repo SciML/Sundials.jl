@@ -40,12 +40,12 @@ abstract type SundialsHandle end
    Manages automatic destruction of the referenced objects when it is
    no longer in use.
 """
-struct Handle{T <: AbstractSundialsObject} <: SundialsHandle
-    ptr_ref::Ref{Ptr{T}} # pointer to a pointer
+mutable struct Handle{T <: AbstractSundialsObject} <: SundialsHandle
+    ptr::Ptr{T}
 
     function Handle(ptr::Ptr{T}) where {T <: AbstractSundialsObject}
-        h = new{T}(Ref{Ptr{T}}(ptr))
-        finalizer(release_handle, h.ptr_ref)
+        h = new{T}(ptr)
+        finalizer(release_handle, h)
         return h
     end
 end
@@ -81,41 +81,37 @@ mutable struct NonLinSolHandle{T <: SundialsNonLinearSolver} <: SundialsHandle
     end
 end
 
-Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h.ptr_ref[]
-Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::Handle{T}) where {T} = Ptr{Cvoid}(h.ptr_ref[])
-Base.convert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h.ptr_ref[]
-function Base.convert(::Type{Ptr{Ptr{T}}}, h::Handle{T}) where {T}
-    convert(Ptr{Ptr{T}},
-        h.ptr_ref[])
+""" 
+    Base.cconvert(::Type{Ptr{T}}, h::Handle{T}) -> h
+    Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) -> Ptr{T}
+    
+Convert h::Handle{T} to Ptr{T}, for use by ccall
+
+Conversion happens in two steps within ccall:
+ - cconvert returns h, which is preserved (by ccall) from garbage collection
+ - unsafe_convert to get the pointer from h 
+"""
+Base.cconvert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h
+Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h.ptr
+
+# Use the supplied Sundials sun_free_func to free h.ptr
+# NB: CVodeFree and similar require a C pointer-to-pointer
+function _release_handle(sun_free_func, h::Handle{T}) where {T}
+    if h.ptr != C_NULL
+        ptr_ref = Ref(h.ptr)
+        h.ptr = C_NULL
+        sun_free_func(ptr_ref)
+    end
+
+    return nothing
 end
 
-function release_handle(ptr_ref::Ref{Ptr{T}}) where {T}
-    throw(MethodError("Freeing objects of type $T not supported"))
-end
-function release_handle(ptr_ref::Ref{Ptr{KINMem}})
-    ((ptr_ref[] != C_NULL) && KINFree(ptr_ref); nothing)
-end
-function release_handle(ptr_ref::Ref{Ptr{CVODEMem}})
-    ((ptr_ref[] != C_NULL) && CVodeFree(ptr_ref); nothing)
-end
-function release_handle(ptr_ref::Ref{Ptr{ARKStepMem}})
-    ((ptr_ref[] != C_NULL) &&
-        ARKStepFree(ptr_ref);
-    nothing)
-end
-function release_handle(ptr_ref::Ref{Ptr{ERKStepMem}})
-    ((ptr_ref[] != C_NULL) &&
-        ERKStepFree(ptr_ref);
-    nothing)
-end
-function release_handle(ptr_ref::Ref{Ptr{MRIStepMem}})
-    ((ptr_ref[] != C_NULL) &&
-        MRIStepFree(ptr_ref);
-    nothing)
-end
-function release_handle(ptr_ref::Ref{Ptr{IDAMem}})
-    ((ptr_ref[] != C_NULL) && IDAFree(ptr_ref); nothing)
-end
+release_handle(h::Handle{KINMem}) = _release_handle(KINFree, h)
+release_handle(h::Handle{CVODEMem}) = _release_handle(CVodeFree, h)
+release_handle(h::Handle{ARKStepMem}) = _release_handle(ARKStepFree, h)
+release_handle(h::Handle{ERKStepMem}) = _release_handle(ERKStepFree, h)
+release_handle(h::Handle{MRIStepMem}) = _release_handle(MRIStepFree, h)
+release_handle(h::Handle{IDAMem}) = _release_handle(IDAFree, h)
 
 function release_handle(h::MatrixHandle{DenseMatrix})
     if !isempty(h)
@@ -238,8 +234,8 @@ end
 Base.empty!(h::LinSolHandle) = release_handle(h)
 Base.empty!(h::NonLinSolHandle) = release_handle(h)
 Base.empty!(h::MatrixHandle) = release_handle(h)
-Base.empty!(h::Handle{T}) where {T} = release_handle(h.ptr_ref)
-Base.isempty(h::Handle) = h.ptr_ref[] == C_NULL
+Base.empty!(h::Handle) = release_handle(h)
+Base.isempty(h::Handle) = (h.ptr == C_NULL)
 Base.isempty(h::MatrixHandle) = h.destroyed
 Base.isempty(h::LinSolHandle) = h.destroyed
 Base.isempty(h::NonLinSolHandle) = h.destroyed
