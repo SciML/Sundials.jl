@@ -13,7 +13,7 @@ empty!(h1)
 
 empty!(h1) # Make sure this does not throw
 
-h = Sundials.Handle(h1.ptr_ref[]) # Check construction with null pointers
+h = Sundials.Handle(h1.ptr) # Check construction with null pointers
 @test isempty(h)
 
 neq = 3
