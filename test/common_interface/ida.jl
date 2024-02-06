@@ -133,3 +133,14 @@ sol = solve(prob, IDA())
 # If this is one, it incorrectly saved u, if it is 0., it incorrectly solved
 # the pre-init value rather than the post-init one.
 @test sol(0.0, Val{1})[1] ≈ 11.0
+
+# test that callbacks modifying p get the new p
+daefun = (du, u, p, t) -> [du[1] - u[2], u[2] - p]
+callback = PresetTimeCallback(.5, integ->(integ.p=-integ.p;))
+prob = DAEProblem(daefun, [0.0, 0.0], [0.0,-1.0], (0., 1), 1;
+    differential_vars = [true, false], callback)
+sol = solve(prob, IDA())
+@test sol.retcode == ReturnCode.Success
+# test that the callback flipping p caused u[2] to get flipped.
+first_t = findfirst(isequal(0.5), sol.t)
+@test sol.u[first_t][2] == -sol.u[first_t+1][2]
