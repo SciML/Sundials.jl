@@ -174,9 +174,11 @@ end
 end
 
 function DiffEqBase.reeval_internals_due_to_modification!(integrator::AbstractSundialsIntegrator)
+    integrator.userfun.p = integrator.p
     nothing
 end
 function DiffEqBase.reeval_internals_due_to_modification!(integrator::IDAIntegrator)
+    integrator.userfun.p = integrator.p
     handle_callback_modifiers!(integrator::IDAIntegrator)
 end
 
