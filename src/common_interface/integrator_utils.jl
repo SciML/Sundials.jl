@@ -6,7 +6,7 @@ function handle_callbacks!(integrator)
     continuous_modified = false
     discrete_modified = false
     saved_in_cb = false
-    if !(typeof(continuous_callbacks) <: Tuple{})
+    if !(continuous_callbacks isa Tuple{})
         time, upcrossing, event_occured, event_idx, idx, counter = DiffEqBase.find_first_continuous_callback(integrator,
             continuous_callbacks...)
         if event_occured
@@ -22,7 +22,7 @@ function handle_callbacks!(integrator)
             integrator.vector_event_last_time = 1
         end
     end
-    if !(typeof(discrete_callbacks) <: Tuple{})
+    if !(discrete_callbacks isa Tuple{})
         discrete_modified, saved_in_cb = DiffEqBase.apply_discrete_callback!(integrator,
             discrete_callbacks...)
     end
@@ -46,10 +46,9 @@ function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
     uType = typeof(integrator.sol.prob.u0)
     # The call to first is an overload of Base.first implemented in DataStructures
     while !isempty(integrator.opts.saveat) &&
-        integrator.tdir * first(integrator.opts.saveat) < integrator.tdir * integrator.t
+        first(integrator.opts.saveat) <= integrator.tdir * integrator.t
         saved = true
-        curt = pop!(integrator.opts.saveat)
-
+        curt = integrator.tdir * pop!(integrator.opts.saveat)
         tmp = integrator(curt)
         save_value!(integrator.sol.u, tmp, uType,
             integrator.opts.save_idxs, false)
@@ -123,13 +122,13 @@ end
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
     integrator.tdir * (t - integrator.t) < 0 &&
         error("Tried to add a tstop that is behind the current time. This is strictly forbidden")
-    push!(integrator.opts.tstops, t)
+    push!(integrator.opts.tstops, integrator.tdir * t)
 end
 
 function DiffEqBase.add_saveat!(integrator::AbstractSundialsIntegrator, t)
     integrator.tdir * (t - integrator.t) < 0 &&
         error("Tried to add a saveat that is behind the current time. This is strictly forbidden")
-    push!(integrator.opts.saveat, t)
+    push!(integrator.opts.saveat, integrator.tdir * t)
 end
 
 DiffEqBase.get_tmp_cache(integrator::AbstractSundialsIntegrator) = (integrator.tmp,)

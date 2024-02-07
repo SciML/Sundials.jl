@@ -3,7 +3,7 @@
 # Abstract Types
 abstract type SundialsODEAlgorithm{Method, LinearSolver} <: DiffEqBase.AbstractODEAlgorithm end
 abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgorithm end
-abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} end
+abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} <: SciMLBase.AbstractNonlinearAlgorithm end
 
 SciMLBase.alg_order(alg::Union{SundialsODEAlgorithm, SundialsDAEAlgorithm}) = alg.max_order
 
@@ -723,6 +723,9 @@ KINSOL(;
     jac_upper = 0,
     jac_lower = 0,
     userdata = nothing,
+    prec_side = 0,
+    krylov_dim = 0,
+    globalization_strategy = :None
 )
 ```
 
@@ -738,7 +741,6 @@ The choices for the linear solver are:
 - `:LapackBand`: A version of the banded linear solver that uses the Julia-provided
   OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than
   `:Band` on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
-- `:Diagonal`: This method is specialized for diagonal Jacobians.
 - `:GMRES`: A GMRES method. Recommended first choice Krylov method.
 - `:BCG`: A biconjugate gradient method
 - `:PCG`: A preconditioned conjugate gradient method. Only for symmetric
@@ -747,19 +749,30 @@ The choices for the linear solver are:
 - `:KLU`: A sparse factorization method. Requires that the user specify a
   Jacobian. The Jacobian must be set as a sparse matrix in the `ODEProblem`
   type.
+
+The choices for globalization strategy are:
+
+- `:None`: No globalization strategy
+- `:LineSearch`: A line search globalization strategy
 """
 struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
     jac_upper::Int
     jac_lower::Int
     userdata::Any
+    prec_side::Int
+    krylov_dim::Int
+    globalization_strategy::Symbol
 end
+
 Base.@pure function KINSOL(;
     linear_solver = :Dense,
     jac_upper = 0,
     jac_lower = 0,
-    userdata = nothing)
+    userdata = nothing,
+    prec_side = 0,
+    krylov_dim = 0,
+    globalization_strategy = :None)
     if !(linear_solver in (:None,
-        :Diagonal,
         :Dense,
         :LapackDense,
         :Band,
@@ -772,9 +785,11 @@ Base.@pure function KINSOL(;
         :KLU))
         error("Linear solver choice not accepted.")
     end
-    KINSOL{linear_solver}(jac_upper,
-        jac_lower,
-        userdata)
+    if !(globalization_strategy in (:LineSearch, :None))
+        error("Globalization strategy not accepted.")
+    end
+    KINSOL{linear_solver}(jac_upper, jac_lower, userdata, prec_side, krylov_dim,
+    globalization_strategy)
 end
 
 method_choice(alg::SundialsODEAlgorithm{Method}) where {Method} = Method

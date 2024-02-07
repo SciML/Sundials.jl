@@ -49,6 +49,9 @@ end
     @testset "Kinsol Banded" begin
         include("kinsol_banded.jl")
     end
+    @testset "Kinsol NonlinearSolve" begin
+        include("kinsol_nonlinear_solve.jl")
+    end
 end
 @testset "Handle Tests" begin
     include("handle_tests.jl")

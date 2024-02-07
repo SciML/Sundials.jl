@@ -44,12 +44,18 @@ function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
     return KIN_SUCCESS
 end
 
-function kinsol(f,
+function ___kinsol(f,
     y0::Vector{Float64};
     userdata::Any = nothing,
-    linear_solver = :Dense,
-    jac_upper = 0,
-    jac_lower = 0)
+    linear_solver::Symbol = :Dense,
+    jac_upper::Int = 0,
+    jac_lower::Int = 0,
+    abstol::Float64 = eps(Float64) ^ (4 // 5),
+    prec_side::Int = 0,
+    krylov_dim::Int = 0,
+    jac_prototype = nothing,
+    maxiters = 1000,
+    strategy = :None)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -70,19 +76,55 @@ function kinsol(f,
     if linear_solver == :Dense
         A = Sundials.SUNDenseMatrix(length(y0), length(y0))
         LS = Sundials.SUNLinSol_Dense(y0, A)
+    elseif linear_solver == :LapackDense
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0))
+        LS = Sundials.SUNLinSol_LapackDense(y0, A)
     elseif linear_solver == :Band
         A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
         LS = Sundials.SUNLinSol_Band(y0, A)
+    elseif linear_solver == :LapackBand
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
+        LS = Sundials.SUNLinSol_LapackBand(y0, A)
+    elseif linear_solver == :GMRES
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPGMR(y0, prec_side, krylov_dim)
+    elseif linear_solver == :FGMRES
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPFGMR(y0, prec_side, krylov_dim)
+    elseif linear_solver == :BCG
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPBCGS(y0, prec_side, krylov_dim)
+    elseif linear_solver == :PCG
+        A = C_NULL
+        LS = Sundials.SUNLinSol_PCG(y0, prec_side, krylov_dim)
+    elseif linear_solver == :TFQMR
+        A = C_NULL
+        LS = Sundials.SUNLinSol_SPTFQMR(y0, prec_side, krylov_dim)
+    elseif linear_solver == :KLU
+        nnz = length(SparseArrays.nonzeros(jac_prototype))
+        A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT)
+        LS = SUNLinSol_KLU(y0, A)
+    else
+        error("Unknown linear solver")
     end
-    flag = @checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A) true
+    flag = @checkflag KINSetFuncNormTol(kmem, abstol) true
+    flag = @checkflag KINSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
+    flag = @checkflag KINSetNumMaxIters(kmem, maxiters) true
     ## Solve problem
     scale = ones(length(y0))
-    strategy = KIN_NONE
+    if strategy == :None
+        strategy = KIN_NONE
+    elseif strategy == :LineSearch
+        strategy = KIN_LINESEARCH
+    else
+        error("Unknown strategy")
+    end
     flag = @checkflag KINSol(kmem, y, strategy, scale, scale) true
 
-    return y
+    return y, flag
 end
+kinsol(args...; kwargs...) = first(___kinsol(args...; kwargs...))
 
 function cvodefun(t::Float64, y::N_Vector, yp::N_Vector, userfun::UserFunctionAndData)
     userfun.func(t, convert(Vector, y), convert(Vector, yp), userfun.data)

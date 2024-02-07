@@ -29,6 +29,8 @@ function DiffEqBase.__solve(prob::Union{
     ts = [],
     ks = [],
     recompile::Type{Val{recompile_flag}} = Val{true};
+    abstol = eps(Float64) ^ (4 // 5),
+    maxiters = 1000,
     kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
     recompile_flag, uType, isinplace}
     if prob.u0 isa Number
@@ -64,14 +66,25 @@ function DiffEqBase.__solve(prob::Union{
     end
     u = zero(u0)
     resid = similar(u)
-    u = kinsol(f!, u0;
+    u,flag = ___kinsol(f!, u0;
         userdata = userdata,
         linear_solver = linsolve,
         jac_upper = jac_upper,
-        jac_lower = jac_lower)
+        jac_lower = jac_lower,
+        abstol,
+        prob.f.jac_prototype,
+        alg.prec_side,
+        alg.krylov_dim,
+        maxiters,
+        strategy = alg.globalization_strategy)
 
     f!(resid, u)
-    DiffEqBase.build_solution(prob, alg, u, resid; retcode = ReturnCode.Success)
+    retcode = interpret_sundials_retcode(flag)
+    if prob.u0 isa Number
+        DiffEqBase.build_solution(prob, alg, u[1], resid[1]; retcode = retcode)
+    else
+        DiffEqBase.build_solution(prob, alg, u, resid; retcode = retcode)
+    end
 end
 
 function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
@@ -84,6 +97,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     abstol = 1 / 10^6,
     reltol = 1 / 10^3,
     saveat = Float64[],
+    d_discontinuities = Float64[],
     tstops = Float64[],
     maxiters = Int(1e5),
     dt = nothing,
@@ -101,8 +115,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                prob.tspan[2] in saveat,
     dense = save_everystep && isempty(saveat),
     progress = false,
+    progress_steps=1000,
     progress_name = "ODE",
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = gensym("Sundials"),
     save_timeseries = nothing,
     advance_to_tstop = false,
     stop_at_next_tstop = false,
@@ -129,8 +145,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
+    progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
+    tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
@@ -393,7 +410,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             dures) :
                  DiffEqBase.LinearInterpolation(ts, ures),
         timeseries_errors = timeseries_errors,
-        stats = DiffEqBase.Stats(0),
+        stats = SciMLBase.DEStats(0),
         calculate_error = false)
     opts = DEOptions(saveat_internal,
         tstops_internal,
@@ -411,8 +428,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         advance_to_tstop,
         stop_at_next_tstop,
         progress,
+        progress_steps,
         progress_name,
         progress_message,
+        progress_id,
         maxiters)
     integrator = CVODEIntegrator(u0,
         utmp,
@@ -454,6 +473,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     reltol = 1 / 10^3,
     saveat = Float64[],
     tstops = Float64[],
+    d_discontinuities = Float64[],
     maxiters = Int(1e5),
     dt = nothing,
     dtmin = 0.0,
@@ -467,8 +487,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     save_end = true,
     save_timeseries = nothing,
     progress = false,
+    progress_steps = 1000,
     progress_name = "ODE",
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = gensym("Sundials"),
     advance_to_tstop = false,
     stop_at_next_tstop = false,
     userdata = nothing,
@@ -491,8 +513,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
+    progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
+    tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
@@ -869,7 +892,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             dures) :
                  DiffEqBase.LinearInterpolation(ts, ures),
         timeseries_errors = timeseries_errors,
-        stats = DiffEqBase.Stats(0),
+        stats = SciMLBase.DEStats(0),
         calculate_error = false)
     opts = DEOptions(saveat_internal,
         tstops_internal,
@@ -887,8 +910,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         advance_to_tstop,
         stop_at_next_tstop,
         progress,
+        progress_steps,
         progress_name,
         progress_message,
+        progress_id,
         maxiters)
     integrator = ARKODEIntegrator(u0,
         utmp,
@@ -923,42 +948,25 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 end # function solve
 
 function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
-    if isempty(tstops) # TODO: Specialize more
-        tstops_vec = [tspan[2]]
-    else
-        tstops_vec = vec(collect(tType,
-            Iterators.filter(x -> tdir * tspan[1] < tdir * x ≤
-                                  tdir * tspan[end],
-                Iterators.flatten((tstops, tspan[end])))))
-    end
+    tstops_internal = DataStructures.BinaryHeap{tType}(DataStructures.FasterForward())
+    saveat_internal = DataStructures.BinaryHeap{tType}(DataStructures.FasterForward())
 
-    if tdir > 0
-        tstops_internal = DataStructures.BinaryMinHeap(tstops_vec)
-    else
-        tstops_internal = DataStructures.BinaryMaxHeap(tstops_vec)
+    t0, tf = tspan
+    tdir_t0 = tdir * t0
+    tdir_tf = tdir * tf
+
+    for t in tstops
+        tdir_t = tdir * t
+        tdir_t0 < tdir_t ≤ tdir_tf && push!(tstops_internal, tdir_t)
     end
+    push!(tstops_internal, tdir_tf)
 
     if saveat isa Number
-        if (tspan[1]:saveat:tspan[end])[end] == tspan[end]
-            saveat_vec = convert(Vector{tType},
-                collect(tType, (tspan[1] + saveat):saveat:tspan[end]))
-        else
-            saveat_vec = convert(Vector{tType},
-                collect(tType,
-                    (tspan[1] + saveat):saveat:(tspan[end] - saveat)))
-        end
-    elseif isempty(saveat)
-        saveat_vec = saveat
-    else
-        saveat_vec = vec(collect(tType,
-            Iterators.filter(x -> tdir * tspan[1] < tdir * x <
-                                  tdir * tspan[end], saveat)))
+        saveat = (t0:tdir*abs(saveat):tf)[2:end]
     end
-
-    if tdir > 0
-        saveat_internal = DataStructures.BinaryMinHeap(saveat_vec)
-    else
-        saveat_internal = DataStructures.BinaryMaxHeap(saveat_vec)
+    for t in saveat
+        tdir_t = tdir * t
+        tdir_t0 < tdir_t ≤ tdir_tf && push!(saveat_internal, tdir_t)
     end
 
     tstops_internal, saveat_internal
@@ -982,6 +990,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     reltol = 1 / 10^3,
     saveat = Float64[],
     tstops = Float64[],
+    d_discontinuities = Float64[],
     maxiters = Int(1e5),
     timeseries_errors = true,
     dense_errors = false,
@@ -990,8 +999,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     save_timeseries = nothing,
     save_end = true,
     progress = false,
+    progress_steps = 1000,
     progress_name = "DAE IDA",
     progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = gensym("Sundials"),
     advance_to_tstop = false,
     stop_at_next_tstop = false,
     userdata = nothing,
@@ -1013,8 +1024,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         error("Sundials requires at least one state variable.")
     end
 
-    progress && Logging.@logmsg(-1, progress_name, _id=_id = :Sundials, progress=0)
+    progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
+    tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
 
     max_len_cb = DiffEqBase.max_vector_callback_length(callbacks_internal)
@@ -1224,24 +1236,25 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     end
 
     tout = Float64[first(tspan)]
-    ures = Vector{uType}()
-    dures = Vector{uType}()
+    if save_idxs isa Integer
+        ures = Vector{eltype(uType)}()
+        dures = Vector{eltype(uType)}()
+    else
+        ures = Vector{uType}()
+        dures = Vector{uType}()
+    end
     tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
     uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     retcode = flag >= 0 ? ReturnCode.Default : ReturnCode.InitialFailure
     sol = DiffEqBase.build_solution(prob,
         alg,
         ts,
-        ures;
+        ures, dense ? dures : nothing;
         dense = dense,
-        interp = dense ?
-                 DiffEqBase.HermiteInterpolation(ts, ures,
-            dures) :
-                 DiffEqBase.LinearInterpolation(ts, ures),
         calculate_error = false,
         timeseries_errors = timeseries_errors,
         retcode = retcode,
-        stats = DiffEqBase.Stats(0),
+        stats = SciMLBase.DEStats(0),
         dense_errors = dense_errors)
 
     opts = DEOptions(saveat_internal,
@@ -1260,8 +1273,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         advance_to_tstop,
         stop_at_next_tstop,
         progress,
+        progress_steps,
         progress_name,
         progress_message,
+        progress_id,
         maxiters)
 
     integrator = IDAIntegrator(u0,
@@ -1284,6 +1299,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         tmp,
         uprev,
         Cint(flag),
+        0,
         false,
         0,
         1,
@@ -1298,7 +1314,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
 
     if save_start
         save_value!(ures, integrator.u, uType, save_idxs)
-        save_value!(dures, integrator.u, uType, save_idxs)
+        save_value!(dures, integrator.du, duType, save_idxs)
     end
 
     initialize_callbacks!(integrator)
@@ -1319,9 +1335,9 @@ function solver_step(integrator::CVODEIntegrator, tstop)
     integrator.flag = CVode(integrator.mem, tstop, integrator.u_nvec, integrator.tout,
         CV_ONE_STEP)
     if integrator.opts.progress
-        Logging.@logmsg(-1,
+        Logging.@logmsg(Logging.LogLevel(-1),
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u,
                 integrator.p,
@@ -1333,9 +1349,9 @@ function solver_step(integrator::ARKODEIntegrator, tstop)
     integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u_nvec,
         integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
-        Logging.@logmsg(-1,
+        Logging.@logmsg(Logging.LogLevel(-1),
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u_nvec,
                 integrator.p,
@@ -1350,10 +1366,11 @@ function solver_step(integrator::IDAIntegrator, tstop)
         integrator.u_nvec,
         integrator.du_nvec,
         IDA_ONE_STEP)
-    if integrator.opts.progress
-        Logging.@logmsg(-1,
+    integrator.iter += 1
+    if integrator.opts.progress && integrator.iter % integrator.opts.progress_steps == 0
+        Logging.@logmsg(Logging.LogLevel(-1),
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u,
                 integrator.p,
@@ -1387,11 +1404,9 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
     uType = eltype(integrator.sol.u)
     iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)
-        # Sundials can have floating point issues approaching a tstop if
-        # there is a modifying event each
         # The call to first is an overload of Base.first implemented in DataStructures
-        while integrator.tdir * (integrator.t - first(integrator.opts.tstops)) < -1e6eps()
-            tstop = first(integrator.opts.tstops)
+        while integrator.tdir * integrator.t < first(integrator.opts.tstops)
+            tstop = integrator.tdir * first(integrator.opts.tstops)
             set_stop_time(integrator, tstop)
             integrator.tprev = integrator.t
             if !(integrator.opts.callback.continuous_callbacks isa Tuple{})
@@ -1400,9 +1415,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
             integrator.userfun.p = integrator.p
             solver_step(integrator, tstop)
             integrator.t = first(integrator.tout)
-            if integrator.t == integrator.tprev
-                integrator.flag = -3
-            end
+            # NB: CVode, ARKode may warn and then recover if integrator.t == integrator.tprev so don't flag this as an error 
             integrator.flag < 0 && break
             handle_callbacks!(integrator) # this also updates the interpolation
             integrator.flag < 0 && break
@@ -1419,6 +1432,7 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
         handle_tstop!(integrator)
     end
 
+    DiffEqBase.finalize!(integrator.opts.callback, integrator.u, integrator.t, integrator)
     tend = integrator.t
     if integrator.opts.save_end &&
        (isempty(integrator.sol.t) || integrator.sol.t[end] != tend)
@@ -1432,9 +1446,9 @@ function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = 
     end
 
     if integrator.opts.progress
-        Logging.@logmsg(-1,
+        Logging.@logmsg(Logging.LogLevel(-1),
             integrator.opts.progress_name,
-            _id=:Sundials,
+            _id=integrator.opts.progress_id,
             message=integrator.opts.progress_message(integrator.dt,
                 integrator.u,
                 integrator.p,
@@ -1466,12 +1480,13 @@ end
 
 function handle_tstop!(integrator::AbstractSundialsIntegrator)
     tstops = integrator.opts.tstops
-    if !isempty(tstops)
-        if integrator.tdir * (integrator.t - first(integrator.opts.tstops)) > -1e6eps()
+    if !isempty(tstops) && integrator.tdir * integrator.t >= first(tstops)
+        pop!(tstops)
+        # If we passed multiple tstops at once (possible if Sundials ignores us or we had redundant tstops)
+        while !isempty(tstops) && integrator.tdir * integrator.t >= first(tstops)
             pop!(tstops)
-            t = integrator.t
-            integrator.just_hit_tstop = true
         end
+        integrator.just_hit_tstop = true
     end
 end
 

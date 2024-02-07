@@ -45,9 +45,10 @@ sol = solve(prob, CVODE_Adams(); saveat = saveat, save_everystep = false)
 
 @test sol.t == saveat
 
-sol = solve(prob, CVODE_Adams(); tstops = [0.9])
-
-@test 0.9 ∈ sol.t
+for tstops in [0.9, [0.9]]
+    sol = solve(prob,  CVODE_Adams(); tstops)
+    @test 0.9 ∈ sol.t
+end
 
 sol = solve(prob, CVODE_Adams())
 sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1], timeseries_errors = false)
@@ -84,13 +85,13 @@ sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))
 sol10 = solve(prob, CVODE_BDF(; linear_solver = :LapackDense))
 sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3))
 
-@test isapprox(sol1[end], sol2[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol3[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol4[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol5[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol6[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol7[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol8[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol2.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol3.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol5.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol6.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol7.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol8.u[end]; rtol = 1e-3)
 #@test isapprox(sol1[end],sol9[end],rtol=1e-3)
 
 # Test identity preconditioner
@@ -99,12 +100,12 @@ global psetup_used = false
 prec = (z, r, p, t, y, fy, gamma, delta, lr) -> (global prec_used = true; z .= r)
 psetup = (p, t, u, du, jok, jcurPtr, gamma) -> (global psetup_used = true; jcurPtr[] = false)
 sol4 = solve(prob, CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec))
-@test isapprox(sol1[end], sol4[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
 @test prec_used
 sol4 = solve(prob,
     CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec,
         psetup = psetup))
-@test isapprox(sol1[end], sol4[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
 @test psetup_used
 
 # Backwards
