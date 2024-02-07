@@ -1,6 +1,7 @@
 using Sundials, Test
 using SciMLBase: NoInit
 using DAEProblemLibrary: prob_dae_resrob
+using DiffEqCallbacks
 
 # Test DAE
 mutable struct precflags
