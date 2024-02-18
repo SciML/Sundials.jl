@@ -1,92 +1,48 @@
-using Sundials
-using Test
+using SafeTestsets, Test
+@testset "Sundials" begin
+    @safetestset "Quality Assurance" include("qa.jl")
+    @safetestset "Generator" include("generator.jl")
 
-@testset "Generator" begin
-    include("generator.jl")
-end
-
-@testset "CVODE" begin
-    @testset "Roberts CVODE Simplified" begin
-        include("cvode_Roberts_simplified.jl")
-    end
-    @testset "Roberts CVODE Direct" begin
-        include("cvode_Roberts_dns.jl")
-    end
-    #@testset "CVODES Direct" begin include("cvodes_dns.jl") end
-end
-
-@testset "IDA" begin
-    @testset "Roberts IDA Simplified" begin
-        include("ida_Roberts_simplified.jl")
-    end
-    @testset "Roberts IDA Direct" begin
-        include("ida_Roberts_dns.jl")
-    end
-    @testset "Heat IDA Direct" begin
-        include("ida_Heat2D.jl")
-    end
-    # Commented out because still uses the syntax from Grid which is a deprecated package
-    #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
-end
-
-@testset "ARK" begin
-    @testset "Roberts ARKStep Direct" begin
-        include("arkstep_Roberts_dns.jl")
-    end
-    @testset "NonLinear ERKStep Direct" begin
-        include("erkstep_nonlin.jl")
-    end
-    #@testset "MRI two way couple" begin include("mri_twowaycouple.jl") end
-end
-
-@testset "Kinsol" begin
-    @testset "Kinsol Simplified" begin
-        include("kinsol_mkin_simplified.jl")
-    end
-    @testset "Kinsol MKin" begin
-        include("kinsol_mkinTest.jl")
-    end
-    @testset "Kinsol Banded" begin
-        include("kinsol_banded.jl")
-    end
-    @testset "Kinsol NonlinearSolve" begin
-        include("kinsol_nonlinear_solve.jl")
-    end
-end
-@testset "Handle Tests" begin
-    include("handle_tests.jl")
-end
-
-@testset "Common Interface" begin
     @testset "CVODE" begin
-        include("common_interface/cvode.jl")
+        @safetestset "Roberts CVODE Simplified" include("cvode_Roberts_simplified.jl")
+        @safetestset "Roberts CVODE Direct" include("cvode_Roberts_dns.jl")
+        # @safetestset "CVODES Direct" include("cvodes_dns.jl")
     end
-    @testset "ARKODE" begin
-        include("common_interface/arkode.jl")
-    end
-    @testset "IDA" begin
-        include("common_interface/ida.jl")
-    end
-    @testset "Jacobians" begin
-        include("common_interface/jacobians.jl")
-    end
-    @testset "Callbacks" begin
-        include("common_interface/callbacks.jl")
-    end
-    @testset "Iterator" begin
-        include("common_interface/iterators.jl")
-    end
-    @testset "Errors" begin
-        include("common_interface/errors.jl")
-    end
-    @testset "Mass Matrix" begin
-        include("common_interface/mass_matrix.jl")
-    end
-    @testset "Preconditioners" begin
-        include("common_interface/precs.jl")
-    end
-end
 
-@testset "Interpolation" begin
-    include("interpolation.jl")
+    @testset "IDA" begin
+        @safetestset "Roberts IDA Simplified" include("ida_Roberts_simplified.jl")
+        @safetestset "Roberts IDA Direct" include("ida_Roberts_dns.jl")
+        @safetestset "Heat IDA Direct" include("ida_Heat2D.jl")
+        # Commented out because still uses the syntax from Grid which is a deprecated package
+        # @safetestset "Cable IDA Direct" include("ida_Cable.jl")
+    end
+
+    @testset "ARK" begin
+        @safetestset "Roberts ARKStep Direct" include("arkstep_Roberts_dns.jl")
+        @safetestset "NonLinear ERKStep Direct" include("erkstep_nonlin.jl")
+        # @safetestset "MRI two way couple" include("mri_twowaycouple.jl")
+    end
+
+    @testset "Kinsol" begin
+        @safetestset "Kinsol Simplified" include("kinsol_mkin_simplified.jl")
+        @safetestset "Kinsol MKin" include("kinsol_mkinTest.jl")
+        @safetestset "Kinsol Banded" include("kinsol_banded.jl")
+        @safetestset "Kinsol NonlinearSolve" include("kinsol_nonlinear_solve.jl")
+    end
+
+    @safetestset "Handle Tests" include("handle_tests.jl")
+
+    @testset "Common Interface" begin
+        @safetestset "CVODE" include("common_interface/cvode.jl")
+        @safetestset "ARKODE" include("common_interface/arkode.jl")
+        @safetestset "IDA" include("common_interface/ida.jl")
+        @safetestset "Jacobians" include("common_interface/jacobians.jl")
+        @safetestset "Callbacks" include("common_interface/callbacks.jl")
+        @safetestset "Iterator" include("common_interface/iterators.jl")
+        @safetestset "Errors" include("common_interface/errors.jl")
+        @safetestset "Mass Matrix" include("common_interface/mass_matrix.jl")
+        @safetestset "Preconditioners" include("common_interface/precs.jl")
+    end
+
+    @safetestset "Interpolation" include("interpolation.jl")
 end

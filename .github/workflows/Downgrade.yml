@@ -1,18 +1,22 @@
-name: CI
+name: Downgrade
 on:
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
   push:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
   schedule:
     - cron: '15 4 * * 6'
 jobs:
   test:
     runs-on: ${{ matrix.os }}
     env:
-      GROUP: ${{ matrix.group }}
+      GROUP: ${{ matrix.group }}    
     strategy:
       fail-fast: false
       matrix:
@@ -29,14 +33,11 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
+      - uses: cjdoris/julia-downgrade-compat-action@v1
+        with:
+          skip: Pkg,TOML,Sundials_jll
       - uses: julia-actions/cache@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
-        with:
-          depwarn: error
-      - uses: julia-actions/julia-processcoverage@v1
-      - uses: codecov/codecov-action@v4
-        with:
-          file: lcov.info
