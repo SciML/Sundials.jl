@@ -289,3 +289,8 @@ function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,
 
     nothing
 end
+
+DiffEqBase.get_tstops(integ::AbstractSundialsIntegrator) = integ.opts.tstops
+DiffEqBase.get_tstops_array(integ::AbstractSundialsIntegrator) = get_tstops(integ).valtree
+DiffEqBase.get_tstops_max(integ::AbstractSundialsIntegrator) =
+    maximum(get_tstops_array(integ))
