@@ -56,3 +56,21 @@ method = ARKODE(Sundials.Explicit();
 # Solve
 sol = solve(prob, method)
 @test sol.retcode == ReturnCode.Success
+
+
+
+function lotka_volterra(du, u, p, t)
+    # Model parameters.
+    α, β, γ, δ = p
+    # Current state.
+    x, y = u
+
+    # Evaluate differential equations.
+    du[1] = (α - β * y) * x # prey
+    du[2] = (δ * x - γ) * y # predator
+
+    return nothing
+end
+
+sol = solve(prob, ARKODE(), saveat = [0.1, 0.2])
+@test sol.t == [0.1, 0.2]
