@@ -35,8 +35,7 @@ sol9 = solve(prob, CVODE_BDF(; linear_solver = :KLU))
 @test Array(sol9) ≈ Array(good_sol)
 
 Lotka_fj = ODEFunction(Lotka;
-    jac_prototype = JacVec((du, u) -> Lotka(du, u, (), 0.0), ones(2),
-        SciMLBase.NullParameters()))
+    jac_prototype = JacVec((du, u) -> Lotka(du, u, (), 0.0), ones(2)))
 
 prob = ODEProblem(Lotka_fj, ones(2), (0.0, 10.0))
 sol9 = solve(prob, CVODE_BDF(; linear_solver = :GMRES), saveat = 0.1, abstol = 1e-12,
