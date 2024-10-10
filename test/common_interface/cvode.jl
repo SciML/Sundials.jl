@@ -46,7 +46,7 @@ sol = solve(prob, CVODE_Adams(); saveat = saveat, save_everystep = false)
 @test sol.t == saveat
 
 for tstops in [0.9, [0.9]]
-    sol = solve(prob,  CVODE_Adams(); tstops)
+    local sol = solve(prob,  CVODE_Adams(); tstops)
     @test 0.9 ∈ sol.t
 end
 
@@ -57,7 +57,7 @@ sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1], timeseries_errors = false
 
 sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1, 2], timeseries_errors = false,
     calculate_error = false)
-@test length(sol_idxs[1]) == 2
+@test length(sol_idxs[:, 1]) == 2
 @test sol[1, :] == sol_idxs[1, :]
 @test sol[2, :] == sol_idxs[2, :]
 

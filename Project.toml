@@ -35,8 +35,8 @@ IncompleteLU = "40713840-3770-5561-ab4c-a76e7d0d7895"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 ODEProblemLibrary = "fdc4e326-1af4-4b90-96e7-779fcce2daa5"
 SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
-SparsityTracing = "06eadbd4-12ad-4cbc-ab6e-10f8370940a5"
+SparseConnectivityTracer = "9f842d2f-2579-4b1d-911e-f412cf18a3f5"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "AlgebraicMultigrid", "DiffEqCallbacks", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "SparseDiffTools", "SparsityTracing", "IncompleteLU", "ModelingToolkit"]
+test = ["Test", "AlgebraicMultigrid", "DiffEqCallbacks", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "SparseDiffTools", "SparseConnectivityTracer", "IncompleteLU", "ModelingToolkit"]

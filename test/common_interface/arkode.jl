@@ -56,3 +56,7 @@ method = ARKODE(Sundials.Explicit();
 # Solve
 sol = solve(prob, method)
 @test sol.retcode == ReturnCode.Success
+
+#test that save_start and save_end are false by default when saveat is set
+sol = solve(prob, ARKODE(), saveat = [0.1, 0.2])
+@test sol.t == [0.1, 0.2]
