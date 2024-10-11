@@ -60,7 +60,7 @@ sol = solve(prob, IDA(); saveat = saveat, save_everystep = true)
 @test intersect(sol.t, saveat) == saveat
 @info "IDA with tstops"
 for tstops in [0.9, [0.9]]
-    sol = solve(prob, IDA(); tstops)
+    local sol = solve(prob, IDA(); tstops)
     @test 0.9 ∈ sol.t
 end
 

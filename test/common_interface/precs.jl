@@ -1,6 +1,6 @@
 using Sundials, Test, LinearAlgebra, IncompleteLU
 import AlgebraicMultigrid
-import SparsityTracing, SparseDiffTools
+import SparseConnectivityTracer, SparseDiffTools
 
 const N = 32
 const xyd_brusselator = range(0; stop = 1, length = N)
@@ -46,15 +46,14 @@ function init_brusselator_2d(xyd)
     u
 end
 u0 = vec(init_brusselator_2d(xyd_brusselator))
+du = similar(u0)
 
 prob_ode_brusselator_2d = ODEProblem(brusselator_2d_vec,
     u0, (0.0, 11.5), p)
 
-# find Jacobian sparsity pattern
-u0_st = SparsityTracing.create_advec(u0)
-du_st = similar(u0_st)
-brusselator_2d_vec(du_st, u0_st, p, 0.0)
-const jaccache = SparsityTracing.jacobian(du_st, length(du_st))
+detector =  SparseConnectivityTracer.TracerSparsityDetector()
+brus_uf = (du, u)->brusselator_2d_vec(du, u, p, 0.1)
+const jaccache = similar(SparseConnectivityTracer.jacobian_sparsity(brus_uf, du, u0, detector), Float64)
 const W = I - 1.0 * jaccache
 
 # setup sparse AD for Jacobian
