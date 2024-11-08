@@ -159,7 +159,7 @@ end
     out .= integrator.du
 end
 
-function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator, t)
+function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator, t, modify_save_endpoint::Type{Val{T}}=Val{false}, reinitialize_alg=nothing) where T
     integrator.t = t
     integrator(integrator.u, integrator.t)
     return nothing
