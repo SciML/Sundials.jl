@@ -4,6 +4,8 @@ authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 version = "4.28.0"
 
 [deps]
+Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
+ArrayInterface = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
@@ -17,8 +19,10 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 
 [compat]
+Accessors = "0.1.38"
 AlgebraicMultigrid = "1"
 Aqua = "0.8"
+ArrayInterface = "7.17.1"
 CEnum = "0.5"
 DAEProblemLibrary = "0.1"
 DataStructures = "0.18, 0.19"

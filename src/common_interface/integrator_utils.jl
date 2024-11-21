@@ -157,7 +157,7 @@ end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)
     # Implicitly does IDAReinit!
-    DiffEqBase.initialize_dae!(integrator, IDADefaultInit())
+    DiffEqBase.initialize_dae!(integrator)
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
@@ -227,46 +227,6 @@ end
 
 # Required for callbacks
 DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing
-
-DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator) = nothing
-
-struct IDADefaultInit <: DiffEqBase.DAEInitializationAlgorithm
-end
-
-function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-        initializealg::IDADefaultInit)
-    if integrator.u_modified
-        IDAReinit!(integrator)
-    end
-    integrator.f(integrator.tmp, integrator.du, integrator.u, integrator.p, integrator.t)
-    tstart, tend = integrator.sol.prob.tspan
-    if any(abs.(integrator.tmp) .>= integrator.opts.reltol)
-        if integrator.sol.prob.differential_vars === nothing && !integrator.alg.init_all
-            error("Must supply differential_vars argument to DAEProblem constructor to use IDA initial value solver.")
-        end
-        if integrator.alg.init_all
-            init_type = IDA_Y_INIT
-        else
-            init_type = IDA_YA_YDP_INIT
-            # Use preallocated NVector for differential_vars
-            if integrator.diff_vars_nvec !== nothing
-                integrator.flag = IDASetId(integrator.mem, integrator.diff_vars_nvec)
-            else
-                error("differential_vars NVector not preallocated but needed for IDASetId")
-            end
-        end
-        dt = integrator.dt == tstart ? tend : integrator.dt
-        integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
-
-        # Reflect consistent initial conditions back into the integrator's
-        # shadow copy. N.B.: ({du, u}_nvec are aliased to {du, u}).
-        IDAGetConsistentIC(integrator.mem, integrator.u_nvec, integrator.du_nvec)
-    end
-    if integrator.t == tstart && integrator.flag < 0
-        integrator.sol = SciMLBase.solution_new_retcode(integrator.sol,
-            ReturnCode.InitialFailure)
-    end
-end
 
 DiffEqBase.has_reinit(integrator::AbstractSundialsIntegrator) = true
 function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,

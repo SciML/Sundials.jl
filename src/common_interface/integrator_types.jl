@@ -40,7 +40,8 @@ mutable struct CVODEIntegrator{N,
     oType,
     LStype,
     Atype,
-    CallbackCacheType} <: AbstractSundialsIntegrator{algType}
+    CallbackCacheType,
+    IA} <: AbstractSundialsIntegrator{algType}
     u::Array{Float64, N}
     u_nvec::NVector
     p::pType
@@ -66,6 +67,7 @@ mutable struct CVODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    initializealg::IA
     ctx_handle::ContextHandle
 end
 
@@ -102,7 +104,8 @@ mutable struct ARKODEIntegrator{N,
     MLStype,
     Mtype,
     CallbackCacheType,
-    MemType} <: AbstractSundialsIntegrator{ARKODE}
+    MemType,
+    IA} <: AbstractSundialsIntegrator{ARKODE}
     u::Array{Float64, N}
     u_nvec::NVector
     p::pType
@@ -130,15 +133,16 @@ mutable struct ARKODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    initializealg::IA
     ctx_handle::ContextHandle
 end
 
 function (integrator::ARKODEIntegrator{
         N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem})(t::Number,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA})(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, T}
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
@@ -148,10 +152,10 @@ end
 
 function (integrator::ARKODEIntegrator{
         N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem})(t::Number,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA})(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, T}
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
@@ -161,11 +165,11 @@ end
 
 function (integrator::ARKODEIntegrator{
         N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem})(out,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA})(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, T}
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
@@ -174,11 +178,11 @@ end
 
 function (integrator::ARKODEIntegrator{
         N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem})(out,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA})(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, T}
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)

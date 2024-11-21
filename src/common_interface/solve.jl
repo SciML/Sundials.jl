@@ -128,6 +128,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
+        initializealg = SundialsDefaultInit(),
         kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
 }
     tType = eltype(tupType)
@@ -463,7 +464,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
+        initializealg,
         ctx_handle)
+    DiffEqBase.initialize_dae!(integrator)
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -505,6 +508,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
+        initializealg = SundialsDefaultInit(),
         kwargs...) where {uType, tupType, isinplace, Method,
         LinearSolver,
         MassLinearSolver}
@@ -995,10 +999,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
+        initializealg,
         ctx_handle)
 
-    # Context will be freed when integrator is garbage collected
-    # through the Handle mechanism
+    DiffEqBase.initialize_dae!(integrator)
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -1030,41 +1034,40 @@ end
 
 ## Solve for DAEs uses IDA
 
-function DiffEqBase.__init(
-        prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType,
-            isinplace},
-        alg::SundialsDAEAlgorithm{LinearSolver},
-        timeseries = [],
-        ts = [],
-        ks = [];
-        verbose = true,
-        dt = nothing,
-        dtmax = 0.0,
-        save_on = true,
-        save_start = true,
-        callback = nothing,
-        abstol = 1 / 10^6,
-        reltol = 1 / 10^3,
-        saveat = Float64[],
-        tstops = Float64[],
-        d_discontinuities = Float64[],
-        maxiters = Int(1e5),
-        timeseries_errors = true,
-        dense_errors = false,
-        save_everystep = isempty(saveat), save_idxs = nothing,
-        dense = save_everystep,
-        save_timeseries = nothing,
-        save_end = true,
-        progress = false,
-        progress_steps = 1000,
-        progress_name = "DAE IDA",
-        progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
-        progress_id = :Sundials,
-        advance_to_tstop = false,
-        stop_at_next_tstop = false,
-        userdata = nothing,
-        initializealg = IDADefaultInit(),
-        kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
+function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType,
+        isinplace},
+    alg::SundialsDAEAlgorithm{LinearSolver},
+    timeseries = [],
+    ts = [],
+    ks = [];
+    verbose = true,
+    dt = nothing,
+    dtmax = 0.0,
+    save_on = true,
+    save_start = true,
+    callback = nothing,
+    abstol = 1 / 10^6,
+    reltol = 1 / 10^3,
+    saveat = Float64[],
+    tstops = Float64[],
+    d_discontinuities = Float64[],
+    maxiters = Int(1e5),
+    timeseries_errors = true,
+    dense_errors = false,
+    save_everystep = isempty(saveat), save_idxs = nothing,
+    dense = save_everystep,
+    save_timeseries = nothing,
+    save_end = true,
+    progress = false,
+    progress_steps = 1000,
+    progress_name = "DAE IDA",
+    progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = :Sundials,
+    advance_to_tstop = false,
+    stop_at_next_tstop = false,
+    userdata = nothing,
+    initializealg = SundialsDefaultInit(),
+    kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
 }
     tType = eltype(tupType)
 
@@ -1378,7 +1381,7 @@ function DiffEqBase.__init(
     # Context will be freed when integrator is garbage collected
     # through the Handle mechanism
 
-    DiffEqBase.initialize_dae!(integrator, initializealg)
+    DiffEqBase.initialize_dae!(integrator)
     integrator.u_modified && IDAReinit!(integrator)
 
     if save_start

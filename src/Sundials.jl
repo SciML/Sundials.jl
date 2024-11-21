@@ -3,20 +3,16 @@
 module Sundials
 
 import Reexport
-Reexport.@reexport using SciMLBase
-using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
-                  add_tstop!, change_t_via_interpolation!, check_error,
-                  check_keywords, get_du, get_du!, get_tmp_cache, get_tstops,
-                  get_tstops_array, initialize!, isinplace,
-                  reeval_internals_due_to_modification!, reinit!, savevalues!,
-                  set_proposed_dt!, solve, solve!, step!, terminate!, u_modified!,
-                  update_coefficients!, warn_compat
-using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
-                 SciMLBase, SplitODEProblem, VectorContinuousCallback
-using DataStructures: DataStructures
-using Logging: Logging
-using SparseArrays: SparseArrays
-using LinearAlgebra: LinearAlgebra
+Reexport.@reexport using DiffEqBase
+using SciMLBase: AbstractSciMLOperator
+import Accessors: @reset
+import ArrayInterface
+import SymbolicIndexingInterface as SII
+import SymbolicIndexingInterface: ParameterIndexingProxy
+import DataStructures
+import Logging
+import SparseArrays
+import LinearAlgebra
 
 using Libdl: Libdl
 using CEnum: CEnum, @cenum
@@ -91,6 +87,7 @@ include("common_interface/verbosity.jl")
 include("common_interface/algorithms.jl")
 include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
+include("common_interface/initialize_dae.jl")
 include("common_interface/solve.jl")
 
 import PrecompileTools
