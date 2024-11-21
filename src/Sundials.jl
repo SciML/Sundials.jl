@@ -5,6 +5,8 @@ module Sundials
 import Reexport
 Reexport.@reexport using DiffEqBase
 using SciMLBase: AbstractSciMLOperator
+import SymbolicIndexingInterface as SII
+import SymbolicIndexingInterface: ParameterIndexingProxy
 import DataStructures
 import Logging
 import DiffEqBase
