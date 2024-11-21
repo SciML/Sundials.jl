@@ -90,6 +90,9 @@ end
     @testset "Preconditioners" begin
         include("common_interface/precs.jl")
     end
+    @testset "Initialization" begin
+        include("common_interface/initialization.jl")
+    end
 end
 
 @testset "Interpolation" begin
