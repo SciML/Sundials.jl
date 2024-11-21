@@ -40,7 +40,8 @@ mutable struct CVODEIntegrator{N,
     oType,
     LStype,
     Atype,
-    CallbackCacheType} <: AbstractSundialsIntegrator{algType}
+    CallbackCacheType,
+    IA} <: AbstractSundialsIntegrator{algType}
     u::Array{Float64, N}
     u_nvec::NVector
     p::pType
@@ -66,6 +67,7 @@ mutable struct CVODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    initializealg::IA
 end
 
 function (integrator::CVODEIntegrator)(t::Number,
@@ -96,7 +98,8 @@ mutable struct ARKODEIntegrator{N,
     Atype,
     MLStype,
     Mtype,
-    CallbackCacheType} <: AbstractSundialsIntegrator{ARKODE}
+    CallbackCacheType,
+    IA} <: AbstractSundialsIntegrator{ARKODE}
     u::Array{Float64, N}
     u_nvec::NVector
     p::pType
@@ -124,6 +127,7 @@ mutable struct ARKODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    initializealg::IA
 end
 
 function (integrator::ARKODEIntegrator)(t::Number,
