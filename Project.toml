@@ -58,9 +58,10 @@ ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 IncompleteLU = "40713840-3770-5561-ab4c-a76e7d0d7895"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 ODEProblemLibrary = "fdc4e326-1af4-4b90-96e7-779fcce2daa5"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 SparseConnectivityTracer = "9f842d2f-2579-4b1d-911e-f412cf18a3f5"
 SparseDiffTools = "47a9eef4-7e08-11e9-0b38-333d64bd3804"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "AlgebraicMultigrid", "Aqua", "DiffEqCallbacks", "ExplicitImports", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "SparseDiffTools", "SparseConnectivityTracer", "IncompleteLU", "ModelingToolkit"]
+test = ["Test", "AlgebraicMultigrid", "Aqua", "DiffEqCallbacks", "ExplicitImports", "ODEProblemLibrary", "DAEProblemLibrary", "ForwardDiff", "SparseDiffTools", "SparseConnectivityTracer", "IncompleteLU", "ModelingToolkit", "SafeTestsets"]
