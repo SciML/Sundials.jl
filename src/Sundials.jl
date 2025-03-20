@@ -4,6 +4,7 @@ module Sundials
 
 import Reexport
 Reexport.@reexport using SciMLBase
+using DiffEqBase
 using SciMLBase: AbstractSciMLOperator
 import DataStructures
 import Logging
