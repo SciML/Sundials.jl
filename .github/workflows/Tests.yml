@@ -16,6 +16,7 @@ jobs:
   tests:
     name: "Tests"
     strategy:
+      fail-fast: false
       matrix:
         version:
           - "1"
