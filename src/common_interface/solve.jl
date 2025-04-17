@@ -76,7 +76,8 @@ function DiffEqBase.__solve(prob::Union{
         alg.prec_side,
         alg.krylov_dim,
         maxiters,
-        strategy = alg.globalization_strategy)
+        strategy = alg.globalization_strategy,
+        alg.maxsetupcalls)
 
     f!(resid, u)
     retcode = interpret_sundials_retcode(flag)

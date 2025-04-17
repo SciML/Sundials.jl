@@ -55,7 +55,8 @@ function ___kinsol(f,
     krylov_dim::Int = 0,
     jac_prototype = nothing,
     maxiters = 1000,
-    strategy = :None)
+    strategy = :None,
+    maxsetupcalls=0)
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -111,6 +112,7 @@ function ___kinsol(f,
     flag = @checkflag KINSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
     flag = @checkflag KINSetNumMaxIters(kmem, maxiters) true
+    flag = @checkflag KINSetMaxSetupCalls(kmem, maxsetupcalls) true
     ## Solve problem
     scale = ones(length(y0))
     if strategy == :None

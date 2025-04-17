@@ -726,6 +726,7 @@ KINSOL(;
     prec_side = 0,
     krylov_dim = 0,
     globalization_strategy = :None
+    maxsetupcalls=0
 )
 ```
 
@@ -754,6 +755,11 @@ The choices for globalization strategy are:
 
 - `:None`: No globalization strategy
 - `:LineSearch`: A line search globalization strategy
+
+Other options:
+
+- `maxsetupcalls`: Maximum number of nonlinear iterations that can be performed between
+  calls to the preconditioner or Jacobian setup function.
 """
 struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
     jac_upper::Int
@@ -762,6 +768,7 @@ struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
     prec_side::Int
     krylov_dim::Int
     globalization_strategy::Symbol
+    maxsetupcalls::Int
 end
 
 Base.@pure function KINSOL(;
@@ -771,7 +778,8 @@ Base.@pure function KINSOL(;
     userdata = nothing,
     prec_side = 0,
     krylov_dim = 0,
-    globalization_strategy = :None)
+    globalization_strategy = :None,
+    maxsetupcalls = 0)
     if !(linear_solver in (:None,
         :Dense,
         :LapackDense,
@@ -789,7 +797,7 @@ Base.@pure function KINSOL(;
         error("Globalization strategy not accepted.")
     end
     KINSOL{linear_solver}(jac_upper, jac_lower, userdata, prec_side, krylov_dim,
-    globalization_strategy)
+    globalization_strategy, maxsetupcalls)
 end
 
 method_choice(alg::SundialsODEAlgorithm{Method}) where {Method} = Method
