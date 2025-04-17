@@ -6,6 +6,10 @@ import Reexport
 Reexport.@reexport using SciMLBase
 using DiffEqBase
 using SciMLBase: AbstractSciMLOperator
+import Accessors: @reset
+import ArrayInterface
+import SymbolicIndexingInterface as SII
+import SymbolicIndexingInterface: ParameterIndexingProxy
 import DataStructures
 import Logging
 import DiffEqBase
@@ -82,6 +86,7 @@ include("common_interface/verbosity.jl")
 include("common_interface/algorithms.jl")
 include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
+include("common_interface/initialize_dae.jl")
 include("common_interface/solve.jl")
 
 import PrecompileTools
