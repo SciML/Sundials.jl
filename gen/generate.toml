@@ -2,8 +2,8 @@
 library_name = "" # depends on header file
 # library_names = {}\
 # output_file_path = "../lib/file.jl"
-output_api_file_path = "../lib/libsundials_api.jl"
-output_common_file_path = "../lib/libsundials_common.jl"
+output_api_file_path = "../src/lib/libsundials_api.jl"
+output_common_file_path = "../src/lib/libsundials_common.jl"
 prologue_file_path = "prologue.jl"
 # epilogue_file_path = "epilogue.jl"
 use_julia_native_enum_type = false
