@@ -40,7 +40,8 @@ const ctor_return_type = Dict("ARKCreate" => :(ARKStepMemPtr),
     "IDACreate" => :(IDAMemPtr),
     "KINCreate" => :(KINMemPtr))
 # signatures for C function pointer types
-const FnTypeSignatures = Dict(:ARKRhsFn => (:Cint,
+const FnTypeSignatures = Dict(
+    :ARKRhsFn => (:Cint,
         :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
     :CVRhsFn => (:Cint,
         :((realtype, N_Vector, N_Vector, Ptr{Cvoid}))),
@@ -102,7 +103,8 @@ function wrap_sundials_api(expr::Expr)
                 expr.args[2].args[1].args[2].args[2] == :libsundials_sunnonlinsol)
                 if func_name[1:6] == "SUNMAT"
                     expr.args[2].args[1].args[2].args[2] = Symbol(string(expr.args[2].args[1].args[2].args[2]) *
-                                                                  lowercase(split(func_name,
+                                                                  lowercase(split(
+                        func_name,
                         "_")[end]))
                 else
                     name_i = findfirst(lsmn -> occursin(lsmn, lowercase(func_name)),

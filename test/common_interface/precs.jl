@@ -51,9 +51,10 @@ du = similar(u0)
 prob_ode_brusselator_2d = ODEProblem(brusselator_2d_vec,
     u0, (0.0, 11.5), p)
 
-detector =  SparseConnectivityTracer.TracerSparsityDetector()
-brus_uf = (du, u)->brusselator_2d_vec(du, u, p, 0.1)
-const jaccache = similar(SparseConnectivityTracer.jacobian_sparsity(brus_uf, du, u0, detector), Float64)
+detector = SparseConnectivityTracer.TracerSparsityDetector()
+brus_uf = (du, u) -> brusselator_2d_vec(du, u, p, 0.1)
+const jaccache = similar(
+    SparseConnectivityTracer.jacobian_sparsity(brus_uf, du, u0, detector), Float64)
 const W = I - 1.0 * jaccache
 
 # setup sparse AD for Jacobian
@@ -106,7 +107,8 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
         @. @view(W[idxs]) = @view(W[idxs]) + 1
 
         # Build preconditioner on W
-        preccache2[] = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
+        preccache2[] = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(
+            W;
             presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
                 1))),
             postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,

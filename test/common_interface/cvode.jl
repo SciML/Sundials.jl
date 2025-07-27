@@ -46,7 +46,7 @@ sol = solve(prob, CVODE_Adams(); saveat = saveat, save_everystep = false)
 @test sol.t == saveat
 
 for tstops in [0.9, [0.9]]
-    local sol = solve(prob,  CVODE_Adams(); tstops)
+    local sol = solve(prob, CVODE_Adams(); tstops)
     @test 0.9 ∈ sol.t
 end
 
@@ -67,7 +67,7 @@ prob = ODEProblem(k, [1.0], (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 h = (u, p, t) -> u
 u0 = [1.0 2.0
-    3.0 2.0]
+      3.0 2.0]
 prob = ODEProblem(h, u0, (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 
