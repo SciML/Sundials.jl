@@ -1,78 +1,3 @@
-struct klu_l_symbolic
-    symmetry::Cdouble
-    est_flops::Cdouble
-    lnz::Cdouble
-    unz::Cdouble
-    Lnz::Ptr{Cdouble}
-    n::Int64
-    nz::Int64
-    P::Ptr{Int64}
-    Q::Ptr{Int64}
-    R::Ptr{Int64}
-    nzoff::Int64
-    nblocks::Int64
-    maxblock::Int64
-    ordering::Int64
-    do_btf::Int64
-    structural_rank::Int64
-end
-
-struct klu_l_numeric
-    n::Int64
-    nblocks::Int64
-    lnz::Int64
-    unz::Int64
-    max_lnz_block::Int64
-    max_unz_block::Int64
-    Pnum::Ptr{Int64}
-    Pinv::Ptr{Int64}
-    Lip::Ptr{Int64}
-    Uip::Ptr{Int64}
-    Llen::Ptr{Int64}
-    Ulen::Ptr{Int64}
-    LUbx::Ptr{Ptr{Cvoid}}
-    LUsize::Ptr{Csize_t}
-    Udiag::Ptr{Cvoid}
-    Rs::Ptr{Cdouble}
-    worksize::Csize_t
-    Work::Ptr{Cvoid}
-    Xwork::Ptr{Cvoid}
-    Iwork::Ptr{Int64}
-    Offp::Ptr{Int64}
-    Offi::Ptr{Int64}
-    Offx::Ptr{Cvoid}
-    nzoff::Int64
-end
-
-struct klu_l_common_struct
-    tol::Cdouble
-    memgrow::Cdouble
-    initmem_amd::Cdouble
-    initmem::Cdouble
-    maxwork::Cdouble
-    btf::Cint
-    ordering::Cint
-    scale::Cint
-    user_order::Ptr{Cvoid}
-    user_data::Ptr{Cvoid}
-    halt_if_singular::Cint
-    status::Cint
-    nrealloc::Cint
-    structural_rank::Int64
-    numerical_rank::Int64
-    singular_col::Int64
-    noffdiag::Int64
-    flops::Cdouble
-    rcond::Cdouble
-    condest::Cdouble
-    rgrowth::Cdouble
-    work::Cdouble
-    memusage::Csize_t
-    mempeak::Csize_t
-end
-
-const klu_l_common = klu_l_common_struct
-
 # typedef int ( * ARKRhsFn ) ( realtype t , N_Vector y , N_Vector ydot , void * user_data )
 const ARKRhsFn = Ptr{Cvoid}
 
@@ -836,26 +761,26 @@ mutable struct SUNLogger_ end
 
 const SUNLogger = Ptr{SUNLogger_}
 
-@cenum __JL_Ctag_277::UInt32 begin
+@cenum __JL_Ctag_1::UInt32 begin
     PREC_NONE = 0
     PREC_LEFT = 1
     PREC_RIGHT = 2
     PREC_BOTH = 3
 end
 
-@cenum __JL_Ctag_278::UInt32 begin
+@cenum __JL_Ctag_2::UInt32 begin
     SUN_PREC_NONE = 0
     SUN_PREC_LEFT = 1
     SUN_PREC_RIGHT = 2
     SUN_PREC_BOTH = 3
 end
 
-@cenum __JL_Ctag_279::UInt32 begin
+@cenum __JL_Ctag_3::UInt32 begin
     MODIFIED_GS = 1
     CLASSICAL_GS = 2
 end
 
-@cenum __JL_Ctag_280::UInt32 begin
+@cenum __JL_Ctag_4::UInt32 begin
     SUN_MODIFIED_GS = 1
     SUN_CLASSICAL_GS = 2
 end
@@ -1006,9 +931,9 @@ const KLUSolveFn = Ptr{Cvoid}
 struct _SUNLinearSolverContent_KLU
     last_flag::Cint
     first_factorize::Cint
-    symbolic::Ptr{klu_l_symbolic}
-    numeric::Ptr{klu_l_numeric}
-    common::klu_l_common
+    symbolic::Ptr{Cint}
+    numeric::Ptr{Cint}
+    common::Cint
     klu_solver::KLUSolveFn
 end
 
@@ -1394,29 +1319,22 @@ const ARK_RELAX_JAC_FAIL = -46
 
 const ARK_UNRECOGNIZED_ERROR = -99
 
-const DEFAULT_ERK_2 = ARKSTEP_ERK_DEFAULT_2
+# These constants are defined as C preprocessor macros referring to enums
+# Since Julia doesn't have preprocessor, we'll map them to the actual enum values
+const DEFAULT_ERK_2 = ARKODE_HEUN_EULER_2_1_2
+const DEFAULT_ERK_3 = ARKODE_BOGACKI_SHAMPINE_4_2_3
+const DEFAULT_ERK_4 = ARKODE_ARK324L2SA_ERK_4_2_3
+const DEFAULT_ERK_5 = ARKODE_ZONNEVELD_5_3_4
+const DEFAULT_ERK_6 = ARKODE_CASH_KARP_6_4_5
+const DEFAULT_ERK_8 = ARKODE_FEHLBERG_13_7_8
 
-const DEFAULT_ERK_3 = ARKSTEP_ERK_DEFAULT_3
-
-const DEFAULT_ERK_4 = ARKSTEP_ERK_DEFAULT_4
-
-const DEFAULT_ERK_5 = ARKSTEP_ERK_DEFAULT_5
-
-const DEFAULT_ERK_6 = ARKSTEP_ERK_DEFAULT_6
-
-const DEFAULT_ERK_8 = ARKSTEP_ERK_DEFAULT_8
-
-const DEFAULT_ARK_ETABLE_3 = ARKSTEP_DEFAULT_ARK_ETABLE_3
-
-const DEFAULT_ARK_ETABLE_4 = ARKSTEP_DEFAULT_ARK_ETABLE_4
-
-const DEFAULT_ARK_ETABLE_5 = ARKSTEP_DEFAULT_ARK_ETABLE_5
-
-const DEFAULT_ARK_ITABLE_3 = ARKSTEP_DEFAULT_ARK_ITABLE_3
-
-const DEFAULT_ARK_ITABLE_4 = ARKSTEP_DEFAULT_ARK_ITABLE_4
-
-const DEFAULT_ARK_ITABLE_5 = ARKSTEP_DEFAULT_ARK_ITABLE_5
+# ARK tables - using appropriate defaults
+const DEFAULT_ARK_ETABLE_3 = ARKODE_ARK324L2SA_ERK_4_2_3
+const DEFAULT_ARK_ETABLE_4 = ARKODE_ARK436L2SA_ERK_6_3_4
+const DEFAULT_ARK_ETABLE_5 = ARKODE_ARK548L2SA_ERK_8_4_5
+const DEFAULT_ARK_ITABLE_3 = ARKODE_ARK324L2SA_DIRK_4_2_3
+const DEFAULT_ARK_ITABLE_4 = ARKODE_ARK436L2SA_DIRK_6_3_4
+const DEFAULT_ARK_ITABLE_5 = ARKODE_ARK548L2SA_DIRK_8_4_5
 
 const SDIRK_2_1_2 = 100
 
@@ -1532,21 +1450,15 @@ const MIN_MRI_NUM = 200
 
 const MAX_MRI_NUM = 208
 
-const DEFAULT_MRI_TABLE_3 = MRISTEP_DEFAULT_3
-
-const DEFAULT_EXPL_MRI_TABLE_3 = MRISTEP_DEFAULT_EXPL_3
-
-const DEFAULT_EXPL_MRI_TABLE_4 = MRISTEP_DEFAULT_EXPL_4
-
-const DEFAULT_IMPL_SD_MRI_TABLE_2 = MRISTEP_DEFAULT_IMPL_SD_2
-
-const DEFAULT_IMPL_SD_MRI_TABLE_3 = MRISTEP_DEFAULT_IMPL_SD_3
-
-const DEFAULT_IMPL_SD_MRI_TABLE_4 = MRISTEP_DEFAULT_IMPL_SD_4
-
-const DEFAULT_IMEX_SD_MRI_TABLE_3 = MRISTEP_DEFAULT_IMEX_SD_3
-
-const DEFAULT_IMEX_SD_MRI_TABLE_4 = MRISTEP_DEFAULT_IMEX_SD_4
+# MRI default tables - mapping to actual enum values
+const DEFAULT_MRI_TABLE_3 = ARKODE_MRI_GARK_ERK33a
+const DEFAULT_EXPL_MRI_TABLE_3 = ARKODE_MRI_GARK_ERK33a
+const DEFAULT_EXPL_MRI_TABLE_4 = ARKODE_MRI_GARK_ERK45a
+const DEFAULT_IMPL_SD_MRI_TABLE_2 = ARKODE_MRI_GARK_IRK21a
+const DEFAULT_IMPL_SD_MRI_TABLE_3 = ARKODE_MRI_GARK_ESDIRK34a
+const DEFAULT_IMPL_SD_MRI_TABLE_4 = ARKODE_MRI_GARK_ESDIRK46a
+const DEFAULT_IMEX_SD_MRI_TABLE_3 = ARKODE_IMEX_MRI_GARK3a
+const DEFAULT_IMEX_SD_MRI_TABLE_4 = ARKODE_IMEX_MRI_GARK4
 
 const CV_ADAMS = 1
 
@@ -2038,7 +1950,8 @@ const SUNDIALS_SUNNONLINSOL_FIXEDPOINT = 1
 
 # Skipping MacroDefinition: SUNDIALS_C_INLINE inline
 
-const SUNDIALS_INLINE = SUNDIALS_C_INLINE
+# SUNDIALS_INLINE is a C macro for inline functions, not needed in Julia
+# const SUNDIALS_INLINE = SUNDIALS_C_INLINE
 
 # Skipping MacroDefinition: SUNDIALS_STATIC_INLINE static SUNDIALS_INLINE
 
@@ -2048,65 +1961,42 @@ const SUNDIALS_BAND = 2
 
 # Skipping MacroDefinition: SUNDIALS_DEPRECATED __attribute__ ( ( __deprecated__ ) )
 
-const SUNDIALS_DEPRECATED_EXPORT = SUNDIALS_EXPORT(SUNDIALS_DEPRECATED)
+# These are C visibility/deprecation macros not needed in Julia
+# const SUNDIALS_DEPRECATED_EXPORT = SUNDIALS_EXPORT(SUNDIALS_DEPRECATED)
+# const SUNDIALS_DEPRECATED_NO_EXPORT = SUNDIALS_NO_EXPORT(SUNDIALS_DEPRECATED)
 
-const SUNDIALS_DEPRECATED_NO_EXPORT = SUNDIALS_NO_EXPORT(SUNDIALS_DEPRECATED)
-
+# F77 BLAS/LAPACK function names - not needed in Julia wrapper
+# These are used internally by Sundials C library
+#=
 const dcopy_f77 = SUNDIALS_F77_FUNC(dcopy, DCOPY)
-
 const dscal_f77 = SUNDIALS_F77_FUNC(dscal, DSCAL)
-
 const dgemv_f77 = SUNDIALS_F77_FUNC(dgemv, DGEMV)
-
 const dtrsv_f77 = SUNDIALS_F77_FUNC(dtrsv, DTRSV)
-
 const dsyrk_f77 = SUNDIALS_F77_FUNC(dsyrk, DSKYR)
-
 const dgbtrf_f77 = SUNDIALS_F77_FUNC(dgbtrf, DGBTRF)
-
 const dgbtrs_f77 = SUNDIALS_F77_FUNC(dgbtrs, DGBTRS)
-
 const dgetrf_f77 = SUNDIALS_F77_FUNC(dgetrf, DGETRF)
-
 const dgetrs_f77 = SUNDIALS_F77_FUNC(dgetrs, DGETRS)
-
 const dgeqp3_f77 = SUNDIALS_F77_FUNC(dgeqp3, DGEQP3)
-
 const dgeqrf_f77 = SUNDIALS_F77_FUNC(dgeqrf, DGEQRF)
-
 const dormqr_f77 = SUNDIALS_F77_FUNC(dormqr, DORMQR)
-
 const dpotrf_f77 = SUNDIALS_F77_FUNC(dpotrf, DPOTRF)
-
 const dpotrs_f77 = SUNDIALS_F77_FUNC(dpotrs, DPOTRS)
-
 const scopy_f77 = SUNDIALS_F77_FUNC(scopy, SCOPY)
-
 const sscal_f77 = SUNDIALS_F77_FUNC(sscal, SSCAL)
-
 const sgemv_f77 = SUNDIALS_F77_FUNC(sgemv, SGEMV)
-
 const strsv_f77 = SUNDIALS_F77_FUNC(strsv, STRSV)
-
 const ssyrk_f77 = SUNDIALS_F77_FUNC(ssyrk, SSKYR)
-
 const sgbtrf_f77 = SUNDIALS_F77_FUNC(sgbtrf, SGBTRF)
-
 const sgbtrs_f77 = SUNDIALS_F77_FUNC(sgbtrs, SGBTRS)
-
 const sgetrf_f77 = SUNDIALS_F77_FUNC(sgetrf, SGETRF)
-
 const sgetrs_f77 = SUNDIALS_F77_FUNC(sgetrs, SGETRS)
-
 const sgeqp3_f77 = SUNDIALS_F77_FUNC(sgeqp3, SGEQP3)
-
 const sgeqrf_f77 = SUNDIALS_F77_FUNC(sgeqrf, SGEQRF)
-
 const sormqr_f77 = SUNDIALS_F77_FUNC(sormqr, SORMQR)
-
 const spotrf_f77 = SUNDIALS_F77_FUNC(spotrf, SPOTRF)
-
 const spotrs_f77 = SUNDIALS_F77_FUNC(spotrs, SPOTRS)
+=#
 
 const SUNLS_SUCCESS = 0
 
@@ -2212,27 +2102,20 @@ const SUNKLU_REINIT_FULL = 1
 
 const SUNKLU_REINIT_PARTIAL = 2
 
+# KLU type aliases - these are internal KLU types not exposed in Julia
+#=
 const sun_klu_symbolic = klu_l_symbolic
-
 const sun_klu_numeric = klu_l_numeric
-
 const sun_klu_common = klu_l_common
-
 const sun_klu_analyze = klu_l_analyze
-
 const sun_klu_factor = klu_l_factor
-
 const sun_klu_refactor = klu_l_refactor
-
 const sun_klu_rcond = klu_l_rcond
-
 const sun_klu_condest = klu_l_condest
-
 const sun_klu_defaults = klu_l_defaults
-
 const sun_klu_free_symbolic = klu_l_free_symbolic
-
 const sun_klu_free_numeric = klu_l_free_numeric
+=#
 
 const SUNPCG_MAXL_DEFAULT = 5
 

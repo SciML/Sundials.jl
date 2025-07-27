@@ -1,5 +1,5 @@
 function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype, y0::N_Vector, sunctx::SUNContext)
-    ccall((:ARKStepCreate, libsundials_arkode), Ptr{Cvoid}, (ARKRhsFn, ARKRhsFn, realtype, N_Vector, SUNContext), fe, fi, t0, y0, sunctx)
+    ccall((:ARKStepCreate, libsundials_arkode), Ptr{ARKStepMem}, (ARKRhsFn, ARKRhsFn, realtype, N_Vector, SUNContext), fe, fi, t0, y0, sunctx)
 end
 
 function ARKStepResize(arkode_mem, ynew::N_Vector, hscale::realtype, t0::realtype, resize::ARKVecResizeFn, resize_data)
@@ -743,7 +743,7 @@ function ARKodeButcherTable_LoadERKByName(emethod)
 end
 
 function ERKStepCreate(f::ARKRhsFn, t0::realtype, y0::N_Vector, sunctx::SUNContext)
-    ccall((:ERKStepCreate, libsundials_arkode), Ptr{Cvoid}, (ARKRhsFn, realtype, N_Vector, SUNContext), f, t0, y0, sunctx)
+    ccall((:ERKStepCreate, libsundials_arkode), Ptr{ERKStepMem}, (ARKRhsFn, realtype, N_Vector, SUNContext), f, t0, y0, sunctx)
 end
 
 function ERKStepResize(arkode_mem, ynew::N_Vector, hscale::realtype, t0::realtype, resize::ARKVecResizeFn, resize_data)
@@ -1147,7 +1147,7 @@ function MRIStepCoupling_Write(MRIC::MRIStepCoupling, outfile)
 end
 
 function MRIStepCreate(fse::ARKRhsFn, fsi::ARKRhsFn, t0::realtype, y0::N_Vector, stepper::MRIStepInnerStepper, sunctx::SUNContext)
-    ccall((:MRIStepCreate, libsundials_arkode), Ptr{Cvoid}, (ARKRhsFn, ARKRhsFn, realtype, N_Vector, MRIStepInnerStepper, SUNContext), fse, fsi, t0, y0, stepper, sunctx)
+    ccall((:MRIStepCreate, libsundials_arkode), Ptr{MRIStepMem}, (ARKRhsFn, ARKRhsFn, realtype, N_Vector, MRIStepInnerStepper, SUNContext), fse, fsi, t0, y0, stepper, sunctx)
 end
 
 function MRIStepResize(arkode_mem, ynew::N_Vector, t0::realtype, resize::ARKVecResizeFn, resize_data)
@@ -1747,7 +1747,7 @@ function SPRKStepFree(arkode_mem)
 end
 
 function CVodeCreate(lmm::Cint, sunctx::SUNContext)
-    ccall((:CVodeCreate, libsundials_cvodes), Ptr{Cvoid}, (Cint, SUNContext), lmm, sunctx)
+    ccall((:CVodeCreate, libsundials_cvodes), Ptr{CVODEMem}, (Cint, SUNContext), lmm, sunctx)
 end
 
 function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::N_Vector)
@@ -2823,7 +2823,7 @@ function CVSpilsSetJacTimesBS(cvode_mem, which::Cint, jtsetupBS::CVSpilsJacTimes
 end
 
 function IDACreate(sunctx::SUNContext)
-    ccall((:IDACreate, libsundials_idas), Ptr{Cvoid}, (SUNContext,), sunctx)
+    ccall((:IDACreate, libsundials_idas), Ptr{IDAMem}, (SUNContext,), sunctx)
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::N_Vector, yp0::N_Vector)
@@ -3823,7 +3823,7 @@ function IDASpilsSetJacTimesBS(ida_mem, which::Cint, jtsetupBS::IDASpilsJacTimes
 end
 
 function KINCreate(sunctx::SUNContext)
-    ccall((:KINCreate, libsundials_kinsol), Ptr{Cvoid}, (SUNContext,), sunctx)
+    ccall((:KINCreate, libsundials_kinsol), Ptr{KINMem}, (SUNContext,), sunctx)
 end
 
 function KINInit(kinmem, func::KINSysFn, tmpl::N_Vector)
@@ -5780,7 +5780,7 @@ function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Cint)
 end
 
 function SUNLinSol_Band(y::N_Vector, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_Band, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    ccall((:SUNLinSol_Band, libsundials_sunlinsolband), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
 function SUNLinSolGetType_Band(S::SUNLinearSolver)
@@ -5816,7 +5816,7 @@ function SUNLinSolFree_Band(S::SUNLinearSolver)
 end
 
 function SUNLinSol_Dense(y::N_Vector, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_Dense, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    ccall((:SUNLinSol_Dense, libsundials_sunlinsoldense), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
 function SUNLinSolGetType_Dense(S::SUNLinearSolver)
@@ -5852,27 +5852,27 @@ function SUNLinSolFree_Dense(S::SUNLinearSolver)
 end
 
 function SUNLinSol_KLU(y::N_Vector, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_KLU, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    ccall((:SUNLinSol_KLU, libsundials_sunlinsolklu), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
 function SUNLinSol_KLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype, reinit_type::Cint)
-    ccall((:SUNLinSol_KLUReInit, libsundials_sunlinsol), Cint, (SUNLinearSolver, SUNMatrix, sunindextype, Cint), S, A, nnz, reinit_type)
+    ccall((:SUNLinSol_KLUReInit, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, SUNMatrix, sunindextype, Cint), S, A, nnz, reinit_type)
 end
 
 function SUNLinSol_KLUSetOrdering(S::SUNLinearSolver, ordering_choice::Cint)
-    ccall((:SUNLinSol_KLUSetOrdering, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, ordering_choice)
+    ccall((:SUNLinSol_KLUSetOrdering, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, Cint), S, ordering_choice)
 end
 
 function SUNLinSol_KLUGetSymbolic(S::SUNLinearSolver)
-    ccall((:SUNLinSol_KLUGetSymbolic, libsundials_sunlinsol), Ptr{Cint}, (SUNLinearSolver,), S)
+    ccall((:SUNLinSol_KLUGetSymbolic, libsundials_sunlinsolklu), Ptr{Cint}, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_KLUGetNumeric(S::SUNLinearSolver)
-    ccall((:SUNLinSol_KLUGetNumeric, libsundials_sunlinsol), Ptr{Cint}, (SUNLinearSolver,), S)
+    ccall((:SUNLinSol_KLUGetNumeric, libsundials_sunlinsolklu), Ptr{Cint}, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_KLUGetCommon(S::SUNLinearSolver)
-    ccall((:SUNLinSol_KLUGetCommon, libsundials_sunlinsol), Ptr{Cint}, (SUNLinearSolver,), S)
+    ccall((:SUNLinSol_KLUGetCommon, libsundials_sunlinsolklu), Ptr{Cint}, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolGetType_KLU(S::SUNLinearSolver)
@@ -5908,7 +5908,7 @@ function SUNLinSolFree_KLU(S::SUNLinearSolver)
 end
 
 function SUNLinSol_LapackBand(y::N_Vector, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackbandlapackband), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
 function SUNLinSolGetType_LapackBand(S::SUNLinearSolver)
@@ -5944,7 +5944,7 @@ function SUNLinSolFree_LapackBand(S::SUNLinearSolver)
 end
 
 function SUNLinSol_LapackDense(y::N_Vector, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdenselapackdense), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
 function SUNLinSolGetType_LapackDense(S::SUNLinearSolver)
@@ -5980,15 +5980,15 @@ function SUNLinSolFree_LapackDense(S::SUNLinearSolver)
 end
 
 function SUNLinSol_PCG(y::N_Vector, pretype::Cint, maxl::Cint, sunctx::SUNContext)
-    ccall((:SUNLinSol_PCG, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
+    ccall((:SUNLinSol_PCG, libsundials_sunlinsolpcg), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
 end
 
 function SUNLinSol_PCGSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_PCGSetPrecType, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, pretype)
+    ccall((:SUNLinSol_PCGSetPrecType, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint), S, pretype)
 end
 
 function SUNLinSol_PCGSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNLinSol_PCGSetMaxl, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, maxl)
+    ccall((:SUNLinSol_PCGSetMaxl, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint), S, maxl)
 end
 
 function SUNLinSolGetType_PCG(S::SUNLinearSolver)
@@ -6052,23 +6052,23 @@ function SUNLinSolFree_PCG(S::SUNLinearSolver)
 end
 
 function SUNLinSolSetInfoFile_PCG(LS::SUNLinearSolver, info_file)
-    ccall((:SUNLinSolSetInfoFile_PCG, libsundials_sunlinsol), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
+    ccall((:SUNLinSolSetInfoFile_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
 end
 
 function SUNLinSolSetPrintLevel_PCG(LS::SUNLinearSolver, print_level::Cint)
-    ccall((:SUNLinSolSetPrintLevel_PCG, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), LS, print_level)
+    ccall((:SUNLinSolSetPrintLevel_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint), LS, print_level)
 end
 
 function SUNLinSol_SPBCGS(y::N_Vector, pretype::Cint, maxl::Cint, sunctx::SUNContext)
-    ccall((:SUNLinSol_SPBCGS, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
+    ccall((:SUNLinSol_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
 end
 
 function SUNLinSol_SPBCGSSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPBCGSSetPrecType, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, pretype)
+    ccall((:SUNLinSol_SPBCGSSetPrecType, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Cint), S, pretype)
 end
 
 function SUNLinSol_SPBCGSSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNLinSol_SPBCGSSetMaxl, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, maxl)
+    ccall((:SUNLinSol_SPBCGSSetMaxl, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Cint), S, maxl)
 end
 
 function SUNLinSolGetType_SPBCGS(S::SUNLinearSolver)
@@ -6132,27 +6132,27 @@ function SUNLinSolFree_SPBCGS(S::SUNLinearSolver)
 end
 
 function SUNLinSolSetInfoFile_SPBCGS(LS::SUNLinearSolver, info_file)
-    ccall((:SUNLinSolSetInfoFile_SPBCGS, libsundials_sunlinsol), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
+    ccall((:SUNLinSolSetInfoFile_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
 end
 
 function SUNLinSolSetPrintLevel_SPBCGS(LS::SUNLinearSolver, print_level::Cint)
-    ccall((:SUNLinSolSetPrintLevel_SPBCGS, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), LS, print_level)
+    ccall((:SUNLinSolSetPrintLevel_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Cint), LS, print_level)
 end
 
 function SUNLinSol_SPFGMR(y::N_Vector, pretype::Cint, maxl::Cint, sunctx::SUNContext)
-    ccall((:SUNLinSol_SPFGMR, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
+    ccall((:SUNLinSol_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
 end
 
 function SUNLinSol_SPFGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPFGMRSetPrecType, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, pretype)
+    ccall((:SUNLinSol_SPFGMRSetPrecType, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint), S, pretype)
 end
 
 function SUNLinSol_SPFGMRSetGSType(S::SUNLinearSolver, gstype::Cint)
-    ccall((:SUNLinSol_SPFGMRSetGSType, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, gstype)
+    ccall((:SUNLinSol_SPFGMRSetGSType, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint), S, gstype)
 end
 
 function SUNLinSol_SPFGMRSetMaxRestarts(S::SUNLinearSolver, maxrs::Cint)
-    ccall((:SUNLinSol_SPFGMRSetMaxRestarts, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, maxrs)
+    ccall((:SUNLinSol_SPFGMRSetMaxRestarts, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint), S, maxrs)
 end
 
 function SUNLinSolGetType_SPFGMR(S::SUNLinearSolver)
@@ -6216,27 +6216,27 @@ function SUNLinSolFree_SPFGMR(S::SUNLinearSolver)
 end
 
 function SUNLinSolSetInfoFile_SPFGMR(LS::SUNLinearSolver, info_file)
-    ccall((:SUNLinSolSetInfoFile_SPFGMR, libsundials_sunlinsol), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
+    ccall((:SUNLinSolSetInfoFile_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
 end
 
 function SUNLinSolSetPrintLevel_SPFGMR(LS::SUNLinearSolver, print_level::Cint)
-    ccall((:SUNLinSolSetPrintLevel_SPFGMR, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), LS, print_level)
+    ccall((:SUNLinSolSetPrintLevel_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint), LS, print_level)
 end
 
 function SUNLinSol_SPGMR(y::N_Vector, pretype::Cint, maxl::Cint, sunctx::SUNContext)
-    ccall((:SUNLinSol_SPGMR, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
+    ccall((:SUNLinSol_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
 end
 
 function SUNLinSol_SPGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPGMRSetPrecType, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, pretype)
+    ccall((:SUNLinSol_SPGMRSetPrecType, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Cint), S, pretype)
 end
 
 function SUNLinSol_SPGMRSetGSType(S::SUNLinearSolver, gstype::Cint)
-    ccall((:SUNLinSol_SPGMRSetGSType, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, gstype)
+    ccall((:SUNLinSol_SPGMRSetGSType, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Cint), S, gstype)
 end
 
 function SUNLinSol_SPGMRSetMaxRestarts(S::SUNLinearSolver, maxrs::Cint)
-    ccall((:SUNLinSol_SPGMRSetMaxRestarts, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, maxrs)
+    ccall((:SUNLinSol_SPGMRSetMaxRestarts, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Cint), S, maxrs)
 end
 
 function SUNLinSolGetType_SPGMR(S::SUNLinearSolver)
@@ -6300,23 +6300,23 @@ function SUNLinSolFree_SPGMR(S::SUNLinearSolver)
 end
 
 function SUNLinSolSetInfoFile_SPGMR(LS::SUNLinearSolver, info_file)
-    ccall((:SUNLinSolSetInfoFile_SPGMR, libsundials_sunlinsol), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
+    ccall((:SUNLinSolSetInfoFile_SPGMR, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
 end
 
 function SUNLinSolSetPrintLevel_SPGMR(LS::SUNLinearSolver, print_level::Cint)
-    ccall((:SUNLinSolSetPrintLevel_SPGMR, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), LS, print_level)
+    ccall((:SUNLinSolSetPrintLevel_SPGMR, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Cint), LS, print_level)
 end
 
 function SUNLinSol_SPTFQMR(y::N_Vector, pretype::Cint, maxl::Cint, sunctx::SUNContext)
-    ccall((:SUNLinSol_SPTFQMR, libsundials_sunlinsol), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
+    ccall((:SUNLinSol_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver, (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, sunctx)
 end
 
 function SUNLinSol_SPTFQMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPTFQMRSetPrecType, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, pretype)
+    ccall((:SUNLinSol_SPTFQMRSetPrecType, libsundials_sunlinsolsptfqmr), Cint, (SUNLinearSolver, Cint), S, pretype)
 end
 
 function SUNLinSol_SPTFQMRSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNLinSol_SPTFQMRSetMaxl, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), S, maxl)
+    ccall((:SUNLinSol_SPTFQMRSetMaxl, libsundials_sunlinsolsptfqmr), Cint, (SUNLinearSolver, Cint), S, maxl)
 end
 
 function SUNLinSolGetType_SPTFQMR(S::SUNLinearSolver)
@@ -6380,267 +6380,267 @@ function SUNLinSolFree_SPTFQMR(S::SUNLinearSolver)
 end
 
 function SUNLinSolSetInfoFile_SPTFQMR(LS::SUNLinearSolver, info_file)
-    ccall((:SUNLinSolSetInfoFile_SPTFQMR, libsundials_sunlinsol), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
+    ccall((:SUNLinSolSetInfoFile_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint, (SUNLinearSolver, Ptr{Libc.FILE}), LS, info_file)
 end
 
 function SUNLinSolSetPrintLevel_SPTFQMR(LS::SUNLinearSolver, print_level::Cint)
-    ccall((:SUNLinSolSetPrintLevel_SPTFQMR, libsundials_sunlinsol), Cint, (SUNLinearSolver, Cint), LS, print_level)
+    ccall((:SUNLinSolSetPrintLevel_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint, (SUNLinearSolver, Cint), LS, print_level)
 end
 
 function SUNBandMatrix(N::sunindextype, mu::sunindextype, ml::sunindextype, sunctx::SUNContext)
-    ccall((:SUNBandMatrix, libsundials_sunmatrix), SUNMatrix, (sunindextype, sunindextype, sunindextype, SUNContext), N, mu, ml, sunctx)
+    ccall((:SUNBandMatrix, libsundials_sunmatrixband), SUNMatrix, (sunindextype, sunindextype, sunindextype, SUNContext), N, mu, ml, sunctx)
 end
 
 function SUNBandMatrixStorage(N::sunindextype, mu::sunindextype, ml::sunindextype, smu::sunindextype, sunctx::SUNContext)
-    ccall((:SUNBandMatrixStorage, libsundials_sunmatrix), SUNMatrix, (sunindextype, sunindextype, sunindextype, sunindextype, SUNContext), N, mu, ml, smu, sunctx)
+    ccall((:SUNBandMatrixStorage, libsundials_sunmatrixband), SUNMatrix, (sunindextype, sunindextype, sunindextype, sunindextype, SUNContext), N, mu, ml, smu, sunctx)
 end
 
 function SUNBandMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNBandMatrix_Print, libsundials_sunmatrix), Cvoid, (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
+    ccall((:SUNBandMatrix_Print, libsundials_sunmatrixband), Cvoid, (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
 end
 
 function SUNBandMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Rows, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Rows, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Columns(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Columns, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Columns, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_LowerBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LowerBandwidth, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_LowerBandwidth, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_UpperBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_UpperBandwidth, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_UpperBandwidth, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_StoredUpperBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_StoredUpperBandwidth, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_StoredUpperBandwidth, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_LDim(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LDim, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_LDim, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_LData(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LData, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_LData, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Data(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Data, libsundials_sunmatrix), Ptr{realtype}, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Data, libsundials_sunmatrixbanddense), Ptr{realtype}, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Cols(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Cols, libsundials_sunmatrix), Ptr{Ptr{realtype}}, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Cols, libsundials_sunmatrixbanddense), Ptr{Ptr{realtype}}, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Column(A::SUNMatrix, j::sunindextype)
-    ccall((:SUNBandMatrix_Column, libsundials_sunmatrix), Ptr{realtype}, (SUNMatrix, sunindextype), A, j)
+    ccall((:SUNBandMatrix_Column, libsundials_sunmatrixband), Ptr{realtype}, (SUNMatrix, sunindextype), A, j)
 end
 
 function SUNMatGetID_Band(A::SUNMatrix)
-    ccall((:SUNMatGetID_Band, libsundials_sunmatrix), SUNMatrix_ID, (SUNMatrix,), A)
+    ccall((:SUNMatGetID_Band, libsundials_sunmatrixbanddense), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Band(A::SUNMatrix)
-    ccall((:SUNMatClone_Band, libsundials_sunmatrix), SUNMatrix, (SUNMatrix,), A)
+    ccall((:SUNMatClone_Band, libsundials_sunmatrixbanddense), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Band(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Band, libsundials_sunmatrix), Cvoid, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Band, libsundials_sunmatrixbanddense), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Band(A::SUNMatrix)
-    ccall((:SUNMatZero_Band, libsundials_sunmatrix), Cint, (SUNMatrix,), A)
+    ccall((:SUNMatZero_Band, libsundials_sunmatrixbanddense), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Band(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Band, libsundials_sunmatrix), Cint, (SUNMatrix, SUNMatrix), A, B)
+    ccall((:SUNMatCopy_Band, libsundials_sunmatrixbanddense), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatScaleAdd_Band(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Band, libsundials_sunmatrix), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    ccall((:SUNMatScaleAdd_Band, libsundials_sunmatrixbanddense), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
 end
 
 function SUNMatScaleAddI_Band(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI_Band, libsundials_sunmatrix), Cint, (realtype, SUNMatrix), c, A)
+    ccall((:SUNMatScaleAddI_Band, libsundials_sunmatrixbanddense), Cint, (realtype, SUNMatrix), c, A)
 end
 
 function SUNMatMatvec_Band(A::SUNMatrix, x::N_Vector, y::N_Vector)
-    ccall((:SUNMatMatvec_Band, libsundials_sunmatrix), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
+    ccall((:SUNMatMatvec_Band, libsundials_sunmatrixband), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
 function SUNMatSpace_Band(A::SUNMatrix, lenrw, leniw)
-    ccall((:SUNMatSpace_Band, libsundials_sunmatrix), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
+    ccall((:SUNMatSpace_Band, libsundials_sunmatrixband), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
 end
 
 function SUNDenseMatrix(M::sunindextype, N::sunindextype, sunctx::SUNContext)
-    ccall((:SUNDenseMatrix, libsundials_sunmatrix), SUNMatrix, (sunindextype, sunindextype, SUNContext), M, N, sunctx)
+    ccall((:SUNDenseMatrix, libsundials_sunmatrixdense), SUNMatrix, (sunindextype, sunindextype, SUNContext), M, N, sunctx)
 end
 
 function SUNDenseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNDenseMatrix_Print, libsundials_sunmatrix), Cvoid, (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
+    ccall((:SUNDenseMatrix_Print, libsundials_sunmatrixdense), Cvoid, (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
 end
 
 function SUNDenseMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_Rows, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNDenseMatrix_Rows, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNDenseMatrix_Columns(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_Columns, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNDenseMatrix_Columns, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNDenseMatrix_LData(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_LData, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNDenseMatrix_LData, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNDenseMatrix_Data(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_Data, libsundials_sunmatrix), Ptr{realtype}, (SUNMatrix,), A)
+    ccall((:SUNDenseMatrix_Data, libsundials_sunmatrixdense), Ptr{realtype}, (SUNMatrix,), A)
 end
 
 function SUNDenseMatrix_Cols(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_Cols, libsundials_sunmatrix), Ptr{Ptr{realtype}}, (SUNMatrix,), A)
+    ccall((:SUNDenseMatrix_Cols, libsundials_sunmatrixdense), Ptr{Ptr{realtype}}, (SUNMatrix,), A)
 end
 
 function SUNDenseMatrix_Column(A::SUNMatrix, j::sunindextype)
-    ccall((:SUNDenseMatrix_Column, libsundials_sunmatrix), Ptr{realtype}, (SUNMatrix, sunindextype), A, j)
+    ccall((:SUNDenseMatrix_Column, libsundials_sunmatrixdense), Ptr{realtype}, (SUNMatrix, sunindextype), A, j)
 end
 
 function SUNMatGetID_Dense(A::SUNMatrix)
-    ccall((:SUNMatGetID_Dense, libsundials_sunmatrix), SUNMatrix_ID, (SUNMatrix,), A)
+    ccall((:SUNMatGetID_Dense, libsundials_sunmatrixdense), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Dense(A::SUNMatrix)
-    ccall((:SUNMatClone_Dense, libsundials_sunmatrix), SUNMatrix, (SUNMatrix,), A)
+    ccall((:SUNMatClone_Dense, libsundials_sunmatrixdense), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Dense(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Dense, libsundials_sunmatrix), Cvoid, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Dense, libsundials_sunmatrixdense), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Dense(A::SUNMatrix)
-    ccall((:SUNMatZero_Dense, libsundials_sunmatrix), Cint, (SUNMatrix,), A)
+    ccall((:SUNMatZero_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Dense(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Dense, libsundials_sunmatrix), Cint, (SUNMatrix, SUNMatrix), A, B)
+    ccall((:SUNMatCopy_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatScaleAdd_Dense(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Dense, libsundials_sunmatrix), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    ccall((:SUNMatScaleAdd_Dense, libsundials_sunmatrixdense), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
 end
 
 function SUNMatScaleAddI_Dense(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI_Dense, libsundials_sunmatrix), Cint, (realtype, SUNMatrix), c, A)
+    ccall((:SUNMatScaleAddI_Dense, libsundials_sunmatrixdense), Cint, (realtype, SUNMatrix), c, A)
 end
 
 function SUNMatMatvec_Dense(A::SUNMatrix, x::N_Vector, y::N_Vector)
-    ccall((:SUNMatMatvec_Dense, libsundials_sunmatrix), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
+    ccall((:SUNMatMatvec_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
 function SUNMatSpace_Dense(A::SUNMatrix, lenrw, leniw)
-    ccall((:SUNMatSpace_Dense, libsundials_sunmatrix), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
+    ccall((:SUNMatSpace_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
 end
 
 function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype, sparsetype::Cint, sunctx::SUNContext)
-    ccall((:SUNSparseMatrix, libsundials_sunmatrix), SUNMatrix, (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, sunctx)
+    ccall((:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix, (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, sunctx)
 end
 
 function SUNSparseFromDenseMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
-    ccall((:SUNSparseFromDenseMatrix, libsundials_sunmatrix), SUNMatrix, (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
+    ccall((:SUNSparseFromDenseMatrix, libsundials_sunmatrixsparse), SUNMatrix, (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
 end
 
 function SUNSparseFromBandMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
-    ccall((:SUNSparseFromBandMatrix, libsundials_sunmatrix), SUNMatrix, (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
+    ccall((:SUNSparseFromBandMatrix, libsundials_sunmatrixsparse), SUNMatrix, (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
 end
 
 function SUNSparseMatrix_ToCSR(A::SUNMatrix, Bout)
-    ccall((:SUNSparseMatrix_ToCSR, libsundials_sunmatrix), Cint, (SUNMatrix, Ptr{SUNMatrix}), A, Bout)
+    ccall((:SUNSparseMatrix_ToCSR, libsundials_sunmatrixsparse), Cint, (SUNMatrix, Ptr{SUNMatrix}), A, Bout)
 end
 
 function SUNSparseMatrix_ToCSC(A::SUNMatrix, Bout)
-    ccall((:SUNSparseMatrix_ToCSC, libsundials_sunmatrix), Cint, (SUNMatrix, Ptr{SUNMatrix}), A, Bout)
+    ccall((:SUNSparseMatrix_ToCSC, libsundials_sunmatrixsparse), Cint, (SUNMatrix, Ptr{SUNMatrix}), A, Bout)
 end
 
 function SUNSparseMatrix_Realloc(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Realloc, libsundials_sunmatrix), Cint, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Realloc, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Reallocate(A::SUNMatrix, NNZ::sunindextype)
-    ccall((:SUNSparseMatrix_Reallocate, libsundials_sunmatrix), Cint, (SUNMatrix, sunindextype), A, NNZ)
+    ccall((:SUNSparseMatrix_Reallocate, libsundials_sunmatrixsparse), Cint, (SUNMatrix, sunindextype), A, NNZ)
 end
 
 function SUNSparseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNSparseMatrix_Print, libsundials_sunmatrix), Cvoid, (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
+    ccall((:SUNSparseMatrix_Print, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
 end
 
 function SUNSparseMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Rows, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Rows, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Columns(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Columns, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Columns, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_NNZ(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_NNZ, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_NNZ, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_NP(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_NP, libsundials_sunmatrix), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_NP, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_SparseType(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_SparseType, libsundials_sunmatrix), Cint, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_SparseType, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Data(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Data, libsundials_sunmatrix), Ptr{realtype}, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Data, libsundials_sunmatrixsparsedense), Ptr{realtype}, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_IndexValues(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_IndexValues, libsundials_sunmatrix), Ptr{sunindextype}, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_IndexValues, libsundials_sunmatrixsparsedense), Ptr{sunindextype}, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_IndexPointers(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_IndexPointers, libsundials_sunmatrix), Ptr{sunindextype}, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_IndexPointers, libsundials_sunmatrixsparsedense), Ptr{sunindextype}, (SUNMatrix,), A)
 end
 
 function SUNMatGetID_Sparse(A::SUNMatrix)
-    ccall((:SUNMatGetID_Sparse, libsundials_sunmatrix), SUNMatrix_ID, (SUNMatrix,), A)
+    ccall((:SUNMatGetID_Sparse, libsundials_sunmatrixsparsedense), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Sparse(A::SUNMatrix)
-    ccall((:SUNMatClone_Sparse, libsundials_sunmatrix), SUNMatrix, (SUNMatrix,), A)
+    ccall((:SUNMatClone_Sparse, libsundials_sunmatrixsparsedense), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Sparse(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrix), Cvoid, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrixsparsedense), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Sparse(A::SUNMatrix)
-    ccall((:SUNMatZero_Sparse, libsundials_sunmatrix), Cint, (SUNMatrix,), A)
+    ccall((:SUNMatZero_Sparse, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Sparse(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Sparse, libsundials_sunmatrix), Cint, (SUNMatrix, SUNMatrix), A, B)
+    ccall((:SUNMatCopy_Sparse, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatScaleAdd_Sparse(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Sparse, libsundials_sunmatrix), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    ccall((:SUNMatScaleAdd_Sparse, libsundials_sunmatrixsparsedense), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
 end
 
 function SUNMatScaleAddI_Sparse(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI_Sparse, libsundials_sunmatrix), Cint, (realtype, SUNMatrix), c, A)
+    ccall((:SUNMatScaleAddI_Sparse, libsundials_sunmatrixsparsedense), Cint, (realtype, SUNMatrix), c, A)
 end
 
 function SUNMatMatvec_Sparse(A::SUNMatrix, x::N_Vector, y::N_Vector)
-    ccall((:SUNMatMatvec_Sparse, libsundials_sunmatrix), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
+    ccall((:SUNMatMatvec_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
 function SUNMatSpace_Sparse(A::SUNMatrix, lenrw, leniw)
-    ccall((:SUNMatSpace_Sparse, libsundials_sunmatrix), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
+    ccall((:SUNMatSpace_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
 end
 
 function SUNMemoryHelper_Sys(sunctx::SUNContext)
@@ -6672,11 +6672,11 @@ function SUNMemoryHelper_Destroy_Sys(helper::SUNMemoryHelper)
 end
 
 function SUNNonlinSol_FixedPoint(y::N_Vector, m::Cint, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_FixedPoint, libsundials_sunnonlinsol), SUNNonlinearSolver, (N_Vector, Cint, SUNContext), y, m, sunctx)
+    ccall((:SUNNonlinSol_FixedPoint, libsundials_sunnonlinsolfixedpoint), SUNNonlinearSolver, (N_Vector, Cint, SUNContext), y, m, sunctx)
 end
 
 function SUNNonlinSol_FixedPointSens(count::Cint, y::N_Vector, m::Cint, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_FixedPointSens, libsundials_sunnonlinsol), SUNNonlinearSolver, (Cint, N_Vector, Cint, SUNContext), count, y, m, sunctx)
+    ccall((:SUNNonlinSol_FixedPointSens, libsundials_sunnonlinsolfixedpoint), SUNNonlinearSolver, (Cint, N_Vector, Cint, SUNContext), count, y, m, sunctx)
 end
 
 function SUNNonlinSolGetType_FixedPoint(NLS::SUNNonlinearSolver)
@@ -6736,11 +6736,11 @@ function SUNNonlinSolSetPrintLevel_FixedPoint(NLS::SUNNonlinearSolver, print_lev
 end
 
 function SUNNonlinSol_Newton(y::N_Vector, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_Newton, libsundials_sunnonlinsol), SUNNonlinearSolver, (N_Vector, SUNContext), y, sunctx)
+    ccall((:SUNNonlinSol_Newton, libsundials_sunnonlinsolnewton), SUNNonlinearSolver, (N_Vector, SUNContext), y, sunctx)
 end
 
 function SUNNonlinSol_NewtonSens(count::Cint, y::N_Vector, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_NewtonSens, libsundials_sunnonlinsol), SUNNonlinearSolver, (Cint, N_Vector, SUNContext), count, y, sunctx)
+    ccall((:SUNNonlinSol_NewtonSens, libsundials_sunnonlinsolnewton), SUNNonlinearSolver, (Cint, N_Vector, SUNContext), count, y, sunctx)
 end
 
 function SUNNonlinSolGetType_Newton(NLS::SUNNonlinearSolver)

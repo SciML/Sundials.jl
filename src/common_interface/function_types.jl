@@ -251,3 +251,7 @@ function idaprecsetup(t::Float64,
     fj.psetup(fj.p, t, convert(Vector, rr), convert(Vector, y), convert(Vector, fy), gamma)
     return IDA_SUCCESS
 end
+
+# Convert FunJac to pointer for passing as user data
+Base.cconvert(::Type{Ptr{Nothing}}, fj::FunJac) = fj
+Base.unsafe_convert(::Type{Ptr{Nothing}}, fj::FunJac) = pointer_from_objref(fj)

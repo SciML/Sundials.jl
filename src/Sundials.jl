@@ -52,6 +52,23 @@ const libsundials_sunlinsol = libsundials_cvode
 const libsundials_sunnonlinsol = libsundials_cvode
 # sunmatrix has been renamed to sunmatrix[dense/sparse/band]
 # const libsundials_sunmatrix = libsundials_cvode
+const libsundials_sunmatrixdense = Sundials_jll.libsundials_sunmatrixdense
+const libsundials_sunmatrixband = Sundials_jll.libsundials_sunmatrixband
+const libsundials_sunmatrixsparse = Sundials_jll.libsundials_sunmatrixsparse
+# sunnonlinsol has been split into separate libraries
+const libsundials_sunnonlinsolfixedpoint = Sundials_jll.libsundials_sunnonlinsolfixedpoint
+const libsundials_sunnonlinsolnewton = Sundials_jll.libsundials_sunnonlinsolnewton
+# sunlinsol has been split into separate libraries
+const libsundials_sunlinsoldense = Sundials_jll.libsundials_sunlinsoldense
+const libsundials_sunlinsolband = Sundials_jll.libsundials_sunlinsolband
+const libsundials_sunlinsollapackband = Sundials_jll.libsundials_sunlinsollapackband
+const libsundials_sunlinsollapackdense = Sundials_jll.libsundials_sunlinsollapackdense
+const libsundials_sunlinsolklu = Sundials_jll.libsundials_sunlinsolklu
+const libsundials_sunlinsolpcg = Sundials_jll.libsundials_sunlinsolpcg
+const libsundials_sunlinsolspbcgs = Sundials_jll.libsundials_sunlinsolspbcgs
+const libsundials_sunlinsolspfgmr = Sundials_jll.libsundials_sunlinsolspfgmr
+const libsundials_sunlinsolspgmr = Sundials_jll.libsundials_sunlinsolspgmr
+const libsundials_sunlinsolsptfqmr = Sundials_jll.libsundials_sunlinsolsptfqmr
 
 const SPARSE_SOLVERS = (:KLU,)
 
@@ -60,6 +77,7 @@ include("types_and_consts_additions.jl")
 
 include("handle.jl")
 include("nvector_wrapper.jl")
+include("context.jl")
 
 include("./lib/libsundials_api_rewrite.jl")
 
@@ -76,6 +94,8 @@ for ff in names(@__MODULE__; all = true)
     end
 end
 
+include("context_helpers.jl")
+include("api_wrappers.jl")
 include("simple.jl")
 include("common_interface/function_types.jl")
 include("common_interface/verbosity.jl")

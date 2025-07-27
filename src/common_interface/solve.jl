@@ -202,7 +202,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     #    method_code = CV_FUNCTIONAL
     #end
 
-    mem_ptr = CVodeCreate(alg_code)
+    mem_ptr = CVodeCreate(alg_code, get_default_context())
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
@@ -245,13 +245,13 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     else
         flag = CVodeSStolerances(mem, reltol, abstol)
     end
-    flag = CVodeSetMaxNumSteps(mem, maxiters)
-    flag = CVodeSetMaxOrd(mem, alg.max_order)
-    flag = CVodeSetMaxHnilWarns(mem, alg.max_hnil_warns)
-    flag = CVodeSetStabLimDet(mem, alg.stability_limit_detect)
-    flag = CVodeSetMaxErrTestFails(mem, alg.max_error_test_failures)
-    flag = CVodeSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
-    flag = CVodeSetMaxConvFails(mem, alg.max_convergence_failures)
+    flag = CVodeSetMaxNumSteps(mem, convert(Clong, maxiters))
+    flag = CVodeSetMaxOrd(mem, convert(Cint, alg.max_order))
+    flag = CVodeSetMaxHnilWarns(mem, convert(Cint, alg.max_hnil_warns))
+    flag = CVodeSetStabLimDet(mem, convert(Cint, alg.stability_limit_detect))
+    flag = CVodeSetMaxErrTestFails(mem, convert(Cint, alg.max_error_test_failures))
+    flag = CVodeSetMaxNonlinIters(mem, convert(Cint, alg.max_nonlinear_iters))
+    flag = CVodeSetMaxConvFails(mem, convert(Cint, alg.max_convergence_failures))
 
     nojacobian = true
 
@@ -261,10 +261,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             A = SUNDenseMatrix(length(uvec), length(uvec))
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A)
+                LS = SUNLinSol_Dense(utmp.n_v, A)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A)
+                LS = SUNLinSol_LapackDense(utmp.n_v, A)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
@@ -272,10 +272,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A)
+                LS = SUNLinSol_Band(utmp.n_v, A)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A)
+                LS = SUNLinSol_LapackBand(utmp.n_v, A)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :Diagonal
@@ -284,37 +284,37 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             _A = nothing
             _LS = nothing
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNLinSol_SPFGMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPFGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNLinSol_SPBCGS(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPBCGS(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNLinSol_PCG(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_PCG(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNLinSol_SPTFQMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPTFQMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PTFQMR())
         elseif LinearSolver == :KLU
             nojacobian = false
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT)
-            LS = SUNLinSol_KLU(uvec, A)
+            LS = SUNLinSol_KLU(utmp.n_v, A)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
         end
         if LinearSolver !== :Diagonal
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
-        NLS = SUNNonlinSol_Newton(uvec)
+        NLS = SUNNonlinSol_Newton(utmp.n_v)
     else
         _A = nothing
         _LS = nothing
@@ -561,7 +561,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     utmp = NVector(uvec)
 
     function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = utmp)
-        mem_ptr = ARKStepCreate(fe, fi, t0, u0)
+        mem_ptr = ARKStepCreate(fe, fi, t0, u0.n_v, get_default_context())
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
 
@@ -655,13 +655,13 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     else
         flag = ARKStepSStolerances(mem, reltol, abstol)
     end
-    flag = ARKStepSetMaxNumSteps(mem, maxiters)
-    flag = ARKStepSetMaxHnilWarns(mem, alg.max_hnil_warns)
-    flag = ARKStepSetMaxErrTestFails(mem, alg.max_error_test_failures)
-    flag = ARKStepSetMaxConvFails(mem, alg.max_convergence_failures)
-    flag = ARKStepSetPredictorMethod(mem, alg.predictor_method)
+    flag = ARKStepSetMaxNumSteps(mem, convert(Clong, maxiters))
+    flag = ARKStepSetMaxHnilWarns(mem, convert(Cint, alg.max_hnil_warns))
+    flag = ARKStepSetMaxErrTestFails(mem, convert(Cint, alg.max_error_test_failures))
+    flag = ARKStepSetMaxConvFails(mem, convert(Cint, alg.max_convergence_failures))
+    flag = ARKStepSetPredictorMethod(mem, convert(Cint, alg.predictor_method))
     flag = ARKStepSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
-    flag = ARKStepSetDenseOrder(mem, alg.dense_order)
+    flag = ARKStepSetDenseOrder(mem, convert(Cint, alg.dense_order))
 
     #=
     Reference from Manual on ARKODE
@@ -669,19 +669,19 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     To select an implicit table, set etable to a negative value. This automatically calls ARKStepSetImplicit(). If both itable and etable are non-negative, then these should match an existing implicit/explicit pair, listed in the section Additive Butcher tables. This automatically calls ARKStepSetImEx().
     =#
     if alg.itable === nothing && alg.etable === nothing
-        flag = ARKStepSetOrder(mem, alg.order)
+        flag = ARKStepSetOrder(mem, convert(Cint, alg.order))
     elseif alg.itable === nothing && alg.etable !== nothing
-        flag = ARKStepSetTableNum(mem, -1, alg.etable)
+        flag = ARKStepSetTableNum(mem, -1, convert(Cint, alg.etable))
     elseif alg.itable !== nothing && alg.etable === nothing
-        flag = ARKStepSetTableNum(mem, alg.itable, -1)
+        flag = ARKStepSetTableNum(mem, convert(Cint, alg.itable), -1)
     else
-        flag = ARKStepSetTableNum(mem, alg.itable, alg.etable)
+        flag = ARKStepSetTableNum(mem, convert(Cint, alg.itable), convert(Cint, alg.etable))
     end
 
-    flag = ARKStepSetNonlinCRDown(mem, alg.crdown)
-    flag = ARKStepSetNonlinRDiv(mem, alg.rdiv)
-    flag = ARKStepSetDeltaGammaMax(mem, alg.dgmax)
-    flag = ARKStepSetMaxStepsBetweenLSet(mem, alg.msbp)
+    flag = ARKStepSetNonlinCRDown(mem, convert(realtype, alg.crdown))
+    flag = ARKStepSetNonlinRDiv(mem, convert(realtype, alg.rdiv))
+    flag = ARKStepSetDeltaGammaMax(mem, convert(realtype, alg.dgmax))
+    flag = ARKStepSetLSetupFrequency(mem, convert(Cint, alg.msbp))
     #flag = ARKStepSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
 
     #flag = ARKStepSetFixedStep(mem,)
@@ -693,10 +693,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             A = SUNDenseMatrix(length(uvec), length(uvec))
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A)
+                LS = SUNLinSol_Dense(utmp.n_v, A)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A)
+                LS = SUNLinSol_LapackDense(utmp.n_v, A)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
@@ -704,41 +704,41 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A)
+                LS = SUNLinSol_Band(utmp.n_v, A)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A)
+                LS = SUNLinSol_LapackBand(utmp.n_v, A)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNLinSol_SPFGMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPFGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNLinSol_SPBCGS(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPBCGS(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNLinSol_PCG(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_PCG(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNLinSol_SPTFQMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPTFQMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = LinSolHandle(LS, PTFQMR())
         elseif LinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT)
-            LS = SUNLinSol_KLU(uvec, A)
+            LS = SUNLinSol_KLU(utmp.n_v, A)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
         end
         flag = ARKStepSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
-        flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
+        flag = ARKStepSetMaxNonlinIters(mem, convert(Cint, alg.max_nonlinear_iters))
     elseif Method == :Functional && alg.stiffness !== Explicit()
         ARKStepSetFixedPoint(mem, Clong(alg.krylov_dim))
     else
@@ -766,10 +766,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             M = SUNDenseMatrix(length(uvec), length(uvec))
             _M = MatrixHandle(M, DenseMatrix())
             if MassLinearSolver === :Dense
-                MLS = SUNLinSol_Dense(uvec, M)
+                MLS = SUNLinSol_Dense(utmp.n_v, M)
                 _MLS = LinSolHandle(MLS, Dense())
             else
-                MLS = SUNLinSol_LapackDense(uvec, M)
+                MLS = SUNLinSol_LapackDense(utmp.n_v, M)
                 _MLS = LinSolHandle(MLS, LapackDense())
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
@@ -777,36 +777,36 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
             _M = MatrixHandle(M, BandMatrix())
             if MassLinearSolver === :Band
-                MLS = SUNLinSol_Band(uvec, M)
+                MLS = SUNLinSol_Band(utmp.n_v, M)
                 _MLS = LinSolHandle(MLS, Band())
             else
-                MLS = SUNLinSol_LapackBand(uvec, M)
+                MLS = SUNLinSol_LapackBand(utmp.n_v, M)
                 _MLS = LinSolHandle(MLS, LapackBand())
             end
         elseif MassLinearSolver == :GMRES
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPGMR())
         elseif MassLinearSolver == :FGMRES
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPFGMR())
         elseif MassLinearSolver == :BCG
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPBCGS())
         elseif MassLinearSolver == :PCG
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, PCG())
         elseif MassLinearSolver == :TFQMR
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, PTFQMR())
         elseif MassLinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.mass_matrix))
             M = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT)
-            MLS = SUNLinSol_KLU(uvec, M)
+            MLS = SUNLinSol_KLU(utmp.n_v, M)
             _M = MatrixHandle(M, SparseMatrix())
             _MLS = LinSolHandle(MLS, KLU())
         end
@@ -1076,7 +1076,7 @@ function DiffEqBase.__init(
         f! = prob.f
     end
 
-    mem_ptr = IDACreate()
+    mem_ptr = IDACreate(get_default_context())
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
@@ -1118,18 +1118,18 @@ function DiffEqBase.__init(
     else
         flag = IDASStolerances(mem, reltol, abstol)
     end
-    flag = IDASetMaxNumSteps(mem, maxiters)
-    flag = IDASetMaxOrd(mem, alg.max_order)
-    flag = IDASetMaxErrTestFails(mem, alg.max_error_test_failures)
+    flag = IDASetMaxNumSteps(mem, convert(Clong, maxiters))
+    flag = IDASetMaxOrd(mem, convert(Cint, alg.max_order))
+    flag = IDASetMaxErrTestFails(mem, convert(Cint, alg.max_error_test_failures))
     flag = IDASetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
-    flag = IDASetMaxNonlinIters(mem, alg.max_nonlinear_iters)
-    flag = IDASetMaxConvFails(mem, alg.max_convergence_failures)
+    flag = IDASetMaxNonlinIters(mem, convert(Cint, alg.max_nonlinear_iters))
+    flag = IDASetMaxConvFails(mem, convert(Cint, alg.max_convergence_failures))
     flag = IDASetNonlinConvCoefIC(mem, alg.nonlinear_convergence_coefficient_ic)
-    flag = IDASetMaxNumStepsIC(mem, alg.max_num_steps_ic)
-    flag = IDASetMaxNumJacsIC(mem, alg.max_num_jacs_ic)
-    flag = IDASetMaxNumItersIC(mem, alg.max_num_iters_ic)
+    flag = IDASetMaxNumStepsIC(mem, convert(Cint, alg.max_num_steps_ic))
+    flag = IDASetMaxNumJacsIC(mem, convert(Cint, alg.max_num_jacs_ic))
+    flag = IDASetMaxNumItersIC(mem, convert(Cint, alg.max_num_iters_ic))
     #flag = IDASetMaxBacksIC(mem,alg.max_num_backs_ic) # Needs newer version?
-    flag = IDASetLineSearchOffIC(mem, alg.use_linesearch_ic)
+    flag = IDASetLineSearchOffIC(mem, convert(Cint, alg.use_linesearch_ic))
 
     prec_side = isnothing(alg.prec) ? 0 : 1  # IDA only supports left preconditioning (prec_side = 1)
     if LinearSolver in (:Dense, :LapackDense)
@@ -1347,8 +1347,8 @@ function interpret_sundials_retcode(flag)
 end
 
 function solver_step(integrator::CVODEIntegrator, tstop)
-    integrator.flag = CVode(integrator.mem, tstop, integrator.u_nvec, integrator.tout,
-        CV_ONE_STEP)
+    integrator.flag = CVode(integrator.mem, tstop, integrator.u_nvec.n_v, pointer(integrator.tout),
+        convert(Cint, CV_ONE_STEP))
     if integrator.opts.progress
         Logging.@logmsg(Logging.LogLevel(-1),
             integrator.opts.progress_name,
@@ -1361,8 +1361,8 @@ function solver_step(integrator::CVODEIntegrator, tstop)
     end
 end
 function solver_step(integrator::ARKODEIntegrator, tstop)
-    integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u_nvec,
-        integrator.tout, ARK_ONE_STEP)
+    integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u_nvec.n_v,
+        pointer(integrator.tout), convert(Cint, ARK_ONE_STEP))
     if integrator.opts.progress
         Logging.@logmsg(Logging.LogLevel(-1),
             integrator.opts.progress_name,
@@ -1377,10 +1377,10 @@ end
 function solver_step(integrator::IDAIntegrator, tstop)
     integrator.flag = IDASolve(integrator.mem,
         tstop,
-        integrator.tout,
-        integrator.u_nvec,
-        integrator.du_nvec,
-        IDA_ONE_STEP)
+        pointer(integrator.tout),
+        integrator.u_nvec.n_v,
+        integrator.du_nvec.n_v,
+        convert(Cint, IDA_ONE_STEP))
     integrator.iter += 1
     if integrator.opts.progress && integrator.iter % integrator.opts.progress_steps == 0
         Logging.@logmsg(Logging.LogLevel(-1),
