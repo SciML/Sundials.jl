@@ -48,7 +48,7 @@ end
 f_C = @cfunction(f, Cint,
     (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
 
-mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0)
+mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0, Sundials.get_default_context())
 erkStep_mem = Sundials.Handle(mem_ptr)
 Sundials.@checkflag Sundials.ERKStepSStolerances(erkStep_mem, reltol, abstol)
 

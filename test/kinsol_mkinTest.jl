@@ -24,7 +24,7 @@ sysfn_C = @cfunction(sysfn, Cint, (Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvo
 
 ## Initialize problem
 neq = 2
-kmem = Sundials.KINCreate()
+kmem = Sundials.KINCreate(Sundials.get_default_context())
 Sundials.@checkflag Sundials.KINSetFuncNormTol(kmem, 1.0e-5)
 Sundials.@checkflag Sundials.KINSetScaledStepTol(kmem, 1.0e-4)
 Sundials.@checkflag Sundials.KINSetMaxSetupCalls(kmem, 1)

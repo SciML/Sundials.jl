@@ -26,7 +26,7 @@ abstol = 1e-11
 userdata = nothing
 h0 = 1e-4 * reltol
 
-mem_ptr = Sundials.ARKStepCreate(C_NULL, f_C, t0, y0)
+mem_ptr = Sundials.ARKStepCreate(C_NULL, f_C, t0, y0, Sundials.get_default_context())
 arkStep_mem = Sundials.Handle(mem_ptr)
 Sundials.@checkflag Sundials.ARKStepSetInitStep(arkStep_mem, h0)
 Sundials.@checkflag Sundials.ARKStepSetMaxErrTestFails(arkStep_mem, 20)

@@ -85,7 +85,7 @@ rtol = 1e-4
 avtol = [1e-8, 1e-14, 1e-6]
 tout1 = 0.4
 
-mem = Sundials.IDACreate()
+mem = Sundials.IDACreate(Sundials.get_default_context())
 Sundials.@checkflag Sundials.IDAInit(mem, resrob_C, t0, yy0, yp0)
 Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
 

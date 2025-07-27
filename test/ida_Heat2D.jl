@@ -111,7 +111,7 @@ function idabandsol(f::Function,
         reltol::Float64 = 1e-4,
         abstol::Float64 = 1e-6)
     neq = length(y0)
-    mem = Sundials.IDACreate()
+    mem = Sundials.IDACreate(Sundials.get_default_context())
     Sundials.@checkflag Sundials.IDAInit(mem,
         @cfunction(Sundials.idasolfun,
             Cint,
