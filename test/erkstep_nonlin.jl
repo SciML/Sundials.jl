@@ -42,13 +42,14 @@ function f(t, y, ydot, user_data)
     y = convert(Vector, y)
     ydot = convert(Vector, ydot)
     ydot[1] = (t + 1.0) * exp(-1 * y[1])
-    return Sundials.ARK_SUCCESS
+    return convert(Cint, Sundials.ARK_SUCCESS)
 end
 
 f_C = @cfunction(f, Cint,
     (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
 
-mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0, Sundials.get_default_context())
+y0_nv = convert(Sundials.NVector, y0)
+mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0_nv.n_v, Sundials.get_default_context())
 erkStep_mem = Sundials.Handle(mem_ptr)
 Sundials.@checkflag Sundials.ERKStepSStolerances(erkStep_mem, reltol, abstol)
 
@@ -57,7 +58,9 @@ t = [t0]
 tout = t0 + dTout
 while (tf - t[1] > 1e-15)
     y = similar(y0)
-    Sundials.@checkflag Sundials.ERKStepEvolve(erkStep_mem, tout, y, t, Sundials.ARK_NORMAL)
+    y_nv = convert(Sundials.NVector, y)
+    Sundials.@checkflag Sundials.ERKStepEvolve(erkStep_mem, tout, y_nv.n_v, pointer(t), convert(Cint, Sundials.ARK_NORMAL))
+    copyto!(y, convert(Vector, y_nv))
     push!(res, y[1])
     global tout += dTout
     global tout = (tout > tf) ? tf : tout

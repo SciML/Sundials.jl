@@ -5908,7 +5908,7 @@ function SUNLinSolFree_KLU(S::SUNLinearSolver)
 end
 
 function SUNLinSol_LapackBand(y::N_Vector, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackbandlapackband), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
 function SUNLinSolGetType_LapackBand(S::SUNLinearSolver)
@@ -5944,7 +5944,7 @@ function SUNLinSolFree_LapackBand(S::SUNLinearSolver)
 end
 
 function SUNLinSol_LapackDense(y::N_Vector, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdenselapackdense), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver, (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
 function SUNLinSolGetType_LapackDense(S::SUNLinearSolver)

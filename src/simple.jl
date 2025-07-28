@@ -39,13 +39,17 @@ Base.cconvert(::Type{Ptr{Nothing}}, ufad::UserFunctionAndData) = ufad
 Base.unsafe_convert(::Type{Ptr{Nothing}}, ufad::UserFunctionAndData) = pointer_from_objref(ufad)
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
-    userfun[].func(convert(Vector, fy), convert(Vector, y), userfun[].data)
-    return KIN_SUCCESS
+    if userfun.data === nothing
+        userfun.func(convert(Vector, fy), convert(Vector, y))
+    else
+        userfun.func(convert(Vector, fy), convert(Vector, y), userfun.data)
+    end
+    return convert(Cint, KIN_SUCCESS)
 end
 
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
     userfun(convert(Vector, fy), convert(Vector, y))
-    return KIN_SUCCESS
+    return convert(Cint, KIN_SUCCESS)
 end
 
 function ___kinsol(f,
@@ -70,6 +74,7 @@ function ___kinsol(f,
     kmem = Handle(mem_ptr)
 
     y = copy(y0)
+    y0_nv = NVector(y0)
 
     # use the user_data field to pass a function
     #   see: https://github.com/JuliaLang/julia/issues/2554
@@ -77,48 +82,50 @@ function ___kinsol(f,
     function getcfun(userfun::T) where {T}
         @cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{T}))
     end
-    flag = @checkflag KINInit(kmem, getcfun(userfun), NVector(y0)) true
+    flag = @checkflag KINInit(kmem, getcfun(userfun), y0_nv) true
     if linear_solver == :Dense
         A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-        LS = Sundials.SUNLinSol_Dense(y0, A)
+        LS = Sundials.SUNLinSol_Dense(y0_nv, A)
     elseif linear_solver == :LapackDense
         A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-        LS = Sundials.SUNLinSol_LapackDense(y0, A)
+        LS = Sundials.SUNLinSol_LapackDense(y0_nv, A)
     elseif linear_solver == :Band
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
-        LS = Sundials.SUNLinSol_Band(y0, A)
+        A = Sundials.SUNBandMatrix(length(y0), convert(Clong, jac_upper), convert(Clong, jac_lower))
+        LS = Sundials.SUNLinSol_Band(y0_nv, A)
     elseif linear_solver == :LapackBand
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
-        LS = Sundials.SUNLinSol_LapackBand(y0, A)
+        A = Sundials.SUNBandMatrix(length(y0), convert(Clong, jac_upper), convert(Clong, jac_lower))
+        LS = Sundials.SUNLinSol_LapackBand(y0_nv, A)
     elseif linear_solver == :GMRES
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPGMR(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPGMR(y0_nv, convert(Cint, prec_side), convert(Cint, krylov_dim))
     elseif linear_solver == :FGMRES
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPFGMR(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPFGMR(y0_nv, convert(Cint, prec_side), convert(Cint, krylov_dim))
     elseif linear_solver == :BCG
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPBCGS(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPBCGS(y0_nv, convert(Cint, prec_side), convert(Cint, krylov_dim))
     elseif linear_solver == :PCG
         A = C_NULL
-        LS = Sundials.SUNLinSol_PCG(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_PCG(y0_nv, convert(Cint, prec_side), convert(Cint, krylov_dim))
     elseif linear_solver == :TFQMR
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPTFQMR(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPTFQMR(y0_nv, convert(Cint, prec_side), convert(Cint, krylov_dim))
     elseif linear_solver == :KLU
         nnz = length(SparseArrays.nonzeros(jac_prototype))
         A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT)
-        LS = SUNLinSol_KLU(y0, A)
+        LS = SUNLinSol_KLU(y0_nv, A)
     else
         error("Unknown linear solver")
     end
     flag = @checkflag KINSetFuncNormTol(kmem, abstol) true
     flag = @checkflag KINSetLinearSolver(kmem, LS, A) true
     flag = @checkflag KINSetUserData(kmem, userfun) true
-    flag = @checkflag KINSetNumMaxIters(kmem, maxiters) true
-    flag = @checkflag KINSetMaxSetupCalls(kmem, maxsetupcalls) true
+    flag = @checkflag KINSetNumMaxIters(kmem, convert(Clong, maxiters)) true
+    flag = @checkflag KINSetMaxSetupCalls(kmem, convert(Clong, maxsetupcalls)) true
     ## Solve problem
     scale = ones(length(y0))
+    scale_nv = NVector(scale)
+    y_nv = NVector(y)
     if strategy == :None
         strategy = KIN_NONE
     elseif strategy == :LineSearch
@@ -126,7 +133,8 @@ function ___kinsol(f,
     else
         error("Unknown strategy")
     end
-    flag = @checkflag KINSol(kmem, y, strategy, scale, scale) true
+    flag = @checkflag KINSol(kmem, y_nv.n_v, convert(Cint, strategy), scale_nv.n_v, scale_nv.n_v) true
+    copyto!(y, convert(Vector, y_nv))
 
     return y, flag
 end
