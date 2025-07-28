@@ -812,7 +812,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             _M = MatrixHandle(M, SparseMatrix())
             _MLS = LinSolHandle(MLS, KLU())
         end
-        flag = ARKStepSetMassLinearSolver(mem, MLS, _M === nothing ? C_NULL : M, false)
+        flag = ARKStepSetMassLinearSolver(mem, MLS, _M === nothing ? C_NULL : M, convert(Cint, 0))
         function getmatfun(::T) where {T}
             @cfunction(massmat,
                 Cint,
