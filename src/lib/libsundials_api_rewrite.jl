@@ -6400,39 +6400,39 @@ function SUNBandMatrix_Print(A::SUNMatrix, outfile)
 end
 
 function SUNBandMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Rows, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Rows, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Columns(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Columns, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Columns, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_LowerBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LowerBandwidth, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_LowerBandwidth, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_UpperBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_UpperBandwidth, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_UpperBandwidth, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_StoredUpperBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_StoredUpperBandwidth, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_StoredUpperBandwidth, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_LDim(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LDim, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_LDim, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_LData(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LData, libsundials_sunmatrixbanddense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_LData, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Data(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Data, libsundials_sunmatrixbanddense), Ptr{realtype}, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Data, libsundials_sunmatrixband), Ptr{realtype}, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Cols(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Cols, libsundials_sunmatrixbanddense), Ptr{Ptr{realtype}}, (SUNMatrix,), A)
+    ccall((:SUNBandMatrix_Cols, libsundials_sunmatrixband), Ptr{Ptr{realtype}}, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Column(A::SUNMatrix, j::sunindextype)
@@ -6440,31 +6440,31 @@ function SUNBandMatrix_Column(A::SUNMatrix, j::sunindextype)
 end
 
 function SUNMatGetID_Band(A::SUNMatrix)
-    ccall((:SUNMatGetID_Band, libsundials_sunmatrixbanddense), SUNMatrix_ID, (SUNMatrix,), A)
+    ccall((:SUNMatGetID_Band, libsundials_sunmatrixband), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Band(A::SUNMatrix)
-    ccall((:SUNMatClone_Band, libsundials_sunmatrixbanddense), SUNMatrix, (SUNMatrix,), A)
+    ccall((:SUNMatClone_Band, libsundials_sunmatrixband), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Band(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Band, libsundials_sunmatrixbanddense), Cvoid, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Band, libsundials_sunmatrixband), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Band(A::SUNMatrix)
-    ccall((:SUNMatZero_Band, libsundials_sunmatrixbanddense), Cint, (SUNMatrix,), A)
+    ccall((:SUNMatZero_Band, libsundials_sunmatrixband), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Band(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Band, libsundials_sunmatrixbanddense), Cint, (SUNMatrix, SUNMatrix), A, B)
+    ccall((:SUNMatCopy_Band, libsundials_sunmatrixband), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatScaleAdd_Band(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Band, libsundials_sunmatrixbanddense), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    ccall((:SUNMatScaleAdd_Band, libsundials_sunmatrixband), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
 end
 
 function SUNMatScaleAddI_Band(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI_Band, libsundials_sunmatrixbanddense), Cint, (realtype, SUNMatrix), c, A)
+    ccall((:SUNMatScaleAddI_Band, libsundials_sunmatrixband), Cint, (realtype, SUNMatrix), c, A)
 end
 
 function SUNMatMatvec_Band(A::SUNMatrix, x::N_Vector, y::N_Vector)
@@ -6564,7 +6564,7 @@ function SUNSparseMatrix_ToCSC(A::SUNMatrix, Bout)
 end
 
 function SUNSparseMatrix_Realloc(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Realloc, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Realloc, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Reallocate(A::SUNMatrix, NNZ::sunindextype)
@@ -6576,63 +6576,63 @@ function SUNSparseMatrix_Print(A::SUNMatrix, outfile)
 end
 
 function SUNSparseMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Rows, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Rows, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Columns(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Columns, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Columns, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_NNZ(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_NNZ, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_NNZ, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_NP(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_NP, libsundials_sunmatrixsparsedense), sunindextype, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_NP, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_SparseType(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_SparseType, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_SparseType, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Data(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Data, libsundials_sunmatrixsparsedense), Ptr{realtype}, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_Data, libsundials_sunmatrixsparse), Ptr{realtype}, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_IndexValues(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_IndexValues, libsundials_sunmatrixsparsedense), Ptr{sunindextype}, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_IndexValues, libsundials_sunmatrixsparse), Ptr{sunindextype}, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_IndexPointers(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_IndexPointers, libsundials_sunmatrixsparsedense), Ptr{sunindextype}, (SUNMatrix,), A)
+    ccall((:SUNSparseMatrix_IndexPointers, libsundials_sunmatrixsparse), Ptr{sunindextype}, (SUNMatrix,), A)
 end
 
 function SUNMatGetID_Sparse(A::SUNMatrix)
-    ccall((:SUNMatGetID_Sparse, libsundials_sunmatrixsparsedense), SUNMatrix_ID, (SUNMatrix,), A)
+    ccall((:SUNMatGetID_Sparse, libsundials_sunmatrixsparse), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Sparse(A::SUNMatrix)
-    ccall((:SUNMatClone_Sparse, libsundials_sunmatrixsparsedense), SUNMatrix, (SUNMatrix,), A)
+    ccall((:SUNMatClone_Sparse, libsundials_sunmatrixsparse), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Sparse(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrixsparsedense), Cvoid, (SUNMatrix,), A)
+    ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Sparse(A::SUNMatrix)
-    ccall((:SUNMatZero_Sparse, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix,), A)
+    ccall((:SUNMatZero_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Sparse(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Sparse, libsundials_sunmatrixsparsedense), Cint, (SUNMatrix, SUNMatrix), A, B)
+    ccall((:SUNMatCopy_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatScaleAdd_Sparse(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Sparse, libsundials_sunmatrixsparsedense), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    ccall((:SUNMatScaleAdd_Sparse, libsundials_sunmatrixsparse), Cint, (realtype, SUNMatrix, SUNMatrix), c, A, B)
 end
 
 function SUNMatScaleAddI_Sparse(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI_Sparse, libsundials_sunmatrixsparsedense), Cint, (realtype, SUNMatrix), c, A)
+    ccall((:SUNMatScaleAddI_Sparse, libsundials_sunmatrixsparse), Cint, (realtype, SUNMatrix), c, A)
 end
 
 function SUNMatMatvec_Sparse(A::SUNMatrix, x::N_Vector, y::N_Vector)

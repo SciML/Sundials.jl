@@ -31,9 +31,9 @@ empty!(h3)
 empty!(h3)
 @test isempty(h3)
 
-h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq, neq, neq, Sundials.CSC_MAT),
+h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq, neq, neq, convert(Cint, Sundials.CSC_MAT), Sundials.get_default_context()),
     Sundials.SparseMatrix())
-h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq, neq, neq, Sundials.CSC_MAT),
+h3 = Sundials.MatrixHandle(Sundials.SUNSparseMatrix(neq, neq, neq, convert(Cint, Sundials.CSC_MAT), Sundials.get_default_context()),
     Sundials.SparseMatrix())
 empty!(h3)
 @test isempty(h3)
@@ -42,9 +42,10 @@ empty!(h3)
 
 A = Sundials.SUNDenseMatrix(neq, neq)
 u0 = rand(neq)
-Sundials.SUNLinSol_Dense(u0, A)
-h3 = Sundials.LinSolHandle(Sundials.SUNLinSol_Dense(u0, A), Sundials.Dense())
-h3 = Sundials.LinSolHandle(Sundials.SUNLinSol_Dense(u0, A), Sundials.Dense())
+u0_nv = convert(Sundials.NVector, u0)
+Sundials.SUNLinSol_Dense(u0_nv.n_v, A)
+h3 = Sundials.LinSolHandle(Sundials.SUNLinSol_Dense(u0_nv.n_v, A), Sundials.Dense())
+h3 = Sundials.LinSolHandle(Sundials.SUNLinSol_Dense(u0_nv.n_v, A), Sundials.Dense())
 empty!(h3)
 @test isempty(h3)
 empty!(h3)

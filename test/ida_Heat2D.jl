@@ -112,6 +112,8 @@ function idabandsol(f::Function,
         abstol::Float64 = 1e-6)
     neq = length(y0)
     mem = Sundials.IDACreate(Sundials.get_default_context())
+    y0_nv = convert(Sundials.NVector, y0)
+    yp0_nv = convert(Sundials.NVector, yp0)
     Sundials.@checkflag Sundials.IDAInit(mem,
         @cfunction(Sundials.idasolfun,
             Cint,
@@ -121,19 +123,22 @@ function idabandsol(f::Function,
                 Sundials.N_Vector,
                 Ref{Function})),
         t[1],
-        y0,
-        yp0)
-    Sundials.@checkflag Sundials.IDASetId(mem, id)
-    Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints)
-    Sundials.@checkflag Sundials.IDASetUserData(mem, f)
+        y0_nv,
+        yp0_nv)
+    id_nv = convert(Sundials.NVector, id)
+    constraints_nv = convert(Sundials.NVector, constraints)
+    Sundials.@checkflag Sundials.IDASetId(mem, id_nv.n_v)
+    Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints_nv.n_v)
+    userfun = Sundials.UserFunctionAndData(f, nothing)
+    Sundials.@checkflag Sundials.IDASetUserData(mem, userfun)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
 
     A = Sundials.SUNBandMatrix(neq, MGRID, MGRID)#,2MGRID)
-    LS = Sundials.SUNLinSol_Band(y0, A)
+    LS = Sundials.SUNLinSol_Band(y0_nv.n_v, A)
     Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
     rtest = zeros(neq)
-    Sundials.@checkflag Sundials.IDACalcIC(mem, Sundials.IDA_YA_YDP_INIT, t[2])
+    Sundials.@checkflag Sundials.IDACalcIC(mem, convert(Cint, Sundials.IDA_YA_YDP_INIT), t[2])
     yres = zeros(Float64, length(y0), length(t))
     ypres = zeros(Float64, length(y0), length(t))
     yres[:, 1] = y0
@@ -142,7 +147,11 @@ function idabandsol(f::Function,
     yp = copy(yp0)
     tout = [0.0]
     for k in 2:length(t)
-        Sundials.@checkflag Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
+        y_nv = convert(Sundials.NVector, y)
+        yp_nv = convert(Sundials.NVector, yp)
+        Sundials.@checkflag Sundials.IDASolve(mem, t[k], pointer(tout), y_nv.n_v, yp_nv.n_v, convert(Cint, Sundials.IDA_NORMAL))
+        copyto!(y, convert(Vector, y_nv))
+        copyto!(yp, convert(Vector, yp_nv))
         yres[:, k] = y
         ypres[:, k] = yp
     end

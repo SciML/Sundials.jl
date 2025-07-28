@@ -19,10 +19,10 @@ function free_context(ctx::SUNContext)
 end
 
 # Global context for simple API
-const DEFAULT_CONTEXT = Ref{SUNContext}()
+const DEFAULT_CONTEXT = Ref{Union{SUNContext,Nothing}}(nothing)
 
 function get_default_context()
-    if !isassigned(DEFAULT_CONTEXT)
+    if DEFAULT_CONTEXT[] === nothing
         DEFAULT_CONTEXT[] = create_context()
     end
     return DEFAULT_CONTEXT[]
@@ -30,6 +30,5 @@ end
 
 # Clean up on module unload
 function __init__()
-    # Initialize default context when module loads
-    get_default_context()
+    # Context will be initialized lazily when first needed
 end

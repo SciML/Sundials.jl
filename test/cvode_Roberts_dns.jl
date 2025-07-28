@@ -18,7 +18,7 @@ function g(t, y_nv, gout_ptr, user_data)
     gout = Sundials.asarray(gout_ptr, (2,))
     gout[1] = y[1] - 0.0001
     gout[2] = y[3] - 0.01
-    return Sundials.CV_SUCCESS
+    return convert(Cint, Sundials.CV_SUCCESS)
 end
 
 g_C = @cfunction(g, Cint,
@@ -66,10 +66,10 @@ function getcfunrob(userfun::T) where {T}
 end
 
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1,
-    convert(Sundials.NVector, y0))
-Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, y0)
-Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
-Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g_C)
+    convert(Sundials.NVector, y0).n_v)
+Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, convert(Sundials.NVector, y0).n_v)
+Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, convert(Sundials.NVector, abstol).n_v)
+Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, convert(Cint, 2), g_C)
 A = Sundials.SUNDenseMatrix(neq, neq)
 mat_handle = Sundials.MatrixHandle(A, Sundials.DenseMatrix())
 LS = Sundials.SUNLinSol_Dense(convert(Sundials.NVector, y0), A)
@@ -83,7 +83,9 @@ t = [t0]
 
 while iout < nout
     y = similar(y0)
-    flag = Sundials.CVode(cvode_mem, tout, y, t, Sundials.CV_NORMAL)
+    ynv = convert(Sundials.NVector, y)
+    flag = Sundials.CVode(cvode_mem, tout, ynv.n_v, pointer(t), convert(Cint, Sundials.CV_NORMAL))
+    copyto!(y, convert(Vector, ynv))
     println("T=", tout, ", Y=", y)
     if flag == Sundials.CV_ROOT_RETURN
         rootsfound = zeros(Cint, 2)

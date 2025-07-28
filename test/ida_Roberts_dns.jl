@@ -41,7 +41,7 @@ function resrob(tres, yy_nv, yp_nv, rr_nv, user_data)
     rr[2] = -rr[1] - 3.0e7 * yy[2] * yy[2] - yp[2]
     rr[1] -= yp[1]
     rr[3] = yy[1] + yy[2] + yy[3] - 1.0
-    return Sundials.IDA_SUCCESS
+    return convert(Cint, Sundials.IDA_SUCCESS)
 end
 
 resrob_C = @cfunction(resrob, Cint,
@@ -54,7 +54,7 @@ function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
     gout = Sundials.asarray(gout_ptr, (2,))
     gout[1] = yy[1] - 0.0001
     gout[2] = yy[3] - 0.01
-    return Sundials.IDA_SUCCESS
+    return convert(Cint, Sundials.IDA_SUCCESS)
 end
 
 grob_C = @cfunction(grob, Cint,
@@ -73,7 +73,7 @@ function jacrob(Neq, tt, cj, yy, yp, resvec, JJ, user_data, tempv1, tempv2, temp
     JJ[1, 3] = 1.0e4 * yy[2]
     JJ[2, 3] = -1.0e4 * yy[2]
     JJ[3, 3] = 1.0
-    return Sundials.IDA_SUCCESS
+    return convert(Cint, Sundials.IDA_SUCCESS)
 end
 
 neq = 3
@@ -86,15 +86,18 @@ avtol = [1e-8, 1e-14, 1e-6]
 tout1 = 0.4
 
 mem = Sundials.IDACreate(Sundials.get_default_context())
-Sundials.@checkflag Sundials.IDAInit(mem, resrob_C, t0, yy0, yp0)
-Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
+yy0_nv = convert(Sundials.NVector, yy0)
+yp0_nv = convert(Sundials.NVector, yp0)
+Sundials.@checkflag Sundials.IDAInit(mem, resrob_C, t0, yy0_nv, yp0_nv)
+avtol_nv = convert(Sundials.NVector, avtol)
+Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol_nv)
 
 ## Call IDARootInit to specify the root function grob with 2 components
-Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob_C)
+Sundials.@checkflag Sundials.IDARootInit(mem, convert(Cint, 2), grob_C)
 
 ## Call IDADense and set up the linear solver.
-A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-LS = Sundials.SUNLinSol_Dense(y0, A)
+A = Sundials.SUNDenseMatrix(length(yy0), length(yy0))
+LS = Sundials.SUNLinSol_Dense(yy0_nv.n_v, A)
 Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
 iout = 0
@@ -104,7 +107,11 @@ tret = [1.0]
 while iout < nout
     yy = similar(yy0)
     yp = similar(yp0)
-    retval = Sundials.IDASolve(mem, tout, tret, yy, yp, Sundials.IDA_NORMAL)
+    yy_nv = convert(Sundials.NVector, yy)
+    yp_nv = convert(Sundials.NVector, yp)
+    retval = Sundials.IDASolve(mem, tout, pointer(tret), yy_nv.n_v, yp_nv.n_v, convert(Cint, Sundials.IDA_NORMAL))
+    copyto!(yy, convert(Vector, yy_nv))
+    copyto!(yp, convert(Vector, yp_nv))
     println("T=", tout, ", Y=", yy)
     if retval == Sundials.IDA_ROOT_RETURN
         rootsfound = zeros(Cint, 2)
