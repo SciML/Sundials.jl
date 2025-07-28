@@ -241,7 +241,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = CVodeSetMaxStep(mem, Float64(dtmax))
     flag = CVodeSetUserData(mem, userfun)
     if abstol isa Array
-        flag = CVodeSVtolerances(mem, reltol, abstol)
+        abstol_nv = NVector(abstol)
+        flag = CVodeSVtolerances(mem, reltol, abstol_nv)
     else
         flag = CVodeSStolerances(mem, reltol, abstol)
     end
@@ -314,13 +315,13 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         if LinearSolver !== :Diagonal
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
-        NLS = SUNNonlinSol_Newton(utmp.n_v)
+        NLS = SUNNonlinSol_Newton(utmp.n_v, get_default_context())
     else
         _A = nothing
         _LS = nothing
         # TODO: Anderson Acceleration
         anderson_m = 0
-        NLS = SUNNonlinSol_FixedPoint(uvec, anderson_m)
+        NLS = SUNNonlinSol_FixedPoint(utmp.n_v, convert(Cint, anderson_m), get_default_context())
     end
     CVodeSetNonlinearSolver(mem, NLS)
 
@@ -651,7 +652,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = ARKStepSetMaxStep(mem, Float64(dtmax))
     flag = ARKStepSetUserData(mem, userfun)
     if abstol isa Array
-        flag = ARKStepSVtolerances(mem, reltol, abstol)
+        abstol_nv = NVector(abstol)
+        flag = ARKStepSVtolerances(mem, reltol, abstol_nv)
     else
         flag = ARKStepSStolerances(mem, reltol, abstol)
     end
@@ -1114,7 +1116,8 @@ function DiffEqBase.__init(
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
     if abstol isa Array
-        flag = IDASVtolerances(mem, reltol, abstol)
+        abstol_nv = NVector(abstol)
+        flag = IDASVtolerances(mem, reltol, abstol_nv)
     else
         flag = IDASStolerances(mem, reltol, abstol)
     end

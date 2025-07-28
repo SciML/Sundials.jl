@@ -72,7 +72,9 @@ function (integrator::CVODEIntegrator)(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
     out = similar(integrator.u)
-    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), vec(out))
+    out_nv = NVector(vec(out))
+    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nv.n_v)
+    copyto!(out, convert(Vector, out_nv))
     return idxs === nothing ? out : out[idxs]
 end
 
@@ -80,7 +82,9 @@ function (integrator::CVODEIntegrator)(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
-    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), vec(out))
+    out_nv = NVector(vec(out))
+    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nv.n_v)
+    copyto!(out, convert(Vector, out_nv))
     return idxs === nothing ? out : @view out[idxs]
 end
 
@@ -130,7 +134,9 @@ function (integrator::ARKODEIntegrator)(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
     out = similar(integrator.u)
-    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), vec(out))
+    out_nv = NVector(vec(out))
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nv.n_v)
+    copyto!(out, convert(Vector, out_nv))
     return idxs === nothing ? out : out[idxs]
 end
 
@@ -138,7 +144,9 @@ function (integrator::ARKODEIntegrator)(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
-    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), vec(out))
+    out_nv = NVector(vec(out))
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nv.n_v)
+    copyto!(out, convert(Vector, out_nv))
     return idxs === nothing ? out : @view out[idxs]
 end
 
@@ -189,7 +197,9 @@ function (integrator::IDAIntegrator)(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
     out = similar(integrator.u)
-    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), vec(out))
+    out_nv = NVector(vec(out))
+    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nv.n_v)
+    copyto!(out, convert(Vector, out_nv))
     return idxs === nothing ? out : out[idxs]
 end
 
@@ -197,7 +207,9 @@ function (integrator::IDAIntegrator)(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
-    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), vec(out))
+    out_nv = NVector(vec(out))
+    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nv.n_v)
+    copyto!(out, convert(Vector, out_nv))
     return idxs === nothing ? out : @view out[idxs]
 end
 function (integrator::IDAIntegrator)(out::SubArray,

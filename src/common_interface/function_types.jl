@@ -33,7 +33,7 @@ function cvodefunjac(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) w
     _du = funjac.du
     _u = funjac.u
     funjac.fun(_du, _u, funjac.p, t)
-    return CV_SUCCESS
+    return convert(Cint, CV_SUCCESS)
 end
 
 function cvodefunjac2(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) where {N}
@@ -43,7 +43,7 @@ function cvodefunjac2(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) 
     _du = funjac.du
     _u = funjac.u
     funjac.fun2(_du, _u, funjac.p, t)
-    return CV_SUCCESS
+    return convert(Cint, CV_SUCCESS)
 end
 
 function cvodejac(t::realtype,
@@ -57,7 +57,7 @@ function cvodejac(t::realtype,
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
     _u = funjac.u
     funjac.jac(convert(Matrix, J), _u, funjac.p, t)
-    return CV_SUCCESS
+    return convert(Cint, CV_SUCCESS)
 end
 
 function cvodejac(t::realtype,
@@ -77,7 +77,7 @@ function cvodejac(t::realtype,
 
     copyto!(_J, jac_prototype)
 
-    return CV_SUCCESS
+    return convert(Cint, CV_SUCCESS)
 end
 
 function idasolfun(t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector,
@@ -91,7 +91,7 @@ function idasolfun(t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector,
         size(funjac.resid))
     _resid = funjac.resid
     funjac.fun(_resid, _du, _u, funjac.p, t)
-    return IDA_SUCCESS
+    return convert(Cint, IDA_SUCCESS)
 end
 
 function idajac(t::realtype,
@@ -112,7 +112,7 @@ function idajac(t::realtype,
     _du = funjac.du
 
     funjac.jac(convert(Matrix, J), _du, _u, funjac.p, cj, t)
-    return IDA_SUCCESS
+    return convert(Cint, IDA_SUCCESS)
 end
 
 function idajac(t::realtype,
@@ -137,7 +137,7 @@ function idajac(t::realtype,
 
     copyto!(_J, jac_prototype)
 
-    return IDA_SUCCESS
+    return convert(Cint, IDA_SUCCESS)
 end
 
 function massmat(t::Float64,
@@ -153,7 +153,7 @@ function massmat(t::Float64,
         copyto!(_M, mmf.mass_matrix)
     end
 
-    return IDA_SUCCESS
+    return convert(Cint, IDA_SUCCESS)
 end
 
 function jactimes(v::N_Vector,
@@ -165,7 +165,7 @@ function jactimes(v::N_Vector,
         tmp::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype, y, fj.p, t)
     LinearAlgebra.mul!(convert(Vector, Jv), fj.jac_prototype, convert(Vector, v))
-    return CV_SUCCESS
+    return convert(Cint, CV_SUCCESS)
 end
 
 function idajactimes(t::Float64,
@@ -180,7 +180,7 @@ function idajactimes(t::Float64,
         tmp2::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype, y, fj.p, t)
     LinearAlgebra.mul!(convert(Vector, Jv), fj.jac_prototype, convert(Vector, v))
-    return IDA_SUCCESS
+    return convert(Cint, IDA_SUCCESS)
 end
 
 function precsolve(t::Float64,
@@ -201,7 +201,7 @@ function precsolve(t::Float64,
         gamma,
         delta,
         lr)
-    return CV_SUCCESS
+    return convert(Cint, CV_SUCCESS)
 end
 
 function precsetup(t::Float64,
@@ -218,7 +218,7 @@ function precsetup(t::Float64,
         jok == 1,
         Base.unsafe_wrap(Vector{Int}, jcurPtr, 1),
         gamma)
-    return CV_SUCCESS
+    return convert(Cint, CV_SUCCESS)
 end
 
 function idaprecsolve(t::Float64,
@@ -239,7 +239,7 @@ function idaprecsolve(t::Float64,
         convert(Vector, resid),
         gamma,
         delta)
-    return IDA_SUCCESS
+    return convert(Cint, IDA_SUCCESS)
 end
 
 function idaprecsetup(t::Float64,
@@ -249,7 +249,7 @@ function idaprecsetup(t::Float64,
         gamma::Float64,
         fj::AbstractFunJac)
     fj.psetup(fj.p, t, convert(Vector, rr), convert(Vector, y), convert(Vector, fy), gamma)
-    return IDA_SUCCESS
+    return convert(Cint, IDA_SUCCESS)
 end
 
 # Convert FunJac to pointer for passing as user data
