@@ -64,7 +64,7 @@ hf = 0.00002
 y0 = [0.90001, -9.999, 1000.0]
 
 # Fast Integration portion
-_mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0);
+_mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0, Sundials.get_default_context());
 inner_arkode_mem = Sundials.Handle(_mem_ptr)
 Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem,
     -1,
@@ -72,7 +72,7 @@ Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem,
 Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
 
 # Slow integrator portion
-_arkode_mem_ptr = Sundials.MRIStepCreate(fs, T0, y0, inner_arkode_mem)
+_arkode_mem_ptr = Sundials.MRIStepCreate(fs, T0, y0, inner_arkode_mem, Sundials.get_default_context())
 arkode_mem = Sundials.Handle(_arkode_mem_ptr)
 Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
 

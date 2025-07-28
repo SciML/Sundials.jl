@@ -93,6 +93,10 @@ Conversion happens in two steps within ccall:
 """
 Base.cconvert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h
 Base.unsafe_convert(::Type{Ptr{T}}, h::Handle{T}) where {T} = h.ptr
+Base.cconvert(::Type{Ptr{Cvoid}}, h::Handle{T}) where {T} = h
+Base.unsafe_convert(::Type{Ptr{Cvoid}}, h::Handle{T}) where {T} = h.ptr
+# For the Free functions that need Ptr{Ptr{Cvoid}}
+Base.unsafe_convert(::Type{Ptr{Ptr{Nothing}}}, r::Ref{Ptr{T}}) where {T} = Base.unsafe_convert(Ptr{Ptr{Nothing}}, pointer_from_objref(r))
 
 # Use the supplied Sundials sun_free_func to free h.ptr
 # NB: CVodeFree and similar require a C pointer-to-pointer

@@ -88,7 +88,7 @@ function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
         id::Vector{Float64}, t::Vector{Float64};
         reltol::Float64 = 1e-4, abstol::Float64 = 1e-6)
     neq = length(y0)
-    mem = Sundials.IDACreate()
+    mem = Sundials.IDACreate(Sundials.get_default_context())
 
     function getcfunband(f::T) where {T}
         @cfunction(Sundials.idasolfun, Cint,

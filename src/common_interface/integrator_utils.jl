@@ -116,7 +116,7 @@ modified, this function needs to be called in order to update the solver's
 internal datastructures to re-gain consistency.
 """
 function IDAReinit!(integrator::IDAIntegrator)
-    IDAReInit(integrator.mem, integrator.t, integrator.u, integrator.du)
+    IDAReInit(integrator.mem, integrator.t, integrator.u_nvec, integrator.du_nvec)
     integrator.u_modified = false
 end
 
@@ -213,15 +213,17 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
             init_type = IDA_Y_INIT
         else
             init_type = IDA_YA_YDP_INIT
-            integrator.flag = IDASetId(integrator.mem,
-                vec(integrator.sol.prob.differential_vars))
+            # Convert differential_vars to N_Vector
+            diff_vars_vec = convert(Vector{Float64}, vec(integrator.sol.prob.differential_vars))
+            diff_vars_nv = NVector(diff_vars_vec)
+            integrator.flag = IDASetId(integrator.mem, diff_vars_nv.n_v)
         end
         dt = integrator.dt == tstart ? tend : integrator.dt
-        integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
+        integrator.flag = IDACalcIC(integrator.mem, convert(Cint, init_type), dt)
 
         # Reflect consistent initial conditions back into the integrator's
         # shadow copy. N.B.: ({du, u}_nvec are aliased to {du, u}).
-        IDAGetConsistentIC(integrator.mem, integrator.u_nvec, integrator.du_nvec)
+        IDAGetConsistentIC(integrator.mem, integrator.u_nvec.n_v, integrator.du_nvec.n_v)
     end
     if integrator.t == tstart && integrator.flag < 0
         integrator.sol = SciMLBase.solution_new_retcode(integrator.sol,
