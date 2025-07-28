@@ -202,7 +202,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     #    method_code = CV_FUNCTIONAL
     #end
 
-    mem_ptr = CVodeCreate(alg_code, get_default_context())
+    mem_ptr = CVodeCreate(convert(Cint, alg_code), get_default_context())
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
@@ -269,7 +269,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), convert(Clong, alg.jac_upper), convert(Clong, alg.jac_lower))
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
                 LS = SUNLinSol_Band(utmp.n_v, A)
@@ -284,23 +284,23 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             _A = nothing
             _LS = nothing
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNLinSol_SPFGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPFGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNLinSol_SPBCGS(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPBCGS(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNLinSol_PCG(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_PCG(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNLinSol_SPTFQMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPTFQMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, PTFQMR())
         elseif LinearSolver == :KLU
@@ -701,7 +701,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), convert(Clong, alg.jac_upper), convert(Clong, alg.jac_lower))
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
                 LS = SUNLinSol_Band(utmp.n_v, A)
@@ -711,23 +711,23 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
-            LS = SUNLinSol_SPFGMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPFGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, SPFGMR())
         elseif LinearSolver == :BCG
-            LS = SUNLinSol_SPBCGS(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPBCGS(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, SPBCGS())
         elseif LinearSolver == :PCG
-            LS = SUNLinSol_PCG(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_PCG(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, PCG())
         elseif LinearSolver == :TFQMR
-            LS = SUNLinSol_SPTFQMR(utmp.n_v, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPTFQMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.krylov_dim))
             _A = nothing
             _LS = LinSolHandle(LS, PTFQMR())
         elseif LinearSolver == :KLU
@@ -774,7 +774,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            M = SUNBandMatrix(length(uvec), convert(Clong, alg.jac_upper), convert(Clong, alg.jac_lower))
             _M = MatrixHandle(M, BandMatrix())
             if MassLinearSolver === :Band
                 MLS = SUNLinSol_Band(utmp.n_v, M)
@@ -784,23 +784,23 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 _MLS = LinSolHandle(MLS, LapackBand())
             end
         elseif MassLinearSolver == :GMRES
-            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.mass_krylov_dim))
             _M = nothing
             _MLS = LinSolHandle(MLS, SPGMR())
         elseif MassLinearSolver == :FGMRES
-            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.mass_krylov_dim))
             _M = nothing
             _MLS = LinSolHandle(MLS, SPFGMR())
         elseif MassLinearSolver == :BCG
-            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.mass_krylov_dim))
             _M = nothing
             _MLS = LinSolHandle(MLS, SPBCGS())
         elseif MassLinearSolver == :PCG
-            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.mass_krylov_dim))
             _M = nothing
             _MLS = LinSolHandle(MLS, PCG())
         elseif MassLinearSolver == :TFQMR
-            MLS = SUNLinSol_SPGMR(utmp.n_v, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp.n_v, convert(Cint, alg.prec_side), convert(Cint, alg.mass_krylov_dim))
             _M = nothing
             _MLS = LinSolHandle(MLS, PTFQMR())
         elseif MassLinearSolver == :KLU
@@ -1145,7 +1145,7 @@ function DiffEqBase.__init(
         end
     elseif LinearSolver in (:Band, :LapackBand)
         nojacobian = false
-        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
+        A = SUNBandMatrix(length(u0), convert(Clong, alg.jac_upper), convert(Clong, alg.jac_lower))
         _A = MatrixHandle(A, BandMatrix())
         if LinearSolver === :Band
             LS = SUNLinSol_Band(utmp, A)
@@ -1155,23 +1155,23 @@ function DiffEqBase.__init(
             _LS = LinSolHandle(LS, LapackBand())
         end
     elseif LinearSolver == :GMRES
-        LS = SUNLinSol_SPGMR(utmp, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPGMR(utmp, convert(Cint, prec_side), convert(Cint, alg.krylov_dim))
         _A = nothing
         _LS = LinSolHandle(LS, SPGMR())
     elseif LinearSolver == :FGMRES
-        LS = SUNLinSol_SPFGMR(utmp, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPFGMR(utmp, convert(Cint, prec_side), convert(Cint, alg.krylov_dim))
         _A = nothing
         _LS = LinSolHandle(LS, SPFGMR())
     elseif LinearSolver == :BCG
-        LS = SUNLinSol_SPBCGS(utmp, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPBCGS(utmp, convert(Cint, prec_side), convert(Cint, alg.krylov_dim))
         _A = nothing
         _LS = LinSolHandle(LS, SPBCGS())
     elseif LinearSolver == :PCG
-        LS = SUNLinSol_PCG(utmp, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_PCG(utmp, convert(Cint, prec_side), convert(Cint, alg.krylov_dim))
         _A = nothing
         _LS = LinSolHandle(LS, PCG())
     elseif LinearSolver == :TFQMR
-        LS = SUNLinSol_SPTFQMR(utmp, prec_side, alg.krylov_dim)
+        LS = SUNLinSol_SPTFQMR(utmp, convert(Cint, prec_side), convert(Cint, alg.krylov_dim))
         _A = nothing
         _LS = LinSolHandle(LS, PTFQMR())
     elseif LinearSolver == :KLU
