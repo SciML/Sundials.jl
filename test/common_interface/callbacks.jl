@@ -5,7 +5,7 @@ callback_f = function (du, u, p, t)
     du[2] = -9.81
 end
 
-condtion = function (u, t, integrator) # Event when event_f(u,t,k) == 0
+condition = function (u, t, integrator) # Event when event_f(u,t,k) == 0
     u[1]
 end
 
@@ -14,7 +14,7 @@ affect_neg! = function (integrator)
     integrator.u[2] = -integrator.u[2]
 end
 
-callback = ContinuousCallback(condtion, affect!, affect_neg!)
+callback = ContinuousCallback(condition, affect!, affect_neg!)
 
 u0 = [50.0, 0.0]
 tspan = (0.0, 15.0)

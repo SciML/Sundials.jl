@@ -71,3 +71,7 @@ MTK = "MTK"
 ODE = "ODE"
 PDE = "PDE"
 SDE = "SDE"
+
+# Sundials-specific terms
+yout = "yout"  # y output (legitimate variable name in Sundials API)
+ypout = "ypout"  # y-prime output (derivative output)

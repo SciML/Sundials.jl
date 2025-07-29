@@ -81,14 +81,14 @@ function f!(res, du, u, p, t)
 end
 
 u0 = [0.0]
-du0 = [1.01] #consistant
+du0 = [1.01] #consistent
 tspan = (0.0, 10.0)
 
 dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [true])
 sol = solve(dae_prob, IDA())
 @test sol.retcode == ReturnCode.Success
 
-du0 = [0.0] # inconsistant
+du0 = [0.0] # inconsistent
 dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [true])
 sol = solve(dae_prob, IDA())
 
@@ -97,7 +97,7 @@ function f!(res, du, u, p, t)
     return
 end
 
-u0 = [0.0] #inconsistant
+u0 = [0.0] #inconsistent
 du0 = [0.0]
 tspan = (0.0, 10.0)
 
@@ -116,7 +116,7 @@ end
 f(du, u, p, t) = du - u # u(t) = exp(t)
 prob = DAEProblem(f, zeros(1), zeros(1), (0, 1), differential_vars = trues(1))
 sol = solve(prob, IDA(), initializealg = DumbInit())
-# test that initializealg is refected in the sol
+# test that initializealg is reflected in the sol
 isapprox(only(sol.u[begin]), 1, rtol = 1e-3)
 # test that solve produced the right answer.
 isapprox(only(sol.u[end]), exp(1), rtol = 1e-3)
@@ -127,10 +127,10 @@ sol = solve(prob, IDA())
 @test !(sol.retcode in (ReturnCode.Success,))
 
 # Test that we're saving the correct initial data for du
-function f_inital_data(du, u, p, t)
+function f_initial_data(du, u, p, t)
     return [du[1] - (u[1] + 10.0)]
 end
-prob = DAEProblem(f_inital_data, [0.0], [1.0], (0.0, 1.0); differential_vars = [true])
+prob = DAEProblem(f_initial_data, [0.0], [1.0], (0.0, 1.0); differential_vars = [true])
 sol = solve(prob, IDA())
 # If this is one, it incorrectly saved u, if it is 0., it incorrectly solved
 # the pre-init value rather than the post-init one.
