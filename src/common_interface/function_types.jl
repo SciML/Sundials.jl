@@ -47,13 +47,13 @@ function cvodefunjac2(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) 
 end
 
 function cvodejac(t::realtype,
-    u::N_Vector,
-    du::N_Vector,
-    J::SUNMatrix,
-    funjac::AbstractFunJac{Nothing},
-    tmp1::N_Vector,
-    tmp2::N_Vector,
-    tmp3::N_Vector)
+        u::N_Vector,
+        du::N_Vector,
+        J::SUNMatrix,
+        funjac::AbstractFunJac{Nothing},
+        tmp1::N_Vector,
+        tmp2::N_Vector,
+        tmp3::N_Vector)
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
     _u = funjac.u
     funjac.jac(convert(Matrix, J), _u, funjac.p, t)
@@ -61,13 +61,13 @@ function cvodejac(t::realtype,
 end
 
 function cvodejac(t::realtype,
-    u::N_Vector,
-    du::N_Vector,
-    _J::SUNMatrix,
-    funjac::AbstractFunJac{<:SparseArrays.SparseMatrixCSC},
-    tmp1::N_Vector,
-    tmp2::N_Vector,
-    tmp3::N_Vector)
+        u::N_Vector,
+        du::N_Vector,
+        _J::SUNMatrix,
+        funjac::AbstractFunJac{<:SparseArrays.SparseMatrixCSC},
+        tmp1::N_Vector,
+        tmp2::N_Vector,
+        tmp3::N_Vector)
     jac_prototype = funjac.jac_prototype
 
     funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
@@ -81,7 +81,7 @@ function cvodejac(t::realtype,
 end
 
 function idasolfun(t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector,
-    funjac::FunJac{N}) where {N}
+        funjac::FunJac{N}) where {N}
     funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
     _u = funjac.u
     funjac.du = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(du),
@@ -95,15 +95,15 @@ function idasolfun(t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector,
 end
 
 function idajac(t::realtype,
-    cj::realtype,
-    u::N_Vector,
-    du::N_Vector,
-    res::N_Vector,
-    J::SUNMatrix,
-    funjac::AbstractFunJac{Nothing},
-    tmp1::N_Vector,
-    tmp2::N_Vector,
-    tmp3::N_Vector)
+        cj::realtype,
+        u::N_Vector,
+        du::N_Vector,
+        res::N_Vector,
+        J::SUNMatrix,
+        funjac::AbstractFunJac{Nothing},
+        tmp1::N_Vector,
+        tmp2::N_Vector,
+        tmp3::N_Vector)
     N = ndims(funjac.u)
     funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
     _u = funjac.u
@@ -116,15 +116,15 @@ function idajac(t::realtype,
 end
 
 function idajac(t::realtype,
-    cj::realtype,
-    u::N_Vector,
-    du::N_Vector,
-    res::N_Vector,
-    _J::SUNMatrix,
-    funjac::AbstractFunJac{<:SparseArrays.SparseMatrixCSC},
-    tmp1::N_Vector,
-    tmp2::N_Vector,
-    tmp3::N_Vector)
+        cj::realtype,
+        u::N_Vector,
+        du::N_Vector,
+        res::N_Vector,
+        _J::SUNMatrix,
+        funjac::AbstractFunJac{<:SparseArrays.SparseMatrixCSC},
+        tmp1::N_Vector,
+        tmp2::N_Vector,
+        tmp3::N_Vector)
     jac_prototype = funjac.jac_prototype
     N = ndims(funjac.u)
     funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
@@ -141,11 +141,11 @@ function idajac(t::realtype,
 end
 
 function massmat(t::Float64,
-    _M::SUNMatrix,
-    mmf::AbstractFunJac,
-    tmp1::N_Vector,
-    tmp2::N_Vector,
-    tmp3::N_Vector)
+        _M::SUNMatrix,
+        mmf::AbstractFunJac,
+        tmp1::N_Vector,
+        tmp2::N_Vector,
+        tmp3::N_Vector)
     if mmf.mass_matrix isa Array
         M = convert(Matrix, _M)
         M .= mmf.mass_matrix
@@ -157,41 +157,41 @@ function massmat(t::Float64,
 end
 
 function jactimes(v::N_Vector,
-    Jv::N_Vector,
-    t::Float64,
-    y::N_Vector,
-    fy::N_Vector,
-    fj::AbstractFunJac,
-    tmp::N_Vector)
+        Jv::N_Vector,
+        t::Float64,
+        y::N_Vector,
+        fy::N_Vector,
+        fj::AbstractFunJac,
+        tmp::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype, y, fj.p, t)
     LinearAlgebra.mul!(convert(Vector, Jv), fj.jac_prototype, convert(Vector, v))
     return CV_SUCCESS
 end
 
 function idajactimes(t::Float64,
-    y::N_Vector,
-    fy::N_Vector,
-    r::N_Vector,
-    v::N_Vector,
-    Jv::N_Vector,
-    cj::Float64,
-    fj::AbstractFunJac,
-    tmp1::N_Vector,
-    tmp2::N_Vector)
+        y::N_Vector,
+        fy::N_Vector,
+        r::N_Vector,
+        v::N_Vector,
+        Jv::N_Vector,
+        cj::Float64,
+        fj::AbstractFunJac,
+        tmp1::N_Vector,
+        tmp2::N_Vector)
     DiffEqBase.update_coefficients!(fj.jac_prototype, y, fj.p, t)
     LinearAlgebra.mul!(convert(Vector, Jv), fj.jac_prototype, convert(Vector, v))
     return IDA_SUCCESS
 end
 
 function precsolve(t::Float64,
-    y::N_Vector,
-    fy::N_Vector,
-    r::N_Vector,
-    z::N_Vector,
-    gamma::Float64,
-    delta::Float64,
-    lr::Int,
-    fj::AbstractFunJac)
+        y::N_Vector,
+        fy::N_Vector,
+        r::N_Vector,
+        z::N_Vector,
+        gamma::Float64,
+        delta::Float64,
+        lr::Int,
+        fj::AbstractFunJac)
     fj.prec(convert(Vector, z),
         convert(Vector, r),
         fj.p,
@@ -205,12 +205,12 @@ function precsolve(t::Float64,
 end
 
 function precsetup(t::Float64,
-    y::N_Vector,
-    fy::N_Vector,
-    jok::Int,
-    jcurPtr::Ref{Int},
-    gamma::Float64,
-    fj::AbstractFunJac)
+        y::N_Vector,
+        fy::N_Vector,
+        jok::Int,
+        jcurPtr::Ref{Int},
+        gamma::Float64,
+        fj::AbstractFunJac)
     fj.psetup(fj.p,
         t,
         convert(Vector, y),
@@ -222,14 +222,14 @@ function precsetup(t::Float64,
 end
 
 function idaprecsolve(t::Float64,
-    y::N_Vector,
-    fy::N_Vector,
-    resid::N_Vector,
-    r::N_Vector,
-    z::N_Vector,
-    gamma::Float64,
-    delta::Float64,
-    fj::AbstractFunJac)
+        y::N_Vector,
+        fy::N_Vector,
+        resid::N_Vector,
+        r::N_Vector,
+        z::N_Vector,
+        gamma::Float64,
+        delta::Float64,
+        fj::AbstractFunJac)
     fj.prec(convert(Vector, z),
         convert(Vector, r),
         fj.p,
@@ -243,11 +243,11 @@ function idaprecsolve(t::Float64,
 end
 
 function idaprecsetup(t::Float64,
-    y::N_Vector,
-    fy::N_Vector,
-    rr::N_Vector,
-    gamma::Float64,
-    fj::AbstractFunJac)
+        y::N_Vector,
+        fy::N_Vector,
+        rr::N_Vector,
+        gamma::Float64,
+        fj::AbstractFunJac)
     fj.psetup(fj.p, t, convert(Vector, rr), convert(Vector, y), convert(Vector, fy), gamma)
     return IDA_SUCCESS
 end

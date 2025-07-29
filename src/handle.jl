@@ -74,7 +74,7 @@ mutable struct NonLinSolHandle{T <: SundialsNonLinearSolver} <: SundialsHandle
     ptr::SUNNonlinearSolver
     destroyed::Bool
     function NonLinSolHandle(ptr::SUNNonlinearSolver,
-        M::T) where {T <: SundialsNonLinearSolver}
+            M::T) where {T <: SundialsNonLinearSolver}
         h = new{T}(ptr, false)
         finalizer(release_handle, h)
         return h
