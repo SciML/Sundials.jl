@@ -39,11 +39,11 @@ end
 
 """
     sens(f!, t0, y0, p, tout; reltol, abstol)
-Compute the solution and sensivities to the parametrized ODE problem defined by `f!(ẏ, t, y, p)`, starting at t0, y0, p.
-Return the solutions `y` at times tout (>t0) as well as the corresponding sensivity matrices `ys`.
+Compute the solution and sensitivities to the parametrized ODE problem defined by `f!(ẏ, t, y, p)`, starting at t0, y0, p.
+Return the solutions `y` at times tout (>t0) as well as the corresponding sensitivity matrices `ys`.
 y[i, t] is the solutions component i at timestep t.
-ys[i, j, t] is the i-th component sensivity wrt the j-th parameter at timestep t.
-ys[i, np+j, t] the i-th component sensivity wrt the j-th initial condition value.
+ys[i, j, t] is the i-th component sensitivity wrt the j-th parameter at timestep t.
+ys[i, np+j, t] the i-th component sensitivity wrt the j-th initial condition value.
 """
 function sens(f!::Function,
         t0::Float64,
@@ -105,9 +105,9 @@ end
 
 ## cvodes wrapper
 
-"Given the sensivity problem, return (y,ys) where
+"Given the sensitivity problem, return (y,ys) where
 y[i,t] is the solutions i-th componnent for timestep t and
-ys[i,j,t] is the sensivity of the i-th component wrt to the j-th paramater, where
+ys[i,j,t] is the sensitivity of the i-th component wrt to the j-th parameter, where
 the last parameter indices correspond to the initial conditions components."
 function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     N, Ns = size(yS0)

@@ -41,8 +41,8 @@ The choices for the linear solver are:
 
 * :Dense - A dense linear solver.
 * :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
 * :Diagonal - This method is specialized for diagonal Jacobians.
 * :GMRES - A GMRES method. Recommended first choice Krylov method
 * :BCG - A Biconjugate gradient method.
@@ -186,8 +186,8 @@ The choices for the linear solver are:
 
 * :Dense - A dense linear solver.
 * :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
 * :Diagonal - This method is specialized for diagonal Jacobians.
 * :GMRES - A GMRES method. Recommended first choice Krylov method
 * :BCG - A Biconjugate gradient method.
@@ -389,8 +389,8 @@ The choices for the linear solver are:
 
 * :Dense - A dense linear solver.
 * :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
 * :Diagonal - This method is specialized for diagonal Jacobians.
 * :GMRES - A GMRES method. Recommended first choice Krylov method
 * :BCG - A Biconjugate gradient method.
@@ -588,8 +588,8 @@ choices are:
 
 * :Dense - A dense linear solver.
 * :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticable overhead on smaller (<100 ODE) systems.
-* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticable overhead on smaller (<100 ODE) systems.
+* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
+* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
 * :GMRES - A GMRES method. Recommended first choice Krylov method
 * :BCG - A Biconjugate gradient method.
 * :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
