@@ -223,7 +223,7 @@ function rewrite(ex)
         # Expr(:macro, :($name()), Expr(:macrocall, Symbol("@SUNDIALS_F77_FUNC"), nothing, arg1, arg2))
         :(const $sun_name = $klu_name) &&
         if startswith(string(sun_name), "sun_klu_") &&
-           startswith(string(klu_name), "klu_")
+        startswith(string(klu_name), "klu_")
         end => :(const $sun_name = nothing) # skip
         _ => ex
     end

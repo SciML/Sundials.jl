@@ -105,7 +105,6 @@ PrecompileTools.@compile_workload begin
         ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0), Float64[])]
 
     for prob in prob_list, solver in solver_list
-
         solve(prob, solver)(0.5)
     end
 

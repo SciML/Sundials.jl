@@ -99,7 +99,7 @@ global prec_used = false
 global psetup_used = false
 prec = (z, r, p, t, y, fy, gamma, delta, lr) -> (global prec_used = true; z .= r)
 psetup = (
-    p, t, u, du, jok, jcurPtr, gamma) -> (global psetup_used = true; jcurPtr[] = false)
+p, t, u, du, jok, jcurPtr, gamma) -> (global psetup_used = true; jcurPtr[] = false)
 sol4 = solve(prob, CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec))
 @test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
 @test prec_used

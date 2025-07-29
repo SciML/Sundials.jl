@@ -41,7 +41,7 @@ const I_delay = 1.0
 ## Duration of injected current
 const I_dur = 5.0
 J[max(1, round(Int, (I_delay) / dt)):round(Int, (I_delay + I_dur) / dt),
-    round(Int, 1 * xsteps / 2)] = I_in
+round(Int, 1 * xsteps / 2)] = I_in
 
 const G_J = map(i -> CoordInterpGrid(t, vec(J[:, i]), 0.0, InterpQuadratic), 1:xsteps)
 

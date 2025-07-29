@@ -138,7 +138,7 @@ sol = solve(prob, IDA())
 
 # test that callbacks modifying p get the new p
 daefun = (du, u, p, t) -> [du[1] - u[2], u[2] - p]
-callback = PresetTimeCallback(0.5, integ->(integ.p = -integ.p;))
+callback = PresetTimeCallback(0.5, integ -> (integ.p = -integ.p))
 prob = DAEProblem(daefun, [0.0, 0.0], [0.0, -1.0], (0.0, 1), 1;
     differential_vars = [true, false], callback)
 sol = solve(prob, IDA())

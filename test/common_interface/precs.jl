@@ -17,16 +17,16 @@ function brusselator_2d_loop(du, u, p, t)
         jm1 = limit(i + 1, N), limit(i - 1, N), limit(j + 1, N),
         limit(j - 1, N)
         du[i,
-            j,
-            1] = alpha * (u[im1, j, 1] + u[ip1, j, 1] + u[i, jp1, 1] + u[i, jm1, 1] -
-                  4u[i, j, 1]) +
-                 B + u[i, j, 1]^2 * u[i, j, 2] - (A + 1) * u[i, j, 1] +
-                 brusselator_f(x, y, t)
+        j,
+        1] = alpha * (u[im1, j, 1] + u[ip1, j, 1] + u[i, jp1, 1] + u[i, jm1, 1] -
+              4u[i, j, 1]) +
+             B + u[i, j, 1]^2 * u[i, j, 2] - (A + 1) * u[i, j, 1] +
+             brusselator_f(x, y, t)
         du[i,
-            j,
-            2] = alpha * (u[im1, j, 2] + u[ip1, j, 2] + u[i, jp1, 2] + u[i, jm1, 2] -
-                  4u[i, j, 2]) +
-                 A * u[i, j, 1] - u[i, j, 1]^2 * u[i, j, 2]
+        j,
+        2] = alpha * (u[im1, j, 2] + u[ip1, j, 2] + u[i, jp1, 2] + u[i, jm1, 2] -
+              4u[i, j, 2]) +
+             A * u[i, j, 1] - u[i, j, 1]^2 * u[i, j, 2]
     end
 end
 
@@ -57,7 +57,7 @@ prob_ode_brusselator_2d = ODEProblem(brusselator_2d_vec,
     u0, (0.0, 11.5), p)
 
 detector = SparseConnectivityTracer.TracerSparsityDetector()
-brus_uf = (du, u)->brusselator_2d_vec(du, u, p, 0.1)
+brus_uf = (du, u) -> brusselator_2d_vec(du, u, p, 0.1)
 const jaccache = similar(
     SparseConnectivityTracer.jacobian_sparsity(brus_uf, du, u0, detector), Float64)
 const W = I - 1.0 * jaccache

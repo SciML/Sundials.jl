@@ -31,7 +31,7 @@ function DiffEqBase.__solve(
         ts = [],
         ks = [],
         recompile::Type{Val{recompile_flag}} = Val{true};
-        abstol = eps(Float64) ^ (4 // 5),
+        abstol = eps(Float64)^(4 // 5),
         maxiters = 1000,
         kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
         recompile_flag, uType, isinplace}
@@ -112,10 +112,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         save_everystep = isempty(saveat), save_idxs = nothing,
         save_on = true,
         save_start = save_everystep || isempty(saveat) ||
-                     saveat isa Number ? true :
+                         saveat isa Number ? true :
                      prob.tspan[1] in saveat,
         save_end = save_everystep || isempty(saveat) ||
-                   saveat isa Number ? true :
+                       saveat isa Number ? true :
                    prob.tspan[2] in saveat,
         dense = save_everystep && isempty(saveat),
         progress = false,
@@ -490,10 +490,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         dense = save_everystep,
         save_on = true,
         save_start = save_everystep || isempty(saveat) ||
-                     saveat isa Number ? true :
+                         saveat isa Number ? true :
                      prob.tspan[1] in saveat,
         save_end = save_everystep || isempty(saveat) ||
-                   saveat isa Number ? true :
+                       saveat isa Number ? true :
                    prob.tspan[2] in saveat,
         save_timeseries = nothing,
         progress = false,
@@ -1357,7 +1357,7 @@ function solver_step(integrator::CVODEIntegrator, tstop)
                 integrator.u,
                 integrator.p,
                 integrator.t),
-            progress=integrator.t/integrator.sol.prob.tspan[2])
+            progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::ARKODEIntegrator, tstop)
@@ -1371,7 +1371,7 @@ function solver_step(integrator::ARKODEIntegrator, tstop)
                 integrator.u_nvec,
                 integrator.p,
                 integrator.t),
-            progress=integrator.t/integrator.sol.prob.tspan[2])
+            progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::IDAIntegrator, tstop)
@@ -1390,7 +1390,7 @@ function solver_step(integrator::IDAIntegrator, tstop)
                 integrator.u,
                 integrator.p,
                 integrator.t),
-            progress=integrator.t/integrator.sol.prob.tspan[2])
+            progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 

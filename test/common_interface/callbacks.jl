@@ -56,7 +56,7 @@ end
 affect2!(integrator) = terminate!(integrator)
 times_finalize_called = 0
 cb = DiscreteCallback(
-    condition2, affect2!, finalize = (args...)->global times_finalize_called+=1)
+    condition2, affect2!, finalize = (args...) -> global times_finalize_called += 1)
 sol = solve(prob, CVODE_BDF(); callback = cb)
 @test sol.t[end] < 3.5
 @test times_finalize_called == 1
