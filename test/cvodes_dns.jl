@@ -46,12 +46,12 @@ ys[i, j, t] is the i-th component sensitivity wrt the j-th parameter at timestep
 ys[i, np+j, t] the i-th component sensitivity wrt the j-th initial condition value.
 """
 function sens(f!::Function,
-        t0::Float64,
-        y0::Vector{Float64},
-        p::Vector{Float64},
-        tout::Vector{Float64};
-        reltol::Float64 = 1e-5,
-        abstol::Float64 = 1e-5)
+    t0::Float64,
+    y0::Vector{Float64},
+    p::Vector{Float64},
+    tout::Vector{Float64};
+    reltol::Float64 = 1e-5,
+    abstol::Float64 = 1e-5)
     n = length(y0)
     np = length(p)
     ys0 = zeros(n, np .+ n)
@@ -87,14 +87,14 @@ function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
 end
 
 function cvsensrhsfn(ns::Cint,
-        t::Float64,
-        y::N_Vector,
-        dy::N_Vector,
-        ys::N_Vector_S,
-        dys::N_Vector_S,
-        data::CVSData,
-        tmp1::N_Vector,
-        tmp2::N_Vector)
+    t::Float64,
+    y::N_Vector,
+    dy::N_Vector,
+    ys::N_Vector_S,
+    dys::N_Vector_S,
+    data::CVSData,
+    tmp1::N_Vector,
+    tmp2::N_Vector)
     jys = data.jys
     jdys = data.jdys
     mycopy!(ys, data.jys)

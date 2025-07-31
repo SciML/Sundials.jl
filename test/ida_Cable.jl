@@ -40,8 +40,7 @@ const I_in = 0.1
 const I_delay = 1.0
 ## Duration of injected current
 const I_dur = 5.0
-J[max(1, round(Int, (I_delay) / dt)):round(Int, (I_delay + I_dur) / dt),
-    round(Int, 1 * xsteps / 2)] = I_in
+J[max(1, round(Int, (I_delay) / dt)):round(Int, (I_delay + I_dur) / dt), round(Int, 1 * xsteps / 2)] = I_in
 
 const G_J = map(i -> CoordInterpGrid(t, vec(J[:, i]), 0.0, InterpQuadratic), 1:xsteps)
 
@@ -85,8 +84,8 @@ function initial()
 end
 
 function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
-        id::Vector{Float64}, t::Vector{Float64};
-        reltol::Float64 = 1e-4, abstol::Float64 = 1e-6)
+    id::Vector{Float64}, t::Vector{Float64};
+    reltol::Float64 = 1e-4, abstol::Float64 = 1e-6)
     neq = length(y0)
     mem = Sundials.IDACreate()
 
@@ -121,6 +120,5 @@ end
 
 u0, up0, id = initial()
 
-yout,
-ypout = @time idabandsol(cableres, u0, up0, id, map(x -> x, t);
+yout, ypout = @time idabandsol(cableres, u0, up0, id, map(x -> x, t);
     reltol = 1e-3, abstol = 1e-4)

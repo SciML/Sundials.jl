@@ -28,7 +28,7 @@ sol = solve(prob, CVODE_Adams(); saveat = saveat, save_everystep = true, save_st
 @test sol.t[1] != 0
 
 sol = solve(prob, CVODE_Adams(); tstops = [0.2, 0.5, 0.7])
-@test all(t in sol.t for t in [0.2, 0.5, 0.7])
+@test all(t ∈ sol.t for t in [0.2, 0.5, 0.7])
 
 prob = prob_ode_2Dlinear
 sol = solve(prob, CVODE_BDF())
@@ -46,7 +46,7 @@ sol = solve(prob, CVODE_Adams(); saveat = saveat, save_everystep = false)
 @test sol.t == saveat
 
 for tstops in [0.9, [0.9]]
-    local sol = solve(prob, CVODE_Adams(); tstops)
+    local sol = solve(prob,  CVODE_Adams(); tstops)
     @test 0.9 ∈ sol.t
 end
 
@@ -67,7 +67,7 @@ prob = ODEProblem(k, [1.0], (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 h = (u, p, t) -> u
 u0 = [1.0 2.0
-      3.0 2.0]
+    3.0 2.0]
 prob = ODEProblem(h, u0, (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 
@@ -98,8 +98,7 @@ sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_
 global prec_used = false
 global psetup_used = false
 prec = (z, r, p, t, y, fy, gamma, delta, lr) -> (global prec_used = true; z .= r)
-psetup = (
-    p, t, u, du, jok, jcurPtr, gamma) -> (global psetup_used = true; jcurPtr[] = false)
+psetup = (p, t, u, du, jok, jcurPtr, gamma) -> (global psetup_used = true; jcurPtr[] = false)
 sol4 = solve(prob, CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec))
 @test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
 @test prec_used

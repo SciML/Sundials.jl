@@ -1,18 +1,17 @@
 ## Common Interface Solve Functions
 
-function DiffEqBase.__solve(
-        prob::Union{DiffEqBase.AbstractODEProblem,
-            DiffEqBase.AbstractDAEProblem},
-        alg::algType,
-        timeseries = [],
-        ts = [],
-        ks = [],
-        recompile::Type{Val{recompile_flag}} = Val{true};
-        calculate_error = true,
-        kwargs...) where {
-        algType <: Union{SundialsODEAlgorithm,
-            SundialsDAEAlgorithm},
-        recompile_flag}
+function DiffEqBase.__solve(prob::Union{DiffEqBase.AbstractODEProblem,
+        DiffEqBase.AbstractDAEProblem},
+    alg::algType,
+    timeseries = [],
+    ts = [],
+    ks = [],
+    recompile::Type{Val{recompile_flag}} = Val{true};
+    calculate_error = true,
+    kwargs...) where {
+    algType <: Union{SundialsODEAlgorithm,
+        SundialsDAEAlgorithm},
+    recompile_flag}
     integrator = DiffEqBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
     if integrator.sol.retcode == ReturnCode.Default
         solve!(integrator; early_free = true, calculate_error = calculate_error)
@@ -20,21 +19,20 @@ function DiffEqBase.__solve(
     integrator.sol
 end
 
-function DiffEqBase.__solve(
-        prob::Union{
-            DiffEqBase.AbstractSteadyStateProblem{uType,
-                isinplace},
-            DiffEqBase.AbstractNonlinearProblem{uType,
-                isinplace}},
-        alg::algType,
-        timeseries = [],
-        ts = [],
-        ks = [],
-        recompile::Type{Val{recompile_flag}} = Val{true};
-        abstol = eps(Float64) ^ (4 // 5),
-        maxiters = 1000,
-        kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
-        recompile_flag, uType, isinplace}
+function DiffEqBase.__solve(prob::Union{
+        DiffEqBase.AbstractSteadyStateProblem{uType,
+            isinplace},
+        DiffEqBase.AbstractNonlinearProblem{uType,
+            isinplace}},
+    alg::algType,
+    timeseries = [],
+    ts = [],
+    ks = [],
+    recompile::Type{Val{recompile_flag}} = Val{true};
+    abstol = eps(Float64) ^ (4 // 5),
+    maxiters = 1000,
+    kwargs...) where {algType <: SundialsNonlinearSolveAlgorithm,
+    recompile_flag, uType, isinplace}
     if prob.u0 isa Number
         u0 = [prob.u0]
     else
@@ -68,8 +66,7 @@ function DiffEqBase.__solve(
     end
     u = zero(u0)
     resid = similar(u)
-    u,
-    flag = ___kinsol(f!, u0;
+    u,flag = ___kinsol(f!, u0;
         userdata = userdata,
         linear_solver = linsolve,
         jac_upper = jac_upper,
@@ -92,43 +89,43 @@ function DiffEqBase.__solve(
 end
 
 function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-        alg::SundialsODEAlgorithm{Method, LinearSolver},
-        timeseries = [],
-        ts = [],
-        ks = [];
-        verbose = true,
-        callback = nothing,
-        abstol = 1 / 10^6,
-        reltol = 1 / 10^3,
-        saveat = Float64[],
-        d_discontinuities = Float64[],
-        tstops = Float64[],
-        maxiters = Int(1e5),
-        dt = nothing,
-        dtmin = 0.0,
-        dtmax = 0.0,
-        timeseries_errors = true,
-        dense_errors = false,
-        save_everystep = isempty(saveat), save_idxs = nothing,
-        save_on = true,
-        save_start = save_everystep || isempty(saveat) ||
+    alg::SundialsODEAlgorithm{Method, LinearSolver},
+    timeseries = [],
+    ts = [],
+    ks = [];
+    verbose = true,
+    callback = nothing,
+    abstol = 1 / 10^6,
+    reltol = 1 / 10^3,
+    saveat = Float64[],
+    d_discontinuities = Float64[],
+    tstops = Float64[],
+    maxiters = Int(1e5),
+    dt = nothing,
+    dtmin = 0.0,
+    dtmax = 0.0,
+    timeseries_errors = true,
+    dense_errors = false,
+    save_everystep = isempty(saveat), save_idxs = nothing,
+    save_on = true,
+    save_start = save_everystep || isempty(saveat) ||
                      saveat isa Number ? true :
-                     prob.tspan[1] in saveat,
-        save_end = save_everystep || isempty(saveat) ||
+                 prob.tspan[1] in saveat,
+    save_end = save_everystep || isempty(saveat) ||
                    saveat isa Number ? true :
-                   prob.tspan[2] in saveat,
-        dense = save_everystep && isempty(saveat),
-        progress = false,
-        progress_steps = 1000,
-        progress_name = "ODE",
-        progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
-        progress_id = :Sundials,
-        save_timeseries = nothing,
-        advance_to_tstop = false,
-        stop_at_next_tstop = false,
-        userdata = nothing,
-        alias_u0 = false,
-        kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
+               prob.tspan[2] in saveat,
+    dense = save_everystep && isempty(saveat),
+    progress = false,
+    progress_steps=1000,
+    progress_name = "ODE",
+    progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = :Sundials,
+    save_timeseries = nothing,
+    advance_to_tstop = false,
+    stop_at_next_tstop = false,
+    userdata = nothing,
+    alias_u0 = false,
+    kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
 }
     tType = eltype(tupType)
 
@@ -149,8 +146,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         error("Sundials requires at least one state variable.")
     end
 
-    progress &&
-        Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
+    progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
     tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
@@ -167,8 +163,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     tdir = sign(tspan[2] - tspan[1])
 
-    tstops_internal,
-    saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
+    tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
         tspan, tType)
 
     if prob.u0 isa Number
@@ -469,45 +464,45 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 end # function solve
 
 function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
-        alg::ARKODE{Method, LinearSolver, MassLinearSolver},
-        timeseries = [],
-        ts = [],
-        ks = [];
-        verbose = true,
-        callback = nothing,
-        abstol = 1 / 10^6,
-        reltol = 1 / 10^3,
-        saveat = Float64[],
-        tstops = Float64[],
-        d_discontinuities = Float64[],
-        maxiters = Int(1e5),
-        dt = nothing,
-        dtmin = 0.0,
-        dtmax = 0.0,
-        timeseries_errors = true,
-        dense_errors = false,
-        save_everystep = isempty(saveat), save_idxs = nothing,
-        dense = save_everystep,
-        save_on = true,
-        save_start = save_everystep || isempty(saveat) ||
+    alg::ARKODE{Method, LinearSolver, MassLinearSolver},
+    timeseries = [],
+    ts = [],
+    ks = [];
+    verbose = true,
+    callback = nothing,
+    abstol = 1 / 10^6,
+    reltol = 1 / 10^3,
+    saveat = Float64[],
+    tstops = Float64[],
+    d_discontinuities = Float64[],
+    maxiters = Int(1e5),
+    dt = nothing,
+    dtmin = 0.0,
+    dtmax = 0.0,
+    timeseries_errors = true,
+    dense_errors = false,
+    save_everystep = isempty(saveat), save_idxs = nothing,
+    dense = save_everystep,
+    save_on = true,
+    save_start = save_everystep || isempty(saveat) ||
                      saveat isa Number ? true :
-                     prob.tspan[1] in saveat,
-        save_end = save_everystep || isempty(saveat) ||
+                 prob.tspan[1] in saveat,
+    save_end = save_everystep || isempty(saveat) ||
                    saveat isa Number ? true :
-                   prob.tspan[2] in saveat,
-        save_timeseries = nothing,
-        progress = false,
-        progress_steps = 1000,
-        progress_name = "ODE",
-        progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
-        progress_id = :Sundials,
-        advance_to_tstop = false,
-        stop_at_next_tstop = false,
-        userdata = nothing,
-        alias_u0 = false,
-        kwargs...) where {uType, tupType, isinplace, Method,
-        LinearSolver,
-        MassLinearSolver}
+               prob.tspan[2] in saveat,
+    save_timeseries = nothing,
+    progress = false,
+    progress_steps = 1000,
+    progress_name = "ODE",
+    progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = :Sundials,
+    advance_to_tstop = false,
+    stop_at_next_tstop = false,
+    userdata = nothing,
+    alias_u0 = false,
+    kwargs...) where {uType, tupType, isinplace, Method,
+    LinearSolver,
+    MassLinearSolver}
     tType = eltype(tupType)
 
     if verbose
@@ -523,8 +518,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         error("Sundials requires at least one state variable.")
     end
 
-    progress &&
-        Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
+    progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
     tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
@@ -541,8 +535,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     tdir = sign(tspan[2] - tspan[1])
 
-    tstops_internal,
-    saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
+    tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
         tspan, tType)
 
     if prob.u0 isa Number
@@ -974,7 +967,7 @@ function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
     push!(tstops_internal, tdir_tf)
 
     if saveat isa Number
-        saveat = (t0:(tdir * abs(saveat)):tf)[2:end]
+        saveat = (t0:tdir*abs(saveat):tf)[2:end]
     end
     for t in saveat
         tdir_t = tdir * t
@@ -986,41 +979,40 @@ end
 
 ## Solve for DAEs uses IDA
 
-function DiffEqBase.__init(
-        prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType,
-            isinplace},
-        alg::SundialsDAEAlgorithm{LinearSolver},
-        timeseries = [],
-        ts = [],
-        ks = [];
-        verbose = true,
-        dt = nothing,
-        dtmax = 0.0,
-        save_on = true,
-        save_start = true,
-        callback = nothing,
-        abstol = 1 / 10^6,
-        reltol = 1 / 10^3,
-        saveat = Float64[],
-        tstops = Float64[],
-        d_discontinuities = Float64[],
-        maxiters = Int(1e5),
-        timeseries_errors = true,
-        dense_errors = false,
-        save_everystep = isempty(saveat), save_idxs = nothing,
-        dense = save_everystep,
-        save_timeseries = nothing,
-        save_end = true,
-        progress = false,
-        progress_steps = 1000,
-        progress_name = "DAE IDA",
-        progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
-        progress_id = :Sundials,
-        advance_to_tstop = false,
-        stop_at_next_tstop = false,
-        userdata = nothing,
-        initializealg = IDADefaultInit(),
-        kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
+function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tupType,
+        isinplace},
+    alg::SundialsDAEAlgorithm{LinearSolver},
+    timeseries = [],
+    ts = [],
+    ks = [];
+    verbose = true,
+    dt = nothing,
+    dtmax = 0.0,
+    save_on = true,
+    save_start = true,
+    callback = nothing,
+    abstol = 1 / 10^6,
+    reltol = 1 / 10^3,
+    saveat = Float64[],
+    tstops = Float64[],
+    d_discontinuities = Float64[],
+    maxiters = Int(1e5),
+    timeseries_errors = true,
+    dense_errors = false,
+    save_everystep = isempty(saveat), save_idxs = nothing,
+    dense = save_everystep,
+    save_timeseries = nothing,
+    save_end = true,
+    progress = false,
+    progress_steps = 1000,
+    progress_name = "DAE IDA",
+    progress_message = DiffEqBase.ODE_DEFAULT_PROG_MESSAGE,
+    progress_id = :Sundials,
+    advance_to_tstop = false,
+    stop_at_next_tstop = false,
+    userdata = nothing,
+    initializealg = IDADefaultInit(),
+    kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
 }
     tType = eltype(tupType)
 
@@ -1037,8 +1029,7 @@ function DiffEqBase.__init(
         error("Sundials requires at least one state variable.")
     end
 
-    progress &&
-        Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
+    progress && Logging.@logmsg(Logging.LogLevel(-1), progress_name, _id=progress_id, progress=0)
 
     tstops = vcat(tstops, d_discontinuities)
     callbacks_internal = DiffEqBase.CallbackSet(callback)
@@ -1055,8 +1046,7 @@ function DiffEqBase.__init(
 
     tdir = sign(tspan[2] - tspan[1])
 
-    tstops_internal,
-    saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
+    tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
         tspan, tType)
     @assert size(prob.u0) == size(prob.du0)
     if prob.u0 isa Number
@@ -1357,7 +1347,7 @@ function solver_step(integrator::CVODEIntegrator, tstop)
                 integrator.u,
                 integrator.p,
                 integrator.t),
-            progress=integrator.t/integrator.sol.prob.tspan[2])
+            progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::ARKODEIntegrator, tstop)
@@ -1371,7 +1361,7 @@ function solver_step(integrator::ARKODEIntegrator, tstop)
                 integrator.u_nvec,
                 integrator.p,
                 integrator.t),
-            progress=integrator.t/integrator.sol.prob.tspan[2])
+            progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 function solver_step(integrator::IDAIntegrator, tstop)
@@ -1390,7 +1380,7 @@ function solver_step(integrator::IDAIntegrator, tstop)
                 integrator.u,
                 integrator.p,
                 integrator.t),
-            progress=integrator.t/integrator.sol.prob.tspan[2])
+            progress=integrator.t / integrator.sol.prob.tspan[2])
     end
 end
 
@@ -1415,7 +1405,7 @@ function get_iters!(integrator::IDAIntegrator, iters)
 end
 
 function DiffEqBase.solve!(integrator::AbstractSundialsIntegrator; early_free = false,
-        calculate_error = false)
+    calculate_error = false)
     uType = eltype(integrator.sol.u)
     iters = Ref(Clong(-1))
     while !isempty(integrator.opts.tstops)

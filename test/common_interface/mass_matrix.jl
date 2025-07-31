@@ -20,8 +20,7 @@ function make_mm_probs(mm_A, ::Type{Val{iip}}) where {iip}
     u0 = ones(3)
     tspan = (0.0, 1.0)
 
-    prob = ODEProblem(
-        ODEFunction{iip, true}(mm_f; analytic = mm_analytic,
+    prob = ODEProblem(ODEFunction{iip, true}(mm_f; analytic = mm_analytic,
             mass_matrix = mm_A),
         u0,
         tspan)

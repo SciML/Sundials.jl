@@ -9,12 +9,8 @@ u0 = zeros(2)
 prob_iip = NonlinearProblem{true}(f_iip, u0)
 abstol = 1e-8
 
-@testset "linear_solver = $(linear_solver) | globalization_strategy = $(globalization_strategy)" for linear_solver in
-                                                                                                     (
-        :Dense,
-        :LapackDense, :GMRES, :FGMRES, :BCG, :PCG, :TFQMR),
-    globalization_strategy in (:LineSearch, :None)
-
+@testset "linear_solver = $(linear_solver) | globalization_strategy = $(globalization_strategy)" for linear_solver in (:Dense,
+        :LapackDense, :GMRES, :FGMRES, :BCG, :PCG, :TFQMR), globalization_strategy in (:LineSearch, :None)
     local sol
     alg = KINSOL(; linear_solver, globalization_strategy)
     sol = solve(prob_iip, alg; abstol)
@@ -30,12 +26,8 @@ f_oop(u, p) = [2 - 2u[1], u[1] - 4u[2]]
 u0 = zeros(2)
 prob_oop = NonlinearProblem{false}(f_oop, u0)
 
-@testset "linear_solver = $(linear_solver) | globalization_strategy = $(globalization_strategy)" for linear_solver in
-                                                                                                     (
-        :Dense,
-        :LapackDense, :GMRES, :FGMRES, :BCG, :PCG, :TFQMR),
-    globalization_strategy in (:LineSearch, :None)
-
+@testset "linear_solver = $(linear_solver) | globalization_strategy = $(globalization_strategy)" for linear_solver in (:Dense,
+        :LapackDense, :GMRES, :FGMRES, :BCG, :PCG, :TFQMR), globalization_strategy in (:LineSearch, :None)
     local sol
     alg = KINSOL(; linear_solver, globalization_strategy)
     sol = solve(prob_oop, alg; abstol)
@@ -60,12 +52,8 @@ f_scalar(u, p) = 2 - 2u
 u0 = 0.0
 prob_scalar = NonlinearProblem{false}(f_scalar, u0)
 
-@testset "linear_solver = $(linear_solver) | globalization_strategy = $(globalization_strategy)" for linear_solver in
-                                                                                                     (
-        :Dense,
-        :LapackDense, :GMRES, :FGMRES, :PCG, :TFQMR),
-    globalization_strategy in (:LineSearch, :None)
-
+@testset "linear_solver = $(linear_solver) | globalization_strategy = $(globalization_strategy)" for linear_solver in (:Dense,
+        :LapackDense, :GMRES, :FGMRES, :PCG, :TFQMR), globalization_strategy in (:LineSearch, :None)
     local sol
     alg = KINSOL(; linear_solver, globalization_strategy)
     sol = solve(prob_scalar, alg; abstol)

@@ -28,8 +28,7 @@ g_C = @cfunction(g, Cint,
 # broken -- needs a wrapper from Sundials._DlsMat to Matrix and Jac user function wrapper
 function Jac(N, t, ny, fy, Jptr, user_data, tmp1, tmp2, tmp3)
     y = convert(Vector, ny)
-    dlsmat = unpack(
-        IOString(unsafe_wrap(convert(Ptr{UInt8}, Jptr),
+    dlsmat = unpack(IOString(unsafe_wrap(convert(Ptr{UInt8}, Jptr),
             (sum(map(sizeof, Sundials._DlsMat)) + 10,),
             false)),
         Sundials._DlsMat)

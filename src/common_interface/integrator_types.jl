@@ -69,17 +69,17 @@ mutable struct CVODEIntegrator{N,
 end
 
 function (integrator::CVODEIntegrator)(t::Number,
-        deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : out[idxs]
 end
 
 function (integrator::CVODEIntegrator)(out,
-        t::Number,
-        deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : @view out[idxs]
 end
@@ -127,17 +127,17 @@ mutable struct ARKODEIntegrator{N,
 end
 
 function (integrator::ARKODEIntegrator)(t::Number,
-        deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : out[idxs]
 end
 
 function (integrator::ARKODEIntegrator)(out,
-        t::Number,
-        deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : @view out[idxs]
 end
@@ -186,26 +186,27 @@ mutable struct IDAIntegrator{N,
 end
 
 function (integrator::IDAIntegrator)(t::Number,
-        deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
     out = similar(integrator.u)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : out[idxs]
 end
 
 function (integrator::IDAIntegrator)(out,
-        t::Number,
-        deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), vec(out))
     return idxs === nothing ? out : @view out[idxs]
 end
 function (integrator::IDAIntegrator)(out::SubArray,
-        t::Number,
-        deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+    t::Number,
+    deriv::Type{Val{T}} = Val{0};
+    idxs = nothing) where {T}
     throw(ArgumentError("Views are not supported with IDA!"))
 end
+
 
 ###  Error check (retcode)
 
