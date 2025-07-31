@@ -68,7 +68,7 @@ end
 sol = solve(prob, IDA(); d_discontinuities = [0.9])
 @test 0.9 ∈ sol.t
 
-@test solve(prob, IDA(); save_idxs=1).u isa Vector{Float64}
+@test solve(prob, IDA(); save_idxs = 1).u isa Vector{Float64}
 
 prob = deepcopy(prob_dae_resrob)
 prob2 = DAEProblem(prob.f, prob.du0, prob.u0, (1.0, 0.0))
@@ -108,7 +108,7 @@ init(dae_prob, IDA(), initializealg = NoInit()).u == [0.0]
 # test that initializers which modify states actually modify the states
 struct DumbInit <: DiffEqBase.DAEInitializationAlgorithm end
 function DiffEqBase.initialize_dae!(integrator::Sundials.IDAIntegrator,
-    initializealg::DumbInit)
+        initializealg::DumbInit)
     integrator.u .= 1
     integrator.u_modified = true
     DiffEqBase.initialize_dae!(integrator, Sundials.IDADefaultInit())
@@ -124,7 +124,7 @@ isapprox(only(sol.u[end]), exp(1), rtol = 1e-3)
 f_noconverge(out, du, u, p, t) = out .= [du[1] + u[1] / (t - 1)]
 prob = DAEProblem(f_noconverge, [1.0], [1.0], (0, 2); differential_vars = [true])
 sol = solve(prob, IDA())
-@test !(sol.retcode in (ReturnCode.Success, ))
+@test !(sol.retcode in (ReturnCode.Success,))
 
 # Test that we're saving the correct initial data for du
 function f_initial_data(du, u, p, t)
@@ -138,11 +138,11 @@ sol = solve(prob, IDA())
 
 # test that callbacks modifying p get the new p
 daefun = (du, u, p, t) -> [du[1] - u[2], u[2] - p]
-callback = PresetTimeCallback(.5, integ->(integ.p=-integ.p;))
-prob = DAEProblem(daefun, [0.0, 0.0], [0.0,-1.0], (0., 1), 1;
+callback = PresetTimeCallback(0.5, integ->(integ.p = -integ.p;))
+prob = DAEProblem(daefun, [0.0, 0.0], [0.0, -1.0], (0.0, 1), 1;
     differential_vars = [true, false], callback)
 sol = solve(prob, IDA())
 @test sol.retcode == ReturnCode.Success
 # test that the callback flipping p caused u[2] to get flipped.
 first_t = findfirst(isequal(0.5), sol.t)
-@test sol.u[first_t][2] == -sol.u[first_t+1][2]
+@test sol.u[first_t][2] == -sol.u[first_t + 1][2]
