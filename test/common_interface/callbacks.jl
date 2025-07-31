@@ -55,7 +55,7 @@ function condition2(u, t, integrator)
 end
 affect2!(integrator) = terminate!(integrator)
 times_finalize_called = 0
-cb = DiscreteCallback(condition2, affect2!, finalize=(args...)->global times_finalize_called+=1)
+cb = DiscreteCallback(condition2, affect2!, finalize = (args...)->global times_finalize_called+=1)
 sol = solve(prob, CVODE_BDF(); callback = cb)
 @test sol.t[end] < 3.5
 @test times_finalize_called == 1
@@ -89,4 +89,3 @@ u_out = similar(u₀)
 cb = DiscreteCallback(Returns(true), integ -> integ(@view(u_out[2:2]), integ.t))
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
 @test_throws ArgumentError solve(prob, IDA(), callback = cb)
-

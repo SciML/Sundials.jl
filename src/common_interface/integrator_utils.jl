@@ -7,12 +7,17 @@ function handle_callbacks!(integrator)
     discrete_modified = false
     saved_in_cb = false
     if !(continuous_callbacks isa Tuple{})
-        time, upcrossing, event_occured, event_idx, idx, counter = DiffEqBase.find_first_continuous_callback(integrator,
+        time, upcrossing,
+        event_occured,
+        event_idx,
+        idx,
+        counter = DiffEqBase.find_first_continuous_callback(integrator,
             continuous_callbacks...)
         if event_occured
             integrator.event_last_time = idx
             integrator.vector_event_last_time = event_idx
-            continuous_modified, saved_in_cb = DiffEqBase.apply_callback!(integrator,
+            continuous_modified,
+            saved_in_cb = DiffEqBase.apply_callback!(integrator,
                 continuous_callbacks[idx],
                 time,
                 upcrossing,
@@ -23,7 +28,8 @@ function handle_callbacks!(integrator)
         end
     end
     if !(discrete_callbacks isa Tuple{})
-        discrete_modified, saved_in_cb = DiffEqBase.apply_discrete_callback!(integrator,
+        discrete_modified,
+        saved_in_cb = DiffEqBase.apply_discrete_callback!(integrator,
             discrete_callbacks...)
     end
 
@@ -40,7 +46,7 @@ function handle_callbacks!(integrator)
 end
 
 function DiffEqBase.savevalues!(integrator::AbstractSundialsIntegrator,
-    force_save = false)::Tuple{Bool, Bool}
+        force_save = false)::Tuple{Bool, Bool}
     saved, savedexactly = false, false
     !integrator.opts.save_on && return saved, savedexactly
     uType = typeof(integrator.sol.prob.u0)
@@ -81,10 +87,10 @@ function save_value!(save_array, val, ::Type{<:Number}, save_idxs, make_copy::Bo
     push!(save_array, first(val))
 end
 function save_value!(save_array,
-    val,
-    ::Type{<:AbstractArray},
-    save_idxs,
-    make_copy::Bool = true)
+        val,
+        ::Type{<:AbstractArray},
+        save_idxs,
+        make_copy::Bool = true)
     save = if save_idxs !== nothing
         val[save_idxs]
     else
@@ -138,7 +144,7 @@ DiffEqBase.get_tmp_cache(integrator::AbstractSundialsIntegrator) = (integrator.t
 end
 
 function DiffEqBase.terminate!(integrator::AbstractSundialsIntegrator,
-    retcode = ReturnCode.Terminated)
+        retcode = ReturnCode.Terminated)
     integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol, retcode)
     integrator.opts.tstops.valtree = typeof(integrator.opts.tstops.valtree)()
 end
@@ -159,7 +165,9 @@ end
     out .= integrator.du
 end
 
-function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator, t, modify_save_endpoint::Type{Val{T}}=Val{false}, reinitialize_alg=nothing) where T
+function DiffEqBase.change_t_via_interpolation!(integrator::AbstractSundialsIntegrator, t,
+        modify_save_endpoint::Type{Val{T}} = Val{false},
+        reinitialize_alg = nothing) where {T}
     integrator.t = t
     integrator(integrator.u, integrator.t)
     return nothing
@@ -191,7 +199,7 @@ struct IDADefaultInit <: DiffEqBase.DAEInitializationAlgorithm
 end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-    initializealg::IDADefaultInit)
+        initializealg::IDADefaultInit)
     if integrator.u_modified
         IDAReinit!(integrator)
     end
@@ -223,15 +231,15 @@ end
 
 DiffEqBase.has_reinit(integrator::AbstractSundialsIntegrator) = true
 function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,
-    u0 = integrator.sol.prob.u0;
-    t0 = integrator.sol.prob.tspan[1],
-    tf = integrator.sol.prob.tspan[2],
-    erase_sol = true,
-    tstops = integrator.opts.tstops_cache,
-    saveat = integrator.opts.saveat_cache,
-    reinit_callbacks = true, initialize_save = true,
-    reinit_retcode = true,
-    reinit_cache = true)
+        u0 = integrator.sol.prob.u0;
+        t0 = integrator.sol.prob.tspan[1],
+        tf = integrator.sol.prob.tspan[2],
+        erase_sol = true,
+        tstops = integrator.opts.tstops_cache,
+        saveat = integrator.opts.saveat_cache,
+        reinit_callbacks = true, initialize_save = true,
+        reinit_retcode = true,
+        reinit_cache = true)
     if isinplace(integrator.sol.prob)
         copyto!(integrator.u, u0)
         copyto!(integrator.uprev, integrator.u)
@@ -247,7 +255,8 @@ function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,
     tspan = (tType(t0), tType(tf))
     tdir = sign(tspan[2] - tspan[1])
 
-    tstops_internal, saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
+    tstops_internal,
+    saveat_internal = tstop_saveat_disc_handling(tstops, saveat, tdir,
         tspan,
         eltype(integrator.t))
 
@@ -292,5 +301,6 @@ end
 
 DiffEqBase.get_tstops(integ::AbstractSundialsIntegrator) = integ.opts.tstops
 DiffEqBase.get_tstops_array(integ::AbstractSundialsIntegrator) = get_tstops(integ).valtree
-DiffEqBase.get_tstops_max(integ::AbstractSundialsIntegrator) =
+function DiffEqBase.get_tstops_max(integ::AbstractSundialsIntegrator)
     maximum(get_tstops_array(integ))
+end

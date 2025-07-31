@@ -32,8 +32,8 @@ warnida = union(warnlist, Set((:dtmin,)))
 using Sundials_jll
 
 export solve,
-    SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
-    KINSOL
+       SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
+       KINSOL
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)
@@ -98,13 +98,14 @@ PrecompileTools.@compile_workload begin
     end
 
     solver_list = [
-        ARKODE(), CVODE_Adams(), CVODE_BDF(),
+        ARKODE(), CVODE_Adams(), CVODE_BDF()
     ]
 
     prob_list = [ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0)),
         ODEProblem(lorenz, [1.0; 0.0; 0.0], (0.0, 1.0), Float64[])]
 
     for prob in prob_list, solver in solver_list
+
         solve(prob, solver)(0.5)
     end
 
