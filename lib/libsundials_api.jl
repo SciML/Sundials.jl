@@ -9,14 +9,18 @@
 # (this is unsafe as a C ptr is returned from the temporary @cfunction closure which may then be garbage collected)
 
 function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
-        y0::Union{N_Vector, NVector})
+        y0::Union{N_Vector, NVector}, sunctx::SUNContext)
     ccall((:ARKStepCreate, libsundials_arkode), ARKStepMemPtr,
-        (ARKRhsFn, ARKRhsFn, realtype, N_Vector), fe, fi, t0, y0)
+        (ARKRhsFn, ARKRhsFn, realtype, N_Vector, SUNContext), fe, fi, t0, y0, sunctx)
+end
+
+function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
+    __y0 = convert(NVector, y0)
+    ARKStepCreate(fe, fi, t0, __y0, sunctx)
 end
 
 function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
-    __y0 = convert(NVector, y0)
-    ARKStepCreate(fe, fi, t0, __y0)
+    ARKStepCreate(fe, fi, t0, y0, ensure_context())
 end
 
 function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
@@ -3293,8 +3297,12 @@ function CVSpilsSetJacTimesBS(cvode_mem, which, jtsetupBS, jtimesBS)
     CVSpilsSetJacTimesBS(cvode_mem, convert(Cint, which), jtsetupBS, jtimesBS)
 end
 
+function IDACreate(sunctx::SUNContext)
+    ccall((:IDACreate, libsundials_idas), IDAMemPtr, (SUNContext,), sunctx)
+end
+
 function IDACreate()
-    ccall((:IDACreate, libsundials_idas), IDAMemPtr, ())
+    IDACreate(ensure_context())
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector},
@@ -7811,14 +7819,14 @@ function SUNDIALSGetVersionNumber(major, minor, patch, label, len)
     SUNDIALSGetVersionNumber(major, minor, patch, label, convert(Cint, len))
 end
 
-function SUNLinSol_Band(y::Union{N_Vector, NVector}, A::SUNMatrix)
+function SUNLinSol_Band(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
     ccall((:SUNLinSol_Band, libsundials_sunlinsolband), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
-function SUNLinSol_Band(y, A)
+function SUNLinSol_Band(y, A, sunctx)
     __y = convert(NVector, y)
-    SUNLinSol_Band(__y, A)
+    SUNLinSol_Band(__y, A, sunctx)
 end
 
 function SUNBandLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -7878,14 +7886,14 @@ function SUNLinSolFree_Band(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_Band, libsundials_sunlinsolband), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_Dense(y::Union{N_Vector, NVector}, A::SUNMatrix)
+function SUNLinSol_Dense(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
     ccall((:SUNLinSol_Dense, libsundials_sunlinsoldense), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
 end
 
-function SUNLinSol_Dense(y, A)
+function SUNLinSol_Dense(y, A, sunctx)
     __y = convert(NVector, y)
-    SUNLinSol_Dense(__y, A)
+    SUNLinSol_Dense(__y, A, sunctx)
 end
 
 function SUNDenseLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -8064,14 +8072,18 @@ function SUNLinSolFree_KLU(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
+function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
     ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+end
+
+function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
+    __y = convert(NVector, y)
+    SUNLinSol_LapackBand(__y, A, sunctx)
 end
 
 function SUNLinSol_LapackBand(y, A)
-    __y = convert(NVector, y)
-    SUNLinSol_LapackBand(__y, A)
+    SUNLinSol_LapackBand(y, A, ensure_context())
 end
 
 function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -8133,14 +8145,18 @@ function SUNLinSolFree_LapackBand(S::SUNLinearSolver)
         (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
+function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
     ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+end
+
+function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
+    __y = convert(NVector, y)
+    SUNLinSol_LapackDense(__y, A, sunctx)
 end
 
 function SUNLinSol_LapackDense(y, A)
-    __y = convert(NVector, y)
-    SUNLinSol_LapackDense(__y, A)
+    SUNLinSol_LapackDense(y, A, ensure_context())
 end
 
 function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -8949,9 +8965,9 @@ function SUNLinSolFree_SPTFQMR(S::SUNLinearSolver)
         S)
 end
 
-function SUNBandMatrix(N::sunindextype, mu::sunindextype, ml::sunindextype)
+function SUNBandMatrix(N::sunindextype, mu::sunindextype, ml::sunindextype, sunctx::SUNContext)
     ccall((:SUNBandMatrix, libsundials_sunmatrixband), SUNMatrix,
-        (sunindextype, sunindextype, sunindextype), N, mu, ml)
+        (sunindextype, sunindextype, sunindextype, SUNContext), N, mu, ml, sunctx)
 end
 
 function SUNBandMatrixStorage(N::sunindextype, mu::sunindextype, ml::sunindextype,
@@ -9054,9 +9070,9 @@ function SUNMatSpace_Band(A::SUNMatrix, lenrw, leniw)
         (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
 end
 
-function SUNDenseMatrix(M::sunindextype, N::sunindextype)
+function SUNDenseMatrix(M::sunindextype, N::sunindextype, sunctx::SUNContext)
     ccall((:SUNDenseMatrix, libsundials_sunmatrixdense), SUNMatrix,
-        (sunindextype, sunindextype), M, N)
+        (sunindextype, sunindextype, SUNContext), M, N, sunctx)
 end
 
 function SUNDenseMatrix_Print(A::SUNMatrix, outfile)

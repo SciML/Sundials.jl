@@ -75,17 +75,17 @@ function ___kinsol(f,
     end
     flag = @checkflag KINInit(kmem, getcfun(userfun), NVector(y0)) true
     if linear_solver == :Dense
-        A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-        LS = Sundials.SUNLinSol_Dense(y0, A)
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0), ensure_context())
+        LS = Sundials.SUNLinSol_Dense(y0, A, ensure_context())
     elseif linear_solver == :LapackDense
-        A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-        LS = Sundials.SUNLinSol_LapackDense(y0, A)
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0), ensure_context())
+        LS = Sundials.SUNLinSol_LapackDense(y0, A, ensure_context())
     elseif linear_solver == :Band
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
-        LS = Sundials.SUNLinSol_Band(y0, A)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ensure_context())
+        LS = Sundials.SUNLinSol_Band(y0, A, ensure_context())
     elseif linear_solver == :LapackBand
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
-        LS = Sundials.SUNLinSol_LapackBand(y0, A)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ensure_context())
+        LS = Sundials.SUNLinSol_LapackBand(y0, A, ensure_context())
     elseif linear_solver == :GMRES
         A = C_NULL
         LS = Sundials.SUNLinSol_SPGMR(y0, prec_side, krylov_dim)
@@ -201,8 +201,8 @@ function cvode!(f::Function,
 
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
-    A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-    LS = Sundials.SUNLinSol_Dense(y0nv, A)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0), ensure_context())
+    LS = Sundials.SUNLinSol_Dense(y0nv, A, ensure_context())
     flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
     y[1, :] = y0
@@ -282,8 +282,8 @@ function idasol(f,
     flag = @checkflag IDASetUserData(mem, userfun) true
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
 
-    A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-    LS = Sundials.SUNLinSol_Dense(y0, A)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0), ensure_context())
+    LS = Sundials.SUNLinSol_Dense(y0, A, ensure_context())
     flag = Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A) true
 
     rtest = zeros(length(y0))

@@ -1,6 +1,6 @@
 using Sundials, Test
 
-h1 = Sundials.Handle(Sundials.CVodeCreate(Sundials.CV_BDF))
+h1 = Sundials.Handle(Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.ensure_context()))
 h2 = h1
 
 @test !isempty(h1)

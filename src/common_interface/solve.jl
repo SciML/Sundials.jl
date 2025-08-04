@@ -258,24 +258,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(uvec), length(uvec))
+            A = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A)
+                LS = SUNLinSol_Dense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A)
+                LS = SUNLinSol_LapackDense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A)
+                LS = SUNLinSol_Band(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A)
+                LS = SUNLinSol_LapackBand(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :Diagonal
@@ -690,24 +690,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(uvec), length(uvec))
+            A = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A)
+                LS = SUNLinSol_Dense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A)
+                LS = SUNLinSol_LapackDense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A)
+                LS = SUNLinSol_Band(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A)
+                LS = SUNLinSol_LapackBand(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES
@@ -763,24 +763,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if prob.f.mass_matrix != LinearAlgebra.I && alg.stiffness !== Explicit()
         if MassLinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            M = SUNDenseMatrix(length(uvec), length(uvec))
+            M = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
             _M = MatrixHandle(M, DenseMatrix())
             if MassLinearSolver === :Dense
-                MLS = SUNLinSol_Dense(uvec, M)
+                MLS = SUNLinSol_Dense(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, Dense())
             else
-                MLS = SUNLinSol_LapackDense(uvec, M)
+                MLS = SUNLinSol_LapackDense(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, LapackDense())
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
             _M = MatrixHandle(M, BandMatrix())
             if MassLinearSolver === :Band
-                MLS = SUNLinSol_Band(uvec, M)
+                MLS = SUNLinSol_Band(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, Band())
             else
-                MLS = SUNLinSol_LapackBand(uvec, M)
+                MLS = SUNLinSol_LapackBand(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, LapackBand())
             end
         elseif MassLinearSolver == :GMRES
@@ -1134,24 +1134,24 @@ function DiffEqBase.__init(
     prec_side = isnothing(alg.prec) ? 0 : 1  # IDA only supports left preconditioning (prec_side = 1)
     if LinearSolver in (:Dense, :LapackDense)
         nojacobian = false
-        A = SUNDenseMatrix(length(u0), length(u0))
+        A = SUNDenseMatrix(length(u0), length(u0), ensure_context())
         _A = MatrixHandle(A, DenseMatrix())
         if LinearSolver === :Dense
-            LS = SUNLinSol_Dense(utmp, A)
+            LS = SUNLinSol_Dense(utmp, A, ensure_context())
             _LS = LinSolHandle(LS, Dense())
         else
-            LS = SUNLinSol_LapackDense(u0, A)
+            LS = SUNLinSol_LapackDense(u0, A, ensure_context())
             _LS = LinSolHandle(LS, LapackDense())
         end
     elseif LinearSolver in (:Band, :LapackBand)
         nojacobian = false
-        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
+        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower, ensure_context())
         _A = MatrixHandle(A, BandMatrix())
         if LinearSolver === :Band
-            LS = SUNLinSol_Band(utmp, A)
+            LS = SUNLinSol_Band(utmp, A, ensure_context())
             _LS = LinSolHandle(LS, Band())
         else
-            LS = SUNLinSol_LapackBand(utmp, A)
+            LS = SUNLinSol_LapackBand(utmp, A, ensure_context())
             _LS = LinSolHandle(LS, LapackBand())
         end
     elseif LinearSolver == :GMRES
