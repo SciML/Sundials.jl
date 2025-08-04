@@ -82,8 +82,9 @@ sol7 = solve(prob, CVODE_BDF(; linear_solver = :BCG))
 sol8 = solve(prob, CVODE_BDF(; linear_solver = :TFQMR))
 sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))
 #sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU)) # Requires Jacobian
-sol10 = solve(prob, CVODE_BDF(; linear_solver = :LapackDense))
-sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3))
+# LapackDense/LapackBand not available in SUNDIALS 7.4 binaries - causes BLAS segfaults
+# sol10 = solve(prob, CVODE_BDF(; linear_solver = :LapackDense))
+# sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3))
 
 @test isapprox(sol1.u[end], sol2.u[end]; rtol = 1e-3)
 @test isapprox(sol1.u[end], sol3.u[end]; rtol = 1e-3)
