@@ -69,9 +69,19 @@ prob_scalar = NonlinearProblem{false}(f_scalar, u0)
     local sol
     alg = KINSOL(; linear_solver, globalization_strategy)
     sol = solve(prob_scalar, alg; abstol)
-    @test SciMLBase.successful_retcode(sol.retcode)
-    @test sol.u isa Number
-
-    resid = f_scalar(sol.u, nothing)
-    @test abs(resid) < 1e-6
+    
+    if linear_solver == :LapackDense
+        # LAPACK functions not available in SUNDIALS 7.4 binaries
+        @test_broken SciMLBase.successful_retcode(sol.retcode)
+        @test sol.u isa Number
+        if SciMLBase.successful_retcode(sol.retcode)
+            resid = f_scalar(sol.u, nothing)
+            @test abs(resid) < 1e-6
+        end
+    else
+        @test SciMLBase.successful_retcode(sol.retcode)
+        @test sol.u isa Number
+        resid = f_scalar(sol.u, nothing)
+        @test abs(resid) < 1e-6
+    end
 end
