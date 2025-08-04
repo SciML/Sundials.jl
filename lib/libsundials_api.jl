@@ -5925,18 +5925,18 @@ function N_VEnableWrmsNormMaskVectorArray_ManyVector(v, tf)
     N_VEnableWrmsNormMaskVectorArray_ManyVector(__v, convert(Cint, tf))
 end
 
-function N_VNew_Serial(vec_length::sunindextype)
-    ccall((:N_VNew_Serial, libsundials_nvecserial), N_Vector, (sunindextype,), vec_length)
+function N_VNew_Serial(vec_length::sunindextype, sunctx::SUNContext)
+    ccall((:N_VNew_Serial, libsundials_nvecserial), N_Vector, (sunindextype, SUNContext), vec_length, sunctx)
 end
 
-function N_VNewEmpty_Serial(vec_length::sunindextype)
-    ccall((:N_VNewEmpty_Serial, libsundials_nvecserial), N_Vector, (sunindextype,),
-        vec_length)
+function N_VNewEmpty_Serial(vec_length::sunindextype, sunctx::SUNContext)
+    ccall((:N_VNewEmpty_Serial, libsundials_nvecserial), N_Vector, (sunindextype, SUNContext),
+        vec_length, sunctx)
 end
 
-function N_VMake_Serial(vec_length::sunindextype, v_data)
+function N_VMake_Serial(vec_length::sunindextype, v_data, sunctx::SUNContext)
     ccall((:N_VMake_Serial, libsundials_nvecserial), N_Vector,
-        (sunindextype, Ptr{realtype}), vec_length, v_data)
+        (sunindextype, Ptr{realtype}, SUNContext), vec_length, v_data, sunctx)
 end
 
 function N_VCloneVectorArray_Serial(count::Cint, w::Union{N_Vector, NVector})
