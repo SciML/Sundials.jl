@@ -181,9 +181,9 @@ function cvode!(f::Function,
         abstol::Float64 = 1e-6,
         callback = (x, y, z) -> true)
     if integrator == :BDF
-        mem_ptr = CVodeCreate(CV_BDF)
+        mem_ptr = CVodeCreate(CV_BDF, ensure_context())
     elseif integrator == :Adams
-        mem_ptr = CVodeCreate(CV_ADAMS)
+        mem_ptr = CVodeCreate(CV_ADAMS, ensure_context())
     end
 
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")

@@ -284,14 +284,14 @@ function ARKStepSetDeltaGammaMax(arkode_mem, dgmax::realtype)
         arkode_mem, dgmax)
 end
 
-function ARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp::Cint)
+function ARKStepSetLSetupFrequency(arkode_mem, msbp::Cint)
     ccall(
-        (:ARKStepSetMaxStepsBetweenLSet, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        (:ARKStepSetLSetupFrequency, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
         arkode_mem, msbp)
 end
 
-function ARKStepSetMaxStepsBetweenLSet(arkode_mem, msbp)
-    ARKStepSetMaxStepsBetweenLSet(arkode_mem, convert(Cint, msbp))
+function ARKStepSetLSetupFrequency(arkode_mem, msbp)
+    ARKStepSetLSetupFrequency(arkode_mem, convert(Cint, msbp))
 end
 
 function ARKStepSetPredictorMethod(arkode_mem, method::Cint)
@@ -458,14 +458,14 @@ function ARKStepSetMassFn(arkode_mem, mass::ARKLsMassFn)
         arkode_mem, mass)
 end
 
-function ARKStepSetMaxStepsBetweenJac(arkode_mem, msbj::Clong)
+function ARKStepSetJacEvalFrequency(arkode_mem, msbj::Clong)
     ccall(
-        (:ARKStepSetMaxStepsBetweenJac, libsundials_arkode), Cint, (ARKStepMemPtr, Clong),
+        (:ARKStepSetJacEvalFrequency, libsundials_arkode), Cint, (ARKStepMemPtr, Clong),
         arkode_mem, msbj)
 end
 
-function ARKStepSetMaxStepsBetweenJac(arkode_mem, msbj)
-    ARKStepSetMaxStepsBetweenJac(arkode_mem, convert(Clong, msbj))
+function ARKStepSetJacEvalFrequency(arkode_mem, msbj)
+    ARKStepSetJacEvalFrequency(arkode_mem, convert(Clong, msbj))
 end
 
 function ARKStepSetLinearSolutionScaling(arkode_mem, onoff::Cint)
@@ -1684,12 +1684,12 @@ function MRIStepPrintMem(arkode_mem, outfile)
         arkode_mem, outfile)
 end
 
-function CVodeCreate(lmm::Cint)
-    ccall((:CVodeCreate, libsundials_cvodes), CVODEMemPtr, (Cint,), lmm)
+function CVodeCreate(lmm::Cint, sunctx::SUNContext)
+    ccall((:CVodeCreate, libsundials_cvodes), CVODEMemPtr, (Cint, SUNContext), lmm, sunctx)
 end
 
-function CVodeCreate(lmm)
-    CVodeCreate(convert(Cint, lmm))
+function CVodeCreate(lmm, sunctx)
+    CVodeCreate(convert(Cint, lmm), sunctx)
 end
 
 function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::Union{N_Vector, NVector})

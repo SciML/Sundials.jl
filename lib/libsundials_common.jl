@@ -1,3 +1,15 @@
+# SUNContext support for SUNDIALS 6.0+
+const SUNContext = Ptr{Cvoid}
+
+# SUNContext functions
+function SUNContext_Create(comm::Ptr{Cvoid}, ctx::Ptr{SUNContext})
+    ccall((:SUNContext_Create, libsundials_cvode), Cint, (Ptr{Cvoid}, Ptr{SUNContext}), comm, ctx)
+end
+
+function SUNContext_Free(ctx::SUNContext)
+    ccall((:SUNContext_Free, libsundials_cvode), Cint, (Ptr{SUNContext},), Ref(ctx))
+end
+
 struct klu_l_symbolic
     symmetry::Cdouble
     est_flops::Cdouble

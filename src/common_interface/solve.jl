@@ -202,7 +202,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     #    method_code = CV_FUNCTIONAL
     #end
 
-    mem_ptr = CVodeCreate(alg_code)
+    mem_ptr = CVodeCreate(alg_code, ensure_context())
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
@@ -681,7 +681,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = ARKStepSetNonlinCRDown(mem, alg.crdown)
     flag = ARKStepSetNonlinRDiv(mem, alg.rdiv)
     flag = ARKStepSetDeltaGammaMax(mem, alg.dgmax)
-    flag = ARKStepSetMaxStepsBetweenLSet(mem, alg.msbp)
+    flag = ARKStepSetLSetupFrequency(mem, alg.msbp)
     #flag = ARKStepSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
 
     #flag = ARKStepSetFixedStep(mem,)
