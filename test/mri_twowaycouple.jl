@@ -24,7 +24,7 @@
  *   dv/dt = -100u
  *   dw/dt = -w+u
  *
- * for t in the interval [0.0, 2.0] with intial conditions
+ * for t in the interval [0.0, 2.0] with initial conditions
  * u(0)=9001/10001, v(0)=-1e-5/10001, and w(0)=1000. In this problem
  * the slow (w) and fast (u and v) components depend on one another.
  *
