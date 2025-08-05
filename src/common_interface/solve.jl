@@ -576,10 +576,21 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
 
-        !verbose && ARKStepSetErrHandlerFn(mem,
-            @cfunction(null_error_handler, Nothing,
-                (Cint, Char, Char, Ptr{Cvoid})),
-            C_NULL)
+        # ARKStepSetErrHandlerFn may be removed in SUNDIALS 7.4, skip error handler setup
+        if !verbose
+            try
+                ARKStepSetErrHandlerFn(mem,
+                    @cfunction(null_error_handler, Nothing,
+                        (Cint, Char, Char, Ptr{Cvoid})),
+                    C_NULL)
+            catch e
+                if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
+                    # ARKStepSetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
+                else
+                    rethrow(e)
+                end
+            end
+        end
         return mem
     end
 
@@ -1091,10 +1102,21 @@ function DiffEqBase.__init(
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && IDASetErrHandlerFn(mem,
-        @cfunction(null_error_handler, Nothing,
-            (Cint, Char, Char, Ptr{Cvoid})),
-        C_NULL)
+    # IDASetErrHandlerFn removed in SUNDIALS 7.4, skip error handler setup
+    if !verbose
+        try
+            IDASetErrHandlerFn(mem,
+                @cfunction(null_error_handler, Nothing,
+                    (Cint, Char, Char, Ptr{Cvoid})),
+                C_NULL)
+        catch e
+            if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
+                # IDASetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
+            else
+                rethrow(e)
+            end
+        end
+    end
 
     ts = [t0]
 
