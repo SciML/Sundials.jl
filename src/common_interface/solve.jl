@@ -202,14 +202,25 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     #    method_code = CV_FUNCTIONAL
     #end
 
-    mem_ptr = CVodeCreate(alg_code)
+    mem_ptr = CVodeCreate(alg_code, ensure_context())
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && CVodeSetErrHandlerFn(mem,
-        @cfunction(null_error_handler, Nothing,
-            (Cint, Char, Char, Ptr{Cvoid})),
-        C_NULL)
+    # CVodeSetErrHandlerFn removed in SUNDIALS 7.4, skip error handler setup
+    if !verbose
+        try
+            CVodeSetErrHandlerFn(mem,
+                @cfunction(null_error_handler, Nothing,
+                    (Cint, Char, Char, Ptr{Cvoid})),
+                C_NULL)
+        catch e
+            if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
+                # CVodeSetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
+            else
+                rethrow(e)
+            end
+        end
+    end
 
     save_start ? ts = [t0] : ts = Float64[]
 
@@ -258,24 +269,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(uvec), length(uvec))
+            A = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A)
+                LS = SUNLinSol_Dense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A)
+                LS = SUNLinSol_LapackDense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A)
+                LS = SUNLinSol_Band(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A)
+                LS = SUNLinSol_LapackBand(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :Diagonal
@@ -565,10 +576,21 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
 
-        !verbose && ARKStepSetErrHandlerFn(mem,
-            @cfunction(null_error_handler, Nothing,
-                (Cint, Char, Char, Ptr{Cvoid})),
-            C_NULL)
+        # ARKStepSetErrHandlerFn may be removed in SUNDIALS 7.4, skip error handler setup
+        if !verbose
+            try
+                ARKStepSetErrHandlerFn(mem,
+                    @cfunction(null_error_handler, Nothing,
+                        (Cint, Char, Char, Ptr{Cvoid})),
+                    C_NULL)
+            catch e
+                if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
+                    # ARKStepSetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
+                else
+                    rethrow(e)
+                end
+            end
+        end
         return mem
     end
 
@@ -681,7 +703,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = ARKStepSetNonlinCRDown(mem, alg.crdown)
     flag = ARKStepSetNonlinRDiv(mem, alg.rdiv)
     flag = ARKStepSetDeltaGammaMax(mem, alg.dgmax)
-    flag = ARKStepSetMaxStepsBetweenLSet(mem, alg.msbp)
+    flag = ARKStepSetLSetupFrequency(mem, alg.msbp)
     #flag = ARKStepSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
 
     #flag = ARKStepSetFixedStep(mem,)
@@ -690,24 +712,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(uvec), length(uvec))
+            A = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A)
+                LS = SUNLinSol_Dense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A)
+                LS = SUNLinSol_LapackDense(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A)
+                LS = SUNLinSol_Band(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A)
+                LS = SUNLinSol_LapackBand(uvec, A, ensure_context())
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES
@@ -763,24 +785,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if prob.f.mass_matrix != LinearAlgebra.I && alg.stiffness !== Explicit()
         if MassLinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            M = SUNDenseMatrix(length(uvec), length(uvec))
+            M = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
             _M = MatrixHandle(M, DenseMatrix())
             if MassLinearSolver === :Dense
-                MLS = SUNLinSol_Dense(uvec, M)
+                MLS = SUNLinSol_Dense(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, Dense())
             else
-                MLS = SUNLinSol_LapackDense(uvec, M)
+                MLS = SUNLinSol_LapackDense(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, LapackDense())
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower)
+            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
             _M = MatrixHandle(M, BandMatrix())
             if MassLinearSolver === :Band
-                MLS = SUNLinSol_Band(uvec, M)
+                MLS = SUNLinSol_Band(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, Band())
             else
-                MLS = SUNLinSol_LapackBand(uvec, M)
+                MLS = SUNLinSol_LapackBand(uvec, M, ensure_context())
                 _MLS = LinSolHandle(MLS, LapackBand())
             end
         elseif MassLinearSolver == :GMRES
@@ -1080,10 +1102,21 @@ function DiffEqBase.__init(
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && IDASetErrHandlerFn(mem,
-        @cfunction(null_error_handler, Nothing,
-            (Cint, Char, Char, Ptr{Cvoid})),
-        C_NULL)
+    # IDASetErrHandlerFn removed in SUNDIALS 7.4, skip error handler setup
+    if !verbose
+        try
+            IDASetErrHandlerFn(mem,
+                @cfunction(null_error_handler, Nothing,
+                    (Cint, Char, Char, Ptr{Cvoid})),
+                C_NULL)
+        catch e
+            if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
+                # IDASetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
+            else
+                rethrow(e)
+            end
+        end
+    end
 
     ts = [t0]
 
@@ -1134,24 +1167,24 @@ function DiffEqBase.__init(
     prec_side = isnothing(alg.prec) ? 0 : 1  # IDA only supports left preconditioning (prec_side = 1)
     if LinearSolver in (:Dense, :LapackDense)
         nojacobian = false
-        A = SUNDenseMatrix(length(u0), length(u0))
+        A = SUNDenseMatrix(length(u0), length(u0), ensure_context())
         _A = MatrixHandle(A, DenseMatrix())
         if LinearSolver === :Dense
-            LS = SUNLinSol_Dense(utmp, A)
+            LS = SUNLinSol_Dense(utmp, A, ensure_context())
             _LS = LinSolHandle(LS, Dense())
         else
-            LS = SUNLinSol_LapackDense(u0, A)
+            LS = SUNLinSol_LapackDense(u0, A, ensure_context())
             _LS = LinSolHandle(LS, LapackDense())
         end
     elseif LinearSolver in (:Band, :LapackBand)
         nojacobian = false
-        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower)
+        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower, ensure_context())
         _A = MatrixHandle(A, BandMatrix())
         if LinearSolver === :Band
-            LS = SUNLinSol_Band(utmp, A)
+            LS = SUNLinSol_Band(utmp, A, ensure_context())
             _LS = LinSolHandle(LS, Band())
         else
-            LS = SUNLinSol_LapackBand(utmp, A)
+            LS = SUNLinSol_LapackBand(utmp, A, ensure_context())
             _LS = LinSolHandle(LS, LapackBand())
         end
     elseif LinearSolver == :GMRES

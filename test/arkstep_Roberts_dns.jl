@@ -36,8 +36,8 @@ Sundials.@checkflag Sundials.ARKStepSetMaxNumSteps(arkStep_mem, 100000)
 Sundials.@checkflag Sundials.ARKStepSetPredictorMethod(arkStep_mem, 1)
 
 Sundials.@checkflag Sundials.ARKStepSStolerances(arkStep_mem, reltol, abstol)
-A = Sundials.SUNDenseMatrix(neq, neq)
-LS = Sundials.SUNLinSol_Dense(y0, A)
+A = Sundials.SUNDenseMatrix(neq, neq, Sundials.ensure_context())
+LS = Sundials.SUNLinSol_Dense(y0, A, Sundials.ensure_context())
 Sundials.@checkflag Sundials.ARKStepSetLinearSolver(arkStep_mem, LS, A)
 
 iout = 0

@@ -84,6 +84,28 @@ include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
 include("common_interface/solve.jl")
 
+# Global SUNContext for SUNDIALS 6.0+ compatibility
+const sunctx = Ref{SUNContext}(C_NULL)
+
+function ensure_context()
+    if sunctx[] == C_NULL
+        ctx_ptr = Ref{SUNContext}(C_NULL)
+        # Cast Ref to Ptr{SUNContext} which is what SUNContext_Create expects
+        ret = SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+        if ret == 0
+            sunctx[] = ctx_ptr[]
+        else
+            error("Failed to create SUNContext")
+        end
+    end
+    return sunctx[]
+end
+
+function __init__()
+    # Initialize SUNContext
+    ensure_context()
+end
+
 import PrecompileTools
 
 PrecompileTools.@compile_workload begin

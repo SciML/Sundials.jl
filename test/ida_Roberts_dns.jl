@@ -93,8 +93,8 @@ Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
 Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob_C)
 
 ## Call IDADense and set up the linear solver.
-A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-LS = Sundials.SUNLinSol_Dense(y0, A)
+A = Sundials.SUNDenseMatrix(length(yy0), length(yy0), Sundials.ensure_context())
+LS = Sundials.SUNLinSol_Dense(yy0, A, Sundials.ensure_context())
 Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
 iout = 0

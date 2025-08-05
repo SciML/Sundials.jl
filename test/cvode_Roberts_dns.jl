@@ -2,7 +2,7 @@ using Sundials
 
 ## f routine. Compute function f(t,y).
 
-function f(t, y_nv, ydot_nv, user_data)
+function f(t, y_nv, ydot_nv)
     y = convert(Vector, y_nv)
     ydot = convert(Vector, ydot_nv)
     ydot[1] = -0.04 * y[1] + 1.0e4 * y[2] * y[3]
@@ -54,7 +54,7 @@ y0 = [1.0, 0.0, 0.0]
 reltol = 1e-4
 abstol = [1e-8, 1e-14, 1e-6]
 userdata = nothing
-mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF)
+mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, Sundials.ensure_context())
 cvode_mem = Sundials.Handle(mem_ptr)
 userfun = Sundials.UserFunctionAndData(f, userdata)
 Sundials.CVodeSetUserData(cvode_mem, userfun)
@@ -70,9 +70,9 @@ Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1,
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, y0)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g_C)
-A = Sundials.SUNDenseMatrix(neq, neq)
+A = Sundials.SUNDenseMatrix(neq, neq, Sundials.ensure_context())
 mat_handle = Sundials.MatrixHandle(A, Sundials.DenseMatrix())
-LS = Sundials.SUNLinSol_Dense(convert(Sundials.NVector, y0), A)
+LS = Sundials.SUNLinSol_Dense(convert(Sundials.NVector, y0), A, Sundials.ensure_context())
 LS_handle = Sundials.LinSolHandle(LS, Sundials.Dense())
 Sundials.@checkflag Sundials.CVDlsSetLinearSolver(cvode_mem, LS, A)
 #Sundials.@checkflag Sundials.CVDlsSetDenseJacFn(cvode_mem, Jac)
