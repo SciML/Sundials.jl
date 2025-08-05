@@ -206,10 +206,21 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    !verbose && CVodeSetErrHandlerFn(mem,
-        @cfunction(null_error_handler, Nothing,
-            (Cint, Char, Char, Ptr{Cvoid})),
-        C_NULL)
+    # CVodeSetErrHandlerFn removed in SUNDIALS 7.4, skip error handler setup
+    if !verbose
+        try
+            CVodeSetErrHandlerFn(mem,
+                @cfunction(null_error_handler, Nothing,
+                    (Cint, Char, Char, Ptr{Cvoid})),
+                C_NULL)
+        catch e
+            if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
+                # CVodeSetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
+            else
+                rethrow(e)
+            end
+        end
+    end
 
     save_start ? ts = [t0] : ts = Float64[]
 
