@@ -12,7 +12,7 @@ function make_mm_probs(mm_A, ::Type{Val{iip}}) where {iip}
     mm_g(du, u, p, t) = (@. du = u + t; nothing)
 
     # oop
-    mm_f(u, p, t) = mm_A * (u .+ t)
+    mm_f(u, p, t) = mm_A * u .+ t * mm_b
     mm_g(u, p, t) = u .+ t
 
     mm_analytic(u0, p, t) = @. 2 * u0 * exp(t) - t - 1
