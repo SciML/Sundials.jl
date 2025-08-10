@@ -1,6 +1,10 @@
 using Sundials
 using Test
 
+@testset "Quality Assurance" begin
+    include("qa_test.jl")
+end
+
 @testset "Generator" begin
     include("generator.jl")
 end
