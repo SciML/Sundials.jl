@@ -6,10 +6,11 @@ using Test
 @testset "Quality Assurance" begin
     @testset "Aqua tests" begin
         Aqua.test_ambiguities(Sundials; recursive = false)
-        # Stdlib packages don't need compat entries, but Aqua doesn't know that
+        # Stdlib packages (Libdl, LinearAlgebra, Logging, SparseArrays) don't need compat entries
         # See: https://github.com/JuliaTesting/Aqua.jl/issues/77
+        # We test everything else but mark the stdlib check as broken
         @test_broken Aqua.test_deps_compat(Sundials; 
-            check_extras = false,  # Skip test dependencies compat check
+            check_extras = true,
             check_julia = true) === nothing
         Aqua.test_piracies(Sundials;
             treat_as_own = [Sundials.NVector])
