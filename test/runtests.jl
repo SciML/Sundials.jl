@@ -5,6 +5,10 @@ println("🔍 DEBUG: Starting Sundials.jl test suite")
 println("🔍 DEBUG: Julia version: ", VERSION)
 println("🔍 DEBUG: Sundials loaded successfully")
 
+@testset "Quality Assurance" begin
+    include("qa_test.jl")
+end
+
 @testset "Generator" begin
     println("🔍 DEBUG: Starting Generator tests")
     include("generator.jl")

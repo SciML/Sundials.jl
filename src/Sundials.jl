@@ -4,16 +4,22 @@ module Sundials
 
 import Reexport
 Reexport.@reexport using SciMLBase
-using DiffEqBase
-using SciMLBase: AbstractSciMLOperator
-import DataStructures
-import Logging
-import DiffEqBase
-import SparseArrays
-import LinearAlgebra
+using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
+                  add_tstop!, change_t_via_interpolation!, check_error,
+                  check_keywords, get_du, get_du!, get_tmp_cache, get_tstops,
+                  get_tstops_array, initialize!, isinplace,
+                  reeval_internals_due_to_modification!, reinit!, savevalues!,
+                  set_proposed_dt!, solve, solve!, step!, terminate!, u_modified!,
+                  update_coefficients!, warn_compat
+using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
+                 SciMLBase, SplitODEProblem, VectorContinuousCallback
+using DataStructures: DataStructures
+using Logging: Logging
+using SparseArrays: SparseArrays
+using LinearAlgebra: LinearAlgebra
 
-import Libdl
-using CEnum
+using Libdl: Libdl
+using CEnum: CEnum, @cenum
 
 const warnkeywords = (:isoutofdomain,
     :unstable_check,
@@ -29,7 +35,17 @@ const warnkeywords = (:isoutofdomain,
 warnlist = Set(warnkeywords)
 warnida = union(warnlist, Set((:dtmin,)))
 
-using Sundials_jll
+using Sundials_jll: Sundials_jll, libsundials_arkode, libsundials_cvode,
+                    libsundials_cvodes, libsundials_idas, libsundials_kinsol,
+                    libsundials_nvecserial, libsundials_sunlinsolband,
+                    libsundials_sunlinsoldense, libsundials_sunlinsolklu,
+                    libsundials_sunlinsollapackband,
+                    libsundials_sunlinsollapackdense, libsundials_sunlinsolpcg,
+                    libsundials_sunlinsolspbcgs, libsundials_sunlinsolspfgmr,
+                    libsundials_sunlinsolspgmr, libsundials_sunlinsolsptfqmr,
+                    libsundials_sunmatrixband, libsundials_sunmatrixdense,
+                    libsundials_sunmatrixsparse, libsundials_sunnonlinsolfixedpoint,
+                    libsundials_sunnonlinsolnewton
 
 export solve,
        SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
