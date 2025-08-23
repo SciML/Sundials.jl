@@ -7,8 +7,7 @@ x = ones(5)
 @test Sundials.kinsol(f!, x; linear_solver = :Band, jac_upper = 0, jac_lower = 0) ==
       Sundials.kinsol(f!, x)
 
-# LAPACK functions not available in SUNDIALS 7.4 binaries
-@test_broken Sundials.kinsol(f!, x; linear_solver = :LapackBand, jac_upper = 0, jac_lower = 0) ==
+@test Sundials.kinsol(f!, x; linear_solver = :LapackBand, jac_upper = 0, jac_lower = 0) ==
       Sundials.kinsol(f!, x)
 
 function f_iip(du, u, p, t)
