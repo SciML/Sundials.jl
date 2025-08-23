@@ -60,7 +60,7 @@ prob_oop = NonlinearProblem{false}(f_oop, u0)
         # Pure Newton Steps
         alg = KINSOL(; linear_solver, globalization_strategy, maxsetupcalls = 1)
         sol = solve(prob_oop, alg; abstol)
-        @test_broken SciMLBase.successful_retcode(sol.retcode)
+        @test SciMLBase.successful_retcode(sol.retcode)
         if SciMLBase.successful_retcode(sol.retcode)
             du = zeros(2)
             f_oop(sol.u, nothing)
