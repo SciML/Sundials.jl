@@ -20,8 +20,7 @@ abstol = 1e-8
     sol = solve(prob_iip, alg; abstol)
     
     if linear_solver == :LapackDense
-        # LAPACK functions not available in SUNDIALS 7.4 binaries
-        @test_broken SciMLBase.successful_retcode(sol.retcode)
+        @test SciMLBase.successful_retcode(sol.retcode)
         if SciMLBase.successful_retcode(sol.retcode)
             du = zeros(2)
             f_iip(du, sol.u, nothing)
@@ -51,8 +50,7 @@ prob_oop = NonlinearProblem{false}(f_oop, u0)
     sol = solve(prob_oop, alg; abstol)
     
     if linear_solver == :LapackDense
-        # LAPACK functions not available in SUNDIALS 7.4 binaries
-        @test_broken SciMLBase.successful_retcode(sol.retcode)
+        @test SciMLBase.successful_retcode(sol.retcode)
         if SciMLBase.successful_retcode(sol.retcode)
             du = zeros(2)
             f_oop(sol.u, nothing)
@@ -100,8 +98,7 @@ prob_scalar = NonlinearProblem{false}(f_scalar, u0)
     sol = solve(prob_scalar, alg; abstol)
     
     if linear_solver == :LapackDense
-        # LAPACK functions not available in SUNDIALS 7.4 binaries
-        @test_broken SciMLBase.successful_retcode(sol.retcode)
+        @test SciMLBase.successful_retcode(sol.retcode)
         @test sol.u isa Number
         if SciMLBase.successful_retcode(sol.retcode)
             resid = f_scalar(sol.u, nothing)
