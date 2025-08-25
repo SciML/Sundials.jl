@@ -192,6 +192,7 @@ mutable struct IDAIntegrator{N,
     last_event_error::Float64
     u_nvec::NVector
     du_nvec::NVector
+    diff_vars_nvec::Union{NVector, Nothing}  # Preallocated NVector for differential_vars
     initializealg::IA
     ctx::SUNContext
 end

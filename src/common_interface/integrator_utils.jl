@@ -213,9 +213,12 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
             init_type = IDA_Y_INIT
         else
             init_type = IDA_YA_YDP_INIT
-            # Convert differential_vars to NVector for IDASetId
-            diff_vars_nvec = NVector(vec(Float64.(integrator.sol.prob.differential_vars)), integrator.ctx)
-            integrator.flag = IDASetId(integrator.mem, diff_vars_nvec)
+            # Use preallocated NVector for differential_vars
+            if integrator.diff_vars_nvec !== nothing
+                integrator.flag = IDASetId(integrator.mem, integrator.diff_vars_nvec)
+            else
+                error("differential_vars NVector not preallocated but needed for IDASetId")
+            end
         end
         dt = integrator.dt == tstart ? tend : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)

@@ -1301,6 +1301,13 @@ function DiffEqBase.__init(
         progress_id,
         maxiters)
 
+    # Preallocate NVector for differential_vars if provided
+    diff_vars_nvec = if prob.differential_vars !== nothing
+        NVector(vec(Float64.(prob.differential_vars)), ctx)
+    else
+        nothing
+    end
+
     integrator = IDAIntegrator(u0,
         du0,
         prob.p,
@@ -1329,6 +1336,7 @@ function DiffEqBase.__init(
         0.0,
         utmp,
         dutmp,
+        diff_vars_nvec,
         initializealg,
         ctx)
 
