@@ -131,7 +131,7 @@ function ___kinsol(f,
     y = convert(Vector, ynv)
     
     # Clean up context
-    SUNContext_Free(Ref(ctx))
+    SUNContext_Free(ctx)
     
     return y, flag
 end
@@ -231,7 +231,7 @@ function cvode!(f::Function,
 
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
-    SUNContext_Free(Ref(ctx))
+    SUNContext_Free(ctx)
 
     return c
 end
@@ -326,7 +326,7 @@ function idasol(f,
 
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
-    SUNContext_Free(Ref(ctx))
+    SUNContext_Free(ctx)
 
     return yres, ypres
 end

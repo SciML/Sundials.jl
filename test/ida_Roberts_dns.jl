@@ -1,3 +1,8 @@
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ## Adapted from  doc/libsundials-serial-dev/examples/ida/serial/idaRoberts_dns.c and
 ##               sundialsTB/ida/examples_ser/midasRoberts_dns.m
 
@@ -93,8 +98,8 @@ Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
 Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob_C)
 
 ## Call IDADense and set up the linear solver.
-A = Sundials.SUNDenseMatrix(length(yy0), length(yy0), Sundials.ensure_context())
-LS = Sundials.SUNLinSol_Dense(yy0, A, Sundials.ensure_context())
+A = Sundials.SUNDenseMatrix(length(yy0), length(yy0), ctx)
+LS = Sundials.SUNLinSol_Dense(yy0, A, ctx)
 Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
 iout = 0
@@ -118,3 +123,7 @@ end
 
 Sundials.SUNLinSolFree_Dense(LS)
 Sundials.SUNMatDestroy_Dense(A)
+
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

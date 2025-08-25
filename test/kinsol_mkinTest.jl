@@ -1,3 +1,8 @@
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ## Adapted from sundialsTB/kinsol/examples_ser/mkinTest_nds.m
 
 ## %mkinTest_dns - KINSOL example problem (serial, dense)
@@ -30,8 +35,8 @@ Sundials.@checkflag Sundials.KINSetScaledStepTol(kmem, 1.0e-4)
 Sundials.@checkflag Sundials.KINSetMaxSetupCalls(kmem, 1)
 y = ones(neq)
 Sundials.@checkflag Sundials.KINInit(kmem, sysfn_C, y)
-A = Sundials.SUNDenseMatrix(length(y), length(y), Sundials.ensure_context())
-LS = Sundials.SUNLinSol_Dense(y, A, Sundials.ensure_context())
+A = Sundials.SUNDenseMatrix(length(y), length(y), ctx)
+LS = Sundials.SUNLinSol_Dense(y, A, ctx)
 Sundials.@checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A)
 ## Solve problem
 scale = ones(neq)
@@ -43,3 +48,7 @@ sysfn(y, residual, [1, 2])
 println("Residual: ", residual)
 
 @test abs(minimum(residual)) < 1e-5
+
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

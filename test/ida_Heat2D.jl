@@ -1,5 +1,10 @@
 using Sundials
 
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ##
 ## Example problem for IDA: 2D heat equation, serial, banded.
 ##
@@ -128,8 +133,8 @@ function idabandsol(f::Function,
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
 
-    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID, Sundials.ensure_context())#,2MGRID)
-    LS = Sundials.SUNLinSol_Band(y0, A, Sundials.ensure_context())
+    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID, ctx)#,2MGRID)
+    LS = Sundials.SUNLinSol_Band(y0, A, ctx)
     Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
     rtest = zeros(neq)
@@ -159,3 +164,7 @@ t = collect(0.0:tstep:(tstep * nsteps))
 u0, up0, id, constraints = initial()
 
 idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t); reltol = 0.0, abstol = 1e-3)
+
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

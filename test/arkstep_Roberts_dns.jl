@@ -1,5 +1,10 @@
 using Sundials, Test
 
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ## f routine. Compute function f(t,y).
 
 function f(t, y_nv, ydot_nv, user_data)
@@ -36,8 +41,8 @@ Sundials.@checkflag Sundials.ARKStepSetMaxNumSteps(arkStep_mem, 100000)
 Sundials.@checkflag Sundials.ARKStepSetPredictorMethod(arkStep_mem, 1)
 
 Sundials.@checkflag Sundials.ARKStepSStolerances(arkStep_mem, reltol, abstol)
-A = Sundials.SUNDenseMatrix(neq, neq, Sundials.ensure_context())
-LS = Sundials.SUNLinSol_Dense(y0, A, Sundials.ensure_context())
+A = Sundials.SUNDenseMatrix(neq, neq, ctx)
+LS = Sundials.SUNLinSol_Dense(y0, A, ctx)
 Sundials.@checkflag Sundials.ARKStepSetLinearSolver(arkStep_mem, LS, A)
 
 iout = 0
@@ -64,3 +69,7 @@ Sundials.@checkflag Sundials.ARKStepGetNumNonlinSolvIters(arkStep_mem, tmp1);
 Sundials.@checkflag Sundials.ARKStepGetNumNonlinSolvConvFails(arkStep_mem, tmp1);
 Sundials.@checkflag Sundials.ARKStepGetNumJacEvals(arkStep_mem, tmp1);
 Sundials.@checkflag Sundials.ARKStepGetNumLinRhsEvals(arkStep_mem, tmp2);
+
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)
