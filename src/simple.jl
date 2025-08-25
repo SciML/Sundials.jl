@@ -210,7 +210,7 @@ function cvode!(f::Function,
     function getcfun(userfun::T) where {T}
         @cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
     end
-    flag = @checkflag CVodeInit(mem, getcfun(userfun), t[1], convert(NVector, y0nv)) true
+    flag = @checkflag CVodeInit(mem, getcfun(userfun), t[1], y0nv) true
 
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true

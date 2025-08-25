@@ -240,7 +240,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = CVodeSetMaxStep(mem, Float64(dtmax))
     flag = CVodeSetUserData(mem, userfun)
     if abstol isa Array
-        flag = CVodeSVtolerances(mem, reltol, abstol)
+        abstol_nvec = NVector(abstol, ctx)
+        flag = CVodeSVtolerances(mem, reltol, abstol_nvec)
     else
         flag = CVodeSStolerances(mem, reltol, abstol)
     end
@@ -283,7 +284,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             _A = nothing
             _LS = nothing
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(utmp, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
@@ -319,7 +320,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         _A = nothing
         _LS = nothing
         # TODO: Anderson Acceleration
-        anderson_m = 0
+        anderson_m = Cint(0)
         NLS = SUNNonlinSol_FixedPoint(utmp, anderson_m, ctx)
         CVodeSetNonlinearSolver(mem, NLS)
     end
@@ -653,7 +654,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     flag = ARKStepSetMaxStep(mem, Float64(dtmax))
     flag = ARKStepSetUserData(mem, userfun)
     if abstol isa Array
-        flag = ARKStepSVtolerances(mem, reltol, abstol)
+        abstol_nvec = NVector(abstol, ctx)
+        flag = ARKStepSVtolerances(mem, reltol, abstol_nvec)
     else
         flag = ARKStepSStolerances(mem, reltol, abstol)
     end
@@ -713,7 +715,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES
-            LS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.krylov_dim)
+            LS = SUNLinSol_SPGMR(utmp, alg.prec_side, alg.krylov_dim)
             _A = nothing
             _LS = Sundials.LinSolHandle(LS, Sundials.SPGMR())
         elseif LinearSolver == :FGMRES
@@ -786,23 +788,23 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 _MLS = LinSolHandle(MLS, LapackBand())
             end
         elseif MassLinearSolver == :GMRES
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPGMR())
         elseif MassLinearSolver == :FGMRES
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPFGMR())
         elseif MassLinearSolver == :BCG
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, SPBCGS())
         elseif MassLinearSolver == :PCG
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, PCG())
         elseif MassLinearSolver == :TFQMR
-            MLS = SUNLinSol_SPGMR(uvec, alg.prec_side, alg.mass_krylov_dim)
+            MLS = SUNLinSol_SPGMR(utmp, alg.prec_side, alg.mass_krylov_dim)
             _M = nothing
             _MLS = LinSolHandle(MLS, PTFQMR())
         elseif MassLinearSolver == :KLU
@@ -1118,7 +1120,8 @@ function DiffEqBase.__init(
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
     if abstol isa Array
-        flag = IDASVtolerances(mem, reltol, abstol)
+        abstol_nvec = NVector(abstol, ctx)
+        flag = IDASVtolerances(mem, reltol, abstol_nvec)
     else
         flag = IDASStolerances(mem, reltol, abstol)
     end

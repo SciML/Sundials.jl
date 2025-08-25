@@ -67,7 +67,7 @@ function Base.convert(::Type{NVector}, v::AbstractVector)
     error("Cannot convert AbstractVector to NVector without context. Use NVector(v, ctx) instead.")
 end
 Base.convert(::Type{NVector}, nv::NVector) = nv
-Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
+# Removed conversion from N_Vector to NVector without context - use NVector(nv, ctx) instead
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
 Base.convert(::Type{Vector}, nv::NVector) = nv.v
 
@@ -87,7 +87,7 @@ Conversion happens in two steps within ccall:
 # Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) - removed, needs context
 Base.cconvert(::Type{N_Vector}, nv::NVector) = nv
 Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.n_v
-Base.copy!(v::Vector, nv::Ptr{Sundials._generic_N_Vector}) = copy!(v, NVector(nv).v)
+# Removed copy! that creates NVector without context - caller should handle conversion
 
 Base.similar(nv::NVector) = NVector(similar(nv.v), nv.ctx)
 
