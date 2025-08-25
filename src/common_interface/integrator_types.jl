@@ -66,6 +66,7 @@ mutable struct CVODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    ctx::SUNContext
 end
 
 function (integrator::CVODEIntegrator)(t::Number,
@@ -124,6 +125,7 @@ mutable struct ARKODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
+    ctx::SUNContext
 end
 
 function (integrator::ARKODEIntegrator)(t::Number,
@@ -183,6 +185,7 @@ mutable struct IDAIntegrator{N,
     u_nvec::NVector
     du_nvec::NVector
     initializealg::IA
+    ctx::SUNContext
 end
 
 function (integrator::IDAIntegrator)(t::Number,

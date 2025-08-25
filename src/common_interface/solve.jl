@@ -202,7 +202,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     #    method_code = CV_FUNCTIONAL
     #end
 
-    mem_ptr = CVodeCreate(alg_code, ensure_context())
+    ctx = create_context()
+    mem_ptr = CVodeCreate(alg_code, ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
@@ -226,7 +227,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     out = copy(u0)
     uvec = vec(u0) # aliases u0
-    utmp = NVector(uvec) # aliases u0
+    utmp = NVector(uvec, ctx) # aliases u0
 
     use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
                          LinearSolver ∈ SPARSE_SOLVERS) ||
@@ -269,24 +270,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
+            A = SUNDenseMatrix(length(uvec), length(uvec), ctx)
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A, ensure_context())
+                LS = SUNLinSol_Dense(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A, ensure_context())
+                LS = SUNLinSol_LapackDense(utmp, A, ctx)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ctx)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A, ensure_context())
+                LS = SUNLinSol_Band(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A, ensure_context())
+                LS = SUNLinSol_LapackBand(utmp, A, ctx)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :Diagonal
@@ -474,7 +475,10 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         0,
         1,
         callback_cache,
-        0.0)
+        0.0,
+        ctx)
+    # Context will be freed when integrator is garbage collected
+    # through the Handle mechanism
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -569,10 +573,11 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     save_start ? ts = [t0] : ts = Float64[]
     out = copy(u0)
     uvec = vec(u0)
-    utmp = NVector(uvec)
+    ctx = create_context()
+    utmp = NVector(uvec, ctx)
 
     function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = utmp)
-        mem_ptr = ARKStepCreate(fe, fi, t0, u0)
+        mem_ptr = ARKStepCreate(fe, fi, t0, u0, ctx)
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
 
@@ -712,24 +717,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
+            A = SUNDenseMatrix(length(uvec), length(uvec), ctx)
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
-                LS = SUNLinSol_Dense(uvec, A, ensure_context())
+                LS = SUNLinSol_Dense(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(uvec, A, ensure_context())
+                LS = SUNLinSol_LapackDense(utmp, A, ctx)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ctx)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
-                LS = SUNLinSol_Band(uvec, A, ensure_context())
+                LS = SUNLinSol_Band(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(uvec, A, ensure_context())
+                LS = SUNLinSol_LapackBand(utmp, A, ctx)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES
@@ -785,24 +790,24 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if prob.f.mass_matrix != LinearAlgebra.I && alg.stiffness !== Explicit()
         if MassLinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            M = SUNDenseMatrix(length(uvec), length(uvec), ensure_context())
+            M = SUNDenseMatrix(length(uvec), length(uvec), ctx)
             _M = MatrixHandle(M, DenseMatrix())
             if MassLinearSolver === :Dense
-                MLS = SUNLinSol_Dense(uvec, M, ensure_context())
+                MLS = SUNLinSol_Dense(utmp, M, ctx)
                 _MLS = LinSolHandle(MLS, Dense())
             else
-                MLS = SUNLinSol_LapackDense(uvec, M, ensure_context())
+                MLS = SUNLinSol_LapackDense(utmp, M, ctx)
                 _MLS = LinSolHandle(MLS, LapackDense())
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ensure_context())
+            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ctx)
             _M = MatrixHandle(M, BandMatrix())
             if MassLinearSolver === :Band
-                MLS = SUNLinSol_Band(uvec, M, ensure_context())
+                MLS = SUNLinSol_Band(utmp, M, ctx)
                 _MLS = LinSolHandle(MLS, Band())
             else
-                MLS = SUNLinSol_LapackBand(uvec, M, ensure_context())
+                MLS = SUNLinSol_LapackBand(utmp, M, ctx)
                 _MLS = LinSolHandle(MLS, LapackBand())
             end
         elseif MassLinearSolver == :GMRES
@@ -975,8 +980,11 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         0,
         1,
         callback_cache,
-        0.0)
+        0.0,
+        ctx)
 
+    # Context will be freed when integrator is garbage collected
+    # through the Handle mechanism
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -1098,7 +1106,8 @@ function DiffEqBase.__init(
         f! = prob.f
     end
 
-    mem_ptr = IDACreate()
+    ctx = create_context()
+    mem_ptr = IDACreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
@@ -1121,8 +1130,8 @@ function DiffEqBase.__init(
     ts = [t0]
 
     # vec shares memory
-    utmp = NVector(vec(u0))
-    dutmp = NVector(vec(du0))
+    utmp = NVector(vec(u0), ctx)
+    dutmp = NVector(vec(du0), ctx)
     rtest = zeros(size(u0))
 
     use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
@@ -1167,24 +1176,24 @@ function DiffEqBase.__init(
     prec_side = isnothing(alg.prec) ? 0 : 1  # IDA only supports left preconditioning (prec_side = 1)
     if LinearSolver in (:Dense, :LapackDense)
         nojacobian = false
-        A = SUNDenseMatrix(length(u0), length(u0), ensure_context())
+        A = SUNDenseMatrix(length(u0), length(u0), ctx)
         _A = MatrixHandle(A, DenseMatrix())
         if LinearSolver === :Dense
-            LS = SUNLinSol_Dense(utmp, A, ensure_context())
+            LS = SUNLinSol_Dense(utmp, A, ctx)
             _LS = LinSolHandle(LS, Dense())
         else
-            LS = SUNLinSol_LapackDense(u0, A, ensure_context())
+            LS = SUNLinSol_LapackDense(utmp, A, ctx)
             _LS = LinSolHandle(LS, LapackDense())
         end
     elseif LinearSolver in (:Band, :LapackBand)
         nojacobian = false
-        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower, ensure_context())
+        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower, ctx)
         _A = MatrixHandle(A, BandMatrix())
         if LinearSolver === :Band
-            LS = SUNLinSol_Band(utmp, A, ensure_context())
+            LS = SUNLinSol_Band(utmp, A, ctx)
             _LS = LinSolHandle(LS, Band())
         else
-            LS = SUNLinSol_LapackBand(utmp, A, ensure_context())
+            LS = SUNLinSol_LapackBand(utmp, A, ctx)
             _LS = LinSolHandle(LS, LapackBand())
         end
     elseif LinearSolver == :GMRES
@@ -1355,8 +1364,12 @@ function DiffEqBase.__init(
         0.0,
         utmp,
         dutmp,
-        initializealg)
+        initializealg,
+        ctx)
 
+    # Context will be freed when integrator is garbage collected
+    # through the Handle mechanism
+    
     DiffEqBase.initialize_dae!(integrator, initializealg)
     integrator.u_modified && IDAReinit!(integrator)
 

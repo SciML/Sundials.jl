@@ -12,23 +12,28 @@
 mutable struct NVector <: DenseVector{realtype}
     n_v::N_Vector           # reference (C pointer) to N_Vector
     v::Vector{realtype}     # array that is referenced by N_Vector
+    ctx::SUNContext         # SUNContext for this NVector
 
-    function NVector(v::Vector{realtype})
+    function NVector(v::Vector{realtype}, ctx::SUNContext = create_context())
         # note that N_VMake_Serial() creates N_Vector doesn't own the data,
         # so calling N_VDestroy_Serial() would not deallocate v
-        nv = new(N_VMake_Serial(length(v), v, ensure_context()), v)
+        nv = new(N_VMake_Serial(length(v), v, ctx), v, ctx)
         finalizer(release_handle, nv)
         return nv
     end
 
-    function NVector(n_v::N_Vector)
+    function NVector(n_v::N_Vector, ctx::SUNContext = C_NULL)
         # wrap N_Vector into NVector and get non-owning access to `nv` data
         # via `v`, but don't register finalizer for `nv`
-        return new(n_v, asarray(n_v))
+        # ctx is C_NULL for wrapped N_Vectors that don't own their context
+        return new(n_v, asarray(n_v), ctx)
     end
 end
 
-release_handle(nv::NVector) = N_VDestroy_Serial(nv.n_v)
+function release_handle(nv::NVector)
+    N_VDestroy_Serial(nv.n_v)
+    # Don't free context here - it will be freed by the integrator
+end
 
 Base.size(nv::NVector, d...) = size(nv.v, d...)
 Base.stride(nv::NVector, d::Integer) = stride(nv.v, d)
