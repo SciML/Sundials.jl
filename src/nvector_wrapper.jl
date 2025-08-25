@@ -56,13 +56,16 @@ Base.pointer(nv::NVector) = Sundials.N_VGetArrayPointer_Serial(nv.n_v)
 # - cconvert / unsafe_convert to convert to N_Vector (for use within a ccall only)
 ##################################################################
 
-Base.convert(::Type{NVector}, v::Vector{realtype}) = NVector(v)
-function Base.convert(::Type{NVector}, v::Vector{T}) where {T <: Real}
-    NVector(copy!(similar(v,
-            realtype),
-        v))
+# Conversion from vectors to NVector requires context
+function Base.convert(::Type{NVector}, v::Vector{realtype})
+    error("Cannot convert Vector to NVector without context. Use NVector(v, ctx) instead.")
 end
-Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Vector{realtype}, v))
+function Base.convert(::Type{NVector}, v::Vector{T}) where {T <: Real}
+    error("Cannot convert Vector to NVector without context. Use NVector(v, ctx) instead.")
+end
+function Base.convert(::Type{NVector}, v::AbstractVector)
+    error("Cannot convert AbstractVector to NVector without context. Use NVector(v, ctx) instead.")
+end
 Base.convert(::Type{NVector}, nv::NVector) = nv
 Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
@@ -80,11 +83,13 @@ Conversion happens in two steps within ccall:
  - cconvert to convert to temporary NVector, which is preserved (by ccall) from garbage collection
  - unsafe_convert to get the N_Vector pointer from the temporary NVector
 """
-Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) = convert(NVector, v) # will just return v if v is an NVector
+# cconvert for vectors removed - needs context
+# Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) - removed, needs context
+Base.cconvert(::Type{N_Vector}, nv::NVector) = nv
 Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.n_v
-Base.copy!(v::Vector, nv::Ptr{Sundials._generic_N_Vector}) = copy!(v, convert(NVector, nv))
+Base.copy!(v::Vector, nv::Ptr{Sundials._generic_N_Vector}) = copy!(v, NVector(nv).v)
 
-Base.similar(nv::NVector) = NVector(similar(nv.v))
+Base.similar(nv::NVector) = NVector(similar(nv.v), nv.ctx)
 
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 # asarray() creates an array pointing to N_Vector data, but does not take the ownership
@@ -101,5 +106,6 @@ asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims; own = false
 @inline Base.convert(::Type{Vector{realtype}}, x::N_Vector) = asarray(x)
 @inline Base.convert(::Type{Vector}, x::N_Vector) = asarray(x)
 
-nvector(x::Vector{realtype}) = NVector(x)
+# nvector removed - needs context
+# nvector(x::Vector{realtype}) = NVector(x)
 #nvector(x::N_Vector) = x
