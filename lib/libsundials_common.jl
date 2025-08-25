@@ -7,7 +7,8 @@ function SUNContext_Create(comm::Ptr{Cvoid}, ctx::Ptr{SUNContext})
 end
 
 function SUNContext_Free(ctx::SUNContext)
-    ccall((:SUNContext_Free, libsundials_cvode), Cint, (Ptr{SUNContext},), Ref(ctx))
+    ctx_ptr = Ref(ctx)
+    ccall((:SUNContext_Free, libsundials_cvode), Cint, (Ptr{SUNContext},), ctx_ptr)
 end
 
 struct klu_l_symbolic

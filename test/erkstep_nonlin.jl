@@ -1,3 +1,8 @@
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 #=
 Test adapted from https://github.com/LLNL/sundials/blob/master/examples/arkode/C_serial/ark_analytic_nonlin.c
 /*-----------------------------------------------------------------
@@ -48,7 +53,8 @@ end
 f_C = @cfunction(f, Cint,
     (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
 
-mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0)
+y0_nvec = Sundials.NVector(y0, ctx)
+mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0_nvec, ctx)
 erkStep_mem = Sundials.Handle(mem_ptr)
 Sundials.@checkflag Sundials.ERKStepSStolerances(erkStep_mem, reltol, abstol)
 
@@ -57,7 +63,9 @@ t = [t0]
 tout = t0 + dTout
 while (tf - t[1] > 1e-15)
     y = similar(y0)
-    Sundials.@checkflag Sundials.ERKStepEvolve(erkStep_mem, tout, y, t, Sundials.ARK_NORMAL)
+    y_nvec = Sundials.NVector(y, ctx)
+    Sundials.@checkflag Sundials.ERKStepEvolve(erkStep_mem, tout, y_nvec, t, Sundials.ARK_NORMAL)
+    copyto!(y, y_nvec.v)
     push!(res, y[1])
     global tout += dTout
     global tout = (tout > tf) ? tf : tout
@@ -74,3 +82,6 @@ Sundials.@checkflag Sundials.ERKStepGetNumSteps(erkStep_mem, temp)
 Sundials.@checkflag Sundials.ERKStepGetNumStepAttempts(erkStep_mem, temp)
 Sundials.@checkflag Sundials.ERKStepGetNumRhsEvals(erkStep_mem, temp)
 Sundials.@checkflag Sundials.ERKStepGetNumErrTestFails(erkStep_mem, temp)
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)
