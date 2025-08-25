@@ -92,23 +92,23 @@ function ___kinsol(f,
         LS = Sundials.SUNLinSol_LapackBand(y0_nvec, A, ctx)
     elseif linear_solver == :GMRES
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPGMR(y0_nvec, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPGMR(y0_nvec, prec_side, krylov_dim, ctx)
     elseif linear_solver == :FGMRES
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPFGMR(y0_nvec, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPFGMR(y0_nvec, prec_side, krylov_dim, ctx)
     elseif linear_solver == :BCG
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPBCGS(y0_nvec, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPBCGS(y0_nvec, prec_side, krylov_dim, ctx)
     elseif linear_solver == :PCG
         A = C_NULL
-        LS = Sundials.SUNLinSol_PCG(y0_nvec, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_PCG(y0_nvec, prec_side, krylov_dim, ctx)
     elseif linear_solver == :TFQMR
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPTFQMR(y0_nvec, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPTFQMR(y0_nvec, prec_side, krylov_dim, ctx)
     elseif linear_solver == :KLU
         nnz = length(SparseArrays.nonzeros(jac_prototype))
         A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT)
-        LS = SUNLinSol_KLU(y0_nvec, A)
+        LS = SUNLinSol_KLU(y0_nvec, A, ctx)
     else
         error("Unknown linear solver")
     end

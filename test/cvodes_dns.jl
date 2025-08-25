@@ -121,7 +121,7 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     tret = [t0]
     yret = similar(y0)
     ysret = similar(yS0)
-    yS0n = [Sundials.NVector(yS0[:, j]) for j in 1:Ns]
+    yS0n = [Sundials.NVector(yS0[:, j], ctx) for j in 1:Ns]
     yS0nv = [N_Vector(n) for n in yS0n]
     pyS0 = pointer(yS0nv)
     crhs = Sundials.@cfunction(cvrhsfn,
