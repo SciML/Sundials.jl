@@ -116,7 +116,7 @@ modified, this function needs to be called in order to update the solver's
 internal datastructures to re-gain consistency.
 """
 function IDAReinit!(integrator::IDAIntegrator)
-    IDAReInit(integrator.mem, integrator.t, integrator.u, integrator.du)
+    IDAReInit(integrator.mem, integrator.t, integrator.u_nvec, integrator.du_nvec)
     integrator.u_modified = false
 end
 
@@ -213,8 +213,9 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
             init_type = IDA_Y_INIT
         else
             init_type = IDA_YA_YDP_INIT
-            integrator.flag = IDASetId(integrator.mem,
-                vec(integrator.sol.prob.differential_vars))
+            # Convert differential_vars to NVector for IDASetId
+            diff_vars_nvec = NVector(vec(Float64.(integrator.sol.prob.differential_vars)), integrator.ctx)
+            integrator.flag = IDASetId(integrator.mem, diff_vars_nvec)
         end
         dt = integrator.dt == tstart ? tend : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
