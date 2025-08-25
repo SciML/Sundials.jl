@@ -19,9 +19,17 @@ function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
     ARKStepCreate(fe, fi, t0, __y0, sunctx)
 end
 
-function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
-    ARKStepCreate(fe, fi, t0, y0, ensure_context())
-end
+# Removed - context should be passed explicitly
+# function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
+# function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
+#     __y0 = convert(NVector, y0)
+#     ARKStepCreate(fe, fi, t0, __y0, sunctx)
+# end
+# 
+# Removed - context should be passed explicitly
+# function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
+#     ARKStepCreate(fe, fi, t0, y0, ensure_context())
+# end
 
 function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
         t0::realtype,
@@ -968,7 +976,8 @@ function ERKStepCreate(f::ARKRhsFn, t0, y0, sunctx::SUNContext)
 end
 
 function ERKStepCreate(f::ARKRhsFn, t0, y0)
-    ERKStepCreate(f, t0, y0, ensure_context())
+# function ERKStepCreate(f::ARKRhsFn, t0, y0)
+#     ERKStepCreate(f, t0, y0, ensure_context())
 end
 
 function ERKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
@@ -1433,7 +1442,8 @@ function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunc
 end
 
 function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem)
-    MRIStepCreate(fs, t0, y0, inner_step_id, inner_step_mem, ensure_context())
+# function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem)
+#     MRIStepCreate(fs, t0, y0, inner_step_id, inner_step_mem, ensure_context())
 end
 
 function MRIStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype,
@@ -3310,7 +3320,8 @@ function IDACreate(sunctx::SUNContext)
 end
 
 function IDACreate()
-    IDACreate(ensure_context())
+# function IDACreate()
+#     IDACreate(ensure_context())
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector},
@@ -4979,7 +4990,8 @@ function KINCreate(sunctx::SUNContext)
 end
 
 function KINCreate()
-    KINCreate(ensure_context())
+# function KINCreate()
+#     KINCreate(ensure_context())
 end
 
 function KINInit(kinmem, func::KINSysFn, tmpl::Union{N_Vector, NVector})
@@ -8095,7 +8107,8 @@ function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
 end
 
 function SUNLinSol_LapackBand(y, A)
-    SUNLinSol_LapackBand(y, A, ensure_context())
+# function SUNLinSol_LapackBand(y, A)
+#     SUNLinSol_LapackBand(y, A, ensure_context())
 end
 
 function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -8168,7 +8181,8 @@ function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
 end
 
 function SUNLinSol_LapackDense(y, A)
-    SUNLinSol_LapackDense(y, A, ensure_context())
+# function SUNLinSol_LapackDense(y, A)
+#     SUNLinSol_LapackDense(y, A, ensure_context())
 end
 
 function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -9321,7 +9335,8 @@ function SUNNonlinSol_FixedPoint(y, m, sunctx::SUNContext)
 end
 
 function SUNNonlinSol_FixedPoint(y, m)
-    SUNNonlinSol_FixedPoint(y, m, ensure_context())
+# function SUNNonlinSol_FixedPoint(y, m)
+#     SUNNonlinSol_FixedPoint(y, m, ensure_context())
 end
 
 function SUNNonlinSol_FixedPointSens(count::Cint, y::Union{N_Vector, NVector}, m::Cint, sunctx::SUNContext)
@@ -9335,7 +9350,8 @@ function SUNNonlinSol_FixedPointSens(count, y, m, sunctx::SUNContext)
 end
 
 function SUNNonlinSol_FixedPointSens(count, y, m)
-    SUNNonlinSol_FixedPointSens(count, y, m, ensure_context())
+# function SUNNonlinSol_FixedPointSens(count, y, m)
+#     SUNNonlinSol_FixedPointSens(count, y, m, ensure_context())
 end
 
 function SUNNonlinSolGetType_FixedPoint(NLS::SUNNonlinearSolver)
@@ -9429,7 +9445,8 @@ function SUNNonlinSol_Newton(y, sunctx::SUNContext)
 end
 
 function SUNNonlinSol_Newton(y)
-    SUNNonlinSol_Newton(y, ensure_context())
+# function SUNNonlinSol_Newton(y)
+#     SUNNonlinSol_Newton(y, ensure_context())
 end
 
 function SUNNonlinSol_NewtonSens(count::Cint, y::Union{N_Vector, NVector}, sunctx::SUNContext)
@@ -9443,7 +9460,8 @@ function SUNNonlinSol_NewtonSens(count, y, sunctx::SUNContext)
 end
 
 function SUNNonlinSol_NewtonSens(count, y)
-    SUNNonlinSol_NewtonSens(count, y, ensure_context())
+# function SUNNonlinSol_NewtonSens(count, y)
+#     SUNNonlinSol_NewtonSens(count, y, ensure_context())
 end
 
 function SUNNonlinSolGetType_Newton(NLS::SUNNonlinearSolver)

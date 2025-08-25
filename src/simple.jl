@@ -61,7 +61,9 @@ function ___kinsol(f,
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
     # return: the solution vector
-    ctx = create_context()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
     mem_ptr = KINCreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate KINSOL solver object")
     kmem = Handle(mem_ptr)
@@ -187,7 +189,9 @@ function cvode!(f::Function,
         reltol::Float64 = 1e-3,
         abstol::Float64 = 1e-6,
         callback = (x, y, z) -> true)
-    ctx = create_context()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
     if integrator == :BDF
         mem_ptr = CVodeCreate(CV_BDF, ctx)
     elseif integrator == :Adams
@@ -275,7 +279,9 @@ function idasol(f,
         reltol::Float64 = 1e-3,
         abstol::Float64 = 1e-6,
         diffstates::Union{Vector{Bool}, Nothing} = nothing)
-    ctx = create_context()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
     mem_ptr = IDACreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)

@@ -14,7 +14,7 @@ mutable struct NVector <: DenseVector{realtype}
     v::Vector{realtype}     # array that is referenced by N_Vector
     ctx::SUNContext         # SUNContext for this NVector
 
-    function NVector(v::Vector{realtype}, ctx::SUNContext = create_context())
+    function NVector(v::Vector{realtype}, ctx::SUNContext)
         # note that N_VMake_Serial() creates N_Vector doesn't own the data,
         # so calling N_VDestroy_Serial() would not deallocate v
         nv = new(N_VMake_Serial(length(v), v, ctx), v, ctx)

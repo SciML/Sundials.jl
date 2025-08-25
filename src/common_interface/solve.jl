@@ -202,26 +202,13 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     #    method_code = CV_FUNCTIONAL
     #end
 
-    ctx = create_context()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
     mem_ptr = CVodeCreate(alg_code, ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-    # CVodeSetErrHandlerFn removed in SUNDIALS 7.4, skip error handler setup
-    if !verbose
-        try
-            CVodeSetErrHandlerFn(mem,
-                @cfunction(null_error_handler, Nothing,
-                    (Cint, Char, Char, Ptr{Cvoid})),
-                C_NULL)
-        catch e
-            if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
-                # CVodeSetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
-            else
-                rethrow(e)
-            end
-        end
-    end
 
     save_start ? ts = [t0] : ts = Float64[]
 
@@ -326,15 +313,16 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         if LinearSolver !== :Diagonal
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
-        NLS = SUNNonlinSol_Newton(uvec)
+        NLS = SUNNonlinSol_Newton(utmp, ctx)
+        CVodeSetNonlinearSolver(mem, NLS)
     else
         _A = nothing
         _LS = nothing
         # TODO: Anderson Acceleration
         anderson_m = 0
-        NLS = SUNNonlinSol_FixedPoint(uvec, anderson_m)
+        NLS = SUNNonlinSol_FixedPoint(utmp, anderson_m, ctx)
+        CVodeSetNonlinearSolver(mem, NLS)
     end
-    CVodeSetNonlinearSolver(mem, NLS)
 
     if DiffEqBase.has_jac(prob.f) && Method == :Newton
         function getcfunjac(::T) where {T}
@@ -573,7 +561,9 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     save_start ? ts = [t0] : ts = Float64[]
     out = copy(u0)
     uvec = vec(u0)
-    ctx = create_context()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
     utmp = NVector(uvec, ctx)
 
     function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = utmp)
@@ -581,21 +571,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
         mem = Handle(mem_ptr)
 
-        # ARKStepSetErrHandlerFn may be removed in SUNDIALS 7.4, skip error handler setup
-        if !verbose
-            try
-                ARKStepSetErrHandlerFn(mem,
-                    @cfunction(null_error_handler, Nothing,
-                        (Cint, Char, Char, Ptr{Cvoid})),
-                    C_NULL)
-            catch e
-                if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
-                    # ARKStepSetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
-                else
-                    rethrow(e)
-                end
-            end
-        end
         return mem
     end
 
@@ -1106,26 +1081,13 @@ function DiffEqBase.__init(
         f! = prob.f
     end
 
-    ctx = create_context()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
     mem_ptr = IDACreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-    # IDASetErrHandlerFn removed in SUNDIALS 7.4, skip error handler setup
-    if !verbose
-        try
-            IDASetErrHandlerFn(mem,
-                @cfunction(null_error_handler, Nothing,
-                    (Cint, Char, Char, Ptr{Cvoid})),
-                C_NULL)
-        catch e
-            if e isa Base.UndefVarError || occursin("could not load symbol", string(e))
-                # IDASetErrHandlerFn not available in SUNDIALS 7.4 - skip silently
-            else
-                rethrow(e)
-            end
-        end
-    end
 
     ts = [t0]
 

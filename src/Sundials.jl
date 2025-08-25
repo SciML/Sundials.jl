@@ -100,17 +100,6 @@ include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
 include("common_interface/solve.jl")
 
-# Helper function to create a new SUNContext
-function create_context()
-    ctx_ptr = Ref{SUNContext}(C_NULL)
-    ret = SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
-    if ret == 0
-        return ctx_ptr[]
-    else
-        error("Failed to create SUNContext")
-    end
-end
-
 function __init__()
     # No global context initialization needed
     # Each solver run will create its own context
