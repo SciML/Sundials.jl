@@ -119,6 +119,7 @@ function ___kinsol(f,
     flag = @checkflag KINSetMaxSetupCalls(kmem, maxsetupcalls) true
     ## Solve problem
     scale = ones(length(y0))
+    scale_nvec = NVector(scale, ctx)
     if strategy == :None
         strategy = KIN_NONE
     elseif strategy == :LineSearch
@@ -127,7 +128,7 @@ function ___kinsol(f,
         error("Unknown strategy")
     end
     ynv = NVector(y, ctx)
-    flag = @checkflag KINSol(kmem, ynv, strategy, scale, scale) true
+    flag = @checkflag KINSol(kmem, ynv, strategy, scale_nvec, scale_nvec) true
     y = convert(Vector, ynv)
     
     # Clean up context
