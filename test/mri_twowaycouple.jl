@@ -1,4 +1,9 @@
 # Example based on https://github.com/LLNL/sundials/blob/master/examples/arkode/C_serial/ark_twowaycouple_mri.c
+
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
 #=
 /* ----------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
@@ -64,7 +69,8 @@ hf = 0.00002
 y0 = [0.90001, -9.999, 1000.0]
 
 # Fast Integration portion
-_mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0);
+y0_nvec = Sundials.NVector(y0, ctx)
+_mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0_nvec, ctx);
 inner_arkode_mem = Sundials.Handle(_mem_ptr)
 Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem,
     -1,
@@ -72,7 +78,7 @@ Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem,
 Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
 
 # Slow integrator portion
-_arkode_mem_ptr = Sundials.MRIStepCreate(fs, T0, y0, inner_arkode_mem)
+_arkode_mem_ptr = Sundials.MRIStepCreate(fs, T0, y0_nvec, Sundials.MRISTEP_ARKSTEP, inner_arkode_mem, ctx)
 arkode_mem = Sundials.Handle(_arkode_mem_ptr)
 Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
 
@@ -81,7 +87,9 @@ tout = T0 + dTout
 res = Dict(0 => y0)
 for i in 1:Nt
     y = similar(y0)
-    global retval = Sundials.MRIStepEvolve(arkode_mem, tout, y, t, Sundials.ARK_NORMAL)
+    y_nvec = Sundials.NVector(y, ctx)
+    global retval = Sundials.MRIStepEvolve(arkode_mem, tout, y_nvec, t, Sundials.ARK_NORMAL)
+    copyto!(y, y_nvec.v)
     global tout += dTout
     global tout = (tout > Tf) ? Tf : tout
     res[i] = y
@@ -93,3 +101,6 @@ for i in 1:3
     @test isapprox(res[1][i], sol_1[i]; atol = 1e-3)
     @test isapprox(res[Nt][i], sol_end[i]; atol = 1e-3)
 end
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)
