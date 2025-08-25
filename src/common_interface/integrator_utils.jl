@@ -8,12 +8,12 @@ function handle_callbacks!(integrator)
     saved_in_cb = false
     if !(continuous_callbacks isa Tuple{})
         time, upcrossing,
-        event_occured,
+        event_occurred,
         event_idx,
         idx,
         counter = DiffEqBase.find_first_continuous_callback(integrator,
             continuous_callbacks...)
-        if event_occured
+        if event_occurred
             integrator.event_last_time = idx
             integrator.vector_event_last_time = event_idx
             continuous_modified,

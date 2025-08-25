@@ -72,7 +72,7 @@ function wrap_sundials_api(expr::Expr)
                 if arg1_type == :(Ptr{Cvoid}) || arg1_type == :(Ptr{Ptr{Cvoid}})
                     arg1_name = expr.args[1].args[2]
                     arg1_newtype = arg1_name2type[arg1_name]
-                    # seperate ARKStepMemPtr from ERK* and MRI*
+                    # separate ARKStepMemPtr from ERK* and MRI*
                     if arg1_newtype == :ARKStepMemPtr
                         arg1_newtype = Symbol(func_name[1:3] * "StepMemPtr")
                     end

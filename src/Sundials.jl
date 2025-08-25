@@ -100,7 +100,12 @@ include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
 include("common_interface/solve.jl")
 
-using PrecompileTools: PrecompileTools
+function __init__()
+    # No global context initialization needed
+    # Each solver run will create its own context
+end
+
+import PrecompileTools
 
 PrecompileTools.@compile_workload begin
     function lorenz(du, u, p, t)
