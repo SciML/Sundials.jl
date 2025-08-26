@@ -68,6 +68,8 @@ function Base.convert(::Type{NVector}, v::AbstractVector)
 end
 Base.convert(::Type{NVector}, nv::NVector) = nv
 # Removed conversion from N_Vector to NVector without context - use NVector(nv, ctx) instead
+# Add conversion with context
+Base.convert(::Type{NVector}, v::Vector{realtype}, ctx::SUNContext) = NVector(v, ctx)
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
 Base.convert(::Type{Vector}, nv::NVector) = nv.v
 

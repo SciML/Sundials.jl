@@ -15,7 +15,8 @@ function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
 end
 
 function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y0 = convert(NVector, y0, sunctx)
+    ARKStepCreate(fe, fi, t0, __y0, sunctx)
 end
 
 # Removed - context should be passed explicitly
@@ -38,8 +39,9 @@ function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realt
         arkode_mem, ynew, hscale, t0, resize, resize_data)
 end
 
-function ARKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data, ctx::SUNContext)
+    __ynew = convert(NVector, ynew, ctx)
+    ARKStepResize(arkode_mem, __ynew, hscale, t0, resize, resize_data)
 end
 
 function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
@@ -49,8 +51,9 @@ function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
         y0)
 end
 
-function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, ctx::SUNContext)
+    __y0 = convert(NVector, y0, ctx)
+    ARKStepReInit(arkode_mem, fe, fi, t0, __y0)
 end
 
 function ARKStepSStolerances(arkode_mem, reltol::realtype, abstol::realtype)
@@ -63,8 +66,8 @@ function ARKStepSVtolerances(arkode_mem, reltol::realtype, abstol::Union{N_Vecto
         (ARKStepMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
 end
 
-function ARKStepSVtolerances(arkode_mem, reltol, abstol)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepSVtolerances(arkode_mem, reltol, abstol, ctx::SUNContext)
+    ARKStepSVtolerances(arkode_mem, reltol, abstol, ctx)
 end
 
 function ARKStepWFtolerances(arkode_mem, efun::ARKEwtFn)
@@ -82,8 +85,8 @@ function ARKStepResVtolerance(arkode_mem, rabstol::Union{N_Vector, NVector})
         arkode_mem, rabstol)
 end
 
-function ARKStepResVtolerance(arkode_mem, rabstol)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepResVtolerance(arkode_mem, rabstol, ctx::SUNContext)
+    ARKStepResVtolerance(arkode_mem, rabstol, ctx)
 end
 
 function ARKStepResFtolerance(arkode_mem, rfun::ARKRwtFn)
@@ -352,8 +355,8 @@ function ARKStepSetConstraints(arkode_mem, constraints::Union{N_Vector, NVector}
         arkode_mem, constraints)
 end
 
-function ARKStepSetConstraints(arkode_mem, constraints)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepSetConstraints(arkode_mem, constraints, ctx::SUNContext)
+    ARKStepSetConstraints(arkode_mem, constraints, ctx)
 end
 
 function ARKStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
@@ -532,8 +535,8 @@ function ARKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector
         tret, itask)
 end
 
-function ARKStepEvolve(arkode_mem, tout, yout, tret, itask)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx::SUNContext)
+    ARKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
 end
 
 function ARKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -541,8 +544,8 @@ function ARKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NV
         (ARKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
 end
 
-function ARKStepGetDky(arkode_mem, t, k, dky)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepGetDky(arkode_mem, t, k, dky, ctx::SUNContext)
+    ARKStepGetDky(arkode_mem, t, k, dky, ctx)
 end
 
 function ARKStepGetNumExpSteps(arkode_mem, expsteps)
@@ -586,8 +589,9 @@ function ARKStepGetEstLocalErrors(arkode_mem, ele::Union{N_Vector, NVector})
         arkode_mem, ele)
 end
 
-function ARKStepGetEstLocalErrors(arkode_mem, ele)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepGetEstLocalErrors(arkode_mem, ele, ctx::SUNContext)
+    __ele = convert(NVector, ele, ctx)
+    ARKStepGetEstLocalErrors(arkode_mem, __ele)
 end
 
 function ARKStepGetWorkSpace(arkode_mem, lenrw, leniw)
@@ -640,8 +644,8 @@ function ARKStepGetErrWeights(arkode_mem, eweight::Union{N_Vector, NVector})
         arkode_mem, eweight)
 end
 
-function ARKStepGetErrWeights(arkode_mem, eweight)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepGetErrWeights(arkode_mem, eweight, ctx::SUNContext)
+    ARKStepGetErrWeights(arkode_mem, eweight, ctx)
 end
 
 function ARKStepGetResWeights(arkode_mem, rweight::Union{N_Vector, NVector})
@@ -649,8 +653,8 @@ function ARKStepGetResWeights(arkode_mem, rweight::Union{N_Vector, NVector})
         arkode_mem, rweight)
 end
 
-function ARKStepGetResWeights(arkode_mem, rweight)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ARKStepGetResWeights(arkode_mem, rweight, ctx::SUNContext)
+    ARKStepGetResWeights(arkode_mem, rweight, ctx)
 end
 
 function ARKStepGetNumGEvals(arkode_mem, ngevals)
@@ -960,7 +964,8 @@ function ERKStepCreate(f::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector}, 
 end
 
 function ERKStepCreate(f::ARKRhsFn, t0, y0, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y0 = convert(NVector, y0, sunctx)
+    ERKStepCreate(f, t0, __y0, sunctx)
 end
 
 function ERKStepCreate(f::ARKRhsFn, t0, y0)
@@ -976,8 +981,9 @@ function ERKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realt
         arkode_mem, ynew, hscale, t0, resize, resize_data)
 end
 
-function ERKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data, ctx::SUNContext)
+    __ynew = convert(NVector, ynew, ctx)
+    ERKStepResize(arkode_mem, __ynew, hscale, t0, resize, resize_data)
 end
 
 function ERKStepReInit(arkode_mem, f::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
@@ -985,8 +991,9 @@ function ERKStepReInit(arkode_mem, f::ARKRhsFn, t0::realtype, y0::Union{N_Vector
         (ERKStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, f, t0, y0)
 end
 
-function ERKStepReInit(arkode_mem, f::ARKRhsFn, t0, y0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepReInit(arkode_mem, f::ARKRhsFn, t0, y0, ctx::SUNContext)
+    __y0 = convert(NVector, y0, ctx)
+    ERKStepReInit(arkode_mem, f, t0, __y0)
 end
 
 function ERKStepSStolerances(arkode_mem, reltol::realtype, abstol::realtype)
@@ -999,8 +1006,8 @@ function ERKStepSVtolerances(arkode_mem, reltol::realtype, abstol::Union{N_Vecto
         (ERKStepMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
 end
 
-function ERKStepSVtolerances(arkode_mem, reltol, abstol)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepSVtolerances(arkode_mem, reltol, abstol, ctx::SUNContext)
+    ERKStepSVtolerances(arkode_mem, reltol, abstol, ctx)
 end
 
 function ERKStepWFtolerances(arkode_mem, efun::ARKEwtFn)
@@ -1152,8 +1159,8 @@ function ERKStepSetConstraints(arkode_mem, constraints::Union{N_Vector, NVector}
         arkode_mem, constraints)
 end
 
-function ERKStepSetConstraints(arkode_mem, constraints)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepSetConstraints(arkode_mem, constraints, ctx::SUNContext)
+    ERKStepSetConstraints(arkode_mem, constraints, ctx)
 end
 
 function ERKStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
@@ -1256,8 +1263,8 @@ function ERKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector
         tret, itask)
 end
 
-function ERKStepEvolve(arkode_mem, tout, yout, tret, itask)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx::SUNContext)
+    ERKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
 end
 
 function ERKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -1265,8 +1272,8 @@ function ERKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NV
         (ERKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
 end
 
-function ERKStepGetDky(arkode_mem, t, k, dky)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepGetDky(arkode_mem, t, k, dky, ctx::SUNContext)
+    ERKStepGetDky(arkode_mem, t, k, dky, ctx)
 end
 
 function ERKStepGetNumExpSteps(arkode_mem, expsteps)
@@ -1304,8 +1311,9 @@ function ERKStepGetEstLocalErrors(arkode_mem, ele::Union{N_Vector, NVector})
         arkode_mem, ele)
 end
 
-function ERKStepGetEstLocalErrors(arkode_mem, ele)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepGetEstLocalErrors(arkode_mem, ele, ctx::SUNContext)
+    __ele = convert(NVector, ele, ctx)
+    ERKStepGetEstLocalErrors(arkode_mem, __ele)
 end
 
 function ERKStepGetWorkSpace(arkode_mem, lenrw, leniw)
@@ -1348,8 +1356,8 @@ function ERKStepGetErrWeights(arkode_mem, eweight::Union{N_Vector, NVector})
         arkode_mem, eweight)
 end
 
-function ERKStepGetErrWeights(arkode_mem, eweight)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function ERKStepGetErrWeights(arkode_mem, eweight, ctx::SUNContext)
+    ERKStepGetErrWeights(arkode_mem, eweight, ctx)
 end
 
 function ERKStepGetNumGEvals(arkode_mem, ngevals)
@@ -1417,7 +1425,8 @@ function MRIStepCreate(fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector},
 end
 
 function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y0 = convert(NVector, y0, sunctx)
+    MRIStepCreate(fs, t0, __y0, inner_step_id, inner_step_mem, sunctx)
 end
 
 function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem)
@@ -1433,8 +1442,9 @@ function MRIStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype,
         t0, resize, resize_data)
 end
 
-function MRIStepResize(arkode_mem, ynew, t0, resize, resize_data)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function MRIStepResize(arkode_mem, ynew, t0, resize, resize_data, ctx::SUNContext)
+    __ynew = convert(NVector, ynew, ctx)
+    MRIStepResize(arkode_mem, __ynew, t0, resize, resize_data)
 end
 
 function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
@@ -1442,8 +1452,9 @@ function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0::realtype, y0::Union{N_Vecto
         (MRIStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, fs, t0, y0)
 end
 
-function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0, y0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0, y0, ctx::SUNContext)
+    __y0 = convert(NVector, y0, ctx)
+    MRIStepReInit(arkode_mem, fs, t0, __y0)
 end
 
 function MRIStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
@@ -1590,8 +1601,8 @@ function MRIStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector
         tret, itask)
 end
 
-function MRIStepEvolve(arkode_mem, tout, yout, tret, itask)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function MRIStepEvolve(arkode_mem, tout, yout, tret, itask, ctx::SUNContext)
+    MRIStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
 end
 
 function MRIStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -1599,8 +1610,8 @@ function MRIStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NV
         (MRIStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
 end
 
-function MRIStepGetDky(arkode_mem, t, k, dky)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function MRIStepGetDky(arkode_mem, t, k, dky, ctx::SUNContext)
+    MRIStepGetDky(arkode_mem, t, k, dky, ctx)
 end
 
 function MRIStepGetNumRhsEvals(arkode_mem, nfs_evals)
@@ -1694,8 +1705,9 @@ function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::Union{N_Vector, NVec
         (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0)
 end
 
-function CVodeInit(cvode_mem, f::CVRhsFn, t0, y0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeInit(cvode_mem, f::CVRhsFn, t0, y0, ctx::SUNContext)
+    __y0 = convert(NVector, y0, ctx)
+    CVodeInit(cvode_mem, f, t0, __y0)
 end
 
 function CVodeReInit(cvode_mem, t0::realtype, y0::Union{N_Vector, NVector})
@@ -1703,8 +1715,9 @@ function CVodeReInit(cvode_mem, t0::realtype, y0::Union{N_Vector, NVector})
         cvode_mem, t0, y0)
 end
 
-function CVodeReInit(cvode_mem, t0, y0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeReInit(cvode_mem, t0, y0, ctx::SUNContext)
+    __y0 = convert(NVector, y0, ctx)
+    CVodeReInit(cvode_mem, t0, __y0)
 end
 
 function CVodeSStolerances(cvode_mem, reltol::realtype, abstol::realtype)
@@ -1719,8 +1732,8 @@ function CVodeSVtolerances(cvode_mem, reltol::realtype, abstol::Union{N_Vector, 
         cvode_mem, reltol, abstol)
 end
 
-function CVodeSVtolerances(cvode_mem, reltol, abstol)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeSVtolerances(cvode_mem, reltol, abstol, ctx::SUNContext)
+    CVodeSVtolerances(cvode_mem, reltol, abstol, ctx)
 end
 
 function CVodeWFtolerances(cvode_mem, efun::CVEwtFn)
@@ -1842,8 +1855,8 @@ function CVodeSetConstraints(cvode_mem, constraints::Union{N_Vector, NVector})
         cvode_mem, constraints)
 end
 
-function CVodeSetConstraints(cvode_mem, constraints)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeSetConstraints(cvode_mem, constraints, ctx::SUNContext)
+    CVodeSetConstraints(cvode_mem, constraints, ctx)
 end
 
 function CVodeSetNonlinearSolver(cvode_mem, NLS::SUNNonlinearSolver)
@@ -1876,8 +1889,8 @@ function CVode(cvode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret, 
         tret, itask)
 end
 
-function CVode(cvode_mem, tout, yout, tret, itask)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVode(cvode_mem, tout, yout, tret, itask, ctx::SUNContext)
+    CVode(cvode_mem, tout, yout, tret, itask, ctx)
 end
 
 function CVodeGetDky(cvode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -1886,8 +1899,8 @@ function CVodeGetDky(cvode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVect
         cvode_mem, t, k, dky)
 end
 
-function CVodeGetDky(cvode_mem, t, k, dky)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetDky(cvode_mem, t, k, dky, ctx::SUNContext)
+    CVodeGetDky(cvode_mem, t, k, dky, ctx)
 end
 
 function CVodeGetWorkSpace(cvode_mem, lenrw, leniw)
@@ -1972,8 +1985,8 @@ function CVodeGetErrWeights(cvode_mem, eweight::Union{N_Vector, NVector})
         cvode_mem, eweight)
 end
 
-function CVodeGetErrWeights(cvode_mem, eweight)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetErrWeights(cvode_mem, eweight, ctx::SUNContext)
+    CVodeGetErrWeights(cvode_mem, eweight, ctx)
 end
 
 function CVodeGetEstLocalErrors(cvode_mem, ele::Union{N_Vector, NVector})
@@ -1981,8 +1994,9 @@ function CVodeGetEstLocalErrors(cvode_mem, ele::Union{N_Vector, NVector})
         cvode_mem, ele)
 end
 
-function CVodeGetEstLocalErrors(cvode_mem, ele)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetEstLocalErrors(cvode_mem, ele, ctx::SUNContext)
+    __ele = convert(NVector, ele, ctx)
+    CVodeGetEstLocalErrors(cvode_mem, __ele)
 end
 
 function CVodeGetNumGEvals(cvode_mem, ngevals)
@@ -2337,8 +2351,9 @@ function CVodeQuadInit(cvode_mem, fQ::CVQuadRhsFn, yQ0::Union{N_Vector, NVector}
         cvode_mem, fQ, yQ0)
 end
 
-function CVodeQuadInit(cvode_mem, fQ, yQ0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeQuadInit(cvode_mem, fQ, yQ0, ctx::SUNContext)
+    __yQ0 = convert(NVector, yQ0, ctx)
+    CVodeQuadInit(cvode_mem, fQ, __yQ0)
 end
 
 function CVodeQuadReInit(cvode_mem, yQ0::Union{N_Vector, NVector})
@@ -2346,8 +2361,9 @@ function CVodeQuadReInit(cvode_mem, yQ0::Union{N_Vector, NVector})
         yQ0)
 end
 
-function CVodeQuadReInit(cvode_mem, yQ0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeQuadReInit(cvode_mem, yQ0, ctx::SUNContext)
+    __yQ0 = convert(NVector, yQ0, ctx)
+    CVodeQuadReInit(cvode_mem, __yQ0)
 end
 
 function CVodeQuadSStolerances(cvode_mem, reltolQ::realtype, abstolQ::realtype)
@@ -2361,8 +2377,8 @@ function CVodeQuadSVtolerances(cvode_mem, reltolQ::realtype,
         (CVODEMemPtr, realtype, N_Vector), cvode_mem, reltolQ, abstolQ)
 end
 
-function CVodeQuadSVtolerances(cvode_mem, reltolQ, abstolQ)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeQuadSVtolerances(cvode_mem, reltolQ, abstolQ, ctx::SUNContext)
+    CVodeQuadSVtolerances(cvode_mem, reltolQ, abstolQ, ctx)
 end
 
 function CVodeSetQuadErrCon(cvode_mem, errconQ::Cint)
@@ -2380,8 +2396,8 @@ function CVodeGetQuad(cvode_mem, tret, yQout::Union{N_Vector, NVector})
         cvode_mem, tret, yQout)
 end
 
-function CVodeGetQuad(cvode_mem, tret, yQout)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetQuad(cvode_mem, tret, yQout, ctx::SUNContext)
+    CVodeGetQuad(cvode_mem, tret, yQout, ctx)
 end
 
 function CVodeGetQuadDky(cvode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -2389,8 +2405,8 @@ function CVodeGetQuadDky(cvode_mem, t::realtype, k::Cint, dky::Union{N_Vector, N
         (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky)
 end
 
-function CVodeGetQuadDky(cvode_mem, t, k, dky)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetQuadDky(cvode_mem, t, k, dky, ctx::SUNContext)
+    CVodeGetQuadDky(cvode_mem, t, k, dky, ctx)
 end
 
 function CVodeGetQuadNumRhsEvals(cvode_mem, nfQevals)
@@ -2408,8 +2424,8 @@ function CVodeGetQuadErrWeights(cvode_mem, eQweight::Union{N_Vector, NVector})
         cvode_mem, eQweight)
 end
 
-function CVodeGetQuadErrWeights(cvode_mem, eQweight)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetQuadErrWeights(cvode_mem, eQweight, ctx::SUNContext)
+    CVodeGetQuadErrWeights(cvode_mem, eQweight, ctx)
 end
 
 function CVodeGetQuadStats(cvode_mem, nfQevals, nQetfails)
@@ -2525,8 +2541,8 @@ function CVodeGetSens1(cvode_mem, tret, is::Cint, ySout::Union{N_Vector, NVector
         (CVODEMemPtr, Ptr{realtype}, Cint, N_Vector), cvode_mem, tret, is, ySout)
 end
 
-function CVodeGetSens1(cvode_mem, tret, is, ySout)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetSens1(cvode_mem, tret, is, ySout, ctx::SUNContext)
+    CVodeGetSens1(cvode_mem, tret, is, ySout, ctx)
 end
 
 function CVodeGetSensDky(cvode_mem, t::realtype, k::Cint, dkyA)
@@ -2654,8 +2670,8 @@ function CVodeGetQuadSens1(cvode_mem, tret, is::Cint, yQSout::Union{N_Vector, NV
         (CVODEMemPtr, Ptr{realtype}, Cint, N_Vector), cvode_mem, tret, is, yQSout)
 end
 
-function CVodeGetQuadSens1(cvode_mem, tret, is, yQSout)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetQuadSens1(cvode_mem, tret, is, yQSout, ctx::SUNContext)
+    CVodeGetQuadSens1(cvode_mem, tret, is, yQSout, ctx)
 end
 
 function CVodeGetQuadSensDky(cvode_mem, t::realtype, k::Cint, dkyQS_all)
@@ -2735,8 +2751,9 @@ function CVodeInitB(cvode_mem, which::Cint, fB::CVRhsFnB, tB0::realtype,
         (CVODEMemPtr, Cint, CVRhsFnB, realtype, N_Vector), cvode_mem, which, fB, tB0, yB0)
 end
 
-function CVodeInitB(cvode_mem, which, fB, tB0, yB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeInitB(cvode_mem, which, fB, tB0, yB0, ctx::SUNContext)
+    __yB0 = convert(NVector, yB0, ctx)
+    CVodeInitB(cvode_mem, which, fB, tB0, __yB0)
 end
 
 function CVodeInitBS(cvode_mem, which::Cint, fBs::CVRhsFnBS, tB0::realtype,
@@ -2746,8 +2763,9 @@ function CVodeInitBS(cvode_mem, which::Cint, fBs::CVRhsFnBS, tB0::realtype,
         yB0)
 end
 
-function CVodeInitBS(cvode_mem, which, fBs, tB0, yB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeInitBS(cvode_mem, which, fBs, tB0, yB0, ctx::SUNContext)
+    __yB0 = convert(NVector, yB0, ctx)
+    CVodeInitBS(cvode_mem, which, fBs, tB0, __yB0)
 end
 
 function CVodeReInitB(cvode_mem, which::Cint, tB0::realtype, yB0::Union{N_Vector, NVector})
@@ -2755,8 +2773,9 @@ function CVodeReInitB(cvode_mem, which::Cint, tB0::realtype, yB0::Union{N_Vector
         (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, tB0, yB0)
 end
 
-function CVodeReInitB(cvode_mem, which, tB0, yB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeReInitB(cvode_mem, which, tB0, yB0, ctx::SUNContext)
+    __yB0 = convert(NVector, yB0, ctx)
+    CVodeReInitB(cvode_mem, which, tB0, __yB0)
 end
 
 function CVodeSStolerancesB(cvode_mem, which::Cint, reltolB::realtype, abstolB::realtype)
@@ -2786,8 +2805,9 @@ function CVodeQuadInitB(cvode_mem, which::Cint, fQB::CVQuadRhsFnB,
         (CVODEMemPtr, Cint, CVQuadRhsFnB, N_Vector), cvode_mem, which, fQB, yQB0)
 end
 
-function CVodeQuadInitB(cvode_mem, which, fQB, yQB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeQuadInitB(cvode_mem, which, fQB, yQB0, ctx::SUNContext)
+    __yQB0 = convert(NVector, yQB0, ctx)
+    CVodeQuadInitB(cvode_mem, which, fQB, __yQB0)
 end
 
 function CVodeQuadInitBS(cvode_mem, which::Cint, fQBs::CVQuadRhsFnBS,
@@ -2796,8 +2816,9 @@ function CVodeQuadInitBS(cvode_mem, which::Cint, fQBs::CVQuadRhsFnBS,
         (CVODEMemPtr, Cint, CVQuadRhsFnBS, N_Vector), cvode_mem, which, fQBs, yQB0)
 end
 
-function CVodeQuadInitBS(cvode_mem, which, fQBs, yQB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeQuadInitBS(cvode_mem, which, fQBs, yQB0, ctx::SUNContext)
+    __yQB0 = convert(NVector, yQB0, ctx)
+    CVodeQuadInitBS(cvode_mem, which, fQBs, __yQB0)
 end
 
 function CVodeQuadReInitB(cvode_mem, which::Cint, yQB0::Union{N_Vector, NVector})
@@ -2805,8 +2826,9 @@ function CVodeQuadReInitB(cvode_mem, which::Cint, yQB0::Union{N_Vector, NVector}
         cvode_mem, which, yQB0)
 end
 
-function CVodeQuadReInitB(cvode_mem, which, yQB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeQuadReInitB(cvode_mem, which, yQB0, ctx::SUNContext)
+    __yQB0 = convert(NVector, yQB0, ctx)
+    CVodeQuadReInitB(cvode_mem, which, __yQB0)
 end
 
 function CVodeQuadSStolerancesB(cvode_mem, which::Cint, reltolQB::realtype,
@@ -2926,8 +2948,8 @@ function CVodeSetConstraintsB(cvode_mem, which::Cint,
         cvode_mem, which, constraintsB)
 end
 
-function CVodeSetConstraintsB(cvode_mem, which, constraintsB)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeSetConstraintsB(cvode_mem, which, constraintsB, ctx::SUNContext)
+    CVodeSetConstraintsB(cvode_mem, which, constraintsB, ctx)
 end
 
 function CVodeSetQuadErrConB(cvode_mem, which::Cint, errconQB::Cint)
@@ -2953,8 +2975,9 @@ function CVodeGetB(cvode_mem, which::Cint, tBret, yB::Union{N_Vector, NVector})
         (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector), cvode_mem, which, tBret, yB)
 end
 
-function CVodeGetB(cvode_mem, which, tBret, yB)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetB(cvode_mem, which, tBret, yB, ctx::SUNContext)
+    __yB = convert(NVector, yB, ctx)
+    CVodeGetB(cvode_mem, which, tBret, __yB)
 end
 
 function CVodeGetQuadB(cvode_mem, which::Cint, tBret, qB::Union{N_Vector, NVector})
@@ -2962,8 +2985,8 @@ function CVodeGetQuadB(cvode_mem, which::Cint, tBret, qB::Union{N_Vector, NVecto
         (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector), cvode_mem, which, tBret, qB)
 end
 
-function CVodeGetQuadB(cvode_mem, which, tBret, qB)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetQuadB(cvode_mem, which, tBret, qB, ctx::SUNContext)
+    CVodeGetQuadB(cvode_mem, which, tBret, qB, ctx)
 end
 
 function CVodeGetAdjCVodeBmem(cvode_mem, which::Cint)
@@ -2980,8 +3003,9 @@ function CVodeGetAdjY(cvode_mem, t::realtype, y::Union{N_Vector, NVector})
         cvode_mem, t, y)
 end
 
-function CVodeGetAdjY(cvode_mem, t, y)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function CVodeGetAdjY(cvode_mem, t, y, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    CVodeGetAdjY(cvode_mem, t, __y)
 end
 
 function CVodeGetAdjCheckPointsInfo(cvode_mem, ckpnt)
@@ -3279,10 +3303,8 @@ function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVec
         (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
 end
 
-function IDAInit(ida_mem, res::IDAResFn, t0, yy0, yp0)
-    __yy0 = convert(NVector, yy0)
-    __yp0 = convert(NVector, yp0)
-    IDAInit(ida_mem, res, t0, __yy0, __yp0)
+function IDAInit(ida_mem, res::IDAResFn, t0, yy0, yp0, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function IDAReInit(ida_mem, t0::realtype, yy0::Union{N_Vector, NVector},
@@ -3291,10 +3313,8 @@ function IDAReInit(ida_mem, t0::realtype, yy0::Union{N_Vector, NVector},
         ida_mem, t0, yy0, yp0)
 end
 
-function IDAReInit(ida_mem, t0, yy0, yp0)
-    __yy0 = convert(NVector, yy0)
-    __yp0 = convert(NVector, yp0)
-    IDAReInit(ida_mem, t0, __yy0, __yp0)
+function IDAReInit(ida_mem, t0, yy0, yp0, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function IDASStolerances(ida_mem, reltol::realtype, abstol::realtype)
@@ -3307,8 +3327,8 @@ function IDASVtolerances(ida_mem, reltol::realtype, abstol::Union{N_Vector, NVec
         ida_mem, reltol, abstol)
 end
 
-function IDASVtolerances(ida_mem, reltol, abstol)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDASVtolerances(ida_mem, reltol, abstol, ctx::SUNContext)
+    IDASVtolerances(ida_mem, reltol, abstol, ctx)
 end
 
 function IDAWFtolerances(ida_mem, efun::IDAEwtFn)
@@ -3465,8 +3485,9 @@ function IDASetId(ida_mem, id::Union{N_Vector, NVector})
     ccall((:IDASetId, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, id)
 end
 
-function IDASetId(ida_mem, id)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDASetId(ida_mem, id, ctx::SUNContext)
+    __id = convert(NVector, id, ctx)
+    IDASetId(ida_mem, __id)
 end
 
 function IDASetConstraints(ida_mem, constraints::Union{N_Vector, NVector})
@@ -3474,8 +3495,8 @@ function IDASetConstraints(ida_mem, constraints::Union{N_Vector, NVector})
         constraints)
 end
 
-function IDASetConstraints(ida_mem, constraints)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDASetConstraints(ida_mem, constraints, ctx::SUNContext)
+    IDASetConstraints(ida_mem, constraints, ctx)
 end
 
 function IDASetNonlinearSolver(ida_mem, NLS::SUNNonlinearSolver)
@@ -3522,10 +3543,8 @@ function IDAComputeY(ida_mem, ycor::Union{N_Vector, NVector}, y::Union{N_Vector,
         ycor, y)
 end
 
-function IDAComputeY(ida_mem, ycor, y)
-    __ycor = convert(NVector, ycor)
-    __y = convert(NVector, y)
-    IDAComputeY(ida_mem, __ycor, __y)
+function IDAComputeY(ida_mem, ycor, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function IDAComputeYp(ida_mem, ycor::Union{N_Vector, NVector}, yp::Union{N_Vector, NVector})
@@ -3534,10 +3553,8 @@ function IDAComputeYp(ida_mem, ycor::Union{N_Vector, NVector}, yp::Union{N_Vecto
         ycor, yp)
 end
 
-function IDAComputeYp(ida_mem, ycor, yp)
-    __ycor = convert(NVector, ycor)
-    __yp = convert(NVector, yp)
-    IDAComputeYp(ida_mem, __ycor, __yp)
+function IDAComputeYp(ida_mem, ycor, yp, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function IDAGetDky(ida_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -3545,8 +3562,8 @@ function IDAGetDky(ida_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
         ida_mem, t, k, dky)
 end
 
-function IDAGetDky(ida_mem, t, k, dky)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetDky(ida_mem, t, k, dky, ctx::SUNContext)
+    IDAGetDky(ida_mem, t, k, dky, ctx)
 end
 
 function IDAGetWorkSpace(ida_mem, lenrw, leniw)
@@ -3585,10 +3602,8 @@ function IDAGetConsistentIC(ida_mem, yy0_mod::Union{N_Vector, NVector},
         ida_mem, yy0_mod, yp0_mod)
 end
 
-function IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod)
-    __yy0_mod = convert(NVector, yy0_mod)
-    __yp0_mod = convert(NVector, yp0_mod)
-    IDAGetConsistentIC(ida_mem, __yy0_mod, __yp0_mod)
+function IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function IDAGetLastOrder(ida_mem, klast)
@@ -3648,8 +3663,8 @@ function IDAGetErrWeights(ida_mem, eweight::Union{N_Vector, NVector})
         eweight)
 end
 
-function IDAGetErrWeights(ida_mem, eweight)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetErrWeights(ida_mem, eweight, ctx::SUNContext)
+    IDAGetErrWeights(ida_mem, eweight, ctx)
 end
 
 function IDAGetEstLocalErrors(ida_mem, ele::Union{N_Vector, NVector})
@@ -3657,8 +3672,9 @@ function IDAGetEstLocalErrors(ida_mem, ele::Union{N_Vector, NVector})
         ele)
 end
 
-function IDAGetEstLocalErrors(ida_mem, ele)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetEstLocalErrors(ida_mem, ele, ctx::SUNContext)
+    __ele = convert(NVector, ele, ctx)
+    IDAGetEstLocalErrors(ida_mem, __ele)
 end
 
 function IDAGetNumGEvals(ida_mem, ngevals)
@@ -3973,16 +3989,18 @@ function IDAQuadInit(ida_mem, rhsQ::IDAQuadRhsFn, yQ0::Union{N_Vector, NVector})
         ida_mem, rhsQ, yQ0)
 end
 
-function IDAQuadInit(ida_mem, rhsQ, yQ0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAQuadInit(ida_mem, rhsQ, yQ0, ctx::SUNContext)
+    __yQ0 = convert(NVector, yQ0, ctx)
+    IDAQuadInit(ida_mem, rhsQ, __yQ0)
 end
 
 function IDAQuadReInit(ida_mem, yQ0::Union{N_Vector, NVector})
     ccall((:IDAQuadReInit, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, yQ0)
 end
 
-function IDAQuadReInit(ida_mem, yQ0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAQuadReInit(ida_mem, yQ0, ctx::SUNContext)
+    __yQ0 = convert(NVector, yQ0, ctx)
+    IDAQuadReInit(ida_mem, __yQ0)
 end
 
 function IDAQuadSStolerances(ida_mem, reltolQ::realtype, abstolQ::realtype)
@@ -3995,8 +4013,8 @@ function IDAQuadSVtolerances(ida_mem, reltolQ::realtype, abstolQ::Union{N_Vector
         ida_mem, reltolQ, abstolQ)
 end
 
-function IDAQuadSVtolerances(ida_mem, reltolQ, abstolQ)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAQuadSVtolerances(ida_mem, reltolQ, abstolQ, ctx::SUNContext)
+    IDAQuadSVtolerances(ida_mem, reltolQ, abstolQ, ctx)
 end
 
 function IDASetQuadErrCon(ida_mem, errconQ::Cint)
@@ -4012,8 +4030,8 @@ function IDAGetQuad(ida_mem, t, yQout::Union{N_Vector, NVector})
         ida_mem, t, yQout)
 end
 
-function IDAGetQuad(ida_mem, t, yQout)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetQuad(ida_mem, t, yQout, ctx::SUNContext)
+    IDAGetQuad(ida_mem, t, yQout, ctx)
 end
 
 function IDAGetQuadDky(ida_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -4021,8 +4039,8 @@ function IDAGetQuadDky(ida_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVect
         ida_mem, t, k, dky)
 end
 
-function IDAGetQuadDky(ida_mem, t, k, dky)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetQuadDky(ida_mem, t, k, dky, ctx::SUNContext)
+    IDAGetQuadDky(ida_mem, t, k, dky, ctx)
 end
 
 function IDAGetQuadNumRhsEvals(ida_mem, nrhsQevals)
@@ -4040,8 +4058,8 @@ function IDAGetQuadErrWeights(ida_mem, eQweight::Union{N_Vector, NVector})
         eQweight)
 end
 
-function IDAGetQuadErrWeights(ida_mem, eQweight)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetQuadErrWeights(ida_mem, eQweight, ctx::SUNContext)
+    IDAGetQuadErrWeights(ida_mem, eQweight, ctx)
 end
 
 function IDAGetQuadStats(ida_mem, nrhsQevals, nQetfails)
@@ -4146,8 +4164,8 @@ function IDAGetSens1(ida_mem, tret, is::Cint, yySret::Union{N_Vector, NVector})
         (IDAMemPtr, Ptr{realtype}, Cint, N_Vector), ida_mem, tret, is, yySret)
 end
 
-function IDAGetSens1(ida_mem, tret, is, yySret)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetSens1(ida_mem, tret, is, yySret, ctx::SUNContext)
+    IDAGetSens1(ida_mem, tret, is, yySret, ctx)
 end
 
 function IDAGetSensDky(ida_mem, t::realtype, k::Cint, dkyS)
@@ -4266,8 +4284,8 @@ function IDAGetQuadSens1(ida_mem, tret, is::Cint, yyQSret::Union{N_Vector, NVect
         (IDAMemPtr, Ptr{realtype}, Cint, N_Vector), ida_mem, tret, is, yyQSret)
 end
 
-function IDAGetQuadSens1(ida_mem, tret, is, yyQSret)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetQuadSens1(ida_mem, tret, is, yyQSret, ctx::SUNContext)
+    IDAGetQuadSens1(ida_mem, tret, is, yyQSret, ctx)
 end
 
 function IDAGetQuadSensDky(ida_mem, t::realtype, k::Cint, dkyQS)
@@ -4395,8 +4413,8 @@ function IDASVtolerancesB(ida_mem, which::Cint, relTolB::realtype,
         (IDAMemPtr, Cint, realtype, N_Vector), ida_mem, which, relTolB, absTolB)
 end
 
-function IDASVtolerancesB(ida_mem, which, relTolB, absTolB)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDASVtolerancesB(ida_mem, which, relTolB, absTolB, ctx::SUNContext)
+    IDASVtolerancesB(ida_mem, which, relTolB, absTolB, ctx)
 end
 
 function IDAQuadInitB(ida_mem, which::Cint, rhsQB::IDAQuadRhsFnB,
@@ -4405,8 +4423,9 @@ function IDAQuadInitB(ida_mem, which::Cint, rhsQB::IDAQuadRhsFnB,
         (IDAMemPtr, Cint, IDAQuadRhsFnB, N_Vector), ida_mem, which, rhsQB, yQB0)
 end
 
-function IDAQuadInitB(ida_mem, which, rhsQB, yQB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAQuadInitB(ida_mem, which, rhsQB, yQB0, ctx::SUNContext)
+    __yQB0 = convert(NVector, yQB0, ctx)
+    IDAQuadInitB(ida_mem, which, rhsQB, __yQB0)
 end
 
 function IDAQuadInitBS(ida_mem, which::Cint, rhsQS::IDAQuadRhsFnBS,
@@ -4415,8 +4434,9 @@ function IDAQuadInitBS(ida_mem, which::Cint, rhsQS::IDAQuadRhsFnBS,
         (IDAMemPtr, Cint, IDAQuadRhsFnBS, N_Vector), ida_mem, which, rhsQS, yQB0)
 end
 
-function IDAQuadInitBS(ida_mem, which, rhsQS, yQB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAQuadInitBS(ida_mem, which, rhsQS, yQB0, ctx::SUNContext)
+    __yQB0 = convert(NVector, yQB0, ctx)
+    IDAQuadInitBS(ida_mem, which, rhsQS, __yQB0)
 end
 
 function IDAQuadReInitB(ida_mem, which::Cint, yQB0::Union{N_Vector, NVector})
@@ -4424,8 +4444,9 @@ function IDAQuadReInitB(ida_mem, which::Cint, yQB0::Union{N_Vector, NVector})
         which, yQB0)
 end
 
-function IDAQuadReInitB(ida_mem, which, yQB0)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAQuadReInitB(ida_mem, which, yQB0, ctx::SUNContext)
+    __yQB0 = convert(NVector, yQB0, ctx)
+    IDAQuadReInitB(ida_mem, which, __yQB0)
 end
 
 function IDAQuadSStolerancesB(ida_mem, which::Cint, reltolQB::realtype, abstolQB::realtype)
@@ -4567,8 +4588,9 @@ function IDASetIdB(ida_mem, which::Cint, idB::Union{N_Vector, NVector})
         idB)
 end
 
-function IDASetIdB(ida_mem, which, idB)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDASetIdB(ida_mem, which, idB, ctx::SUNContext)
+    __idB = convert(NVector, idB, ctx)
+    IDASetIdB(ida_mem, which, __idB)
 end
 
 function IDASetConstraintsB(ida_mem, which::Cint, constraintsB::Union{N_Vector, NVector})
@@ -4576,8 +4598,8 @@ function IDASetConstraintsB(ida_mem, which::Cint, constraintsB::Union{N_Vector, 
         ida_mem, which, constraintsB)
 end
 
-function IDASetConstraintsB(ida_mem, which, constraintsB)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDASetConstraintsB(ida_mem, which, constraintsB, ctx::SUNContext)
+    IDASetConstraintsB(ida_mem, which, constraintsB, ctx)
 end
 
 function IDASetQuadErrConB(ida_mem, which::Cint, errconQB::Cint)
@@ -4617,8 +4639,8 @@ function IDAGetQuadB(ida_mem, which::Cint, tret, qB::Union{N_Vector, NVector})
         (IDAMemPtr, Cint, Ptr{realtype}, N_Vector), ida_mem, which, tret, qB)
 end
 
-function IDAGetQuadB(ida_mem, which, tret, qB)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function IDAGetQuadB(ida_mem, which, tret, qB, ctx::SUNContext)
+    IDAGetQuadB(ida_mem, which, tret, qB, ctx)
 end
 
 function IDAGetAdjIDABmem(ida_mem, which::Cint)
@@ -4649,10 +4671,8 @@ function IDAGetAdjY(ida_mem, t::realtype, yy::Union{N_Vector, NVector},
         ida_mem, t, yy, yp)
 end
 
-function IDAGetAdjY(ida_mem, t, yy, yp)
-    __yy = convert(NVector, yy)
-    __yp = convert(NVector, yp)
-    IDAGetAdjY(ida_mem, t, __yy, __yp)
+function IDAGetAdjY(ida_mem, t, yy, yp, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function IDAGetAdjCheckPointsInfo(ida_mem, ckpnt)
@@ -4927,8 +4947,8 @@ function KINInit(kinmem, func::KINSysFn, tmpl::Union{N_Vector, NVector})
         func, tmpl)
 end
 
-function KINInit(kinmem, func::KINSysFn, tmpl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function KINInit(kinmem, func::KINSysFn, tmpl, ctx::SUNContext)
+    KINInit(kinmem, func, tmpl, ctx)
 end
 
 function KINSol(kinmem, uu::Union{N_Vector, NVector}, strategy::Cint,
@@ -5106,8 +5126,8 @@ function KINSetConstraints(kinmem, constraints::Union{N_Vector, NVector})
         constraints)
 end
 
-function KINSetConstraints(kinmem, constraints)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function KINSetConstraints(kinmem, constraints, ctx::SUNContext)
+    KINSetConstraints(kinmem, constraints, ctx)
 end
 
 function KINSetSysFunc(kinmem, func::KINSysFn)
@@ -5414,16 +5434,18 @@ function N_VCloneEmpty_ManyVector(w::Union{N_Vector, NVector})
     ccall((:N_VCloneEmpty_ManyVector, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
-function N_VCloneEmpty_ManyVector(w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VCloneEmpty_ManyVector(w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VCloneEmpty_ManyVector(__w)
 end
 
 function N_VClone_ManyVector(w::Union{N_Vector, NVector})
     ccall((:N_VClone_ManyVector, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
-function N_VClone_ManyVector(w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VClone_ManyVector(w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VClone_ManyVector(__w)
 end
 
 function N_VDestroy_ManyVector(v::Union{N_Vector, NVector})
@@ -5439,8 +5461,10 @@ function N_VSpace_ManyVector(v::Union{N_Vector, NVector}, lrw, liw)
         (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
 end
 
-function N_VSpace_ManyVector(v, lrw, liw)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VSpace_ManyVector(v, lrw, liw, ctx::SUNContext)
+    __lrw = convert(NVector, lrw, ctx)
+    __liw = convert(NVector, liw, ctx)
+    N_VSpace_ManyVector(v, __lrw, __liw)
 end
 
 function N_VGetLength_ManyVector(v::Union{N_Vector, NVector})
@@ -5458,12 +5482,8 @@ function N_VLinearSum_ManyVector(a::realtype, x::Union{N_Vector, NVector}, b::re
         (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
 
-function N_VLinearSum_ManyVector(a, x, b, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VLinearSum_ManyVector(a, __x, b, __y,
-        __z)
+function N_VLinearSum_ManyVector(a, x, b, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VConst_ManyVector(c::realtype, z::Union{N_Vector, NVector})
@@ -5480,12 +5500,8 @@ function N_VProd_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVec
         (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
-function N_VProd_ManyVector(x, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VProd_ManyVector(__x, __y,
-        __z)
+function N_VProd_ManyVector(x, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VDiv_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
@@ -5494,12 +5510,8 @@ function N_VDiv_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVect
         (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
-function N_VDiv_ManyVector(x, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VDiv_ManyVector(__x, __y,
-        __z)
+function N_VDiv_ManyVector(x, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VScale_ManyVector(c::realtype, x::Union{N_Vector, NVector},
@@ -5508,30 +5520,24 @@ function N_VScale_ManyVector(c::realtype, x::Union{N_Vector, NVector},
         (realtype, N_Vector, N_Vector), c, x, z)
 end
 
-function N_VScale_ManyVector(c, x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VScale_ManyVector(c, __x, __z)
+function N_VScale_ManyVector(c, x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VAbs_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VAbs_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VAbs_ManyVector(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VAbs_ManyVector(__x, __z)
+function N_VAbs_ManyVector(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VInv_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VInv_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VInv_ManyVector(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VInv_ManyVector(__x, __z)
+function N_VInv_ManyVector(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VAddConst_ManyVector(x::Union{N_Vector, NVector}, b::realtype,
@@ -5540,10 +5546,8 @@ function N_VAddConst_ManyVector(x::Union{N_Vector, NVector}, b::realtype,
         (N_Vector, realtype, N_Vector), x, b, z)
 end
 
-function N_VAddConst_ManyVector(x, b, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VAddConst_ManyVector(__x, b, __z)
+function N_VAddConst_ManyVector(x, b, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWrmsNorm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
@@ -5552,10 +5556,8 @@ function N_VWrmsNorm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, 
         x, w)
 end
 
-function N_VWrmsNorm_ManyVector(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWrmsNorm_ManyVector(__x, __w)
+function N_VWrmsNorm_ManyVector(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWrmsNormMask_ManyVector(x::Union{N_Vector, NVector},
@@ -5565,12 +5567,8 @@ function N_VWrmsNormMask_ManyVector(x::Union{N_Vector, NVector},
         (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VWrmsNormMask_ManyVector(x, w, id)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    __id = convert(NVector, id)
-    N_VWrmsNormMask_ManyVector(__x, __w,
-        __id)
+function N_VWrmsNormMask_ManyVector(x, w, id, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWL2Norm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
@@ -5578,10 +5576,8 @@ function N_VWL2Norm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, N
         x, w)
 end
 
-function N_VWL2Norm_ManyVector(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWL2Norm_ManyVector(__x, __w)
+function N_VWL2Norm_ManyVector(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VCompare_ManyVector(c::realtype, x::Union{N_Vector, NVector},
@@ -5590,10 +5586,8 @@ function N_VCompare_ManyVector(c::realtype, x::Union{N_Vector, NVector},
         (realtype, N_Vector, N_Vector), c, x, z)
 end
 
-function N_VCompare_ManyVector(c, x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VCompare_ManyVector(c, __x, __z)
+function N_VCompare_ManyVector(c, x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VLinearCombination_ManyVector(nvec::Cint, c, V, z::Union{N_Vector, NVector})
@@ -5601,8 +5595,9 @@ function N_VLinearCombination_ManyVector(nvec::Cint, c, V, z::Union{N_Vector, NV
         (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, V, z)
 end
 
-function N_VLinearCombination_ManyVector(nvec, c, V, z)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VLinearCombination_ManyVector(nvec, c, V, z, ctx::SUNContext)
+    __V = convert(NVector, V, ctx)
+    N_VLinearCombination_ManyVector(nvec, c, __V, z)
 end
 
 function N_VScaleAddMulti_ManyVector(nvec::Cint, a, x::Union{N_Vector, NVector}, Y, Z)
@@ -5679,10 +5674,8 @@ function N_VDotProdLocal_ManyVector(x::Union{N_Vector, NVector},
         (N_Vector, N_Vector), x, y)
 end
 
-function N_VDotProdLocal_ManyVector(x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    N_VDotProdLocal_ManyVector(__x, __y)
+function N_VDotProdLocal_ManyVector(x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMaxNormLocal_ManyVector(x::Union{N_Vector, NVector})
@@ -5715,10 +5708,8 @@ function N_VWSqrSumLocal_ManyVector(x::Union{N_Vector, NVector},
         (N_Vector, N_Vector), x, w)
 end
 
-function N_VWSqrSumLocal_ManyVector(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWSqrSumLocal_ManyVector(__x, __w)
+function N_VWSqrSumLocal_ManyVector(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWSqrSumMaskLocal_ManyVector(x::Union{N_Vector, NVector},
@@ -5728,12 +5719,8 @@ function N_VWSqrSumMaskLocal_ManyVector(x::Union{N_Vector, NVector},
         (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VWSqrSumMaskLocal_ManyVector(x, w, id)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    __id = convert(NVector, id)
-    N_VWSqrSumMaskLocal_ManyVector(__x, __w,
-        __id)
+function N_VWSqrSumMaskLocal_ManyVector(x, w, id, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VInvTestLocal_ManyVector(x::Union{N_Vector, NVector},
@@ -5743,10 +5730,8 @@ function N_VInvTestLocal_ManyVector(x::Union{N_Vector, NVector},
         x, z)
 end
 
-function N_VInvTestLocal_ManyVector(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VInvTestLocal_ManyVector(__x, __z)
+function N_VInvTestLocal_ManyVector(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VConstrMaskLocal_ManyVector(c::Union{N_Vector, NVector},
@@ -5756,12 +5741,8 @@ function N_VConstrMaskLocal_ManyVector(c::Union{N_Vector, NVector},
         (N_Vector, N_Vector, N_Vector), c, x, m)
 end
 
-function N_VConstrMaskLocal_ManyVector(c, x, m)
-    __c = convert(NVector, c)
-    __x = convert(NVector, x)
-    __m = convert(NVector, m)
-    N_VConstrMaskLocal_ManyVector(__c, __x,
-        __m)
+function N_VConstrMaskLocal_ManyVector(c, x, m, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMinQuotientLocal_ManyVector(num::Union{N_Vector, NVector},
@@ -5770,10 +5751,8 @@ function N_VMinQuotientLocal_ManyVector(num::Union{N_Vector, NVector},
         (N_Vector, N_Vector), num, denom)
 end
 
-function N_VMinQuotientLocal_ManyVector(num, denom)
-    __num = convert(NVector, num)
-    __denom = convert(NVector, denom)
-    N_VMinQuotientLocal_ManyVector(__num, __denom)
+function N_VMinQuotientLocal_ManyVector(num, denom, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VEnableFusedOps_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
@@ -5876,8 +5855,9 @@ function N_VCloneVectorArray_Serial(count::Cint, w::Union{N_Vector, NVector})
         (Cint, N_Vector), count, w)
 end
 
-function N_VCloneVectorArray_Serial(count, w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VCloneVectorArray_Serial(count, w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VCloneVectorArray_Serial(count, __w)
 end
 
 function N_VCloneVectorArrayEmpty_Serial(count::Cint, w::Union{N_Vector, NVector})
@@ -5885,8 +5865,9 @@ function N_VCloneVectorArrayEmpty_Serial(count::Cint, w::Union{N_Vector, NVector
         (Cint, N_Vector), count, w)
 end
 
-function N_VCloneVectorArrayEmpty_Serial(count, w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VCloneVectorArrayEmpty_Serial(count, w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VCloneVectorArrayEmpty_Serial(count, __w)
 end
 
 function N_VDestroyVectorArray_Serial(vs, count::Cint)
@@ -5936,16 +5917,18 @@ function N_VCloneEmpty_Serial(w::Union{N_Vector, NVector})
     ccall((:N_VCloneEmpty_Serial, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
-function N_VCloneEmpty_Serial(w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VCloneEmpty_Serial(w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VCloneEmpty_Serial(__w)
 end
 
 function N_VClone_Serial(w::Union{N_Vector, NVector})
     ccall((:N_VClone_Serial, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
-function N_VClone_Serial(w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VClone_Serial(w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VClone_Serial(__w)
 end
 
 function N_VDestroy_Serial(v::Union{N_Vector, NVector})
@@ -5961,8 +5944,10 @@ function N_VSpace_Serial(v::Union{N_Vector, NVector}, lrw, liw)
         (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
 end
 
-function N_VSpace_Serial(v, lrw, liw)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VSpace_Serial(v, lrw, liw, ctx::SUNContext)
+    __lrw = convert(NVector, lrw, ctx)
+    __liw = convert(NVector, liw, ctx)
+    N_VSpace_Serial(v, __lrw, __liw)
 end
 
 function N_VGetArrayPointer_Serial(v::Union{N_Vector, NVector})
@@ -5990,12 +5975,8 @@ function N_VLinearSum_Serial(a::realtype, x::Union{N_Vector, NVector}, b::realty
         (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
 
-function N_VLinearSum_Serial(a, x, b, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VLinearSum_Serial(a, __x, b, __y,
-        __z)
+function N_VLinearSum_Serial(a, x, b, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VConst_Serial(c::realtype, z::Union{N_Vector, NVector})
@@ -6012,11 +5993,8 @@ function N_VProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}
         x, y, z)
 end
 
-function N_VProd_Serial(x, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VProd_Serial(__x, __y, __z)
+function N_VProd_Serial(x, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VDiv_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
@@ -6025,11 +6003,8 @@ function N_VDiv_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
         x, y, z)
 end
 
-function N_VDiv_Serial(x, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VDiv_Serial(__x, __y, __z)
+function N_VDiv_Serial(x, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VScale_Serial(c::realtype, x::Union{N_Vector, NVector},
@@ -6039,30 +6014,24 @@ function N_VScale_Serial(c::realtype, x::Union{N_Vector, NVector},
         c, x, z)
 end
 
-function N_VScale_Serial(c, x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VScale_Serial(c, __x, __z)
+function N_VScale_Serial(c, x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VAbs_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VAbs_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VAbs_Serial(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VAbs_Serial(__x, __z)
+function N_VAbs_Serial(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VInv_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VInv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VInv_Serial(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VInv_Serial(__x, __z)
+function N_VInv_Serial(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VAddConst_Serial(x::Union{N_Vector, NVector}, b::realtype,
@@ -6071,10 +6040,8 @@ function N_VAddConst_Serial(x::Union{N_Vector, NVector}, b::realtype,
         (N_Vector, realtype, N_Vector), x, b, z)
 end
 
-function N_VAddConst_Serial(x, b, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VAddConst_Serial(__x, b, __z)
+function N_VAddConst_Serial(x, b, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VDotProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
@@ -6082,10 +6049,8 @@ function N_VDotProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVect
         y)
 end
 
-function N_VDotProd_Serial(x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    N_VDotProd_Serial(__x, __y)
+function N_VDotProd_Serial(x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMaxNorm_Serial(x::Union{N_Vector, NVector})
@@ -6101,10 +6066,8 @@ function N_VWrmsNorm_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVec
         w)
 end
 
-function N_VWrmsNorm_Serial(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWrmsNorm_Serial(__x, __w)
+function N_VWrmsNorm_Serial(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWrmsNormMask_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
@@ -6113,12 +6076,8 @@ function N_VWrmsNormMask_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, 
         (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VWrmsNormMask_Serial(x, w, id)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    __id = convert(NVector, id)
-    N_VWrmsNormMask_Serial(__x, __w,
-        __id)
+function N_VWrmsNormMask_Serial(x, w, id, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMin_Serial(x::Union{N_Vector, NVector})
@@ -6134,10 +6093,8 @@ function N_VWL2Norm_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVect
         w)
 end
 
-function N_VWL2Norm_Serial(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWL2Norm_Serial(__x, __w)
+function N_VWL2Norm_Serial(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VL1Norm_Serial(x::Union{N_Vector, NVector})
@@ -6154,20 +6111,16 @@ function N_VCompare_Serial(c::realtype, x::Union{N_Vector, NVector},
         (realtype, N_Vector, N_Vector), c, x, z)
 end
 
-function N_VCompare_Serial(c, x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VCompare_Serial(c, __x, __z)
+function N_VCompare_Serial(c, x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VInvTest_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VInvTest_Serial, libsundials_nvecserial), Cint, (N_Vector, N_Vector), x, z)
 end
 
-function N_VInvTest_Serial(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VInvTest_Serial(__x, __z)
+function N_VInvTest_Serial(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VConstrMask_Serial(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
@@ -6176,12 +6129,8 @@ function N_VConstrMask_Serial(c::Union{N_Vector, NVector}, x::Union{N_Vector, NV
         (N_Vector, N_Vector, N_Vector), c, x, m)
 end
 
-function N_VConstrMask_Serial(c, x, m)
-    __c = convert(NVector, c)
-    __x = convert(NVector, x)
-    __m = convert(NVector, m)
-    N_VConstrMask_Serial(__c, __x,
-        __m)
+function N_VConstrMask_Serial(c, x, m, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMinQuotient_Serial(num::Union{N_Vector, NVector},
@@ -6190,10 +6139,8 @@ function N_VMinQuotient_Serial(num::Union{N_Vector, NVector},
         num, denom)
 end
 
-function N_VMinQuotient_Serial(num, denom)
-    __num = convert(NVector, num)
-    __denom = convert(NVector, denom)
-    N_VMinQuotient_Serial(__num, __denom)
+function N_VMinQuotient_Serial(num, denom, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VLinearCombination_Serial(nvec::Cint, c, V, z::Union{N_Vector, NVector})
@@ -6201,8 +6148,9 @@ function N_VLinearCombination_Serial(nvec::Cint, c, V, z::Union{N_Vector, NVecto
         (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, V, z)
 end
 
-function N_VLinearCombination_Serial(nvec, c, V, z)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VLinearCombination_Serial(nvec, c, V, z, ctx::SUNContext)
+    __V = convert(NVector, V, ctx)
+    N_VLinearCombination_Serial(nvec, c, __V, z)
 end
 
 function N_VScaleAddMulti_Serial(nvec::Cint, a, x::Union{N_Vector, NVector}, Y, Z)
@@ -6300,10 +6248,8 @@ function N_VWSqrSumLocal_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, 
         x, w)
 end
 
-function N_VWSqrSumLocal_Serial(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWSqrSumLocal_Serial(__x, __w)
+function N_VWSqrSumLocal_Serial(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWSqrSumMaskLocal_Serial(x::Union{N_Vector, NVector},
@@ -6313,12 +6259,8 @@ function N_VWSqrSumMaskLocal_Serial(x::Union{N_Vector, NVector},
         (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VWSqrSumMaskLocal_Serial(x, w, id)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    __id = convert(NVector, id)
-    N_VWSqrSumMaskLocal_Serial(__x, __w,
-        __id)
+function N_VWSqrSumMaskLocal_Serial(x, w, id, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VEnableFusedOps_Serial(v::Union{N_Vector, NVector}, tf::Cint)
@@ -6910,10 +6852,8 @@ function SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::Union{N_Vector, NVec
         (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
-function SUNLinSolSetScalingVectors(S, s1, s2)
-    __s1 = convert(NVector, s1)
-    __s2 = convert(NVector, s2)
-    SUNLinSolSetScalingVectors(S, __s1, __s2)
+function SUNLinSolSetScalingVectors(S, s1, s2, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolInitialize(S::SUNLinearSolver)
@@ -6931,10 +6871,8 @@ function SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVe
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve(S, A, __x, __b, tol)
+function SUNLinSolSolve(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolNumIters(S::SUNLinearSolver)
@@ -7027,10 +6965,8 @@ function SUNMatMatvec(A::SUNMatrix, x::Union{N_Vector, NVector},
         x, y)
 end
 
-function SUNMatMatvec(A, x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    SUNMatMatvec(A, __x, __y)
+function SUNMatMatvec(A, x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNMatSpace(A::SUNMatrix, lenrw, leniw)
@@ -7061,8 +6997,9 @@ function SUNNonlinSolSetup(NLS::SUNNonlinearSolver, y::Union{N_Vector, NVector},
         (SUNNonlinearSolver, N_Vector, Ptr{Cvoid}), NLS, y, mem)
 end
 
-function SUNNonlinSolSetup(NLS, y, mem)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNNonlinSolSetup(NLS, y, mem, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNNonlinSolSetup(NLS, __y, mem)
 end
 
 function SUNNonlinSolSolve(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
@@ -7149,34 +7086,35 @@ function N_VCopyOps(w::Union{N_Vector, NVector}, v::Union{N_Vector, NVector})
     ccall((:N_VCopyOps, libsundials_sundials), Cint, (N_Vector, N_Vector), w, v)
 end
 
-function N_VCopyOps(w, v)
-    __w = convert(NVector, w)
-    __v = convert(NVector, v)
-    N_VCopyOps(__w, __v)
+function N_VCopyOps(w, v, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VGetVectorID(w::Union{N_Vector, NVector})
     ccall((:N_VGetVectorID, libsundials_sundials), N_Vector_ID, (N_Vector,), w)
 end
 
-function N_VGetVectorID(w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VGetVectorID(w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VGetVectorID(__w)
 end
 
 function N_VClone(w::Union{N_Vector, NVector})
     ccall((:N_VClone, libsundials_sundials), N_Vector, (N_Vector,), w)
 end
 
-function N_VClone(w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VClone(w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VClone(__w)
 end
 
 function N_VCloneEmpty(w::Union{N_Vector, NVector})
     ccall((:N_VCloneEmpty, libsundials_sundials), N_Vector, (N_Vector,), w)
 end
 
-function N_VCloneEmpty(w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VCloneEmpty(w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VCloneEmpty(__w)
 end
 
 function N_VDestroy(v::Union{N_Vector, NVector})
@@ -7192,8 +7130,10 @@ function N_VSpace(v::Union{N_Vector, NVector}, lrw, liw)
         (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
 end
 
-function N_VSpace(v, lrw, liw)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VSpace(v, lrw, liw, ctx::SUNContext)
+    __lrw = convert(NVector, lrw, ctx)
+    __liw = convert(NVector, liw, ctx)
+    N_VSpace(v, __lrw, __liw)
 end
 
 function N_VGetArrayPointer(v::Union{N_Vector, NVector})
@@ -7235,12 +7175,8 @@ function N_VLinearSum(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
         (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
 end
 
-function N_VLinearSum(a, x, b, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VLinearSum(a, __x, b, __y,
-        __z)
+function N_VLinearSum(a, x, b, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VConst(c::realtype, z::Union{N_Vector, NVector})
@@ -7256,11 +7192,8 @@ function N_VProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
     ccall((:N_VProd, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
-function N_VProd(x, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VProd(__x, __y, __z)
+function N_VProd(x, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VDiv(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
@@ -7268,41 +7201,32 @@ function N_VDiv(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
     ccall((:N_VDiv, libsundials_sundials), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
-function N_VDiv(x, y, z)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    __z = convert(NVector, z)
-    N_VDiv(__x, __y, __z)
+function N_VDiv(x, y, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VScale(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VScale, libsundials_sundials), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
-function N_VScale(c, x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VScale(c, __x, __z)
+function N_VScale(c, x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VAbs(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VAbs, libsundials_sundials), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VAbs(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VAbs(__x, __z)
+function N_VAbs(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VInv(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VInv, libsundials_sundials), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
-function N_VInv(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VInv(__x, __z)
+function N_VInv(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VAddConst(x::Union{N_Vector, NVector}, b::realtype, z::Union{N_Vector, NVector})
@@ -7311,20 +7235,16 @@ function N_VAddConst(x::Union{N_Vector, NVector}, b::realtype, z::Union{N_Vector
         z)
 end
 
-function N_VAddConst(x, b, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VAddConst(__x, b, __z)
+function N_VAddConst(x, b, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VDotProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
     ccall((:N_VDotProd, libsundials_sundials), realtype, (N_Vector, N_Vector), x, y)
 end
 
-function N_VDotProd(x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    N_VDotProd(__x, __y)
+function N_VDotProd(x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMaxNorm(x::Union{N_Vector, NVector})
@@ -7339,10 +7259,8 @@ function N_VWrmsNorm(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
     ccall((:N_VWrmsNorm, libsundials_sundials), realtype, (N_Vector, N_Vector), x, w)
 end
 
-function N_VWrmsNorm(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWrmsNorm(__x, __w)
+function N_VWrmsNorm(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWrmsNormMask(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
@@ -7351,11 +7269,8 @@ function N_VWrmsNormMask(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector
         (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VWrmsNormMask(x, w, id)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    __id = convert(NVector, id)
-    N_VWrmsNormMask(__x, __w, __id)
+function N_VWrmsNormMask(x, w, id, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMin(x::Union{N_Vector, NVector})
@@ -7370,10 +7285,8 @@ function N_VWL2Norm(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
     ccall((:N_VWL2Norm, libsundials_sundials), realtype, (N_Vector, N_Vector), x, w)
 end
 
-function N_VWL2Norm(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWL2Norm(__x, __w)
+function N_VWL2Norm(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VL1Norm(x::Union{N_Vector, NVector})
@@ -7389,20 +7302,16 @@ function N_VCompare(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector,
         z)
 end
 
-function N_VCompare(c, x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VCompare(c, __x, __z)
+function N_VCompare(c, x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VInvTest(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VInvTest, libsundials_sundials), Cint, (N_Vector, N_Vector), x, z)
 end
 
-function N_VInvTest(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VInvTest(__x, __z)
+function N_VInvTest(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VConstrMask(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
@@ -7411,11 +7320,8 @@ function N_VConstrMask(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
         x, m)
 end
 
-function N_VConstrMask(c, x, m)
-    __c = convert(NVector, c)
-    __x = convert(NVector, x)
-    __m = convert(NVector, m)
-    N_VConstrMask(__c, __x, __m)
+function N_VConstrMask(c, x, m, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMinQuotient(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
@@ -7423,10 +7329,8 @@ function N_VMinQuotient(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NV
         denom)
 end
 
-function N_VMinQuotient(num, denom)
-    __num = convert(NVector, num)
-    __denom = convert(NVector, denom)
-    N_VMinQuotient(__num, __denom)
+function N_VMinQuotient(num, denom, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VLinearCombination(nvec::Cint, c, X, z::Union{N_Vector, NVector})
@@ -7499,8 +7403,9 @@ function N_VWrmsNormMaskVectorArray(nvec::Cint, X, W, id::Union{N_Vector, NVecto
         nrm)
 end
 
-function N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm, ctx::SUNContext)
+    __id = convert(NVector, id, ctx)
+    N_VWrmsNormMaskVectorArray(nvec, X, W, __id, nrm)
 end
 
 function N_VScaleAddMultiVectorArray(nvec::Cint, nsum::Cint, a, X, Y, Z)
@@ -7527,10 +7432,8 @@ function N_VDotProdLocal(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector
     ccall((:N_VDotProdLocal, libsundials_sundials), realtype, (N_Vector, N_Vector), x, y)
 end
 
-function N_VDotProdLocal(x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    N_VDotProdLocal(__x, __y)
+function N_VDotProdLocal(x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMaxNormLocal(x::Union{N_Vector, NVector})
@@ -7561,10 +7464,8 @@ function N_VWSqrSumLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector
     ccall((:N_VWSqrSumLocal, libsundials_sundials), realtype, (N_Vector, N_Vector), x, w)
 end
 
-function N_VWSqrSumLocal(x, w)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    N_VWSqrSumLocal(__x, __w)
+function N_VWSqrSumLocal(x, w, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VWSqrSumMaskLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
@@ -7573,22 +7474,16 @@ function N_VWSqrSumMaskLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVe
         (N_Vector, N_Vector, N_Vector), x, w, id)
 end
 
-function N_VWSqrSumMaskLocal(x, w, id)
-    __x = convert(NVector, x)
-    __w = convert(NVector, w)
-    __id = convert(NVector, id)
-    N_VWSqrSumMaskLocal(__x, __w,
-        __id)
+function N_VWSqrSumMaskLocal(x, w, id, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VInvTestLocal(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
     ccall((:N_VInvTestLocal, libsundials_sundials), Cint, (N_Vector, N_Vector), x, z)
 end
 
-function N_VInvTestLocal(x, z)
-    __x = convert(NVector, x)
-    __z = convert(NVector, z)
-    N_VInvTestLocal(__x, __z)
+function N_VInvTestLocal(x, z, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VConstrMaskLocal(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
@@ -7598,12 +7493,8 @@ function N_VConstrMaskLocal(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVec
         c, x, m)
 end
 
-function N_VConstrMaskLocal(c, x, m)
-    __c = convert(NVector, c)
-    __x = convert(NVector, x)
-    __m = convert(NVector, m)
-    N_VConstrMaskLocal(__c, __x,
-        __m)
+function N_VConstrMaskLocal(c, x, m, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VMinQuotientLocal(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
@@ -7612,10 +7503,8 @@ function N_VMinQuotientLocal(num::Union{N_Vector, NVector}, denom::Union{N_Vecto
         denom)
 end
 
-function N_VMinQuotientLocal(num, denom)
-    __num = convert(NVector, num)
-    __denom = convert(NVector, denom)
-    N_VMinQuotientLocal(__num, __denom)
+function N_VMinQuotientLocal(num, denom, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function N_VNewVectorArray(count::Cint)
@@ -7631,8 +7520,9 @@ function N_VCloneEmptyVectorArray(count::Cint, w::Union{N_Vector, NVector})
         (Cint, N_Vector), count, w)
 end
 
-function N_VCloneEmptyVectorArray(count, w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VCloneEmptyVectorArray(count, w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VCloneEmptyVectorArray(count, __w)
 end
 
 function N_VCloneVectorArray(count::Cint, w::Union{N_Vector, NVector})
@@ -7640,8 +7530,9 @@ function N_VCloneVectorArray(count::Cint, w::Union{N_Vector, NVector})
         count, w)
 end
 
-function N_VCloneVectorArray(count, w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VCloneVectorArray(count, w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VCloneVectorArray(count, __w)
 end
 
 function N_VDestroyVectorArray(vs, count::Cint)
@@ -7667,8 +7558,9 @@ function N_VSetVecAtIndexVectorArray(vs, index::Cint, w::Union{N_Vector, NVector
         (Ptr{N_Vector}, Cint, N_Vector), vs, index, w)
 end
 
-function N_VSetVecAtIndexVectorArray(vs, index, w)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function N_VSetVecAtIndexVectorArray(vs, index, w, ctx::SUNContext)
+    __w = convert(NVector, w, ctx)
+    N_VSetVecAtIndexVectorArray(vs, index, __w)
 end
 
 function SUNDIALSGetVersion(version, len::Cint)
@@ -7694,7 +7586,8 @@ function SUNLinSol_Band(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNCo
 end
 
 function SUNLinSol_Band(y, A, sunctx)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNLinSol_Band(__y, A, sunctx)
 end
 
 function SUNBandLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -7702,8 +7595,9 @@ function SUNBandLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
         (N_Vector, SUNMatrix), y, A)
 end
 
-function SUNBandLinearSolver(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNBandLinearSolver(y, A, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNBandLinearSolver(__y, A)
 end
 
 function SUNLinSolGetType_Band(S::SUNLinearSolver)
@@ -7733,10 +7627,8 @@ function SUNLinSolSolve_Band(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_Band(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_Band(S, A, __x, __b, tol)
+function SUNLinSolSolve_Band(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolLastFlag_Band(S::SUNLinearSolver)
@@ -7759,7 +7651,8 @@ function SUNLinSol_Dense(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNC
 end
 
 function SUNLinSol_Dense(y, A, sunctx)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNLinSol_Dense(__y, A, sunctx)
 end
 
 function SUNDenseLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -7767,8 +7660,9 @@ function SUNDenseLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
         (N_Vector, SUNMatrix), y, A)
 end
 
-function SUNDenseLinearSolver(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNDenseLinearSolver(y, A, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNDenseLinearSolver(__y, A)
 end
 
 function SUNLinSolGetType_Dense(S::SUNLinearSolver)
@@ -7799,10 +7693,8 @@ function SUNLinSolSolve_Dense(
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_Dense(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_Dense(S, A, __x, __b, tol)
+function SUNLinSolSolve_Dense(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolLastFlag_Dense(S::SUNLinearSolver)
@@ -7824,8 +7716,9 @@ function SUNLinSol_KLU(y::Union{N_Vector, NVector}, A::SUNMatrix)
         (N_Vector, SUNMatrix), y, A)
 end
 
-function SUNLinSol_KLU(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLinSol_KLU(y, A, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLinSol_KLU(__y, A)
 end
 
 function SUNLinSol_KLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
@@ -7851,8 +7744,9 @@ function SUNKLU(y::Union{N_Vector, NVector}, A::SUNMatrix)
     ccall((:SUNKLU, libsundials_sunlinsolklu), SUNLinearSolver, (N_Vector, SUNMatrix), y, A)
 end
 
-function SUNKLU(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNKLU(y, A, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNKLU(__y, A)
 end
 
 function SUNKLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
@@ -7915,10 +7809,8 @@ function SUNLinSolSolve_KLU(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector,
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_KLU(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_KLU(S, A, __x, __b, tol)
+function SUNLinSolSolve_KLU(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolLastFlag_KLU(S::SUNLinearSolver)
@@ -7941,15 +7833,12 @@ function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx:
 end
 
 function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNLinSol_LapackBand(__y, A, sunctx)
 end
 
 function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
     error("SUNLinSol_LapackBand requires a SUNContext in SUNDIALS 7.4. Use the 3-argument version.")
-end
-
-function SUNLinSol_LapackBand(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
 function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -7957,8 +7846,9 @@ function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
         (N_Vector, SUNMatrix), y, A)
 end
 
-function SUNLapackBand(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLapackBand(y, A, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLapackBand(__y, A)
 end
 
 function SUNLinSolGetType_LapackBand(S::SUNLinearSolver)
@@ -7989,10 +7879,8 @@ function SUNLinSolSolve_LapackBand(S::SUNLinearSolver, A::SUNMatrix,
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_LapackBand(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_LapackBand(S, A, __x, __b, tol)
+function SUNLinSolSolve_LapackBand(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolLastFlag_LapackBand(S::SUNLinearSolver)
@@ -8016,15 +7904,12 @@ function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx
 end
 
 function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNLinSol_LapackDense(__y, A, sunctx)
 end
 
 function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
     error("SUNLinSol_LapackDense requires a SUNContext in SUNDIALS 7.4. Use the 3-argument version.")
-end
-
-function SUNLinSol_LapackDense(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
 function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -8032,8 +7917,9 @@ function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
         (N_Vector, SUNMatrix), y, A)
 end
 
-function SUNLapackDense(y, A)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLapackDense(y, A, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLapackDense(__y, A)
 end
 
 function SUNLinSolGetType_LapackDense(S::SUNLinearSolver)
@@ -8063,10 +7949,8 @@ function SUNLinSolSolve_LapackDense(S::SUNLinearSolver, A::SUNMatrix,
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_LapackDense(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_LapackDense(S, A, __x, __b, tol)
+function SUNLinSolSolve_LapackDense(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolLastFlag_LapackDense(S::SUNLinearSolver)
@@ -8089,8 +7973,9 @@ function SUNLinSol_PCG(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNLinSol_PCG(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLinSol_PCG(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLinSol_PCG(__y, pretype, maxl)
 end
 
 function SUNLinSol_PCGSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8116,8 +8001,9 @@ function SUNPCG(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
         pretype, maxl)
 end
 
-function SUNPCG(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNPCG(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNPCG(__y, pretype, maxl)
 end
 
 function SUNPCGSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8169,10 +8055,8 @@ function SUNLinSolSetScalingVectors_PCG(S::SUNLinearSolver, s::Union{N_Vector, N
         (SUNLinearSolver, N_Vector, N_Vector), S, s, nul)
 end
 
-function SUNLinSolSetScalingVectors_PCG(S, s, nul)
-    __s = convert(NVector, s)
-    __nul = convert(NVector, nul)
-    SUNLinSolSetScalingVectors_PCG(S, __s, __nul)
+function SUNLinSolSetScalingVectors_PCG(S, s, nul, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolSetup_PCG(S::SUNLinearSolver, nul::SUNMatrix)
@@ -8188,10 +8072,8 @@ function SUNLinSolSolve_PCG(
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, nul, x, b, tol)
 end
 
-function SUNLinSolSolve_PCG(S, nul, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_PCG(S, nul, __x, __b, tol)
+function SUNLinSolSolve_PCG(S, nul, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolNumIters_PCG(S::SUNLinearSolver)
@@ -8226,8 +8108,9 @@ function SUNLinSol_SPBCGS(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNLinSol_SPBCGS(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLinSol_SPBCGS(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLinSol_SPBCGS(__y, pretype, maxl)
 end
 
 function SUNLinSol_SPBCGSSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8253,8 +8136,9 @@ function SUNSPBCGS(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNSPBCGS(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNSPBCGS(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNSPBCGS(__y, pretype, maxl)
 end
 
 function SUNSPBCGSSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8308,10 +8192,8 @@ function SUNLinSolSetScalingVectors_SPBCGS(
         (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
-function SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2)
-    __s1 = convert(NVector, s1)
-    __s2 = convert(NVector, s2)
-    SUNLinSolSetScalingVectors_SPBCGS(S, __s1, __s2)
+function SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolSetup_SPBCGS(S::SUNLinearSolver, A::SUNMatrix)
@@ -8326,10 +8208,8 @@ function SUNLinSolSolve_SPBCGS(S::SUNLinearSolver, A::SUNMatrix,
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_SPBCGS(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_SPBCGS(S, A, __x, __b, tol)
+function SUNLinSolSolve_SPBCGS(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolNumIters_SPBCGS(S::SUNLinearSolver)
@@ -8366,8 +8246,9 @@ function SUNLinSol_SPFGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNLinSol_SPFGMR(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLinSol_SPFGMR(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLinSol_SPFGMR(__y, pretype, maxl)
 end
 
 function SUNLinSol_SPFGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8402,8 +8283,9 @@ function SUNSPFGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNSPFGMR(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNSPFGMR(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNSPFGMR(__y, pretype, maxl)
 end
 
 function SUNSPFGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8467,10 +8349,8 @@ function SUNLinSolSetScalingVectors_SPFGMR(
         (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
-function SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2)
-    __s1 = convert(NVector, s1)
-    __s2 = convert(NVector, s2)
-    SUNLinSolSetScalingVectors_SPFGMR(S, __s1, __s2)
+function SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolSetup_SPFGMR(S::SUNLinearSolver, A::SUNMatrix)
@@ -8485,10 +8365,8 @@ function SUNLinSolSolve_SPFGMR(S::SUNLinearSolver, A::SUNMatrix,
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_SPFGMR(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_SPFGMR(S, A, __x, __b, tol)
+function SUNLinSolSolve_SPFGMR(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolNumIters_SPFGMR(S::SUNLinearSolver)
@@ -8525,8 +8403,9 @@ function SUNLinSol_SPGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNLinSol_SPGMR(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLinSol_SPGMR(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLinSol_SPGMR(__y, pretype, maxl)
 end
 
 function SUNLinSol_SPGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8561,8 +8440,9 @@ function SUNSPGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
         y, pretype, maxl)
 end
 
-function SUNSPGMR(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNSPGMR(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNSPGMR(__y, pretype, maxl)
 end
 
 function SUNSPGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8625,10 +8505,8 @@ function SUNLinSolSetScalingVectors_SPGMR(S::SUNLinearSolver, s1::Union{N_Vector
         (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
-function SUNLinSolSetScalingVectors_SPGMR(S, s1, s2)
-    __s1 = convert(NVector, s1)
-    __s2 = convert(NVector, s2)
-    SUNLinSolSetScalingVectors_SPGMR(S, __s1, __s2)
+function SUNLinSolSetScalingVectors_SPGMR(S, s1, s2, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolSetup_SPGMR(S::SUNLinearSolver, A::SUNMatrix)
@@ -8644,10 +8522,8 @@ function SUNLinSolSolve_SPGMR(
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_SPGMR(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_SPGMR(S, A, __x, __b, tol)
+function SUNLinSolSolve_SPGMR(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolNumIters_SPGMR(S::SUNLinearSolver)
@@ -8685,8 +8561,9 @@ function SUNLinSol_SPTFQMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cin
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNLinSol_SPTFQMR(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNLinSol_SPTFQMR(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNLinSol_SPTFQMR(__y, pretype, maxl)
 end
 
 function SUNLinSol_SPTFQMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8712,8 +8589,9 @@ function SUNSPTFQMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
         (N_Vector, Cint, Cint), y, pretype, maxl)
 end
 
-function SUNSPTFQMR(y, pretype, maxl)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+function SUNSPTFQMR(y, pretype, maxl, ctx::SUNContext)
+    __y = convert(NVector, y, ctx)
+    SUNSPTFQMR(__y, pretype, maxl)
 end
 
 function SUNSPTFQMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8768,10 +8646,8 @@ function SUNLinSolSetScalingVectors_SPTFQMR(S::SUNLinearSolver,
         (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
 end
 
-function SUNLinSolSetScalingVectors_SPTFQMR(S, s1, s2)
-    __s1 = convert(NVector, s1)
-    __s2 = convert(NVector, s2)
-    SUNLinSolSetScalingVectors_SPTFQMR(S, __s1, __s2)
+function SUNLinSolSetScalingVectors_SPTFQMR(S, s1, s2, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolSetup_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix)
@@ -8786,10 +8662,8 @@ function SUNLinSolSolve_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix,
         (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
 end
 
-function SUNLinSolSolve_SPTFQMR(S, A, x, b, tol)
-    __x = convert(NVector, x)
-    __b = convert(NVector, b)
-    SUNLinSolSolve_SPTFQMR(S, A, __x, __b, tol)
+function SUNLinSolSolve_SPTFQMR(S, A, x, b, tol, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNLinSolNumIters_SPTFQMR(S::SUNLinearSolver)
@@ -8916,10 +8790,8 @@ function SUNMatMatvec_Band(A::SUNMatrix, x::Union{N_Vector, NVector},
         (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
-function SUNMatMatvec_Band(A, x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    SUNMatMatvec_Band(A, __x, __y)
+function SUNMatMatvec_Band(A, x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNMatSpace_Band(A::SUNMatrix, lenrw, leniw)
@@ -9005,10 +8877,8 @@ function SUNMatMatvec_Dense(A::SUNMatrix, x::Union{N_Vector, NVector},
         (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
-function SUNMatMatvec_Dense(A, x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    SUNMatMatvec_Dense(A, __x, __y)
+function SUNMatMatvec_Dense(A, x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNMatSpace_Dense(A::SUNMatrix, lenrw, leniw)
@@ -9144,10 +9014,8 @@ function SUNMatMatvec_Sparse(A::SUNMatrix, x::Union{N_Vector, NVector},
         (SUNMatrix, N_Vector, N_Vector), A, x, y)
 end
 
-function SUNMatMatvec_Sparse(A, x, y)
-    __x = convert(NVector, x)
-    __y = convert(NVector, y)
-    SUNMatMatvec_Sparse(A, __x, __y)
+function SUNMatMatvec_Sparse(A, x, y, ctx::SUNContext)
+    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
 end
 
 function SUNMatSpace_Sparse(A::SUNMatrix, lenrw, leniw)
@@ -9161,7 +9029,8 @@ function SUNNonlinSol_FixedPoint(y::Union{N_Vector, NVector}, m::Cint, sunctx::S
 end
 
 function SUNNonlinSol_FixedPoint(y, m, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNNonlinSol_FixedPoint(__y, m, sunctx)
 end
 
 function SUNNonlinSol_FixedPoint(y, m)
@@ -9175,7 +9044,8 @@ function SUNNonlinSol_FixedPointSens(count::Cint, y::Union{N_Vector, NVector}, m
 end
 
 function SUNNonlinSol_FixedPointSens(count, y, m, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNNonlinSol_FixedPointSens(count, __y, m, sunctx)
 end
 
 function SUNNonlinSol_FixedPointSens(count, y, m)
@@ -9269,7 +9139,8 @@ function SUNNonlinSol_Newton(y::Union{N_Vector, NVector}, sunctx::SUNContext)
 end
 
 function SUNNonlinSol_Newton(y, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNNonlinSol_Newton(__y, sunctx)
 end
 
 function SUNNonlinSol_Newton(y)
@@ -9283,7 +9154,8 @@ function SUNNonlinSol_NewtonSens(count::Cint, y::Union{N_Vector, NVector}, sunct
 end
 
 function SUNNonlinSol_NewtonSens(count, y, sunctx::SUNContext)
-    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
+    __y = convert(NVector, y, sunctx)
+    SUNNonlinSol_NewtonSens(count, __y, sunctx)
 end
 
 function SUNNonlinSol_NewtonSens(count, y)
