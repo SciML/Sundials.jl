@@ -264,7 +264,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 LS = SUNLinSol_Dense(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(utmp, A, ctx)
+                LS = SUNLinSol_LapackDense(utmp, A)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
@@ -275,7 +275,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 LS = SUNLinSol_Band(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(utmp, A, ctx)
+                LS = SUNLinSol_LapackBand(utmp, A)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :Diagonal
@@ -700,7 +700,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 LS = SUNLinSol_Dense(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Dense())
             else
-                LS = SUNLinSol_LapackDense(utmp, A, ctx)
+                LS = SUNLinSol_LapackDense(utmp, A)
                 _LS = LinSolHandle(LS, LapackDense())
             end
         elseif LinearSolver in (:Band, :LapackBand)
@@ -711,7 +711,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 LS = SUNLinSol_Band(utmp, A, ctx)
                 _LS = LinSolHandle(LS, Band())
             else
-                LS = SUNLinSol_LapackBand(utmp, A, ctx)
+                LS = SUNLinSol_LapackBand(utmp, A)
                 _LS = LinSolHandle(LS, LapackBand())
             end
         elseif LinearSolver == :GMRES

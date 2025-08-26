@@ -23,12 +23,12 @@ prob = SplitODEProblem(SplitFunction(f1, f2; analytic = (u0, p, t) -> exp(2t) * 
 sol = solve(prob, ARKODE(; linear_solver = :Dense))
 @test sol.errors[:l2] < 1e-2
 
-# LapackBand not available in SUNDIALS 7.4 binaries - causes BLAS segfaults
-# sol = solve(prob,
-#     ARKODE(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3);
-#     reltol = 1e-12,
-#     abstol = 1e-12)
-# @test sol.errors[:l2] < 1e-6
+# Testing LapackBand solver
+sol = solve(prob,
+    ARKODE(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3);
+    reltol = 1e-12,
+    abstol = 1e-12)
+@test sol.errors[:l2] < 1e-6
 
 #
 # Test for Sundials.jl issue #253

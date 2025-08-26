@@ -7944,9 +7944,13 @@ function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
+function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
+    ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
+        (N_Vector, SUNMatrix), y, A)
+end
+
 function SUNLinSol_LapackBand(y, A)
-# function SUNLinSol_LapackBand(y, A)
-#     SUNLinSol_LapackBand(y, A, ensure_context())
+    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
 function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
@@ -8016,9 +8020,13 @@ function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
+function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
+    ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
+        (N_Vector, SUNMatrix), y, A)
+end
+
 function SUNLinSol_LapackDense(y, A)
-# function SUNLinSol_LapackDense(y, A)
-#     SUNLinSol_LapackDense(y, A, ensure_context())
+    error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
 function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
