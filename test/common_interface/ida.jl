@@ -34,10 +34,18 @@ sol2 = solve(prob, IDA(; linear_solver = :Band, jac_upper = 2, jac_lower = 2))
 #@info "KLU solver"
 #sol8 = solve(prob,IDA(linear_solver=:KLU)) # Requires Jacobian
 
-# LapackBand/LapackDense not available in SUNDIALS 7.4 binaries - causes BLAS segfaults
-# sol9 = solve(prob, IDA(; linear_solver = :LapackBand, jac_upper = 2, jac_lower = 2))
-# sol10 = solve(prob, IDA(; linear_solver = :LapackDense))
+# Testing LapackBand/LapackDense solvers
+sol9 = solve(prob, IDA(; linear_solver = :LapackBand, jac_upper = 2, jac_lower = 2))
+sol10 = solve(prob, IDA(; linear_solver = :LapackDense))
 sol11 = solve(prob, IDA(; linear_solver = :Dense))
+
+# Test that LAPACK solvers work
+@test sol9.retcode == ReturnCode.Success
+@test sol10.retcode == ReturnCode.Success
+@test sol11.retcode == ReturnCode.Success
+@test isapprox(sol1[end], sol9[end]; rtol = 1e-3)
+@test isapprox(sol1[end], sol10[end]; rtol = 1e-3)
+@test isapprox(sol1[end], sol11[end]; rtol = 1e-3)
 
 # Test identity preconditioner
 prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)

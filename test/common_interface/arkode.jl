@@ -12,8 +12,9 @@ f2 = (du, u, p, t) -> du .= u
 
 prob = prob_ode_2Dlinear
 dt = 1 // 2^(4)
-# LapackDense not available in SUNDIALS 7.4 binaries - causes BLAS segfaults  
-# sol = solve(prob, ARKODE(; linear_solver = :LapackDense))
+# Testing LapackDense solver
+sol_lapack = solve(prob, ARKODE(; linear_solver = :LapackDense))
+@test sol_lapack.retcode == ReturnCode.Success
 
 prob = SplitODEProblem(SplitFunction(f1, f2; analytic = (u0, p, t) -> exp(2t) * u0),
     rand(4, 2),

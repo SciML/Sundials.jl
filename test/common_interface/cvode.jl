@@ -82,9 +82,9 @@ sol7 = solve(prob, CVODE_BDF(; linear_solver = :BCG))
 sol8 = solve(prob, CVODE_BDF(; linear_solver = :TFQMR))
 sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))
 #sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU)) # Requires Jacobian
-# LapackDense/LapackBand not available in SUNDIALS 7.4 binaries - causes BLAS segfaults
-# sol10 = solve(prob, CVODE_BDF(; linear_solver = :LapackDense))
-# sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3))
+# Testing LapackDense/LapackBand solvers
+sol10 = solve(prob, CVODE_BDF(; linear_solver = :LapackDense))
+sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3))
 
 @test isapprox(sol1.u[end], sol2.u[end]; rtol = 1e-3)
 @test isapprox(sol1.u[end], sol3.u[end]; rtol = 1e-3)
@@ -93,7 +93,9 @@ sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))
 @test isapprox(sol1.u[end], sol6.u[end]; rtol = 1e-3)
 @test isapprox(sol1.u[end], sol7.u[end]; rtol = 1e-3)
 @test isapprox(sol1.u[end], sol8.u[end]; rtol = 1e-3)
-#@test isapprox(sol1[end],sol9[end],rtol=1e-3)
+@test isapprox(sol1.u[end], sol9.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol10.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol11.u[end]; rtol = 1e-3)
 
 # Test identity preconditioner
 global prec_used = false
