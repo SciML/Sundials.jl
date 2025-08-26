@@ -83,13 +83,13 @@ function ___kinsol(f,
         LS = Sundials.SUNLinSol_Dense(y0_nvec, A, ctx)
     elseif linear_solver == :LapackDense
         A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
-        LS = Sundials.SUNLinSol_LapackDense(y0_nvec, A)
+        LS = Sundials.SUNLinSol_LapackDense(y0_nvec, A, ctx)
     elseif linear_solver == :Band
         A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ctx)
         LS = Sundials.SUNLinSol_Band(y0_nvec, A, ctx)
     elseif linear_solver == :LapackBand
         A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ctx)
-        LS = Sundials.SUNLinSol_LapackBand(y0_nvec, A)
+        LS = Sundials.SUNLinSol_LapackBand(y0_nvec, A, ctx)
     elseif linear_solver == :GMRES
         A = C_NULL
         LS = Sundials.SUNLinSol_SPGMR(y0_nvec, Cint(prec_side), Cint(krylov_dim))

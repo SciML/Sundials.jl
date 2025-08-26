@@ -7945,8 +7945,7 @@ function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
 end
 
 function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+    error("SUNLinSol_LapackBand requires a SUNContext in SUNDIALS 7.4. Use the 3-argument version.")
 end
 
 function SUNLinSol_LapackBand(y, A)
@@ -8021,8 +8020,7 @@ function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
 end
 
 function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+    error("SUNLinSol_LapackDense requires a SUNContext in SUNDIALS 7.4. Use the 3-argument version.")
 end
 
 function SUNLinSol_LapackDense(y, A)
