@@ -202,12 +202,11 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     #    method_code = CV_FUNCTIONAL
     #end
 
-    ctx_ptr = Ref{SUNContext}(C_NULL)
-    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
-    ctx = ctx_ptr[]
+    ctx_handle = ContextHandle()
+    ctx = ctx_handle.ctx
     mem_ptr = CVodeCreate(alg_code, ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
-    mem = Handle(mem_ptr, ctx)
+    mem = Handle(mem_ptr)
 
 
     save_start ? ts = [t0] : ts = Float64[]
@@ -465,9 +464,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
-        ctx)
-    # Context will be freed when integrator is garbage collected
-    # through the Handle mechanism
+        ctx_handle)
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -562,15 +559,14 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     save_start ? ts = [t0] : ts = Float64[]
     out = copy(u0)
     uvec = vec(u0)
-    ctx_ptr = Ref{SUNContext}(C_NULL)
-    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
-    ctx = ctx_ptr[]
+    ctx_handle = ContextHandle()
+    ctx = ctx_handle.ctx
     utmp = NVector(uvec, ctx)
 
     function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = utmp)
         mem_ptr = ARKStepCreate(fe, fi, t0, u0, ctx)
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
-        mem = Handle(mem_ptr, ctx)
+        mem = Handle(mem_ptr)
 
         return mem
     end
@@ -958,7 +954,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
-        ctx)
+        ctx_handle)
 
     # Context will be freed when integrator is garbage collected
     # through the Handle mechanism
@@ -1083,12 +1079,11 @@ function DiffEqBase.__init(
         f! = prob.f
     end
 
-    ctx_ptr = Ref{SUNContext}(C_NULL)
-    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
-    ctx = ctx_ptr[]
+    ctx_handle = ContextHandle()
+    ctx = ctx_handle.ctx
     mem_ptr = IDACreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
-    mem = Handle(mem_ptr, ctx)
+    mem = Handle(mem_ptr)
 
 
     ts = [t0]
@@ -1338,7 +1333,7 @@ function DiffEqBase.__init(
         dutmp,
         diff_vars_nvec,
         initializealg,
-        ctx)
+        ctx_handle)
 
     # Context will be freed when integrator is garbage collected
     # through the Handle mechanism

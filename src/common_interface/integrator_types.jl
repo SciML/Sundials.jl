@@ -66,14 +66,14 @@ mutable struct CVODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
-    ctx::SUNContext
+    ctx_handle::ContextHandle
 end
 
 function (integrator::CVODEIntegrator)(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
     out = similar(integrator.u)
-    out_nvec = NVector(vec(out), integrator.ctx)
+    out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : out[idxs]
@@ -83,7 +83,7 @@ function (integrator::CVODEIntegrator)(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
-    out_nvec = NVector(vec(out), integrator.ctx)
+    out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
@@ -129,14 +129,14 @@ mutable struct ARKODEIntegrator{N,
     vector_event_last_time::Int
     callback_cache::CallbackCacheType
     last_event_error::Float64
-    ctx::SUNContext
+    ctx_handle::ContextHandle
 end
 
 function (integrator::ARKODEIntegrator)(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
     out = similar(integrator.u)
-    out_nvec = NVector(vec(out), integrator.ctx)
+    out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : out[idxs]
@@ -146,7 +146,7 @@ function (integrator::ARKODEIntegrator)(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
-    out_nvec = NVector(vec(out), integrator.ctx)
+    out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
@@ -194,14 +194,14 @@ mutable struct IDAIntegrator{N,
     du_nvec::NVector
     diff_vars_nvec::Union{NVector, Nothing}  # Preallocated NVector for differential_vars
     initializealg::IA
-    ctx::SUNContext
+    ctx_handle::ContextHandle
 end
 
 function (integrator::IDAIntegrator)(t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
     out = similar(integrator.u)
-    out_nvec = NVector(vec(out), integrator.ctx)
+    out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : out[idxs]
@@ -211,7 +211,7 @@ function (integrator::IDAIntegrator)(out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
         idxs = nothing) where {T}
-    out_nvec = NVector(vec(out), integrator.ctx)
+    out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]

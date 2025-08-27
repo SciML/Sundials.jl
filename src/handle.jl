@@ -42,10 +42,9 @@ abstract type SundialsHandle end
 """
 mutable struct Handle{T <: AbstractSundialsObject} <: SundialsHandle
     ptr::Ptr{T}
-    ctx::SUNContext  # Store context to free it when handle is released
 
-    function Handle(ptr::Ptr{T}, ctx::SUNContext = C_NULL) where {T <: AbstractSundialsObject}
-        h = new{T}(ptr, ctx)
+    function Handle(ptr::Ptr{T}) where {T <: AbstractSundialsObject}
+        h = new{T}(ptr)
         finalizer(release_handle, h)
         return h
     end
@@ -102,13 +101,6 @@ function _release_handle(sun_free_func, h::Handle{T}) where {T}
         ptr_ref = Ref(h.ptr)
         h.ptr = C_NULL
         sun_free_func(ptr_ref)
-    end
-    
-    # Free the SUNContext if it was provided
-    if h.ctx != C_NULL
-        ctx_ptr = Ref(h.ctx)
-        SUNContext_Free(ctx_ptr[])
-        h.ctx = C_NULL
     end
 
     return nothing
@@ -260,3 +252,42 @@ const ERKSteph = Handle{ERKStepMem}
 const MRISteph = Handle{MRIStepMem}
 const KINh = Handle{KINMem}
 const IDAh = Handle{IDAMem}
+
+##################################################################
+#
+# Handle for SUNContext with automatic cleanup
+#
+##################################################################
+
+"""
+   ContextHandle
+
+   Handle for SUNContext objects that ensures proper cleanup.
+   Similar to NVector, it manages automatic destruction when no longer in use.
+"""
+mutable struct ContextHandle <: SundialsHandle
+    ctx::SUNContext
+    
+    function ContextHandle()
+        ctx_ptr = Ref{SUNContext}(C_NULL)
+        SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+        ctx = ctx_ptr[]
+        h = new(ctx)
+        finalizer(release_context, h)
+        return h
+    end
+end
+
+function release_context(h::ContextHandle)
+    if h.ctx != C_NULL
+        ctx_ptr = Ref(h.ctx)
+        SUNContext_Free(ctx_ptr[])
+        h.ctx = C_NULL
+    end
+    return nothing
+end
+
+# Allow ContextHandle to be used where SUNContext is expected
+Base.cconvert(::Type{SUNContext}, h::ContextHandle) = h
+Base.unsafe_convert(::Type{SUNContext}, h::ContextHandle) = h.ctx
+Base.isempty(h::ContextHandle) = (h.ctx == C_NULL)
