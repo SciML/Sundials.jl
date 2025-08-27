@@ -100,11 +100,6 @@ include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
 include("common_interface/solve.jl")
 
-function __init__()
-    # No global context initialization needed
-    # Each solver run will create its own context
-end
-
 import PrecompileTools
 
 PrecompileTools.@compile_workload begin

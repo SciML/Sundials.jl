@@ -19,17 +19,6 @@ function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
     ARKStepCreate(fe, fi, t0, __y0, sunctx)
 end
 
-# Removed - context should be passed explicitly
-# function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
-# function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
-#     __y0 = convert(NVector, y0)
-#     ARKStepCreate(fe, fi, t0, __y0, sunctx)
-# end
-# 
-# Removed - context should be passed explicitly
-# function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0)
-#     ARKStepCreate(fe, fi, t0, y0, ensure_context())
-# end
 
 function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
         t0::realtype,
@@ -968,10 +957,6 @@ function ERKStepCreate(f::ARKRhsFn, t0, y0, sunctx::SUNContext)
     ERKStepCreate(f, t0, __y0, sunctx)
 end
 
-function ERKStepCreate(f::ARKRhsFn, t0, y0)
-# function ERKStepCreate(f::ARKRhsFn, t0, y0)
-#     ERKStepCreate(f, t0, y0, ensure_context())
-end
 
 function ERKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
         t0::realtype,
@@ -1429,10 +1414,6 @@ function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunc
     MRIStepCreate(fs, t0, __y0, inner_step_id, inner_step_mem, sunctx)
 end
 
-function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem)
-# function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem)
-#     MRIStepCreate(fs, t0, y0, inner_step_id, inner_step_mem, ensure_context())
-end
 
 function MRIStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype,
         resize::ARKVecResizeFn,
@@ -3292,10 +3273,6 @@ function IDACreate(sunctx::SUNContext)
     ccall((:IDACreate, libsundials_idas), IDAMemPtr, (SUNContext,), sunctx)
 end
 
-function IDACreate()
-# function IDACreate()
-#     IDACreate(ensure_context())
-end
 
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector},
         yp0::Union{N_Vector, NVector})
@@ -4937,10 +4914,6 @@ function KINCreate(sunctx::SUNContext)
     ccall((:KINCreate, libsundials_kinsol), KINMemPtr, (SUNContext,), sunctx)
 end
 
-function KINCreate()
-# function KINCreate()
-#     KINCreate(ensure_context())
-end
 
 function KINInit(kinmem, func::KINSysFn, tmpl::Union{N_Vector, NVector})
     ccall((:KINInit, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn, N_Vector), kinmem,
@@ -9033,10 +9006,6 @@ function SUNNonlinSol_FixedPoint(y, m, sunctx::SUNContext)
     SUNNonlinSol_FixedPoint(__y, m, sunctx)
 end
 
-function SUNNonlinSol_FixedPoint(y, m)
-# function SUNNonlinSol_FixedPoint(y, m)
-#     SUNNonlinSol_FixedPoint(y, m, ensure_context())
-end
 
 function SUNNonlinSol_FixedPointSens(count::Cint, y::Union{N_Vector, NVector}, m::Cint, sunctx::SUNContext)
     ccall((:SUNNonlinSol_FixedPointSens, libsundials_sunnonlinsolfixedpoint),
@@ -9048,10 +9017,6 @@ function SUNNonlinSol_FixedPointSens(count, y, m, sunctx::SUNContext)
     SUNNonlinSol_FixedPointSens(count, __y, m, sunctx)
 end
 
-function SUNNonlinSol_FixedPointSens(count, y, m)
-# function SUNNonlinSol_FixedPointSens(count, y, m)
-#     SUNNonlinSol_FixedPointSens(count, y, m, ensure_context())
-end
 
 function SUNNonlinSolGetType_FixedPoint(NLS::SUNNonlinearSolver)
     ccall((:SUNNonlinSolGetType_FixedPoint, libsundials_sunnonlinsolfixedpoint),
@@ -9143,10 +9108,6 @@ function SUNNonlinSol_Newton(y, sunctx::SUNContext)
     SUNNonlinSol_Newton(__y, sunctx)
 end
 
-function SUNNonlinSol_Newton(y)
-# function SUNNonlinSol_Newton(y)
-#     SUNNonlinSol_Newton(y, ensure_context())
-end
 
 function SUNNonlinSol_NewtonSens(count::Cint, y::Union{N_Vector, NVector}, sunctx::SUNContext)
     ccall((:SUNNonlinSol_NewtonSens, libsundials_sunnonlinsolnewton), SUNNonlinearSolver,
@@ -9158,10 +9119,6 @@ function SUNNonlinSol_NewtonSens(count, y, sunctx::SUNContext)
     SUNNonlinSol_NewtonSens(count, __y, sunctx)
 end
 
-function SUNNonlinSol_NewtonSens(count, y)
-# function SUNNonlinSol_NewtonSens(count, y)
-#     SUNNonlinSol_NewtonSens(count, y, ensure_context())
-end
 
 function SUNNonlinSolGetType_Newton(NLS::SUNNonlinearSolver)
     ccall((:SUNNonlinSolGetType_Newton, libsundials_sunnonlinsolnewton),
