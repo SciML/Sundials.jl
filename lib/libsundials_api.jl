@@ -3281,7 +3281,9 @@ function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVec
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0, yy0, yp0, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    __yy0 = convert(NVector, yy0, ctx)
+    __yp0 = convert(NVector, yp0, ctx)
+    IDAInit(ida_mem, res, t0, __yy0, __yp0)
 end
 
 function IDAReInit(ida_mem, t0::realtype, yy0::Union{N_Vector, NVector},
@@ -3291,7 +3293,9 @@ function IDAReInit(ida_mem, t0::realtype, yy0::Union{N_Vector, NVector},
 end
 
 function IDAReInit(ida_mem, t0, yy0, yp0, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    __yy0 = convert(NVector, yy0, ctx)
+    __yp0 = convert(NVector, yp0, ctx)
+    IDAReInit(ida_mem, t0, __yy0, __yp0)
 end
 
 function IDASStolerances(ida_mem, reltol::realtype, abstol::realtype)
@@ -3521,7 +3525,7 @@ function IDAComputeY(ida_mem, ycor::Union{N_Vector, NVector}, y::Union{N_Vector,
 end
 
 function IDAComputeY(ida_mem, ycor, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    IDAComputeY(ida_mem, ycor, y)
 end
 
 function IDAComputeYp(ida_mem, ycor::Union{N_Vector, NVector}, yp::Union{N_Vector, NVector})
@@ -3531,7 +3535,7 @@ function IDAComputeYp(ida_mem, ycor::Union{N_Vector, NVector}, yp::Union{N_Vecto
 end
 
 function IDAComputeYp(ida_mem, ycor, yp, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    IDAComputeYp(ida_mem, ycor, yp)
 end
 
 function IDAGetDky(ida_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
@@ -3580,7 +3584,7 @@ function IDAGetConsistentIC(ida_mem, yy0_mod::Union{N_Vector, NVector},
 end
 
 function IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod)
 end
 
 function IDAGetLastOrder(ida_mem, klast)
@@ -4649,7 +4653,7 @@ function IDAGetAdjY(ida_mem, t::realtype, yy::Union{N_Vector, NVector},
 end
 
 function IDAGetAdjY(ida_mem, t, yy, yp, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    IDAGetAdjY(ida_mem, t, yy, yp)
 end
 
 function IDAGetAdjCheckPointsInfo(ida_mem, ckpnt)
@@ -5456,7 +5460,7 @@ function N_VLinearSum_ManyVector(a::realtype, x::Union{N_Vector, NVector}, b::re
 end
 
 function N_VLinearSum_ManyVector(a, x, b, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VLinearSum_ManyVector(a, x, b, y, z)
 end
 
 function N_VConst_ManyVector(c::realtype, z::Union{N_Vector, NVector})
@@ -5474,7 +5478,7 @@ function N_VProd_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVec
 end
 
 function N_VProd_ManyVector(x, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VProd_ManyVector(x, y, z)
 end
 
 function N_VDiv_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
@@ -5484,7 +5488,7 @@ function N_VDiv_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVect
 end
 
 function N_VDiv_ManyVector(x, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VDiv_ManyVector(x, y, z)
 end
 
 function N_VScale_ManyVector(c::realtype, x::Union{N_Vector, NVector},
@@ -5494,7 +5498,7 @@ function N_VScale_ManyVector(c::realtype, x::Union{N_Vector, NVector},
 end
 
 function N_VScale_ManyVector(c, x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VScale_ManyVector(c, x, z)
 end
 
 function N_VAbs_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -5502,7 +5506,7 @@ function N_VAbs_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVect
 end
 
 function N_VAbs_ManyVector(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VAbs_ManyVector(x, z)
 end
 
 function N_VInv_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -5510,7 +5514,7 @@ function N_VInv_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVect
 end
 
 function N_VInv_ManyVector(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VInv_ManyVector(x, z)
 end
 
 function N_VAddConst_ManyVector(x::Union{N_Vector, NVector}, b::realtype,
@@ -5520,7 +5524,7 @@ function N_VAddConst_ManyVector(x::Union{N_Vector, NVector}, b::realtype,
 end
 
 function N_VAddConst_ManyVector(x, b, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VAddConst_ManyVector(x, b, z)
 end
 
 function N_VWrmsNorm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
@@ -5530,7 +5534,7 @@ function N_VWrmsNorm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, 
 end
 
 function N_VWrmsNorm_ManyVector(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWrmsNorm_ManyVector(x, w)
 end
 
 function N_VWrmsNormMask_ManyVector(x::Union{N_Vector, NVector},
@@ -5541,7 +5545,7 @@ function N_VWrmsNormMask_ManyVector(x::Union{N_Vector, NVector},
 end
 
 function N_VWrmsNormMask_ManyVector(x, w, id, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWrmsNormMask_ManyVector(x, w, id)
 end
 
 function N_VWL2Norm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
@@ -5550,7 +5554,7 @@ function N_VWL2Norm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, N
 end
 
 function N_VWL2Norm_ManyVector(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWL2Norm_ManyVector(x, w)
 end
 
 function N_VCompare_ManyVector(c::realtype, x::Union{N_Vector, NVector},
@@ -5560,7 +5564,7 @@ function N_VCompare_ManyVector(c::realtype, x::Union{N_Vector, NVector},
 end
 
 function N_VCompare_ManyVector(c, x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VCompare_ManyVector(c, x, z)
 end
 
 function N_VLinearCombination_ManyVector(nvec::Cint, c, V, z::Union{N_Vector, NVector})
@@ -5648,7 +5652,7 @@ function N_VDotProdLocal_ManyVector(x::Union{N_Vector, NVector},
 end
 
 function N_VDotProdLocal_ManyVector(x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VDotProdLocal_ManyVector(x, y)
 end
 
 function N_VMaxNormLocal_ManyVector(x::Union{N_Vector, NVector})
@@ -5682,7 +5686,7 @@ function N_VWSqrSumLocal_ManyVector(x::Union{N_Vector, NVector},
 end
 
 function N_VWSqrSumLocal_ManyVector(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWSqrSumLocal_ManyVector(x, w)
 end
 
 function N_VWSqrSumMaskLocal_ManyVector(x::Union{N_Vector, NVector},
@@ -5693,7 +5697,7 @@ function N_VWSqrSumMaskLocal_ManyVector(x::Union{N_Vector, NVector},
 end
 
 function N_VWSqrSumMaskLocal_ManyVector(x, w, id, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWSqrSumMaskLocal_ManyVector(x, w, id)
 end
 
 function N_VInvTestLocal_ManyVector(x::Union{N_Vector, NVector},
@@ -5704,7 +5708,7 @@ function N_VInvTestLocal_ManyVector(x::Union{N_Vector, NVector},
 end
 
 function N_VInvTestLocal_ManyVector(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VInvTestLocal_ManyVector(x, z)
 end
 
 function N_VConstrMaskLocal_ManyVector(c::Union{N_Vector, NVector},
@@ -5715,7 +5719,7 @@ function N_VConstrMaskLocal_ManyVector(c::Union{N_Vector, NVector},
 end
 
 function N_VConstrMaskLocal_ManyVector(c, x, m, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VConstrMaskLocal_ManyVector(c, x, m)
 end
 
 function N_VMinQuotientLocal_ManyVector(num::Union{N_Vector, NVector},
@@ -5725,7 +5729,7 @@ function N_VMinQuotientLocal_ManyVector(num::Union{N_Vector, NVector},
 end
 
 function N_VMinQuotientLocal_ManyVector(num, denom, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VMinQuotientLocal_ManyVector(num, denom)
 end
 
 function N_VEnableFusedOps_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
@@ -5949,7 +5953,7 @@ function N_VLinearSum_Serial(a::realtype, x::Union{N_Vector, NVector}, b::realty
 end
 
 function N_VLinearSum_Serial(a, x, b, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VLinearSum_Serial(a, x, b, y, z)
 end
 
 function N_VConst_Serial(c::realtype, z::Union{N_Vector, NVector})
@@ -5967,7 +5971,7 @@ function N_VProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector}
 end
 
 function N_VProd_Serial(x, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VProd_Serial(x, y, z)
 end
 
 function N_VDiv_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
@@ -5977,7 +5981,7 @@ function N_VDiv_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
 end
 
 function N_VDiv_Serial(x, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VDiv_Serial(x, y, z)
 end
 
 function N_VScale_Serial(c::realtype, x::Union{N_Vector, NVector},
@@ -5988,7 +5992,7 @@ function N_VScale_Serial(c::realtype, x::Union{N_Vector, NVector},
 end
 
 function N_VScale_Serial(c, x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VScale_Serial(c, x, z)
 end
 
 function N_VAbs_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -5996,7 +6000,7 @@ function N_VAbs_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
 end
 
 function N_VAbs_Serial(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VAbs_Serial(x, z)
 end
 
 function N_VInv_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -6004,7 +6008,7 @@ function N_VInv_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
 end
 
 function N_VInv_Serial(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VInv_Serial(x, z)
 end
 
 function N_VAddConst_Serial(x::Union{N_Vector, NVector}, b::realtype,
@@ -6014,7 +6018,7 @@ function N_VAddConst_Serial(x::Union{N_Vector, NVector}, b::realtype,
 end
 
 function N_VAddConst_Serial(x, b, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VAddConst_Serial(x, b, z)
 end
 
 function N_VDotProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
@@ -6023,7 +6027,7 @@ function N_VDotProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVect
 end
 
 function N_VDotProd_Serial(x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VDotProd_Serial(x, y)
 end
 
 function N_VMaxNorm_Serial(x::Union{N_Vector, NVector})
@@ -6040,7 +6044,7 @@ function N_VWrmsNorm_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVec
 end
 
 function N_VWrmsNorm_Serial(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWrmsNorm_Serial(x, w)
 end
 
 function N_VWrmsNormMask_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
@@ -6050,7 +6054,7 @@ function N_VWrmsNormMask_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, 
 end
 
 function N_VWrmsNormMask_Serial(x, w, id, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWrmsNormMask_Serial(x, w, id)
 end
 
 function N_VMin_Serial(x::Union{N_Vector, NVector})
@@ -6067,7 +6071,7 @@ function N_VWL2Norm_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVect
 end
 
 function N_VWL2Norm_Serial(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWL2Norm_Serial(x, w)
 end
 
 function N_VL1Norm_Serial(x::Union{N_Vector, NVector})
@@ -6085,7 +6089,7 @@ function N_VCompare_Serial(c::realtype, x::Union{N_Vector, NVector},
 end
 
 function N_VCompare_Serial(c, x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VCompare_Serial(c, x, z)
 end
 
 function N_VInvTest_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -6093,7 +6097,7 @@ function N_VInvTest_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVect
 end
 
 function N_VInvTest_Serial(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VInvTest_Serial(x, z)
 end
 
 function N_VConstrMask_Serial(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
@@ -6103,7 +6107,7 @@ function N_VConstrMask_Serial(c::Union{N_Vector, NVector}, x::Union{N_Vector, NV
 end
 
 function N_VConstrMask_Serial(c, x, m, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VConstrMask_Serial(c, x, m)
 end
 
 function N_VMinQuotient_Serial(num::Union{N_Vector, NVector},
@@ -6113,7 +6117,7 @@ function N_VMinQuotient_Serial(num::Union{N_Vector, NVector},
 end
 
 function N_VMinQuotient_Serial(num, denom, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VMinQuotient_Serial(num, denom)
 end
 
 function N_VLinearCombination_Serial(nvec::Cint, c, V, z::Union{N_Vector, NVector})
@@ -6222,7 +6226,7 @@ function N_VWSqrSumLocal_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, 
 end
 
 function N_VWSqrSumLocal_Serial(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWSqrSumLocal_Serial(x, w)
 end
 
 function N_VWSqrSumMaskLocal_Serial(x::Union{N_Vector, NVector},
@@ -6233,7 +6237,7 @@ function N_VWSqrSumMaskLocal_Serial(x::Union{N_Vector, NVector},
 end
 
 function N_VWSqrSumMaskLocal_Serial(x, w, id, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWSqrSumMaskLocal_Serial(x, w, id)
 end
 
 function N_VEnableFusedOps_Serial(v::Union{N_Vector, NVector}, tf::Cint)
@@ -6826,7 +6830,7 @@ function SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::Union{N_Vector, NVec
 end
 
 function SUNLinSolSetScalingVectors(S, s1, s2, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSetScalingVectors(S, s1, s2)
 end
 
 function SUNLinSolInitialize(S::SUNLinearSolver)
@@ -6845,7 +6849,7 @@ function SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVe
 end
 
 function SUNLinSolSolve(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters(S::SUNLinearSolver)
@@ -6939,7 +6943,7 @@ function SUNMatMatvec(A::SUNMatrix, x::Union{N_Vector, NVector},
 end
 
 function SUNMatMatvec(A, x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNMatMatvec(A, x, y)
 end
 
 function SUNMatSpace(A::SUNMatrix, lenrw, leniw)
@@ -7060,7 +7064,7 @@ function N_VCopyOps(w::Union{N_Vector, NVector}, v::Union{N_Vector, NVector})
 end
 
 function N_VCopyOps(w, v, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VCopyOps(w, v)
 end
 
 function N_VGetVectorID(w::Union{N_Vector, NVector})
@@ -7149,7 +7153,7 @@ function N_VLinearSum(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
 end
 
 function N_VLinearSum(a, x, b, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VLinearSum(a, x, b, y, z)
 end
 
 function N_VConst(c::realtype, z::Union{N_Vector, NVector})
@@ -7166,7 +7170,7 @@ function N_VProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
 end
 
 function N_VProd(x, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VProd(x, y, z)
 end
 
 function N_VDiv(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
@@ -7175,7 +7179,7 @@ function N_VDiv(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
 end
 
 function N_VDiv(x, y, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VDiv(x, y, z)
 end
 
 function N_VScale(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -7183,7 +7187,7 @@ function N_VScale(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, N
 end
 
 function N_VScale(c, x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VScale(c, x, z)
 end
 
 function N_VAbs(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -7191,7 +7195,7 @@ function N_VAbs(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
 end
 
 function N_VAbs(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VAbs(x, z)
 end
 
 function N_VInv(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -7199,7 +7203,7 @@ function N_VInv(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
 end
 
 function N_VInv(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VInv(x, z)
 end
 
 function N_VAddConst(x::Union{N_Vector, NVector}, b::realtype, z::Union{N_Vector, NVector})
@@ -7209,7 +7213,7 @@ function N_VAddConst(x::Union{N_Vector, NVector}, b::realtype, z::Union{N_Vector
 end
 
 function N_VAddConst(x, b, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VAddConst(x, b, z)
 end
 
 function N_VDotProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
@@ -7217,7 +7221,7 @@ function N_VDotProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
 end
 
 function N_VDotProd(x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VDotProd(x, y)
 end
 
 function N_VMaxNorm(x::Union{N_Vector, NVector})
@@ -7233,7 +7237,7 @@ function N_VWrmsNorm(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
 end
 
 function N_VWrmsNorm(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWrmsNorm(x, w)
 end
 
 function N_VWrmsNormMask(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
@@ -7243,7 +7247,7 @@ function N_VWrmsNormMask(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector
 end
 
 function N_VWrmsNormMask(x, w, id, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWrmsNormMask(x, w, id)
 end
 
 function N_VMin(x::Union{N_Vector, NVector})
@@ -7259,7 +7263,7 @@ function N_VWL2Norm(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
 end
 
 function N_VWL2Norm(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWL2Norm(x, w)
 end
 
 function N_VL1Norm(x::Union{N_Vector, NVector})
@@ -7276,7 +7280,7 @@ function N_VCompare(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector,
 end
 
 function N_VCompare(c, x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VCompare(c, x, z)
 end
 
 function N_VInvTest(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -7284,7 +7288,7 @@ function N_VInvTest(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
 end
 
 function N_VInvTest(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VInvTest(x, z)
 end
 
 function N_VConstrMask(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
@@ -7294,7 +7298,7 @@ function N_VConstrMask(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
 end
 
 function N_VConstrMask(c, x, m, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VConstrMask(c, x, m)
 end
 
 function N_VMinQuotient(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
@@ -7303,7 +7307,7 @@ function N_VMinQuotient(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NV
 end
 
 function N_VMinQuotient(num, denom, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VMinQuotient(num, denom)
 end
 
 function N_VLinearCombination(nvec::Cint, c, X, z::Union{N_Vector, NVector})
@@ -7406,7 +7410,7 @@ function N_VDotProdLocal(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector
 end
 
 function N_VDotProdLocal(x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VDotProdLocal(x, y)
 end
 
 function N_VMaxNormLocal(x::Union{N_Vector, NVector})
@@ -7438,7 +7442,7 @@ function N_VWSqrSumLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector
 end
 
 function N_VWSqrSumLocal(x, w, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWSqrSumLocal(x, w)
 end
 
 function N_VWSqrSumMaskLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
@@ -7448,7 +7452,7 @@ function N_VWSqrSumMaskLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVe
 end
 
 function N_VWSqrSumMaskLocal(x, w, id, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VWSqrSumMaskLocal(x, w, id)
 end
 
 function N_VInvTestLocal(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
@@ -7456,7 +7460,7 @@ function N_VInvTestLocal(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector
 end
 
 function N_VInvTestLocal(x, z, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VInvTestLocal(x, z)
 end
 
 function N_VConstrMaskLocal(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
@@ -7467,7 +7471,7 @@ function N_VConstrMaskLocal(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVec
 end
 
 function N_VConstrMaskLocal(c, x, m, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VConstrMaskLocal(c, x, m)
 end
 
 function N_VMinQuotientLocal(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
@@ -7477,7 +7481,7 @@ function N_VMinQuotientLocal(num::Union{N_Vector, NVector}, denom::Union{N_Vecto
 end
 
 function N_VMinQuotientLocal(num, denom, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    N_VMinQuotientLocal(num, denom)
 end
 
 function N_VNewVectorArray(count::Cint)
@@ -7601,7 +7605,7 @@ function SUNLinSolSolve_Band(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector
 end
 
 function SUNLinSolSolve_Band(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_Band(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_Band(S::SUNLinearSolver)
@@ -7667,7 +7671,7 @@ function SUNLinSolSolve_Dense(
 end
 
 function SUNLinSolSolve_Dense(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_Dense(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_Dense(S::SUNLinearSolver)
@@ -7783,7 +7787,7 @@ function SUNLinSolSolve_KLU(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector,
 end
 
 function SUNLinSolSolve_KLU(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_KLU(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_KLU(S::SUNLinearSolver)
@@ -7810,9 +7814,6 @@ function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
     SUNLinSol_LapackBand(__y, A, sunctx)
 end
 
-function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    error("SUNLinSol_LapackBand requires a SUNContext in SUNDIALS 7.4. Use the 3-argument version.")
-end
 
 function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
     ccall((:SUNLapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
@@ -7853,7 +7854,7 @@ function SUNLinSolSolve_LapackBand(S::SUNLinearSolver, A::SUNMatrix,
 end
 
 function SUNLinSolSolve_LapackBand(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_LapackBand(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_LapackBand(S::SUNLinearSolver)
@@ -7881,9 +7882,6 @@ function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
     SUNLinSol_LapackDense(__y, A, sunctx)
 end
 
-function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    error("SUNLinSol_LapackDense requires a SUNContext in SUNDIALS 7.4. Use the 3-argument version.")
-end
 
 function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
     ccall((:SUNLapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
@@ -7923,7 +7921,7 @@ function SUNLinSolSolve_LapackDense(S::SUNLinearSolver, A::SUNMatrix,
 end
 
 function SUNLinSolSolve_LapackDense(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_LapackDense(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_LapackDense(S::SUNLinearSolver)
@@ -8029,7 +8027,7 @@ function SUNLinSolSetScalingVectors_PCG(S::SUNLinearSolver, s::Union{N_Vector, N
 end
 
 function SUNLinSolSetScalingVectors_PCG(S, s, nul, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSetScalingVectors_PCG(S, s, nul)
 end
 
 function SUNLinSolSetup_PCG(S::SUNLinearSolver, nul::SUNMatrix)
@@ -8046,7 +8044,7 @@ function SUNLinSolSolve_PCG(
 end
 
 function SUNLinSolSolve_PCG(S, nul, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_PCG(S, nul, x, b, tol)
 end
 
 function SUNLinSolNumIters_PCG(S::SUNLinearSolver)
@@ -8166,7 +8164,7 @@ function SUNLinSolSetScalingVectors_SPBCGS(
 end
 
 function SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPBCGS(S::SUNLinearSolver, A::SUNMatrix)
@@ -8182,7 +8180,7 @@ function SUNLinSolSolve_SPBCGS(S::SUNLinearSolver, A::SUNMatrix,
 end
 
 function SUNLinSolSolve_SPBCGS(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_SPBCGS(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPBCGS(S::SUNLinearSolver)
@@ -8323,7 +8321,7 @@ function SUNLinSolSetScalingVectors_SPFGMR(
 end
 
 function SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPFGMR(S::SUNLinearSolver, A::SUNMatrix)
@@ -8339,7 +8337,7 @@ function SUNLinSolSolve_SPFGMR(S::SUNLinearSolver, A::SUNMatrix,
 end
 
 function SUNLinSolSolve_SPFGMR(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_SPFGMR(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPFGMR(S::SUNLinearSolver)
@@ -8479,7 +8477,7 @@ function SUNLinSolSetScalingVectors_SPGMR(S::SUNLinearSolver, s1::Union{N_Vector
 end
 
 function SUNLinSolSetScalingVectors_SPGMR(S, s1, s2, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSetScalingVectors_SPGMR(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPGMR(S::SUNLinearSolver, A::SUNMatrix)
@@ -8496,7 +8494,7 @@ function SUNLinSolSolve_SPGMR(
 end
 
 function SUNLinSolSolve_SPGMR(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_SPGMR(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPGMR(S::SUNLinearSolver)
@@ -8620,7 +8618,7 @@ function SUNLinSolSetScalingVectors_SPTFQMR(S::SUNLinearSolver,
 end
 
 function SUNLinSolSetScalingVectors_SPTFQMR(S, s1, s2, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSetScalingVectors_SPTFQMR(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix)
@@ -8636,7 +8634,7 @@ function SUNLinSolSolve_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix,
 end
 
 function SUNLinSolSolve_SPTFQMR(S, A, x, b, tol, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNLinSolSolve_SPTFQMR(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPTFQMR(S::SUNLinearSolver)
@@ -8764,7 +8762,7 @@ function SUNMatMatvec_Band(A::SUNMatrix, x::Union{N_Vector, NVector},
 end
 
 function SUNMatMatvec_Band(A, x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNMatMatvec_Band(A, x, y)
 end
 
 function SUNMatSpace_Band(A::SUNMatrix, lenrw, leniw)
@@ -8851,7 +8849,7 @@ function SUNMatMatvec_Dense(A::SUNMatrix, x::Union{N_Vector, NVector},
 end
 
 function SUNMatMatvec_Dense(A, x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNMatMatvec_Dense(A, x, y)
 end
 
 function SUNMatSpace_Dense(A::SUNMatrix, lenrw, leniw)
@@ -8988,7 +8986,7 @@ function SUNMatMatvec_Sparse(A::SUNMatrix, x::Union{N_Vector, NVector},
 end
 
 function SUNMatMatvec_Sparse(A, x, y, ctx::SUNContext)
-    error("This function requires NVector arguments. Convert your vectors to NVector with NVector(v, ctx) before calling.")
+    SUNMatMatvec_Sparse(A, x, y)
 end
 
 function SUNMatSpace_Sparse(A::SUNMatrix, lenrw, leniw)
