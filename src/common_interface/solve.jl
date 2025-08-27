@@ -207,7 +207,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     ctx = ctx_ptr[]
     mem_ptr = CVodeCreate(alg_code, ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
-    mem = Handle(mem_ptr)
+    mem = Handle(mem_ptr, ctx)
 
 
     save_start ? ts = [t0] : ts = Float64[]
@@ -570,7 +570,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = utmp)
         mem_ptr = ARKStepCreate(fe, fi, t0, u0, ctx)
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
-        mem = Handle(mem_ptr)
+        mem = Handle(mem_ptr, ctx)
 
         return mem
     end
@@ -1088,7 +1088,7 @@ function DiffEqBase.__init(
     ctx = ctx_ptr[]
     mem_ptr = IDACreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
-    mem = Handle(mem_ptr)
+    mem = Handle(mem_ptr, ctx)
 
 
     ts = [t0]

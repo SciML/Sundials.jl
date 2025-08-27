@@ -42,9 +42,10 @@ abstract type SundialsHandle end
 """
 mutable struct Handle{T <: AbstractSundialsObject} <: SundialsHandle
     ptr::Ptr{T}
+    ctx::SUNContext  # Store context to free it when handle is released
 
-    function Handle(ptr::Ptr{T}) where {T <: AbstractSundialsObject}
-        h = new{T}(ptr)
+    function Handle(ptr::Ptr{T}, ctx::SUNContext = C_NULL) where {T <: AbstractSundialsObject}
+        h = new{T}(ptr, ctx)
         finalizer(release_handle, h)
         return h
     end
@@ -101,6 +102,13 @@ function _release_handle(sun_free_func, h::Handle{T}) where {T}
         ptr_ref = Ref(h.ptr)
         h.ptr = C_NULL
         sun_free_func(ptr_ref)
+    end
+    
+    # Free the SUNContext if it was provided
+    if h.ctx != C_NULL
+        ctx_ptr = Ref(h.ctx)
+        SUNContext_Free(ctx_ptr[])
+        h.ctx = C_NULL
     end
 
     return nothing
