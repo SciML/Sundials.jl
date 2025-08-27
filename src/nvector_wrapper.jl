@@ -67,8 +67,6 @@ function Base.convert(::Type{NVector}, v::AbstractVector)
     error("Cannot convert AbstractVector to NVector without context. Use NVector(v, ctx) instead.")
 end
 Base.convert(::Type{NVector}, nv::NVector) = nv
-# Removed conversion from N_Vector to NVector without context - use NVector(nv, ctx) instead
-# Add conversion with context
 Base.convert(::Type{NVector}, v::Vector{realtype}, ctx::SUNContext) = NVector(v, ctx)
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
 Base.convert(::Type{Vector}, nv::NVector) = nv.v
@@ -85,11 +83,8 @@ Conversion happens in two steps within ccall:
  - cconvert to convert to temporary NVector, which is preserved (by ccall) from garbage collection
  - unsafe_convert to get the N_Vector pointer from the temporary NVector
 """
-# cconvert for vectors removed - needs context
-# Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) - removed, needs context
 Base.cconvert(::Type{N_Vector}, nv::NVector) = nv
 Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.n_v
-# Removed copy! that creates NVector without context - caller should handle conversion
 
 Base.similar(nv::NVector) = NVector(similar(nv.v), nv.ctx)
 
@@ -108,6 +103,3 @@ asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims; own = false
 @inline Base.convert(::Type{Vector{realtype}}, x::N_Vector) = asarray(x)
 @inline Base.convert(::Type{Vector}, x::N_Vector) = asarray(x)
 
-# nvector removed - needs context
-# nvector(x::Vector{realtype}) = NVector(x)
-#nvector(x::N_Vector) = x
