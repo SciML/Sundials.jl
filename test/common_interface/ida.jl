@@ -21,13 +21,13 @@ sol = solve(prob, IDA())
 sol = solve(prob, IDA(); abstol = [1e-9, 1e-8, 1e-7])
 @info "Band solver"
 sol2 = solve(prob, IDA(; linear_solver = :Band, jac_upper = 2, jac_lower = 2))
-# COMMENTED OUT: Iterative solvers cause segfaults in SUNDIALS 7.4
-# @info "GMRES solver"
-# sol3 = solve(prob, IDA(; linear_solver = :GMRES))
-# @info "TFQMR solver"  
-# sol5 = solve(prob, IDA(; linear_solver = :TFQMR))
-# @info "FGMRES solver"
-# sol6 = solve(prob, IDA(; linear_solver = :FGMRES))
+# Testing iterative solvers
+@info "GMRES solver"
+sol3 = solve(prob, IDA(; linear_solver = :GMRES))
+@info "TFQMR solver"  
+sol5 = solve(prob, IDA(; linear_solver = :TFQMR))
+@info "FGMRES solver"
+sol6 = solve(prob, IDA(; linear_solver = :FGMRES))
 # @info "PCG solver"
 # sol7 = solve(prob, IDA(; linear_solver = :PCG)) # Requires symmetric linear
 #sol4 = solve(prob,IDA(linear_solver=:BCG)) # Fails but doesn't throw an error?
@@ -47,16 +47,23 @@ sol11 = solve(prob, IDA(; linear_solver = :Dense))
 @test isapprox(sol1[end], sol10[end]; rtol = 1e-3)
 @test isapprox(sol1[end], sol11[end]; rtol = 1e-3)
 
+# Test iterative solvers work
+@test sol3.retcode == ReturnCode.Success
+@test sol5.retcode == ReturnCode.Success
+@test sol6.retcode == ReturnCode.Success
+@test isapprox(sol1[end], sol3[end]; rtol = 1e-3)
+@test isapprox(sol1[end], sol5[end]; rtol = 1e-3)
+@test isapprox(sol1[end], sol6[end]; rtol = 1e-3)
+
 # Test identity preconditioner
 prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)
 psetup = (p, t, resid, u, du, gamma) -> (p.psetup_used = true)
-# COMMENTED OUT: GMRES solver causes segfaults in SUNDIALS 7.4
-# @info "GMRES for identity preconditioner"
-# sol4 = solve(prob, IDA(; linear_solver = :GMRES, prec = prec))
-# @test p.prec_used
-# @info "GMRES with pset"  
-# sol4 = solve(prob, IDA(; linear_solver = :GMRES, prec = prec, psetup = psetup))
-# @test p.psetup_used
+@info "GMRES for identity preconditioner"
+sol4 = solve(prob, IDA(; linear_solver = :GMRES, prec = prec))
+@test p.prec_used
+@info "GMRES with pset"  
+sol4 = solve(prob, IDA(; linear_solver = :GMRES, prec = prec, psetup = psetup))
+@test p.psetup_used
 
 @info "IDA with save_start=false"
 @test SciMLBase.successful_retcode(solve(prob, IDA(); save_start = false))

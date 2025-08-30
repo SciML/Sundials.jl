@@ -30,10 +30,10 @@ Lotka_f = ODEFunction(Lotka;
 
 prob = ODEProblem(Lotka_f, ones(2), (0.0, 10.0))
 jac_called = false
-# COMMENTED OUT: KLU solver causes segfault in SUNDIALS 7.4 - Linear solver memory is NULL
-# sol9 = solve(prob, CVODE_BDF(; linear_solver = :KLU))
+# COMMENTED OUT: KLU solver still causes segfault with ContextHandle - needs sparse matrix support
+# sol9_klu = solve(prob, CVODE_BDF(; linear_solver = :KLU))
 # @test jac_called == true
-# @test Array(sol9) ≈ Array(good_sol)
+# @test Array(sol9_klu) ≈ Array(good_sol)
 
 # Use Dense solver instead for this Jacobian test
 sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))

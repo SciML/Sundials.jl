@@ -50,7 +50,7 @@ tspan = (0.0, 1.0)
 q = zeros(10)
 # Define problem
 prob = ODEProblem(fn, q, tspan)
-# Define solution method - COMMENTED OUT due to SUNDIALS 7.4 segfault
+# Define solution method - COMMENTED OUT: Explicit ARKODE still segfaults with SUNNonlinSolGetType
 # method = ARKODE(Sundials.Explicit();
 #     etable = Sundials.VERNER_8_5_6,
 #     order = 8,
@@ -63,11 +63,10 @@ prob = ODEProblem(fn, q, tspan)
 # sol = solve(prob, method)
 # @test sol.retcode == ReturnCode.Success
 
-# COMMENTED OUT: Even simpler explicit ARKODE test still segfaults in SUNDIALS 7.4
-# The issue appears to be with explicit ARKODE methods and SUNNonlinSolGetType
-# method = ARKODE(Sundials.Explicit(); etable = Sundials.VERNER_8_5_6)
-# sol = solve(prob, method)
-# @test sol.retcode == ReturnCode.Success
+# COMMENTED OUT: Even simpler explicit ARKODE test still segfaults
+# method2 = ARKODE(Sundials.Explicit(); etable = Sundials.VERNER_8_5_6)
+# sol2 = solve(prob, method2)
+# @test sol2.retcode == ReturnCode.Success
 
 # Use default implicit ARKODE method instead which should work
 method = ARKODE()
