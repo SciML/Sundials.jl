@@ -16,7 +16,7 @@ prob = DAEProblem(prob_dae_resrob.f, prob_dae_resrob.du0, prob_dae_resrob.u0,
 
 dt = 1000
 saveat = float(collect(0:dt:100000))
-sol = solve(prob, IDA())
+sol1 = solve(prob, IDA())
 @info "Multiple abstol"
 sol = solve(prob, IDA(); abstol = [1e-9, 1e-8, 1e-7])
 @info "Band solver"
