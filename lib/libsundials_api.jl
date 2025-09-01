@@ -7935,14 +7935,14 @@ function SUNLinSolFree_LapackDense(S::SUNLinearSolver)
         (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_PCG(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
+function SUNLinSol_PCG(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
     ccall((:SUNLinSol_PCG, libsundials_sunlinsolpcg), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_PCG(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_PCG(__y, pretype, maxl)
+    SUNLinSol_PCG(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_PCGSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8070,14 +8070,14 @@ function SUNLinSolFree_PCG(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_SPBCGS(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
+function SUNLinSol_SPBCGS(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
     ccall((:SUNLinSol_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPBCGS(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPBCGS(__y, pretype, maxl)
+    SUNLinSol_SPBCGS(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPBCGSSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8208,14 +8208,14 @@ function SUNLinSolFree_SPBCGS(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_SPFGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
+function SUNLinSol_SPFGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
     ccall((:SUNLinSol_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPFGMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPFGMR(__y, pretype, maxl)
+    SUNLinSol_SPFGMR(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPFGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8365,14 +8365,14 @@ function SUNLinSolFree_SPFGMR(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_SPGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
+function SUNLinSol_SPGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
     ccall((:SUNLinSol_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPGMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPGMR(__y, pretype, maxl)
+    SUNLinSol_SPGMR(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
@@ -8523,14 +8523,14 @@ function SUNLinSolFree_SPGMR(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_SPGMR, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_SPTFQMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
+function SUNLinSol_SPTFQMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
     ccall((:SUNLinSol_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPTFQMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPTFQMR(__y, pretype, maxl)
+    SUNLinSol_SPTFQMR(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPTFQMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
