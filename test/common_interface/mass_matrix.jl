@@ -36,6 +36,8 @@ prob, prob2 = make_mm_probs(mm_A, Val{true})
 sol = solve(prob, ARKODE(); abstol = 1e-8, reltol = 1e-8)
 sol2 = solve(prob2, ARKODE(); abstol = 1e-8, reltol = 1e-8)
 
-# TODO: This test is failing in SUNDIALS 7.4 - mass matrix functionality may be broken
-# Expected: norm(sol - sol2) ≈ 0, Actual: norm(sol - sol2) ≈ 0.0295
-@test_broken norm(sol .- sol2)≈0 atol=1e-7
+# Compare solutions at common time points since they may have different internal timesteps
+# The adaptive timestepping may choose different points internally
+t_common = range(0.0, 1.0, length=100)
+max_diff = maximum(norm(sol(t) - sol2(t)) for t in t_common)
+@test max_diff < 1e-7
