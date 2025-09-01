@@ -50,29 +50,24 @@ tspan = (0.0, 1.0)
 q = zeros(10)
 # Define problem
 prob = ODEProblem(fn, q, tspan)
-# COMMENTED OUT: Explicit ARKODE methods still segfault in SUNDIALS 7.4
-# The issue is that explicit methods shouldn't need a nonlinear solver, but
-# the code tries to access SUNNonlinSolGetType even for explicit methods.
-# This appears to be a fundamental issue with how explicit ARKODE is implemented.
-# 
-# method = ARKODE(Sundials.Explicit();
-#     etable = Sundials.VERNER_8_5_6,
-#     order = 8,
-#     set_optimal_params = false,
-#     max_hnil_warns = 10,
-#     max_error_test_failures = 7,
-#     max_nonlinear_iters = 4,
-#     max_convergence_failures = 10)
-# # Solve
-# sol = solve(prob, method)
-# @test sol.retcode == ReturnCode.Success
+# Test explicit ARKODE methods with ERKStep
+method = ARKODE(Sundials.Explicit();
+    etable = Sundials.VERNER_8_5_6,
+    order = 8,
+    set_optimal_params = false,
+    max_hnil_warns = 10,
+    max_error_test_failures = 7)
+    # Removed max_nonlinear_iters and max_convergence_failures as they don't apply to explicit methods
+# Solve
+sol = solve(prob, method)
+@test sol.retcode == ReturnCode.Success
 
-# Even simpler explicit ARKODE test still segfaults
-# method2 = ARKODE(Sundials.Explicit(); etable = Sundials.VERNER_8_5_6)
-# sol2 = solve(prob, method2)
-# @test sol2.retcode == ReturnCode.Success
+# Simpler explicit ARKODE test
+method2 = ARKODE(Sundials.Explicit(); etable = Sundials.VERNER_8_5_6)
+sol2 = solve(prob, method2)
+@test sol2.retcode == ReturnCode.Success
 
-# Use default implicit ARKODE method instead which should work
+# Also test default implicit ARKODE method
 method = ARKODE()
 sol = solve(prob, method)
 @test sol.retcode == ReturnCode.Success

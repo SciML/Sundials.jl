@@ -103,9 +103,16 @@ function handle_callback_modifiers!(integrator::CVODEIntegrator)
     CVodeReInit(integrator.mem, integrator.t, integrator.u_nvec)
 end
 
-function handle_callback_modifiers!(integrator::ARKODEIntegrator)
+# Dispatch for ARKStep (implicit methods)
+function handle_callback_modifiers!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
     ARKStepReInit(integrator.mem, integrator.userfun.fun2, integrator.userfun.fun,
         integrator.t, integrator.u)
+end
+
+# Dispatch for ERKStep (explicit methods)
+function handle_callback_modifiers!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+    # ERKStepReInit only takes one function (explicit RHS)
+    ERKStepReInit(integrator.mem, integrator.userfun.fun, integrator.t, integrator.u)
 end
 
 """

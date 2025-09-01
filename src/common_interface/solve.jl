@@ -570,6 +570,14 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
         return mem
     end
+    
+    function erkodemem(; f = C_NULL, t0 = t0, u0 = utmp)
+        mem_ptr = ERKStepCreate(f, t0, u0, ctx)
+        (mem_ptr == C_NULL) && error("Failed to allocate ERKODE solver object")
+        mem = Handle(mem_ptr)
+
+        return mem
+    end
 
     ### Fix the more general function to Sundials allowed style
     if !isinplace && prob.u0 isa Number
@@ -635,7 +643,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
             end
             cfj1 = getcfun1(userfun)
-            mem = arkodemem(; fe = cfj1)
+            mem = erkodemem(; f = cfj1)
         elseif alg.stiffness == Implicit()
             function getcfun2(::T) where {T}
                 @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
@@ -645,47 +653,81 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         end
     end
 
-    dt !== nothing && (flag = ARKStepSetInitStep(mem, Float64(dt)))
-    flag = ARKStepSetMinStep(mem, Float64(dtmin))
-    flag = ARKStepSetMaxStep(mem, Float64(dtmax))
-    flag = ARKStepSetUserData(mem, userfun)
-    if abstol isa Array
-        abstol_nvec = NVector(abstol, ctx)
-        flag = ARKStepSVtolerances(mem, reltol, abstol_nvec)
+    # Use ERKStep functions for explicit methods, ARKStep for others
+    is_explicit = (alg.stiffness == Explicit() && !isa(prob.problem_type, SplitODEProblem))
+    
+    if is_explicit
+        # ERKStep functions
+        dt !== nothing && (flag = ERKStepSetInitStep(mem, Float64(dt)))
+        flag = ERKStepSetMinStep(mem, Float64(dtmin))
+        flag = ERKStepSetMaxStep(mem, Float64(dtmax))
+        flag = ERKStepSetUserData(mem, userfun)
+        if abstol isa Array
+            abstol_nvec = NVector(abstol, ctx)
+            flag = ERKStepSVtolerances(mem, reltol, abstol_nvec)
+        else
+            flag = ERKStepSStolerances(mem, reltol, abstol)
+        end
+        flag = ERKStepSetMaxNumSteps(mem, maxiters)
+        flag = ERKStepSetMaxHnilWarns(mem, alg.max_hnil_warns)
+        flag = ERKStepSetMaxErrTestFails(mem, alg.max_error_test_failures)
+        # ERKStep doesn't have max convergence fails (no nonlinear solver)
+        # ERKStep doesn't have predictor or nonlinear convergence settings
+        flag = ERKStepSetDenseOrder(mem, alg.dense_order)
     else
-        flag = ARKStepSStolerances(mem, reltol, abstol)
+        # ARKStep functions
+        dt !== nothing && (flag = ARKStepSetInitStep(mem, Float64(dt)))
+        flag = ARKStepSetMinStep(mem, Float64(dtmin))
+        flag = ARKStepSetMaxStep(mem, Float64(dtmax))
+        flag = ARKStepSetUserData(mem, userfun)
+        if abstol isa Array
+            abstol_nvec = NVector(abstol, ctx)
+            flag = ARKStepSVtolerances(mem, reltol, abstol_nvec)
+        else
+            flag = ARKStepSStolerances(mem, reltol, abstol)
+        end
+        flag = ARKStepSetMaxNumSteps(mem, maxiters)
+        flag = ARKStepSetMaxHnilWarns(mem, alg.max_hnil_warns)
+        flag = ARKStepSetMaxErrTestFails(mem, alg.max_error_test_failures)
+        flag = ARKStepSetMaxConvFails(mem, alg.max_convergence_failures)
+        flag = ARKStepSetPredictorMethod(mem, alg.predictor_method)
+        flag = ARKStepSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
+        flag = ARKStepSetDenseOrder(mem, alg.dense_order)
     end
-    flag = ARKStepSetMaxNumSteps(mem, maxiters)
-    flag = ARKStepSetMaxHnilWarns(mem, alg.max_hnil_warns)
-    flag = ARKStepSetMaxErrTestFails(mem, alg.max_error_test_failures)
-    flag = ARKStepSetMaxConvFails(mem, alg.max_convergence_failures)
-    flag = ARKStepSetPredictorMethod(mem, alg.predictor_method)
-    flag = ARKStepSetNonlinConvCoef(mem, alg.nonlinear_convergence_coefficient)
-    flag = ARKStepSetDenseOrder(mem, alg.dense_order)
 
     #=
     Reference from Manual on ARKODE
     To choose an explicit table, set itable to a negative value. This automatically calls ARKStepSetExplicit(). However, if the problem is posed in explicit form, i.e. 𝑦 ̇ = 𝑓 (𝑡, 𝑦), then we recommend that the ERKStep time- stepper module be used instead of ARKStep.
     To select an implicit table, set etable to a negative value. This automatically calls ARKStepSetImplicit(). If both itable and etable are non-negative, then these should match an existing implicit/explicit pair, listed in the section Additive Butcher tables. This automatically calls ARKStepSetImEx().
     =#
-    if alg.itable === nothing && alg.etable === nothing
-        flag = ARKStepSetOrder(mem, alg.order)
-    elseif alg.itable === nothing && alg.etable !== nothing
-        flag = ARKStepSetTableNum(mem, -1, alg.etable)
-    elseif alg.itable !== nothing && alg.etable === nothing
-        flag = ARKStepSetTableNum(mem, alg.itable, -1)
+    if is_explicit
+        # ERKStep table settings
+        if alg.etable !== nothing
+            flag = ERKStepSetTableNum(mem, alg.etable)
+        else
+            flag = ERKStepSetOrder(mem, alg.order)
+        end
     else
-        flag = ARKStepSetTableNum(mem, alg.itable, alg.etable)
+        # ARKStep table settings
+        if alg.itable === nothing && alg.etable === nothing
+            flag = ARKStepSetOrder(mem, alg.order)
+        elseif alg.itable === nothing && alg.etable !== nothing
+            flag = ARKStepSetTableNum(mem, -1, alg.etable)
+        elseif alg.itable !== nothing && alg.etable === nothing
+            flag = ARKStepSetTableNum(mem, alg.itable, -1)
+        else
+            flag = ARKStepSetTableNum(mem, alg.itable, alg.etable)
+        end
+        
+        flag = ARKStepSetNonlinCRDown(mem, alg.crdown)
+        flag = ARKStepSetNonlinRDiv(mem, alg.rdiv)
+        flag = ARKStepSetDeltaGammaMax(mem, alg.dgmax)
+        flag = ARKStepSetLSetupFrequency(mem, alg.msbp)
+        #flag = ARKStepSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
+
+        #flag = ARKStepSetFixedStep(mem,)
+        alg.set_optimal_params && (flag = ARKStepSetOptimalParams(mem))
     end
-
-    flag = ARKStepSetNonlinCRDown(mem, alg.crdown)
-    flag = ARKStepSetNonlinRDiv(mem, alg.rdiv)
-    flag = ARKStepSetDeltaGammaMax(mem, alg.dgmax)
-    flag = ARKStepSetLSetupFrequency(mem, alg.msbp)
-    #flag = ARKStepSetAdaptivityMethod(mem,alg.adaptivity_method,1,0)
-
-    #flag = ARKStepSetFixedStep(mem,)
-    alg.set_optimal_params && (flag = ARKStepSetOptimalParams(mem))
 
     if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
@@ -1374,8 +1416,25 @@ function solver_step(integrator::CVODEIntegrator, tstop)
             progress=integrator.t/integrator.sol.prob.tspan[2])
     end
 end
-function solver_step(integrator::ARKODEIntegrator, tstop)
+# Dispatch for ARKStep (implicit methods)
+function solver_step(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
     integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u_nvec,
+        integrator.tout, ARK_ONE_STEP)
+    if integrator.opts.progress
+        Logging.@logmsg(Logging.LogLevel(-1),
+            integrator.opts.progress_name,
+            _id=integrator.opts.progress_id,
+            message=integrator.opts.progress_message(integrator.dt,
+                integrator.u_nvec,
+                integrator.p,
+                integrator.t),
+            progress=integrator.t/integrator.sol.prob.tspan[2])
+    end
+end
+
+# Dispatch for ERKStep (explicit methods)
+function solver_step(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+    integrator.flag = ERKStepEvolve(integrator.mem, tstop, integrator.u_nvec,
         integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
         Logging.@logmsg(Logging.LogLevel(-1),
@@ -1411,8 +1470,14 @@ end
 function set_stop_time(integrator::CVODEIntegrator, tstop)
     CVodeSetStopTime(integrator.mem, tstop)
 end
-function set_stop_time(integrator::ARKODEIntegrator, tstop)
+# Dispatch for ARKStep (implicit methods)
+function set_stop_time(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
     ARKStepSetStopTime(integrator.mem, tstop)
+end
+
+# Dispatch for ERKStep (explicit methods)
+function set_stop_time(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+    ERKStepSetStopTime(integrator.mem, tstop)
 end
 function set_stop_time(integrator::IDAIntegrator, tstop)
     IDASetStopTime(integrator.mem, tstop)
@@ -1421,8 +1486,14 @@ end
 function get_iters!(integrator::CVODEIntegrator, iters)
     CVodeGetNumSteps(integrator.mem, iters)
 end
-function get_iters!(integrator::ARKODEIntegrator, iters)
+# Dispatch for ARKStep (implicit methods)
+function get_iters!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}, iters) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
     ARKStepGetNumSteps(integrator.mem, iters)
+end
+
+# Dispatch for ERKStep (explicit methods)
+function get_iters!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}, iters) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+    ERKStepGetNumSteps(integrator.mem, iters)
 end
 function get_iters!(integrator::IDAIntegrator, iters)
     IDAGetNumSteps(integrator.mem, iters)
@@ -1543,7 +1614,8 @@ function fill_stats!(integrator::CVODEIntegrator)
     end
 end
 
-function fill_stats!(integrator::ARKODEIntegrator)
+# Dispatch for ARKStep (implicit methods)
+function fill_stats!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
     stats = integrator.sol.stats
     mem = integrator.mem
     tmp = Ref(Clong(-1))
@@ -1565,6 +1637,28 @@ function fill_stats!(integrator::ARKODEIntegrator)
         ARKStepGetNumJacEvals(mem, tmp)
         stats.njacs = tmp[]
     end
+end
+
+# Dispatch for ERKStep (explicit methods)
+function fill_stats!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+    stats = integrator.sol.stats
+    mem = integrator.mem
+    tmp = Ref(Clong(-1))
+    # ERKStepGetNumRhsEvals only takes one argument for explicit RHS evaluations
+    ERKStepGetNumRhsEvals(mem, tmp)
+    stats.nf = tmp[]
+    stats.nf2 = 0  # No implicit RHS for explicit methods
+    # No linear solver setups for explicit methods
+    stats.nw = 0
+    ERKStepGetNumErrTestFails(mem, tmp)
+    stats.nreject = tmp[]
+    ERKStepGetNumSteps(mem, tmp)
+    stats.naccept = tmp[] - stats.nreject
+    # No nonlinear solver iterations or convergence failures for explicit methods
+    stats.nnonliniter = 0
+    stats.nnonlinconvfail = 0
+    # No Jacobian evaluations for explicit methods
+    stats.njacs = 0
 end
 
 function fill_stats!(integrator::IDAIntegrator)
