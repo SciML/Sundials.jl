@@ -131,6 +131,5 @@ end
 Sundials.SUNLinSolFree_Dense(LS)
 Sundials.SUNMatDestroy_Dense(A)
 
-
 # Clean up context
 Sundials.SUNContext_Free(ctx)

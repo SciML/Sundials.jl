@@ -267,7 +267,7 @@ const IDAh = Handle{IDAMem}
 """
 mutable struct ContextHandle <: SundialsHandle
     ctx::SUNContext
-    
+
     function ContextHandle()
         ctx_ptr = Ref{SUNContext}(C_NULL)
         SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))

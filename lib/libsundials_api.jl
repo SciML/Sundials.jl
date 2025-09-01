@@ -19,7 +19,6 @@ function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
     ARKStepCreate(fe, fi, t0, __y0, sunctx)
 end
 
-
 function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
         t0::realtype,
         resize::ARKVecResizeFn, resize_data)
@@ -957,7 +956,6 @@ function ERKStepCreate(f::ARKRhsFn, t0, y0, sunctx::SUNContext)
     ERKStepCreate(f, t0, __y0, sunctx)
 end
 
-
 function ERKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
         t0::realtype,
         resize::ARKVecResizeFn, resize_data)
@@ -1409,11 +1407,11 @@ function MRIStepCreate(fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector},
         inner_step_mem, sunctx)
 end
 
-function MRIStepCreate(fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunctx::SUNContext)
+function MRIStepCreate(
+        fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunctx::SUNContext)
     __y0 = convert(NVector, y0, sunctx)
     MRIStepCreate(fs, t0, __y0, inner_step_id, inner_step_mem, sunctx)
 end
-
 
 function MRIStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype,
         resize::ARKVecResizeFn,
@@ -3273,7 +3271,6 @@ function IDACreate(sunctx::SUNContext)
     ccall((:IDACreate, libsundials_idas), IDAMemPtr, (SUNContext,), sunctx)
 end
 
-
 function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector},
         yp0::Union{N_Vector, NVector})
     ccall((:IDAInit, libsundials_idas), Cint,
@@ -4918,7 +4915,6 @@ function KINCreate(sunctx::SUNContext)
     ccall((:KINCreate, libsundials_kinsol), KINMemPtr, (SUNContext,), sunctx)
 end
 
-
 function KINInit(kinmem, func::KINSysFn, tmpl::Union{N_Vector, NVector})
     ccall((:KINInit, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn, N_Vector), kinmem,
         func, tmpl)
@@ -5814,11 +5810,13 @@ function N_VEnableWrmsNormMaskVectorArray_ManyVector(v, tf)
 end
 
 function N_VNew_Serial(vec_length::sunindextype, sunctx::SUNContext)
-    ccall((:N_VNew_Serial, libsundials_nvecserial), N_Vector, (sunindextype, SUNContext), vec_length, sunctx)
+    ccall((:N_VNew_Serial, libsundials_nvecserial), N_Vector,
+        (sunindextype, SUNContext), vec_length, sunctx)
 end
 
 function N_VNewEmpty_Serial(vec_length::sunindextype, sunctx::SUNContext)
-    ccall((:N_VNewEmpty_Serial, libsundials_nvecserial), N_Vector, (sunindextype, SUNContext),
+    ccall(
+        (:N_VNewEmpty_Serial, libsundials_nvecserial), N_Vector, (sunindextype, SUNContext),
         vec_length, sunctx)
 end
 
@@ -7814,7 +7812,6 @@ function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
     SUNLinSol_LapackBand(__y, A, sunctx)
 end
 
-
 function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
     ccall((:SUNLapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
         (N_Vector, SUNMatrix), y, A)
@@ -7881,7 +7878,6 @@ function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
     SUNLinSol_LapackDense(__y, A, sunctx)
 end
-
 
 function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
     ccall((:SUNLapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
@@ -9016,7 +9012,6 @@ function SUNNonlinSol_FixedPoint(y, m, sunctx::SUNContext)
     SUNNonlinSol_FixedPoint(__y, m, sunctx)
 end
 
-
 function SUNNonlinSol_FixedPointSens(count::Cint, y::Union{N_Vector, NVector}, m::Cint, sunctx::SUNContext)
     ccall((:SUNNonlinSol_FixedPointSens, libsundials_sunnonlinsolfixedpoint),
         SUNNonlinearSolver, (Cint, N_Vector, Cint, SUNContext), count, y, m, sunctx)
@@ -9026,7 +9021,6 @@ function SUNNonlinSol_FixedPointSens(count, y, m, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
     SUNNonlinSol_FixedPointSens(count, __y, m, sunctx)
 end
-
 
 function SUNNonlinSolGetType_FixedPoint(NLS::SUNNonlinearSolver)
     ccall((:SUNNonlinSolGetType_FixedPoint, libsundials_sunnonlinsolfixedpoint),
@@ -9118,7 +9112,6 @@ function SUNNonlinSol_Newton(y, sunctx::SUNContext)
     SUNNonlinSol_Newton(__y, sunctx)
 end
 
-
 function SUNNonlinSol_NewtonSens(count::Cint, y::Union{N_Vector, NVector}, sunctx::SUNContext)
     ccall((:SUNNonlinSol_NewtonSens, libsundials_sunnonlinsolnewton), SUNNonlinearSolver,
         (Cint, N_Vector, SUNContext), count, y, sunctx)
@@ -9128,7 +9121,6 @@ function SUNNonlinSol_NewtonSens(count, y, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
     SUNNonlinSol_NewtonSens(count, __y, sunctx)
 end
-
 
 function SUNNonlinSolGetType_Newton(NLS::SUNNonlinearSolver)
     ccall((:SUNNonlinSolGetType_Newton, libsundials_sunnonlinsolnewton),

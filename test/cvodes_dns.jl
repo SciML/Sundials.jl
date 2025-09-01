@@ -173,6 +173,5 @@ y, ys = sens(f!, t0, y0, p, t)
 @test_broken isapprox(y[1, 1], 20.0856; rtol = 1e-3)
 @test_broken isapprox(ys[2, 2, 2], 11924.3; rtol = 1e-3) # todo: check if these are indeed the right results
 
-
 # Clean up context
 Sundials.SUNContext_Free(ctx)

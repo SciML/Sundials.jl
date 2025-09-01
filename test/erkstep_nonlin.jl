@@ -64,7 +64,8 @@ tout = t0 + dTout
 while (tf - t[1] > 1e-15)
     y = similar(y0)
     y_nvec = Sundials.NVector(y, ctx)
-    Sundials.@checkflag Sundials.ERKStepEvolve(erkStep_mem, tout, y_nvec, t, Sundials.ARK_NORMAL)
+    Sundials.@checkflag Sundials.ERKStepEvolve(
+        erkStep_mem, tout, y_nvec, t, Sundials.ARK_NORMAL)
     copyto!(y, y_nvec.v)
     push!(res, y[1])
     global tout += dTout

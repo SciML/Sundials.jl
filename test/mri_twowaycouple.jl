@@ -78,7 +78,8 @@ Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem,
 Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
 
 # Slow integrator portion
-_arkode_mem_ptr = Sundials.MRIStepCreate(fs, T0, y0_nvec, Sundials.MRISTEP_ARKSTEP, inner_arkode_mem, ctx)
+_arkode_mem_ptr = Sundials.MRIStepCreate(
+    fs, T0, y0_nvec, Sundials.MRISTEP_ARKSTEP, inner_arkode_mem, ctx)
 arkode_mem = Sundials.Handle(_arkode_mem_ptr)
 Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
 

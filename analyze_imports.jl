@@ -23,7 +23,7 @@ try
     check_no_stale_explicit_imports(Sundials)
     println("No stale explicit imports found")
 catch e
-    if isa(e, ExplicitImports.StaleImportsException) 
+    if isa(e, ExplicitImports.StaleImportsException)
         println(e.msg)
     else
         println("No stale explicit imports found")

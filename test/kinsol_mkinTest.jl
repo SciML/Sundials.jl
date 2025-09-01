@@ -42,7 +42,8 @@ Sundials.@checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A)
 ## Solve problem
 scale = ones(neq)
 scale_nvec = Sundials.NVector(scale, ctx)
-Sundials.@checkflag Sundials.KINSol(kmem, y_nvec, Sundials.KIN_LINESEARCH, scale_nvec, scale_nvec)
+Sundials.@checkflag Sundials.KINSol(
+    kmem, y_nvec, Sundials.KIN_LINESEARCH, scale_nvec, scale_nvec)
 copyto!(y, y_nvec.v)
 
 println("Solution: ", y)
@@ -51,7 +52,6 @@ sysfn(y, residual, [1, 2])
 println("Residual: ", residual)
 
 @test abs(minimum(residual)) < 1e-5
-
 
 # Clean up context
 Sundials.SUNContext_Free(ctx)

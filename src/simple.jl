@@ -130,10 +130,10 @@ function ___kinsol(f,
     ynv = NVector(y, ctx)
     flag = @checkflag KINSol(kmem, ynv, strategy, scale_nvec, scale_nvec) true
     y = convert(Vector, ynv)
-    
+
     # Clean up context
     SUNContext_Free(ctx)
-    
+
     return y, flag
 end
 kinsol(args...; kwargs...) = first(___kinsol(args...; kwargs...))

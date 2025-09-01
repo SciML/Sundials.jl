@@ -24,7 +24,7 @@ sol2 = solve(prob, IDA(; linear_solver = :Band, jac_upper = 2, jac_lower = 2))
 # Testing iterative solvers
 @info "GMRES solver"
 sol3 = solve(prob, IDA(; linear_solver = :GMRES))
-@info "TFQMR solver"  
+@info "TFQMR solver"
 sol5 = solve(prob, IDA(; linear_solver = :TFQMR))  # Returns ConvergenceFailure
 @info "FGMRES solver"
 sol6 = solve(prob, IDA(; linear_solver = :FGMRES))

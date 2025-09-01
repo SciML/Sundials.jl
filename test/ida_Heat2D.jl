@@ -153,7 +153,8 @@ function idabandsol(f::Function,
     yp_nvec = Sundials.NVector(yp, ctx)
     tout = [0.0]
     for k in 2:length(t)
-        Sundials.@checkflag Sundials.IDASolve(mem, t[k], tout, y_nvec, yp_nvec, Sundials.IDA_NORMAL)
+        Sundials.@checkflag Sundials.IDASolve(
+            mem, t[k], tout, y_nvec, yp_nvec, Sundials.IDA_NORMAL)
         copyto!(y, y_nvec.v)
         copyto!(yp, yp_nvec.v)
         yres[:, k] = y
@@ -172,7 +173,6 @@ t = collect(0.0:tstep:(tstep * nsteps))
 u0, up0, id, constraints = initial()
 
 idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t); reltol = 0.0, abstol = 1e-3)
-
 
 # Clean up context
 Sundials.SUNContext_Free(ctx)

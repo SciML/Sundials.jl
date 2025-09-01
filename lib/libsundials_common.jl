@@ -3,7 +3,8 @@ const SUNContext = Ptr{Cvoid}
 
 # SUNContext functions
 function SUNContext_Create(comm::Ptr{Cvoid}, ctx::Ptr{SUNContext})
-    ccall((:SUNContext_Create, libsundials_cvode), Cint, (Ptr{Cvoid}, Ptr{SUNContext}), comm, ctx)
+    ccall((:SUNContext_Create, libsundials_cvode), Cint,
+        (Ptr{Cvoid}, Ptr{SUNContext}), comm, ctx)
 end
 
 function SUNContext_Free(ctx::SUNContext)

@@ -208,7 +208,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
     mem = Handle(mem_ptr)
 
-
     save_start ? ts = [t0] : ts = Float64[]
 
     out = copy(u0)
@@ -570,7 +569,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
         return mem
     end
-    
+
     function erkodemem(; f = C_NULL, t0 = t0, u0 = utmp)
         mem_ptr = ERKStepCreate(f, t0, u0, ctx)
         (mem_ptr == C_NULL) && error("Failed to allocate ERKODE solver object")
@@ -655,7 +654,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
 
     # Use ERKStep functions for explicit methods, ARKStep for others
     is_explicit = (alg.stiffness == Explicit() && !isa(prob.problem_type, SplitODEProblem))
-    
+
     if is_explicit
         # ERKStep functions
         dt !== nothing && (flag = ERKStepSetInitStep(mem, Float64(dt)))
@@ -718,7 +717,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         else
             flag = ARKStepSetTableNum(mem, alg.itable, alg.etable)
         end
-        
+
         flag = ARKStepSetNonlinCRDown(mem, alg.crdown)
         flag = ARKStepSetNonlinRDiv(mem, alg.rdiv)
         flag = ARKStepSetDeltaGammaMax(mem, alg.dgmax)
@@ -1127,7 +1126,6 @@ function DiffEqBase.__init(
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
-
     ts = [t0]
 
     # vec shares memory
@@ -1379,7 +1377,7 @@ function DiffEqBase.__init(
 
     # Context will be freed when integrator is garbage collected
     # through the Handle mechanism
-    
+
     DiffEqBase.initialize_dae!(integrator, initializealg)
     integrator.u_modified && IDAReinit!(integrator)
 
@@ -1417,7 +1415,12 @@ function solver_step(integrator::CVODEIntegrator, tstop)
     end
 end
 # Dispatch for ARKStep (implicit methods)
-function solver_step(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function solver_step(
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem},
+        tstop) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     integrator.flag = ARKStepEvolve(integrator.mem, tstop, integrator.u_nvec,
         integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
@@ -1433,7 +1436,12 @@ function solver_step(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,
 end
 
 # Dispatch for ERKStep (explicit methods)
-function solver_step(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function solver_step(
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem},
+        tstop) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     integrator.flag = ERKStepEvolve(integrator.mem, tstop, integrator.u_nvec,
         integrator.tout, ARK_ONE_STEP)
     if integrator.opts.progress
@@ -1471,12 +1479,22 @@ function set_stop_time(integrator::CVODEIntegrator, tstop)
     CVodeSetStopTime(integrator.mem, tstop)
 end
 # Dispatch for ARKStep (implicit methods)
-function set_stop_time(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function set_stop_time(
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem},
+        tstop) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     ARKStepSetStopTime(integrator.mem, tstop)
 end
 
 # Dispatch for ERKStep (explicit methods)
-function set_stop_time(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}, tstop) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function set_stop_time(
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem},
+        tstop) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     ERKStepSetStopTime(integrator.mem, tstop)
 end
 function set_stop_time(integrator::IDAIntegrator, tstop)
@@ -1487,12 +1505,22 @@ function get_iters!(integrator::CVODEIntegrator, iters)
     CVodeGetNumSteps(integrator.mem, iters)
 end
 # Dispatch for ARKStep (implicit methods)
-function get_iters!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}, iters) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function get_iters!(
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem},
+        iters) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     ARKStepGetNumSteps(integrator.mem, iters)
 end
 
 # Dispatch for ERKStep (explicit methods)
-function get_iters!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}, iters) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function get_iters!(
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem},
+        iters) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     ERKStepGetNumSteps(integrator.mem, iters)
 end
 function get_iters!(integrator::IDAIntegrator, iters)
@@ -1615,7 +1643,21 @@ function fill_stats!(integrator::CVODEIntegrator)
 end
 
 # Dispatch for ARKStep (implicit methods)
-function fill_stats!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ARKStepMem}) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function fill_stats!(integrator::ARKODEIntegrator{N,
+        pType,
+        solType,
+        algType,
+        fType,
+        UFType,
+        JType,
+        oType,
+        LStype,
+        Atype,
+        MLStype,
+        Mtype,
+        CallbackCacheType,
+        ARKStepMem}) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     stats = integrator.sol.stats
     mem = integrator.mem
     tmp = Ref(Clong(-1))
@@ -1640,7 +1682,21 @@ function fill_stats!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,
 end
 
 # Dispatch for ERKStep (explicit methods)
-function fill_stats!(integrator::ARKODEIntegrator{N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType,ERKStepMem}) where {N,pType,solType,algType,fType,UFType,JType,oType,LStype,Atype,MLStype,Mtype,CallbackCacheType}
+function fill_stats!(integrator::ARKODEIntegrator{N,
+        pType,
+        solType,
+        algType,
+        fType,
+        UFType,
+        JType,
+        oType,
+        LStype,
+        Atype,
+        MLStype,
+        Mtype,
+        CallbackCacheType,
+        ERKStepMem}) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     stats = integrator.sol.stats
     mem = integrator.mem
     tmp = Ref(Clong(-1))

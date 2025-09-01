@@ -18,7 +18,7 @@ abstol = 1e-8
     local sol
     alg = KINSOL(; linear_solver, globalization_strategy)
     sol = solve(prob_iip, alg; abstol)
-    
+
     if linear_solver == :LapackDense
         @test SciMLBase.successful_retcode(sol.retcode)
         if SciMLBase.successful_retcode(sol.retcode)
@@ -48,7 +48,7 @@ prob_oop = NonlinearProblem{false}(f_oop, u0)
     local sol
     alg = KINSOL(; linear_solver, globalization_strategy)
     sol = solve(prob_oop, alg; abstol)
-    
+
     if linear_solver == :LapackDense
         @test SciMLBase.successful_retcode(sol.retcode)
         if SciMLBase.successful_retcode(sol.retcode)
@@ -96,7 +96,7 @@ prob_scalar = NonlinearProblem{false}(f_scalar, u0)
     local sol
     alg = KINSOL(; linear_solver, globalization_strategy)
     sol = solve(prob_scalar, alg; abstol)
-    
+
     if linear_solver == :LapackDense
         @test SciMLBase.successful_retcode(sol.retcode)
         @test sol.u isa Number

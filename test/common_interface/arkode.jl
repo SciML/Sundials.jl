@@ -57,7 +57,7 @@ method = ARKODE(Sundials.Explicit();
     set_optimal_params = false,
     max_hnil_warns = 10,
     max_error_test_failures = 7)
-    # Removed max_nonlinear_iters and max_convergence_failures as they don't apply to explicit methods
+# Removed max_nonlinear_iters and max_convergence_failures as they don't apply to explicit methods
 # Solve
 sol = solve(prob, method)
 @test sol.retcode == ReturnCode.Success

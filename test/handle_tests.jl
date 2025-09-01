@@ -56,6 +56,5 @@ empty!(h3)
 empty!(h3)
 @test isempty(h3)
 
-
 # Clean up context
 Sundials.SUNContext_Free(ctx)

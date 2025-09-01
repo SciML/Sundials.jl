@@ -73,6 +73,5 @@ Sundials.@checkflag Sundials.ARKStepGetNumNonlinSolvConvFails(arkStep_mem, tmp1)
 Sundials.@checkflag Sundials.ARKStepGetNumJacEvals(arkStep_mem, tmp1);
 Sundials.@checkflag Sundials.ARKStepGetNumLinRhsEvals(arkStep_mem, tmp2);
 
-
 # Clean up context
 Sundials.SUNContext_Free(ctx)
