@@ -63,7 +63,7 @@ psetup = (p, t, resid, u, du, gamma) -> (p.psetup_used = true)
 @info "GMRES for identity preconditioner"
 sol4 = solve(prob, IDA(; linear_solver = :GMRES, prec = prec))
 @test p.prec_used
-@info "GMRES with pset"  
+@info "GMRES with pset"
 sol4 = solve(prob, IDA(; linear_solver = :GMRES, prec = prec, psetup = psetup))
 @test p.psetup_used
 

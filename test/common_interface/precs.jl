@@ -104,7 +104,7 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     if preccache2[] === nothing
         return  # Skip setup if AMG failed initially
     end
-    
+
     if jok
         SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
             (y, x) -> brusselator_2d_vec(y, x, p, t),
