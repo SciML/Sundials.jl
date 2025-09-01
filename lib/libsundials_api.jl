@@ -7694,8 +7694,8 @@ function SUNLinSol_KLU(y::Union{N_Vector, NVector}, A::SUNMatrix)
 end
 
 function SUNLinSol_KLU(y, A, ctx::SUNContext)
-    __y = convert(NVector, y, ctx)
-    SUNLinSol_KLU(__y, A)
+    # y should already be an NVector, just pass it through
+    SUNLinSol_KLU(y, A)
 end
 
 function SUNLinSol_KLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
@@ -8864,6 +8864,18 @@ function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
 end
 
 function SUNSparseMatrix(M, N, NNZ, sparsetype)
+    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
+end
+
+# Context version for SUNDIALS 7
+function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
+        sparsetype::Cint, ctx::SUNContext)
+    # In SUNDIALS 7, SUNSparseMatrix still doesn't take context directly
+    # but we keep this for consistency
+    SUNSparseMatrix(M, N, NNZ, sparsetype)
+end
+
+function SUNSparseMatrix(M, N, NNZ, sparsetype, ctx::SUNContext)
     SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
 end
 

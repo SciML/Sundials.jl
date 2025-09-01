@@ -107,8 +107,8 @@ function ___kinsol(f,
         LS = Sundials.SUNLinSol_SPTFQMR(y0_nvec, Cint(prec_side), Cint(krylov_dim))
     elseif linear_solver == :KLU
         nnz = length(SparseArrays.nonzeros(jac_prototype))
-        A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT)
-        LS = SUNLinSol_KLU(y0_nvec, A)
+        A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT, ctx)
+        LS = SUNLinSol_KLU(y0_nvec, A, ctx)
     else
         error("Unknown linear solver")
     end
