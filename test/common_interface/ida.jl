@@ -24,13 +24,12 @@ sol2 = solve(prob, IDA(; linear_solver = :Band, jac_upper = 2, jac_lower = 2))
 # Testing iterative solvers
 @info "GMRES solver"
 sol3 = solve(prob, IDA(; linear_solver = :GMRES))
-# TFQMR has convergence issues with this problem
-# @info "TFQMR solver"  
-# sol5 = solve(prob, IDA(; linear_solver = :TFQMR))
+@info "TFQMR solver"  
+sol5 = solve(prob, IDA(; linear_solver = :TFQMR))  # Returns ConvergenceFailure
 @info "FGMRES solver"
 sol6 = solve(prob, IDA(; linear_solver = :FGMRES))
-# @info "PCG solver"
-# sol7 = solve(prob, IDA(; linear_solver = :PCG)) # Requires symmetric linear
+@info "PCG solver"
+sol7 = solve(prob, IDA(; linear_solver = :PCG))  # Returns MaxIters
 #sol4 = solve(prob,IDA(linear_solver=:BCG)) # Fails but doesn't throw an error?
 #@info "KLU solver"
 #sol8 = solve(prob,IDA(linear_solver=:KLU)) # Requires Jacobian
@@ -50,12 +49,14 @@ sol11 = solve(prob, IDA(; linear_solver = :Dense))
 
 # Test iterative solvers work
 @test sol3.retcode == ReturnCode.Success
-# sol5 (TFQMR) commented out due to convergence issues
+@test_broken sol5.retcode == ReturnCode.Success  # TFQMR has convergence issues
 @test sol6.retcode == ReturnCode.Success
+@test_broken sol7.retcode == ReturnCode.Success  # PCG requires symmetric linear system
 # Iterative solvers without preconditioner are unstable - mark as broken
 @test_broken isapprox(sol1[end], sol3[end]; rtol = 1e-3)  # GMRES without preconditioner
-# @test isapprox(sol1[end], sol5[end]; rtol = 1e-3)
+@test_broken isapprox(sol1[end], sol5[end]; rtol = 1e-3)  # TFQMR convergence issues
 @test_broken isapprox(sol1[end], sol6[end]; rtol = 1e-3)  # FGMRES without preconditioner
+@test_broken isapprox(sol1[end], sol7[end]; rtol = 1e-3)  # PCG requires symmetric
 
 # Test identity preconditioner
 prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)
