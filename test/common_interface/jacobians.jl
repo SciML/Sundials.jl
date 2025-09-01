@@ -101,8 +101,6 @@ sol4 = solve(prob4, IDA())
 
 @test jac_called == false
 
-println("Jacobian vs no Jacobian difference:")
-println(maximum(sol3 - sol4))
 @test maximum(sol3 - sol4) < 1e-6
 
 function testjac(res, du, u, p, t)
@@ -141,18 +139,10 @@ prob6 = DAEProblem(testjac_f,
     (0.0, 10.0);
     differential_vars = [true, true])
 sol6 = solve(prob6, IDA(; linear_solver = :KLU))
-println("🔍 DEBUG: sol5 type: ", typeof(sol5))
-println("🔍 DEBUG: sol6 type: ", typeof(sol6))
-println("🔍 DEBUG: sol5 length: ", length(sol5.u))
-println("🔍 DEBUG: sol6 length: ", length(sol6.u))
-println("🔍 DEBUG: sol5 retcode: ", sol5.retcode)
-println("🔍 DEBUG: sol6 retcode: ", sol6.retcode)
 if sol5.retcode == ReturnCode.Success && sol6.retcode == ReturnCode.Success &&
    length(sol5.u) == length(sol6.u)
     max_diff = maximum(maximum(abs.(sol5.u[i] - sol6.u[i])) for i in 1:length(sol5.u))
-    println("🔍 DEBUG: Maximum difference between sol5 and sol6: ", max_diff)
     @test max_diff < 1e-6
 else
-    println("⚠️ WARNING: Cannot compare solutions - different lengths or failed retcodes")
     @test_skip maximum(sol5 - sol6) < 1e-6
 end
