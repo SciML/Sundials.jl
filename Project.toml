@@ -38,7 +38,7 @@ SciMLBase = "2.9"
 SparseArrays = "1"
 SparseConnectivityTracer = "0.6"
 SparseDiffTools = "2"
-Sundials_jll = "5.2"
+Sundials_jll = "7.4.1"
 Test = "1"
 julia = "1.9"
 

@@ -1,3 +1,8 @@
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ## Adapted from sundialsTB/kinsol/examples_ser/mkinTest_nds.m
 
 ## %mkinTest_dns - KINSOL example problem (serial, dense)
@@ -24,18 +29,22 @@ sysfn_C = @cfunction(sysfn, Cint, (Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvo
 
 ## Initialize problem
 neq = 2
-kmem = Sundials.KINCreate()
+kmem = Sundials.KINCreate(ctx)
 Sundials.@checkflag Sundials.KINSetFuncNormTol(kmem, 1.0e-5)
 Sundials.@checkflag Sundials.KINSetScaledStepTol(kmem, 1.0e-4)
 Sundials.@checkflag Sundials.KINSetMaxSetupCalls(kmem, 1)
 y = ones(neq)
-Sundials.@checkflag Sundials.KINInit(kmem, sysfn_C, y)
-A = Sundials.SUNDenseMatrix(length(y), length(y))
-LS = Sundials.SUNLinSol_Dense(y, A)
+y_nvec = Sundials.NVector(y, ctx)
+Sundials.@checkflag Sundials.KINInit(kmem, sysfn_C, y_nvec)
+A = Sundials.SUNDenseMatrix(length(y), length(y), ctx)
+LS = Sundials.SUNLinSol_Dense(y_nvec, A, ctx)
 Sundials.@checkflag Sundials.KINDlsSetLinearSolver(kmem, LS, A)
 ## Solve problem
 scale = ones(neq)
-Sundials.@checkflag Sundials.KINSol(kmem, y, Sundials.KIN_LINESEARCH, scale, scale)
+scale_nvec = Sundials.NVector(scale, ctx)
+Sundials.@checkflag Sundials.KINSol(
+    kmem, y_nvec, Sundials.KIN_LINESEARCH, scale_nvec, scale_nvec)
+copyto!(y, y_nvec.v)
 
 println("Solution: ", y)
 residual = ones(2)
@@ -43,3 +52,6 @@ sysfn(y, residual, [1, 2])
 println("Residual: ", residual)
 
 @test abs(minimum(residual)) < 1e-5
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

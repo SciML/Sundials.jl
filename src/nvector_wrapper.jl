@@ -12,23 +12,28 @@
 mutable struct NVector <: DenseVector{realtype}
     n_v::N_Vector           # reference (C pointer) to N_Vector
     v::Vector{realtype}     # array that is referenced by N_Vector
+    ctx::SUNContext         # SUNContext for this NVector
 
-    function NVector(v::Vector{realtype})
+    function NVector(v::Vector{realtype}, ctx::SUNContext)
         # note that N_VMake_Serial() creates N_Vector doesn't own the data,
         # so calling N_VDestroy_Serial() would not deallocate v
-        nv = new(N_VMake_Serial(length(v), v), v)
+        nv = new(N_VMake_Serial(length(v), v, ctx), v, ctx)
         finalizer(release_handle, nv)
         return nv
     end
 
-    function NVector(n_v::N_Vector)
+    function NVector(n_v::N_Vector, ctx::SUNContext = C_NULL)
         # wrap N_Vector into NVector and get non-owning access to `nv` data
         # via `v`, but don't register finalizer for `nv`
-        return new(n_v, asarray(n_v))
+        # ctx is C_NULL for wrapped N_Vectors that don't own their context
+        return new(n_v, asarray(n_v), ctx)
     end
 end
 
-release_handle(nv::NVector) = N_VDestroy_Serial(nv.n_v)
+function release_handle(nv::NVector)
+    N_VDestroy_Serial(nv.n_v)
+    # Don't free context here - it will be freed by the integrator
+end
 
 Base.size(nv::NVector, d...) = size(nv.v, d...)
 Base.stride(nv::NVector, d::Integer) = stride(nv.v, d)
@@ -51,15 +56,18 @@ Base.pointer(nv::NVector) = Sundials.N_VGetArrayPointer_Serial(nv.n_v)
 # - cconvert / unsafe_convert to convert to N_Vector (for use within a ccall only)
 ##################################################################
 
-Base.convert(::Type{NVector}, v::Vector{realtype}) = NVector(v)
-function Base.convert(::Type{NVector}, v::Vector{T}) where {T <: Real}
-    NVector(copy!(similar(v,
-            realtype),
-        v))
+# Conversion from vectors to NVector requires context
+function Base.convert(::Type{NVector}, v::Vector{realtype})
+    error("Cannot convert Vector to NVector without context. Use NVector(v, ctx) instead.")
 end
-Base.convert(::Type{NVector}, v::AbstractVector) = NVector(convert(Vector{realtype}, v))
+function Base.convert(::Type{NVector}, v::Vector{T}) where {T <: Real}
+    error("Cannot convert Vector to NVector without context. Use NVector(v, ctx) instead.")
+end
+function Base.convert(::Type{NVector}, v::AbstractVector)
+    error("Cannot convert AbstractVector to NVector without context. Use NVector(v, ctx) instead.")
+end
 Base.convert(::Type{NVector}, nv::NVector) = nv
-Base.convert(::Type{NVector}, nv::N_Vector) = NVector(nv)
+Base.convert(::Type{NVector}, v::Vector{realtype}, ctx::SUNContext) = NVector(v, ctx)
 Base.convert(::Type{Vector{realtype}}, nv::NVector) = nv.v
 Base.convert(::Type{Vector}, nv::NVector) = nv.v
 
@@ -75,11 +83,10 @@ Conversion happens in two steps within ccall:
  - cconvert to convert to temporary NVector, which is preserved (by ccall) from garbage collection
  - unsafe_convert to get the N_Vector pointer from the temporary NVector
 """
-Base.cconvert(::Type{N_Vector}, v::Vector{realtype}) = convert(NVector, v) # will just return v if v is an NVector
+Base.cconvert(::Type{N_Vector}, nv::NVector) = nv
 Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.n_v
-Base.copy!(v::Vector, nv::Ptr{Sundials._generic_N_Vector}) = copy!(v, convert(NVector, nv))
 
-Base.similar(nv::NVector) = NVector(similar(nv.v))
+Base.similar(nv::NVector) = NVector(similar(nv.v), nv.ctx)
 
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 # asarray() creates an array pointing to N_Vector data, but does not take the ownership
@@ -95,6 +102,3 @@ asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims; own = false)
 @inline Base.convert(::Type{Vector{realtype}}, x::N_Vector) = asarray(x)
 @inline Base.convert(::Type{Vector}, x::N_Vector) = asarray(x)
-
-nvector(x::Vector{realtype}) = NVector(x)
-#nvector(x::N_Vector) = x

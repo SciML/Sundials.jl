@@ -8,12 +8,12 @@ function handle_callbacks!(integrator)
     saved_in_cb = false
     if !(continuous_callbacks isa Tuple{})
         time, upcrossing,
-        event_occured,
+        event_occurred,
         event_idx,
         idx,
         counter = DiffEqBase.find_first_continuous_callback(integrator,
             continuous_callbacks...)
-        if event_occured
+        if event_occurred
             integrator.event_last_time = idx
             integrator.vector_event_last_time = event_idx
             continuous_modified,
@@ -103,9 +103,44 @@ function handle_callback_modifiers!(integrator::CVODEIntegrator)
     CVodeReInit(integrator.mem, integrator.t, integrator.u_nvec)
 end
 
-function handle_callback_modifiers!(integrator::ARKODEIntegrator)
+# Dispatch for ARKStep (implicit methods)
+function handle_callback_modifiers!(integrator::ARKODEIntegrator{N,
+        pType,
+        solType,
+        algType,
+        fType,
+        UFType,
+        JType,
+        oType,
+        LStype,
+        Atype,
+        MLStype,
+        Mtype,
+        CallbackCacheType,
+        ARKStepMem}) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
     ARKStepReInit(integrator.mem, integrator.userfun.fun2, integrator.userfun.fun,
         integrator.t, integrator.u)
+end
+
+# Dispatch for ERKStep (explicit methods)
+function handle_callback_modifiers!(integrator::ARKODEIntegrator{N,
+        pType,
+        solType,
+        algType,
+        fType,
+        UFType,
+        JType,
+        oType,
+        LStype,
+        Atype,
+        MLStype,
+        Mtype,
+        CallbackCacheType,
+        ERKStepMem}) where {N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType}
+    # ERKStepReInit only takes one function (explicit RHS)
+    ERKStepReInit(integrator.mem, integrator.userfun.fun, integrator.t, integrator.u)
 end
 
 """
@@ -116,7 +151,7 @@ modified, this function needs to be called in order to update the solver's
 internal datastructures to re-gain consistency.
 """
 function IDAReinit!(integrator::IDAIntegrator)
-    IDAReInit(integrator.mem, integrator.t, integrator.u, integrator.du)
+    IDAReInit(integrator.mem, integrator.t, integrator.u_nvec, integrator.du_nvec)
     integrator.u_modified = false
 end
 
@@ -213,8 +248,12 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
             init_type = IDA_Y_INIT
         else
             init_type = IDA_YA_YDP_INIT
-            integrator.flag = IDASetId(integrator.mem,
-                vec(integrator.sol.prob.differential_vars))
+            # Use preallocated NVector for differential_vars
+            if integrator.diff_vars_nvec !== nothing
+                integrator.flag = IDASetId(integrator.mem, integrator.diff_vars_nvec)
+            else
+                error("differential_vars NVector not preallocated but needed for IDASetId")
+            end
         end
         dt = integrator.dt == tstart ? tend : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)

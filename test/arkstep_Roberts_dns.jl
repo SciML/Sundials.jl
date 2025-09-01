@@ -1,5 +1,10 @@
 using Sundials, Test
 
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ## f routine. Compute function f(t,y).
 
 function f(t, y_nv, ydot_nv, user_data)
@@ -26,7 +31,8 @@ abstol = 1e-11
 userdata = nothing
 h0 = 1e-4 * reltol
 
-mem_ptr = Sundials.ARKStepCreate(C_NULL, f_C, t0, y0)
+y0_nvec = Sundials.NVector(y0, ctx)
+mem_ptr = Sundials.ARKStepCreate(C_NULL, f_C, t0, y0_nvec, ctx)
 arkStep_mem = Sundials.Handle(mem_ptr)
 Sundials.@checkflag Sundials.ARKStepSetInitStep(arkStep_mem, h0)
 Sundials.@checkflag Sundials.ARKStepSetMaxErrTestFails(arkStep_mem, 20)
@@ -36,8 +42,8 @@ Sundials.@checkflag Sundials.ARKStepSetMaxNumSteps(arkStep_mem, 100000)
 Sundials.@checkflag Sundials.ARKStepSetPredictorMethod(arkStep_mem, 1)
 
 Sundials.@checkflag Sundials.ARKStepSStolerances(arkStep_mem, reltol, abstol)
-A = Sundials.SUNDenseMatrix(neq, neq)
-LS = Sundials.SUNLinSol_Dense(y0, A)
+A = Sundials.SUNDenseMatrix(neq, neq, ctx)
+LS = Sundials.SUNLinSol_Dense(y0_nvec, A, ctx)
 Sundials.@checkflag Sundials.ARKStepSetLinearSolver(arkStep_mem, LS, A)
 
 iout = 0
@@ -46,7 +52,9 @@ t = [t0]
 
 while iout < nout
     y = similar(y0)
-    flag = Sundials.ARKStepEvolve(arkStep_mem, tout, y, t, Sundials.ARK_NORMAL)
+    y_nvec = Sundials.NVector(y, ctx)
+    flag = Sundials.ARKStepEvolve(arkStep_mem, tout, y_nvec, t, Sundials.ARK_NORMAL)
+    copyto!(y, y_nvec.v)
     @test flag == 0
     println("T=", tout, ", Y=", y)
     global iout += 1
@@ -64,3 +72,6 @@ Sundials.@checkflag Sundials.ARKStepGetNumNonlinSolvIters(arkStep_mem, tmp1);
 Sundials.@checkflag Sundials.ARKStepGetNumNonlinSolvConvFails(arkStep_mem, tmp1);
 Sundials.@checkflag Sundials.ARKStepGetNumJacEvals(arkStep_mem, tmp1);
 Sundials.@checkflag Sundials.ARKStepGetNumLinRhsEvals(arkStep_mem, tmp2);
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

@@ -1,5 +1,10 @@
 using Sundials
 
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ##
 ## Example problem for IDA: 2D heat equation, serial, banded.
 ##
@@ -111,7 +116,9 @@ function idabandsol(f::Function,
         reltol::Float64 = 1e-4,
         abstol::Float64 = 1e-6)
     neq = length(y0)
-    mem = Sundials.IDACreate()
+    mem = Sundials.IDACreate(ctx)
+    y0_nvec = Sundials.NVector(y0, ctx)
+    yp0_nvec = Sundials.NVector(yp0, ctx)
     Sundials.@checkflag Sundials.IDAInit(mem,
         @cfunction(Sundials.idasolfun,
             Cint,
@@ -121,15 +128,17 @@ function idabandsol(f::Function,
                 Sundials.N_Vector,
                 Ref{Function})),
         t[1],
-        y0,
-        yp0)
-    Sundials.@checkflag Sundials.IDASetId(mem, id)
-    Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints)
+        y0_nvec,
+        yp0_nvec)
+    id_nvec = Sundials.NVector(id, ctx)
+    Sundials.@checkflag Sundials.IDASetId(mem, id_nvec)
+    constraints_nvec = Sundials.NVector(constraints, ctx)
+    Sundials.@checkflag Sundials.IDASetConstraints(mem, constraints_nvec)
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
 
-    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID)#,2MGRID)
-    LS = Sundials.SUNLinSol_Band(y0, A)
+    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID, ctx)#,2MGRID)
+    LS = Sundials.SUNLinSol_Band(y0_nvec, A, ctx)
     Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
     rtest = zeros(neq)
@@ -140,9 +149,14 @@ function idabandsol(f::Function,
     ypres[:, 1] = yp0
     y = copy(y0)
     yp = copy(yp0)
+    y_nvec = Sundials.NVector(y, ctx)
+    yp_nvec = Sundials.NVector(yp, ctx)
     tout = [0.0]
     for k in 2:length(t)
-        Sundials.@checkflag Sundials.IDASolve(mem, t[k], tout, y, yp, Sundials.IDA_NORMAL)
+        Sundials.@checkflag Sundials.IDASolve(
+            mem, t[k], tout, y_nvec, yp_nvec, Sundials.IDA_NORMAL)
+        copyto!(y, y_nvec.v)
+        copyto!(yp, yp_nvec.v)
         yres[:, k] = y
         ypres[:, k] = yp
     end
@@ -159,3 +173,6 @@ t = collect(0.0:tstep:(tstep * nsteps))
 u0, up0, id, constraints = initial()
 
 idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t); reltol = 0.0, abstol = 1e-3)
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

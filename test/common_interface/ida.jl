@@ -16,26 +16,47 @@ prob = DAEProblem(prob_dae_resrob.f, prob_dae_resrob.du0, prob_dae_resrob.u0,
 
 dt = 1000
 saveat = float(collect(0:dt:100000))
-sol = solve(prob, IDA())
+sol1 = solve(prob, IDA())
 @info "Multiple abstol"
 sol = solve(prob, IDA(); abstol = [1e-9, 1e-8, 1e-7])
 @info "Band solver"
 sol2 = solve(prob, IDA(; linear_solver = :Band, jac_upper = 2, jac_lower = 2))
+# Testing iterative solvers
 @info "GMRES solver"
 sol3 = solve(prob, IDA(; linear_solver = :GMRES))
-#sol4 = solve(prob,IDA(linear_solver=:BCG)) # Fails but doesn't throw an error?
 @info "TFQMR solver"
-sol5 = solve(prob, IDA(; linear_solver = :TFQMR))
+sol5 = solve(prob, IDA(; linear_solver = :TFQMR))  # Returns ConvergenceFailure
 @info "FGMRES solver"
 sol6 = solve(prob, IDA(; linear_solver = :FGMRES))
 @info "PCG solver"
-sol7 = solve(prob, IDA(; linear_solver = :PCG)) # Requires symmetric linear
+sol7 = solve(prob, IDA(; linear_solver = :PCG))  # Returns MaxIters
+#sol4 = solve(prob,IDA(linear_solver=:BCG)) # Fails but doesn't throw an error?
 #@info "KLU solver"
 #sol8 = solve(prob,IDA(linear_solver=:KLU)) # Requires Jacobian
 
+# Testing LapackBand/LapackDense solvers
 sol9 = solve(prob, IDA(; linear_solver = :LapackBand, jac_upper = 2, jac_lower = 2))
 sol10 = solve(prob, IDA(; linear_solver = :LapackDense))
 sol11 = solve(prob, IDA(; linear_solver = :Dense))
+
+# Test that LAPACK solvers work
+@test sol9.retcode == ReturnCode.Success
+@test sol10.retcode == ReturnCode.Success
+@test sol11.retcode == ReturnCode.Success
+@test isapprox(sol1[end], sol9[end]; rtol = 1e-3)
+@test isapprox(sol1[end], sol10[end]; rtol = 1e-3)
+@test isapprox(sol1[end], sol11[end]; rtol = 1e-3)
+
+# Test iterative solvers work
+@test sol3.retcode == ReturnCode.Success
+@test_broken sol5.retcode == ReturnCode.Success  # TFQMR has convergence issues
+@test sol6.retcode == ReturnCode.Success
+@test_broken sol7.retcode == ReturnCode.Success  # PCG requires symmetric linear system
+# Iterative solvers without preconditioner are unstable - mark as broken
+@test_broken isapprox(sol1[end], sol3[end]; rtol = 1e-3)  # GMRES without preconditioner
+@test_broken isapprox(sol1[end], sol5[end]; rtol = 1e-3)  # TFQMR convergence issues
+@test_broken isapprox(sol1[end], sol6[end]; rtol = 1e-3)  # FGMRES without preconditioner
+@test_broken isapprox(sol1[end], sol7[end]; rtol = 1e-3)  # PCG requires symmetric
 
 # Test identity preconditioner
 prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)

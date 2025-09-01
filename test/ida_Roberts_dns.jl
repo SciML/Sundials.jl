@@ -1,3 +1,8 @@
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 ## Adapted from  doc/libsundials-serial-dev/examples/ida/serial/idaRoberts_dns.c and
 ##               sundialsTB/ida/examples_ser/midasRoberts_dns.m
 
@@ -85,16 +90,19 @@ rtol = 1e-4
 avtol = [1e-8, 1e-14, 1e-6]
 tout1 = 0.4
 
-mem = Sundials.IDACreate()
-Sundials.@checkflag Sundials.IDAInit(mem, resrob_C, t0, yy0, yp0)
-Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol)
+mem = Sundials.IDACreate(ctx)
+yy0_nvec = Sundials.NVector(yy0, ctx)
+yp0_nvec = Sundials.NVector(yp0, ctx)
+Sundials.@checkflag Sundials.IDAInit(mem, resrob_C, t0, yy0_nvec, yp0_nvec)
+avtol_nvec = Sundials.NVector(avtol, ctx)
+Sundials.@checkflag Sundials.IDASVtolerances(mem, rtol, avtol_nvec)
 
 ## Call IDARootInit to specify the root function grob with 2 components
 Sundials.@checkflag Sundials.IDARootInit(mem, 2, grob_C)
 
 ## Call IDADense and set up the linear solver.
-A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-LS = Sundials.SUNLinSol_Dense(y0, A)
+A = Sundials.SUNDenseMatrix(length(yy0), length(yy0), ctx)
+LS = Sundials.SUNLinSol_Dense(yy0_nvec, A, ctx)
 Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
 iout = 0
@@ -104,7 +112,11 @@ tret = [1.0]
 while iout < nout
     yy = similar(yy0)
     yp = similar(yp0)
-    retval = Sundials.IDASolve(mem, tout, tret, yy, yp, Sundials.IDA_NORMAL)
+    yy_nvec = Sundials.NVector(yy, ctx)
+    yp_nvec = Sundials.NVector(yp, ctx)
+    retval = Sundials.IDASolve(mem, tout, tret, yy_nvec, yp_nvec, Sundials.IDA_NORMAL)
+    copyto!(yy, yy_nvec.v)
+    copyto!(yp, yp_nvec.v)
     println("T=", tout, ", Y=", yy)
     if retval == Sundials.IDA_ROOT_RETURN
         rootsfound = zeros(Cint, 2)
@@ -118,3 +130,6 @@ end
 
 Sundials.SUNLinSolFree_Dense(LS)
 Sundials.SUNMatDestroy_Dense(A)
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

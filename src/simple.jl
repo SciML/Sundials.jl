@@ -61,7 +61,10 @@ function ___kinsol(f,
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
     # return: the solution vector
-    mem_ptr = KINCreate()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
+    mem_ptr = KINCreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate KINSOL solver object")
     kmem = Handle(mem_ptr)
 
@@ -73,38 +76,39 @@ function ___kinsol(f,
     function getcfun(userfun::T) where {T}
         @cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{T}))
     end
-    flag = @checkflag KINInit(kmem, getcfun(userfun), NVector(y0)) true
+    y0_nvec = NVector(y0, ctx)
+    flag = @checkflag KINInit(kmem, getcfun(userfun), y0_nvec) true
     if linear_solver == :Dense
-        A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-        LS = Sundials.SUNLinSol_Dense(y0, A)
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
+        LS = Sundials.SUNLinSol_Dense(y0_nvec, A, ctx)
     elseif linear_solver == :LapackDense
-        A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-        LS = Sundials.SUNLinSol_LapackDense(y0, A)
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
+        LS = Sundials.SUNLinSol_LapackDense(y0_nvec, A, ctx)
     elseif linear_solver == :Band
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
-        LS = Sundials.SUNLinSol_Band(y0, A)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ctx)
+        LS = Sundials.SUNLinSol_Band(y0_nvec, A, ctx)
     elseif linear_solver == :LapackBand
-        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower)
-        LS = Sundials.SUNLinSol_LapackBand(y0, A)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ctx)
+        LS = Sundials.SUNLinSol_LapackBand(y0_nvec, A, ctx)
     elseif linear_solver == :GMRES
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPGMR(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPGMR(y0_nvec, Cint(prec_side), Cint(krylov_dim))
     elseif linear_solver == :FGMRES
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPFGMR(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPFGMR(y0_nvec, Cint(prec_side), Cint(krylov_dim))
     elseif linear_solver == :BCG
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPBCGS(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPBCGS(y0_nvec, Cint(prec_side), Cint(krylov_dim))
     elseif linear_solver == :PCG
         A = C_NULL
-        LS = Sundials.SUNLinSol_PCG(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_PCG(y0_nvec, Cint(prec_side), Cint(krylov_dim))
     elseif linear_solver == :TFQMR
         A = C_NULL
-        LS = Sundials.SUNLinSol_SPTFQMR(y0, prec_side, krylov_dim)
+        LS = Sundials.SUNLinSol_SPTFQMR(y0_nvec, Cint(prec_side), Cint(krylov_dim))
     elseif linear_solver == :KLU
         nnz = length(SparseArrays.nonzeros(jac_prototype))
-        A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT)
-        LS = SUNLinSol_KLU(y0, A)
+        A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT, ctx)
+        LS = SUNLinSol_KLU(y0_nvec, A, ctx)
     else
         error("Unknown linear solver")
     end
@@ -115,6 +119,7 @@ function ___kinsol(f,
     flag = @checkflag KINSetMaxSetupCalls(kmem, maxsetupcalls) true
     ## Solve problem
     scale = ones(length(y0))
+    scale_nvec = NVector(scale, ctx)
     if strategy == :None
         strategy = KIN_NONE
     elseif strategy == :LineSearch
@@ -122,7 +127,12 @@ function ___kinsol(f,
     else
         error("Unknown strategy")
     end
-    flag = @checkflag KINSol(kmem, y, strategy, scale, scale) true
+    ynv = NVector(y, ctx)
+    flag = @checkflag KINSol(kmem, ynv, strategy, scale_nvec, scale_nvec) true
+    y = convert(Vector, ynv)
+
+    # Clean up context
+    SUNContext_Free(ctx)
 
     return y, flag
 end
@@ -180,10 +190,13 @@ function cvode!(f::Function,
         reltol::Float64 = 1e-3,
         abstol::Float64 = 1e-6,
         callback = (x, y, z) -> true)
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
     if integrator == :BDF
-        mem_ptr = CVodeCreate(CV_BDF)
+        mem_ptr = CVodeCreate(CV_BDF, ctx)
     elseif integrator == :Adams
-        mem_ptr = CVodeCreate(CV_ADAMS)
+        mem_ptr = CVodeCreate(CV_ADAMS, ctx)
     end
 
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
@@ -192,21 +205,21 @@ function cvode!(f::Function,
     c = 1
 
     userfun = UserFunctionAndData(f, userdata)
-    y0nv = NVector(y0)
+    y0nv = NVector(y0, ctx)
 
     function getcfun(userfun::T) where {T}
         @cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
     end
-    flag = @checkflag CVodeInit(mem, getcfun(userfun), t[1], convert(NVector, y0nv)) true
+    flag = @checkflag CVodeInit(mem, getcfun(userfun), t[1], y0nv) true
 
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
-    A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-    LS = Sundials.SUNLinSol_Dense(y0nv, A)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
+    LS = Sundials.SUNLinSol_Dense(y0nv, A, ctx)
     flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
     y[1, :] = y0
-    ynv = NVector(copy(y0))
+    ynv = NVector(copy(y0), ctx)
     tout = [0.0]
     for k in 2:length(t)
         flag = @checkflag CVode(mem, t[k], ynv, tout, CV_NORMAL) true
@@ -219,6 +232,7 @@ function cvode!(f::Function,
 
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
+    SUNContext_Free(ctx)
 
     return c
 end
@@ -266,7 +280,10 @@ function idasol(f,
         reltol::Float64 = 1e-3,
         abstol::Float64 = 1e-6,
         diffstates::Union{Vector{Bool}, Nothing} = nothing)
-    mem_ptr = IDACreate()
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
+    mem_ptr = IDACreate(ctx)
     (mem_ptr == C_NULL) && error("Failed to allocate IDA solver object")
     mem = Handle(mem_ptr)
 
@@ -278,12 +295,14 @@ function idasol(f,
     function getcfun(userfun::T) where {T}
         @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
     end
-    flag = @checkflag IDAInit(mem, getcfun(userfun), t[1], y0, yp0) true
+    y0nv = NVector(y0, ctx)
+    yp0nv = NVector(yp0, ctx)
+    flag = @checkflag IDAInit(mem, getcfun(userfun), t[1], y0nv, yp0nv) true
     flag = @checkflag IDASetUserData(mem, userfun) true
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
 
-    A = Sundials.SUNDenseMatrix(length(y0), length(y0))
-    LS = Sundials.SUNLinSol_Dense(y0, A)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
+    LS = Sundials.SUNLinSol_Dense(y0nv, A, ctx)
     flag = Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A) true
 
     rtest = zeros(length(y0))
@@ -297,17 +316,18 @@ function idasol(f,
     end
     yres[1, :] = y0
     ypres[1, :] = yp0
-    y = copy(y0)
-    yp = copy(yp0)
+    ynv = NVector(copy(y0), ctx)
+    ypnv = NVector(copy(yp0), ctx)
     tout = [0.0]
     for k in 2:length(t)
-        retval = @checkflag IDASolve(mem, t[k], tout, y, yp, IDA_NORMAL) true
-        yres[k, :] = y
-        ypres[k, :] = yp
+        retval = @checkflag IDASolve(mem, t[k], tout, ynv, ypnv, IDA_NORMAL) true
+        yres[k, :] = convert(Vector, ynv)
+        ypres[k, :] = convert(Vector, ypnv)
     end
 
     Sundials.SUNLinSolFree_Dense(LS)
     Sundials.SUNMatDestroy_Dense(A)
+    SUNContext_Free(ctx)
 
     return yres, ypres
 end

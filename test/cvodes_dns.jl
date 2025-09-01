@@ -2,6 +2,11 @@ using Sundials, Test, ForwardDiff
 using Sundials: N_Vector, N_Vector_S
 using LinearAlgebra
 
+# Create context for tests
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+
 function mycopy!(pp, arr::Matrix)
     nj = size(arr, 2)
     ps = unsafe_wrap(Array, pp, nj)
@@ -116,7 +121,7 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     tret = [t0]
     yret = similar(y0)
     ysret = similar(yS0)
-    yS0n = [Sundials.NVector(yS0[:, j]) for j in 1:Ns]
+    yS0n = [Sundials.NVector(yS0[:, j], ctx) for j in 1:Ns]
     yS0nv = [N_Vector(n) for n in yS0n]
     pyS0 = pointer(yS0nv)
     crhs = Sundials.@cfunction(cvrhsfn,
@@ -136,8 +141,8 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
 
     ##
 
-    mem_ptr = Sundials.CVodeCreate(Sundials.CV_ADAMS)
-    #mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF)
+    mem_ptr = Sundials.CVodeCreate(Sundials.CV_ADAMS, ctx)
+    #mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, ctx)
     cvode_mem = Sundials.Handle(mem_ptr)
     Sundials.CVodeInit(cvode_mem, crhs, t0, convert(NVector, y0))
     Sundials.CVodeSStolerances(cvode_mem, reltol, abstol)
@@ -167,3 +172,6 @@ p = [3.0, 4.0]
 y, ys = sens(f!, t0, y0, p, t)
 @test_broken isapprox(y[1, 1], 20.0856; rtol = 1e-3)
 @test_broken isapprox(ys[2, 2, 2], 11924.3; rtol = 1e-3) # todo: check if these are indeed the right results
+
+# Clean up context
+Sundials.SUNContext_Free(ctx)

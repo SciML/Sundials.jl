@@ -100,7 +100,7 @@ include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
 include("common_interface/solve.jl")
 
-using PrecompileTools: PrecompileTools
+import PrecompileTools
 
 PrecompileTools.@compile_workload begin
     function lorenz(du, u, p, t)

@@ -2,7 +2,7 @@ using Sundials
 
 ## f routine. Compute function f(t,y).
 
-function f(t, y_nv, ydot_nv, user_data)
+function f(t, y_nv, ydot_nv)
     y = convert(Vector, y_nv)
     ydot = convert(Vector, ydot_nv)
     ydot[1] = -0.04 * y[1] + 1.0e4 * y[2] * y[3]
@@ -54,7 +54,10 @@ y0 = [1.0, 0.0, 0.0]
 reltol = 1e-4
 abstol = [1e-8, 1e-14, 1e-6]
 userdata = nothing
-mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF)
+ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, ctx)
 cvode_mem = Sundials.Handle(mem_ptr)
 userfun = Sundials.UserFunctionAndData(f, userdata)
 Sundials.CVodeSetUserData(cvode_mem, userfun)
@@ -65,14 +68,18 @@ function getcfunrob(userfun::T) where {T}
         (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ref{T}))
 end
 
+# Create NVector before using it
+y0_nvec = Sundials.NVector(y0, ctx)
+
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1,
-    convert(Sundials.NVector, y0))
-Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, y0)
-Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol)
+    y0_nvec)
+Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, y0_nvec)
+abstol_nvec = Sundials.NVector(abstol, ctx)
+Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol_nvec)
 Sundials.@checkflag Sundials.CVodeRootInit(cvode_mem, 2, g_C)
-A = Sundials.SUNDenseMatrix(neq, neq)
+A = Sundials.SUNDenseMatrix(neq, neq, ctx)
 mat_handle = Sundials.MatrixHandle(A, Sundials.DenseMatrix())
-LS = Sundials.SUNLinSol_Dense(convert(Sundials.NVector, y0), A)
+LS = Sundials.SUNLinSol_Dense(y0_nvec, A, ctx)
 LS_handle = Sundials.LinSolHandle(LS, Sundials.Dense())
 Sundials.@checkflag Sundials.CVDlsSetLinearSolver(cvode_mem, LS, A)
 #Sundials.@checkflag Sundials.CVDlsSetDenseJacFn(cvode_mem, Jac)
@@ -83,7 +90,9 @@ t = [t0]
 
 while iout < nout
     y = similar(y0)
-    flag = Sundials.CVode(cvode_mem, tout, y, t, Sundials.CV_NORMAL)
+    y_nvec = Sundials.NVector(y, ctx)
+    flag = Sundials.CVode(cvode_mem, tout, y_nvec, t, Sundials.CV_NORMAL)
+    copyto!(y, y_nvec.v)
     println("T=", tout, ", Y=", y)
     if flag == Sundials.CV_ROOT_RETURN
         rootsfound = zeros(Cint, 2)
@@ -98,3 +107,4 @@ end
 empty!(cvode_mem)
 empty!(mat_handle)
 empty!(LS_handle)
+Sundials.SUNContext_Free(ctx)
