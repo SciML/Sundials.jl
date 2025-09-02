@@ -1,5 +1,5 @@
 using Clang.Generators
-using Sundials_jll
+using Sundials_jll, SuiteSparse32_jll
 using MLStyle
 using Pkg
 
@@ -234,17 +234,15 @@ cd(@__DIR__)
 
 include_dir = joinpath(Sundials_jll.artifact_dir, "include") |> normpath
 
-artifact_toml = joinpath(dirname(pathof(Sundials_jll.SuiteSparse_jll)), "..",
-    "StdlibArtifacts.toml")
-suitespase_dir = Pkg.Artifacts.ensure_artifact_installed("SuiteSparse", artifact_toml)
-suitespase_include_sir = joinpath(suitespase_dir, "include")
+suitesparse_dir = SuiteSparse32_jll.artifact_dir
+suitesparse_include_dir = joinpath(suitesparse_dir, "include")
 
 # wrapper generator options
 options = load_options(joinpath(@__DIR__, "generate.toml"))
 
 # add compiler flags, e.g. "-DXXXXXXXXX"
 args = get_default_args()
-push!(args, "-I$include_dir", "-isystem$suitespase_include_sir")
+push!(args, "-I$include_dir", "-isystem$suitesparse_include_dir")
 
 library_names = Dict(raw"sundials[\\/].+" => "libsundials_sundials",
     raw"sunnonlinsol[\\/].+" => "libsundials_sunnonlinsol",
@@ -272,7 +270,7 @@ ctx = create_context(headers, args, options)
 
 # run generator
 build!(ctx, BUILDSTAGE_NO_PRINTING)
-for n in ctx.dag.nodes
-    copy!(n.exprs, reduce(vcat, rewrite.(n.exprs); init = []))
-end
+#for n in ctx.dag.nodes
+#    copy!(n.exprs, reduce(vcat, rewrite.(n.exprs); init = []))
+#end
 build!(ctx, BUILDSTAGE_PRINTING_ONLY)

@@ -4,4 +4,4 @@ MLStyle = "d8e11817-5142-5d16-987a-aa16d5891078"
 Sundials_jll = "fb77eaff-e24c-56d4-86b1-d163f2edb164"
 
 [compat]
-Clang = "0.14.0"
+Clang = "0.19"
