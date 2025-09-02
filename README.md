@@ -2,8 +2,8 @@ Sundials.jl
 ===========
 
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://github.com/SciML/Sundials.jl/workflows/CI/badge.svg)](https://github.com/SciML/Sundials.jl/actions?query=workflow%3ACI)
-[![Coveralls](https://coveralls.io/repos/github/SciML/Sundials.jl/badge.svg?branch=master)](https://coveralls.io/github/SciML/Sundials.jl?branch=master)
+[![Tests](https://github.com/SciML/Sundials.jl/actions/workflows/Tests.yml/badge.svg)](https://github.com/SciML/Sundials.jl/actions/workflows/Tests.yml)
+[![codecov](https://codecov.io/gh/SciML/Sundials.jl/graph/badge.svg?token=6YBolQDTjf)](https://codecov.io/gh/SciML/Sundials.jl)
 
 Introduction
 ------------
@@ -42,22 +42,15 @@ Installation
 
 Within Julia, use the package manager:
 ```julia
+using Pkg
 Pkg.add("Sundials")
 ```
-This should download and install the Sundials libraries and register the package. On Windows [precompiled binaries](http://sourceforge.net/projects/juliadeps-win/files)
-are used, while on Unix and OSX Sundials is built from its sources (provided the necessary tools are
-available). If you have Sundials already installed, make sure that Julia can find it, e.g., via
-```julia
-push!(Base.DL_LOAD_PATH, "/opt/local/lib")
-```
-before you install the package. Downloading and/or re-building of the library can be triggered by `Pkg.build("Sundials")`
-if anything goes wrong.
 
 To test the installation use
 ```julia
+using Pkg
 Pkg.test("Sundials")
 ```
-which currently runs some of the examples in the `examples` directory.
 
 Common Interface API
 --------------------
