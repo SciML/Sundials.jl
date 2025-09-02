@@ -7686,14 +7686,13 @@ function SUNLinSolFree_Dense(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_Dense, libsundials_sunlinsoldense), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_KLU(y::Union{N_Vector, NVector}, A::SUNMatrix)
+function SUNLinSol_KLU(y::Union{N_Vector, NVector}, A::SUNMatrix, ctx::SUNContext)
     ccall((:SUNLinSol_KLU, libsundials_sunlinsolklu), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+        (N_Vector, SUNMatrix, SUNContext), y, A, ctx)
 end
 
 function SUNLinSol_KLU(y, A, ctx::SUNContext)
-    # y should already be an NVector, just pass it through
-    SUNLinSol_KLU(y, A)
+    SUNLinSol_KLU(y, A, ctx)
 end
 
 function SUNLinSol_KLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
@@ -8854,25 +8853,15 @@ function SUNMatSpace_Dense(A::SUNMatrix, lenrw, leniw)
 end
 
 function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
-        sparsetype::Cint)
-    ccall((:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix,
-        (sunindextype, sunindextype, sunindextype, Cint), M, N, NNZ, sparsetype)
-end
-
-function SUNSparseMatrix(M, N, NNZ, sparsetype)
-    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
-end
-
-# Context version for SUNDIALS 7
-function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
         sparsetype::Cint, ctx::SUNContext)
-    # In SUNDIALS 7, SUNSparseMatrix still doesn't take context directly
-    # but we keep this for consistency
-    SUNSparseMatrix(M, N, NNZ, sparsetype)
+    ccall((:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix,
+        (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, ctx)
 end
+
+
 
 function SUNSparseMatrix(M, N, NNZ, sparsetype, ctx::SUNContext)
-    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
+    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype), ctx)
 end
 
 function SUNSparseFromDenseMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)

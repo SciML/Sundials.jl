@@ -31,8 +31,8 @@ sol6 = solve(prob, IDA(; linear_solver = :FGMRES))
 @info "PCG solver"
 sol7 = solve(prob, IDA(; linear_solver = :PCG))  # Returns MaxIters
 #sol4 = solve(prob,IDA(linear_solver=:BCG)) # Fails but doesn't throw an error?
-#@info "KLU solver"
-#sol8 = solve(prob,IDA(linear_solver=:KLU)) # Requires Jacobian
+# @info "KLU solver"
+# sol8 = solve(prob, IDA(; linear_solver = :KLU)) # Requires sparse Jacobian prototype
 
 # Testing LapackBand/LapackDense solvers
 sol9 = solve(prob, IDA(; linear_solver = :LapackBand, jac_upper = 2, jac_lower = 2))
