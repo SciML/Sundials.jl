@@ -17,7 +17,7 @@ mutable struct NVector <: DenseVector{realtype}
     function NVector(v::Vector{realtype}, ctx::SUNContext)
         # note that N_VMake_Serial() creates N_Vector doesn't own the data,
         # so calling N_VDestroy_Serial() would not deallocate v
-        nv = new(N_VMake_Serial(length(v), v, ctx), v, ctx)
+        nv = new(N_VMake_Serial(Int64(length(v)), v, ctx), v, ctx)
         finalizer(release_handle, nv)
         return nv
     end
