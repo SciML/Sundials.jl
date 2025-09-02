@@ -8859,12 +8859,6 @@ function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
         (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, ctx)
 end
 
-function SUNSparseMatrix(M, N, NNZ, sparsetype)
-    ctx_ptr = Ref{SUNContext}(C_NULL)
-    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
-    ctx = ctx_ptr[]
-    return SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype), ctx)
-end
 
 
 function SUNSparseMatrix(M, N, NNZ, sparsetype, ctx::SUNContext)
