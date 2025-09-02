@@ -1006,9 +1006,9 @@ const ARK_NORMAL = Cint(1)
 
 const ARK_ONE_STEP = Cint(2)
 
-const ARK_INTERP_MAX_DEGREE = Cint(5)
+const ARK_INTERP_MAX_DEGREE = Cint(7)
 
-const ARK_INTERP_HERMITE = Cint(0)
+const ARK_INTERP_HERMITE = Cint(4)
 
 const ARK_INTERP_LAGRANGE = Cint(1)
 
