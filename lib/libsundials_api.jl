@@ -8854,25 +8854,21 @@ function SUNMatSpace_Dense(A::SUNMatrix, lenrw, leniw)
 end
 
 function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
-        sparsetype::Cint)
+        sparsetype::Cint, ctx::SUNContext)
     ccall((:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix,
-        (sunindextype, sunindextype, sunindextype, Cint), M, N, NNZ, sparsetype)
+        (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, ctx)
 end
 
 function SUNSparseMatrix(M, N, NNZ, sparsetype)
-    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
+    ctx_ptr = Ref{SUNContext}(C_NULL)
+    SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+    ctx = ctx_ptr[]
+    return SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype), ctx)
 end
 
-# Context version for SUNDIALS 7
-function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
-        sparsetype::Cint, ctx::SUNContext)
-    # In SUNDIALS 7, SUNSparseMatrix still doesn't take context directly
-    # but we keep this for consistency
-    SUNSparseMatrix(M, N, NNZ, sparsetype)
-end
 
 function SUNSparseMatrix(M, N, NNZ, sparsetype, ctx::SUNContext)
-    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype))
+    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype), ctx)
 end
 
 function SUNSparseFromDenseMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
