@@ -3,6 +3,7 @@ Sundials.jl
 
 [![Join the chat at https://gitter.im/JuliaDiffEq/Lobby](https://badges.gitter.im/JuliaDiffEq/Lobby.svg)](https://gitter.im/JuliaDiffEq/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Tests](https://github.com/SciML/Sundials.jl/actions/workflows/Tests.yml/badge.svg)](https://github.com/SciML/Sundials.jl/actions/workflows/Tests.yml)
+[![codecov](https://codecov.io/gh/SciML/Sundials.jl/graph/badge.svg?token=6YBolQDTjf)](https://codecov.io/gh/SciML/Sundials.jl)
 
 Introduction
 ------------
