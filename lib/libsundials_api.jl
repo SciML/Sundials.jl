@@ -7686,14 +7686,13 @@ function SUNLinSolFree_Dense(S::SUNLinearSolver)
     ccall((:SUNLinSolFree_Dense, libsundials_sunlinsoldense), Cint, (SUNLinearSolver,), S)
 end
 
-function SUNLinSol_KLU(y::Union{N_Vector, NVector}, A::SUNMatrix)
+function SUNLinSol_KLU(y::Union{N_Vector, NVector}, A::SUNMatrix, ctx::SUNContext)
     ccall((:SUNLinSol_KLU, libsundials_sunlinsolklu), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+        (N_Vector, SUNMatrix, SUNContext), y, A, ctx)
 end
 
 function SUNLinSol_KLU(y, A, ctx::SUNContext)
-    # y should already be an NVector, just pass it through
-    SUNLinSol_KLU(y, A)
+    SUNLinSol_KLU(y, A, ctx)
 end
 
 function SUNLinSol_KLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,

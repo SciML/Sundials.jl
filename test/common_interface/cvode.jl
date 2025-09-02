@@ -81,7 +81,7 @@ sol6 = solve(prob, CVODE_BDF(; linear_solver = :PCG))
 sol7 = solve(prob, CVODE_BDF(; linear_solver = :BCG))
 sol8 = solve(prob, CVODE_BDF(; linear_solver = :TFQMR))
 sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))
-#sol9 = solve(prob,CVODE_BDF(linear_solver=:KLU)) # Requires Jacobian
+# sol12 = solve(prob, CVODE_BDF(; linear_solver = :KLU)) # Requires sparse Jacobian prototype
 # Testing LapackDense/LapackBand solvers
 sol10 = solve(prob, CVODE_BDF(; linear_solver = :LapackDense))
 sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3))
