@@ -774,7 +774,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         elseif LinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
             A = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT, ctx)
-            LS = SUNLinSol_KLU(utmp, A)
+            LS = SUNLinSol_KLU(utmp, A, ctx)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
         end
@@ -847,7 +847,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         elseif MassLinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.mass_matrix))
             M = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT, ctx)
-            MLS = SUNLinSol_KLU(utmp, M)
+            MLS = SUNLinSol_KLU(utmp, M, ctx)
             _M = MatrixHandle(M, SparseMatrix())
             _MLS = LinSolHandle(MLS, KLU())
         end
