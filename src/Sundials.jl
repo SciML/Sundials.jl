@@ -35,11 +35,11 @@ const warnkeywords = (:isoutofdomain,
 warnlist = Set(warnkeywords)
 warnida = union(warnlist, Set((:dtmin,)))
 
-using Sundials_jll: Sundials_jll, libsundials_arkode, libsundials_cvode,
-                    libsundials_cvodes, libsundials_idas, libsundials_kinsol,
-                    libsundials_nvecserial, libsundials_sunlinsolband,
-                    libsundials_sunlinsoldense, libsundials_sunlinsolklu,
-                    libsundials_sunlinsollapackband,
+using Sundials_jll: Sundials_jll, libsundials_core,
+                    libsundials_arkode, libsundials_cvodes,
+                    libsundials_idas, libsundials_kinsol, libsundials_nvecserial,
+                    libsundials_sunlinsolband, libsundials_sunlinsoldense,
+                    libsundials_sunlinsolklu, libsundials_sunlinsollapackband,
                     libsundials_sunlinsollapackdense, libsundials_sunlinsolpcg,
                     libsundials_sunlinsolspbcgs, libsundials_sunlinsolspfgmr,
                     libsundials_sunlinsolspgmr, libsundials_sunlinsolsptfqmr,
@@ -61,13 +61,6 @@ const MPI_INT64_T = nothing
 macro SUNDIALS_F77_FUNC(name, NAME)
     Symbol(string(name) * "_64_")
 end
-
-# Issue 328: these symbols exist in other libraries
-const libsundials_sundials = libsundials_cvode
-const libsundials_sunlinsol = libsundials_cvode
-const libsundials_sunnonlinsol = libsundials_cvode
-# sunmatrix has been renamed to sunmatrix[dense/sparse/band]
-# const libsundials_sunmatrix = libsundials_cvode
 
 const SPARSE_SOLVERS = (:KLU,)
 
