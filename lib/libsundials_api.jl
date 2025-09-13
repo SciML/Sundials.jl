@@ -8858,8 +8858,6 @@ function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
         (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, ctx)
 end
 
-
-
 function SUNSparseMatrix(M, N, NNZ, sparsetype, ctx::SUNContext)
     SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype), ctx)
 end
