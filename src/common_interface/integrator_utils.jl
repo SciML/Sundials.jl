@@ -211,6 +211,8 @@ end
 @inline function Base.getproperty(integrator::AbstractSundialsIntegrator, sym::Symbol)
     if sym == :dt
         return integrator.t - integrator.tprev
+    elseif sym == :ps
+        return ParameterIndexingProxy(integrator)
     else
         return getfield(integrator, sym)
     end
@@ -303,3 +305,6 @@ DiffEqBase.get_tstops_array(integ::AbstractSundialsIntegrator) = get_tstops(inte
 function DiffEqBase.get_tstops_max(integ::AbstractSundialsIntegrator)
     maximum(get_tstops_array(integ))
 end
+
+# SII
+SII.symbolic_container(integ::AbstractSundialsIntegrator) = integ.sol

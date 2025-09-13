@@ -22,8 +22,12 @@ function _initialize_dae!(integrator::IDAIntegrator, prob,
             init_type = IDA_Y_INIT
         else
             init_type = IDA_YA_YDP_INIT
-            integrator.flag = IDASetId(integrator.mem,
-                vec(integrator.sol.prob.differential_vars))
+            # Use preallocated NVector for differential_vars
+            if integrator.diff_vars_nvec !== nothing
+                integrator.flag = IDASetId(integrator.mem, integrator.diff_vars_nvec)
+            else
+                error("differential_vars NVector not preallocated but needed for IDASetId")
+            end
         end
         dt = integrator.dt == tstart ? tend : integrator.dt
         integrator.flag = IDACalcIC(integrator.mem, init_type, dt)
