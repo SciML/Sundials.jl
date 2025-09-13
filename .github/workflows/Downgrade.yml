@@ -23,6 +23,7 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
       - uses: julia-actions/julia-downgrade-compat@v2
+        continue-on-error: true
         with:
           skip: Pkg,TOML
       - uses: julia-actions/julia-buildpkg@v1
