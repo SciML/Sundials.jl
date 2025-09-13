@@ -53,13 +53,13 @@ end
 sol = solve(prob, CVODE_Adams())
 sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1], timeseries_errors = false)
 
-@test sol[1, :] == sol_idxs[1, :]
+@test sol.u[1, :] == sol_idxs.u[1, :]
 
 sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1, 2], timeseries_errors = false,
     calculate_error = false)
 @test length(sol_idxs[:, 1]) == 2
-@test sol[1, :] == sol_idxs[1, :]
-@test sol[2, :] == sol_idxs[2, :]
+@test sol.u[1, :] == sol_idxs.u[1, :]
+@test sol.u[2, :] == sol_idxs.u[2, :]
 
 # Test the other function conversions
 k = (du, u, p, t) -> du[1] = u[1]
