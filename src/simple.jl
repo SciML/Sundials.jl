@@ -79,16 +79,16 @@ function ___kinsol(f,
     y0_nvec = NVector(y0, ctx)
     flag = @checkflag KINInit(kmem, getcfun(userfun), y0_nvec) true
     if linear_solver == :Dense
-        A = Sundials.SUNDenseMatrix(Int64(length(y0)), Int64(length(y0)), ctx)
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
         LS = Sundials.SUNLinSol_Dense(y0_nvec, A, ctx)
     elseif linear_solver == :LapackDense
-        A = Sundials.SUNDenseMatrix(Int64(length(y0)), Int64(length(y0)), ctx)
+        A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
         LS = Sundials.SUNLinSol_LapackDense(y0_nvec, A, ctx)
     elseif linear_solver == :Band
-        A = Sundials.SUNBandMatrix(Int64(length(y0)), Int64(jac_upper), Int64(jac_lower), ctx)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ctx)
         LS = Sundials.SUNLinSol_Band(y0_nvec, A, ctx)
     elseif linear_solver == :LapackBand
-        A = Sundials.SUNBandMatrix(Int64(length(y0)), Int64(jac_upper), Int64(jac_lower), ctx)
+        A = Sundials.SUNBandMatrix(length(y0), jac_upper, jac_lower, ctx)
         LS = Sundials.SUNLinSol_LapackBand(y0_nvec, A, ctx)
     elseif linear_solver == :GMRES
         A = C_NULL
@@ -107,8 +107,7 @@ function ___kinsol(f,
         LS = Sundials.SUNLinSol_SPTFQMR(y0_nvec, Cint(prec_side), Cint(krylov_dim), ctx)
     elseif linear_solver == :KLU
         nnz = length(SparseArrays.nonzeros(jac_prototype))
-        A = Sundials.SUNSparseMatrix(
-            Int64(length(y0)), Int64(length(y0)), Int64(nnz), CSC_MAT, ctx)
+        A = Sundials.SUNSparseMatrix(length(y0), length(y0), nnz, CSC_MAT, ctx)
         LS = SUNLinSol_KLU(y0_nvec, A, ctx)
     else
         error("Unknown linear solver")
@@ -215,7 +214,7 @@ function cvode!(f::Function,
 
     flag = @checkflag CVodeSetUserData(mem, userfun) true
     flag = @checkflag CVodeSStolerances(mem, reltol, abstol) true
-    A = Sundials.SUNDenseMatrix(Int64(length(y0)), Int64(length(y0)), ctx)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
     LS = Sundials.SUNLinSol_Dense(y0nv, A, ctx)
     flag = Sundials.@checkflag Sundials.CVDlsSetLinearSolver(mem, LS, A) true
 
@@ -302,7 +301,7 @@ function idasol(f,
     flag = @checkflag IDASetUserData(mem, userfun) true
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
 
-    A = Sundials.SUNDenseMatrix(Int64(length(y0)), Int64(length(y0)), ctx)
+    A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
     LS = Sundials.SUNLinSol_Dense(y0nv, A, ctx)
     flag = Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A) true
 

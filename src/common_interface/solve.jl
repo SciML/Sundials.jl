@@ -256,7 +256,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(Int64(length(uvec)), Int64(length(uvec)), ctx)
+            A = SUNDenseMatrix(length(uvec), length(uvec), ctx)
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
                 LS = SUNLinSol_Dense(utmp, A, ctx)
@@ -267,7 +267,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(Int64(length(uvec)), Int64(alg.jac_upper), Int64(alg.jac_lower), ctx)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ctx)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
                 LS = SUNLinSol_Band(utmp, A, ctx)
@@ -304,8 +304,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         elseif LinearSolver == :KLU
             nojacobian = false
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
-            A = SUNSparseMatrix(
-                Int64(length(uvec)), Int64(length(uvec)), Int64(nnz), CSC_MAT, ctx)
+            A = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT, ctx)
             LS = SUNLinSol_KLU(utmp, A, ctx)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
@@ -732,7 +731,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            A = SUNDenseMatrix(Int64(length(uvec)), Int64(length(uvec)), ctx)
+            A = SUNDenseMatrix(length(uvec), length(uvec), ctx)
             _A = MatrixHandle(A, DenseMatrix())
             if LinearSolver === :Dense
                 LS = SUNLinSol_Dense(utmp, A, ctx)
@@ -743,7 +742,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             end
         elseif LinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            A = SUNBandMatrix(Int64(length(uvec)), Int64(alg.jac_upper), Int64(alg.jac_lower), ctx)
+            A = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ctx)
             _A = MatrixHandle(A, BandMatrix())
             if LinearSolver === :Band
                 LS = SUNLinSol_Band(utmp, A, ctx)
@@ -774,8 +773,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             _LS = LinSolHandle(LS, PTFQMR())
         elseif LinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
-            A = SUNSparseMatrix(
-                Int64(length(uvec)), Int64(length(uvec)), Int64(nnz), CSC_MAT, ctx)
+            A = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT, ctx)
             LS = SUNLinSol_KLU(utmp, A, ctx)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
@@ -806,7 +804,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
     if prob.f.mass_matrix != LinearAlgebra.I && alg.stiffness !== Explicit()
         if MassLinearSolver in (:Dense, :LapackDense)
             nojacobian = false
-            M = SUNDenseMatrix(Int64(length(uvec)), Int64(length(uvec)), ctx)
+            M = SUNDenseMatrix(length(uvec), length(uvec), ctx)
             _M = MatrixHandle(M, DenseMatrix())
             if MassLinearSolver === :Dense
                 MLS = SUNLinSol_Dense(utmp, M, ctx)
@@ -817,7 +815,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             end
         elseif MassLinearSolver in (:Band, :LapackBand)
             nojacobian = false
-            M = SUNBandMatrix(Int64(length(uvec)), Int64(alg.jac_upper), Int64(alg.jac_lower), ctx)
+            M = SUNBandMatrix(length(uvec), alg.jac_upper, alg.jac_lower, ctx)
             _M = MatrixHandle(M, BandMatrix())
             if MassLinearSolver === :Band
                 MLS = SUNLinSol_Band(utmp, M, ctx)
@@ -848,8 +846,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
             _MLS = LinSolHandle(MLS, PTFQMR())
         elseif MassLinearSolver == :KLU
             nnz = length(SparseArrays.nonzeros(prob.f.mass_matrix))
-            M = SUNSparseMatrix(
-                Int64(length(uvec)), Int64(length(uvec)), Int64(nnz), CSC_MAT, ctx)
+            M = SUNSparseMatrix(length(uvec), length(uvec), nnz, CSC_MAT, ctx)
             MLS = SUNLinSol_KLU(utmp, M, ctx)
             _M = MatrixHandle(M, SparseMatrix())
             _MLS = LinSolHandle(MLS, KLU())
@@ -1179,7 +1176,7 @@ function DiffEqBase.__init(
     prec_side = isnothing(alg.prec) ? 0 : 1  # IDA only supports left preconditioning (prec_side = 1)
     if LinearSolver in (:Dense, :LapackDense)
         nojacobian = false
-        A = SUNDenseMatrix(Int64(length(u0)), Int64(length(u0)), ctx)
+        A = SUNDenseMatrix(length(u0), length(u0), ctx)
         _A = MatrixHandle(A, DenseMatrix())
         if LinearSolver === :Dense
             LS = SUNLinSol_Dense(utmp, A, ctx)
@@ -1190,7 +1187,7 @@ function DiffEqBase.__init(
         end
     elseif LinearSolver in (:Band, :LapackBand)
         nojacobian = false
-        A = SUNBandMatrix(Int64(length(u0)), Int64(alg.jac_upper), Int64(alg.jac_lower), ctx)
+        A = SUNBandMatrix(length(u0), alg.jac_upper, alg.jac_lower, ctx)
         _A = MatrixHandle(A, BandMatrix())
         if LinearSolver === :Band
             LS = SUNLinSol_Band(utmp, A, ctx)
@@ -1221,8 +1218,7 @@ function DiffEqBase.__init(
         _LS = LinSolHandle(LS, PTFQMR())
     elseif LinearSolver == :KLU
         nnz = length(SparseArrays.nonzeros(prob.f.jac_prototype))
-        A = SUNSparseMatrix(
-            Int64(length(u0)), Int64(length(u0)), Int64(nnz), Sundials.CSC_MAT, ctx)
+        A = SUNSparseMatrix(length(u0), length(u0), nnz, Sundials.CSC_MAT, ctx)
         LS = SUNLinSol_KLU(utmp, A, ctx)
         _A = MatrixHandle(A, SparseMatrix())
         _LS = LinSolHandle(LS, KLU())
