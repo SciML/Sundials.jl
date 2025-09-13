@@ -38,6 +38,6 @@ sol2 = solve(prob2, ARKODE(); abstol = 1e-8, reltol = 1e-8)
 
 # Compare solutions at common time points since they may have different internal timesteps
 # The adaptive timestepping may choose different points internally
-t_common = range(0.0, 1.0, length=100)
+t_common = range(0.0, 1.0, length = 100)
 max_diff = maximum(norm(sol(t) - sol2(t)) for t in t_common)
 @test max_diff < 1e-7
