@@ -43,9 +43,9 @@ sol11 = solve(prob, IDA(; linear_solver = :Dense))
 @test sol9.retcode == ReturnCode.Success
 @test sol10.retcode == ReturnCode.Success
 @test sol11.retcode == ReturnCode.Success
-@test isapprox(sol1[end], sol9[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol10[end]; rtol = 1e-3)
-@test isapprox(sol1[end], sol11[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol9.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol10.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol11.u[end]; rtol = 1e-3)
 
 # Test iterative solvers work
 @test sol3.retcode == ReturnCode.Success
@@ -53,10 +53,10 @@ sol11 = solve(prob, IDA(; linear_solver = :Dense))
 @test sol6.retcode == ReturnCode.Success
 @test_broken sol7.retcode == ReturnCode.Success  # PCG requires symmetric linear system
 # Iterative solvers without preconditioner are unstable - mark as broken
-@test_broken isapprox(sol1[end], sol3[end]; rtol = 1e-3)  # GMRES without preconditioner
-@test_broken isapprox(sol1[end], sol5[end]; rtol = 1e-3)  # TFQMR convergence issues
-@test_broken isapprox(sol1[end], sol6[end]; rtol = 1e-3)  # FGMRES without preconditioner
-@test_broken isapprox(sol1[end], sol7[end]; rtol = 1e-3)  # PCG requires symmetric
+@test_broken isapprox(sol1.u[end], sol3.u[end]; rtol = 1e-3)  # GMRES without preconditioner
+@test_broken isapprox(sol1.u[end], sol5.u[end]; rtol = 1e-3)  # TFQMR convergence issues
+@test_broken isapprox(sol1.u[end], sol6.u[end]; rtol = 1e-3)  # FGMRES without preconditioner
+@test_broken isapprox(sol1.u[end], sol7.u[end]; rtol = 1e-3)  # PCG requires symmetric
 
 # Test identity preconditioner
 prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)
