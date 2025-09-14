@@ -72,6 +72,14 @@ function _initialize_dae!(integrator, prob, initalg::SciMLBase.OverrideInit, isi
     @reset sol.prob.p = integrator.p
     integrator.sol = sol
 
+    # For IDA, we need to reinitialize the solver after changing u, du, or p
+    # and then run IDA initialization to get consistent du values
+    if integrator isa IDAIntegrator && success
+        integrator.u_modified = true
+        # After OverrideInit changes u and p, call IDADefaultInit to get consistent du
+        _initialize_dae!(integrator, prob, IDADefaultInit(), isinplace)
+    end
+
     if !success
         integrator.sol = SciMLBase.solution_new_retcode(integrator.sol, ReturnCode.InitialFailure)
     end
