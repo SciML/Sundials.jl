@@ -22,6 +22,7 @@ using Logging: Logging
 using SparseArrays: SparseArrays
 using LinearAlgebra: LinearAlgebra
 
+using LinearSolve # Required for initialization
 using Libdl: Libdl
 using CEnum: CEnum, @cenum
 
