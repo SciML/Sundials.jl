@@ -1,4 +1,4 @@
-using Sundials, Test, LinearAlgebra, IncompleteLU
+using Sundials, Test, LinearAlgebra, IncompleteLU, SparseArrays
 import AlgebraicMultigrid
 import SparseConnectivityTracer, DifferentiationInterface, ADTypes, ForwardDiff
 
