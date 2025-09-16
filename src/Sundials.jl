@@ -13,11 +13,16 @@ using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
                   update_coefficients!, warn_compat
 using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
                  SciMLBase, SplitODEProblem, VectorContinuousCallback
+import Accessors: @reset
+import ArrayInterface
+import SymbolicIndexingInterface as SII
+import SymbolicIndexingInterface: ParameterIndexingProxy
 using DataStructures: DataStructures
 using Logging: Logging
 using SparseArrays: SparseArrays
 using LinearAlgebra: LinearAlgebra
 
+import LinearSolve # Required for initialization
 using Libdl: Libdl
 using CEnum: CEnum, @cenum
 
@@ -91,6 +96,7 @@ include("common_interface/verbosity.jl")
 include("common_interface/algorithms.jl")
 include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
+include("common_interface/initialize_dae.jl")
 include("common_interface/solve.jl")
 
 import PrecompileTools

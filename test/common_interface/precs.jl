@@ -1,6 +1,6 @@
-using Sundials, Test, LinearAlgebra, IncompleteLU
+using Sundials, Test, LinearAlgebra, IncompleteLU, SparseArrays
 import AlgebraicMultigrid
-import SparseConnectivityTracer, SparseDiffTools
+import SparseConnectivityTracer, DifferentiationInterface, ADTypes, ForwardDiff
 
 const N = 32
 const xyd_brusselator = range(0; stop = 1, length = N)
@@ -58,20 +58,31 @@ const jaccache = similar(SparseConnectivityTracer.jacobian_sparsity(brus_uf, du,
 const W = I - 1.0 * jaccache
 
 # setup sparse AD for Jacobian
-colors = SparseDiffTools.matrix_colors(jaccache)
-const jaccache_fc = SparseDiffTools.ForwardColorJacCache(nothing, # don't use f to create unique Tag
-    u0,
-    colorvec = colors,
-    sparsity = jaccache)
+# Setup sparse jacobian computation using DifferentiationInterface
+# NOTE: AutoSparse doesn't support in-place functions with ForwardDiff in DI v0.7
+# (requires pushforward performance which isn't defined for this combination)
+# So we use regular AutoForwardDiff() and compute dense then copy to sparse
+const backend = DifferentiationInterface.AutoForwardDiff()
+# Don't prepare with a specific function - we'll prepare fresh in each callback
+# since the function changes with different p and t values
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
-            (y, x) -> brusselator_2d_vec(y, x, p, t),
-            u, jaccache_fc)
+        # Compute jacobian using DifferentiationInterface with ForwardDiff backend
+        # Create a wrapper that captures p and t
+        f_wrapper! = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        # Prepare jacobian for this specific function
+        prep_local = DifferentiationInterface.prepare_jacobian(f_wrapper!, du, backend, u)
+        # Compute dense jacobian first, then copy to sparse
+        jac_dense = Matrix(jaccache)
+        DifferentiationInterface.jacobian!(f_wrapper!, du, jac_dense, prep_local, backend, u)
+        # Copy non-zero entries back to sparse matrix
+        for (i, j, v) in zip(findnz(jaccache)...)
+            jaccache[i, j] = jac_dense[i, j]
+        end
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -106,9 +117,18 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     end
 
     if jok
-        SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
-            (y, x) -> brusselator_2d_vec(y, x, p, t),
-            u, jaccache_fc)
+        # Compute jacobian using DifferentiationInterface with ForwardDiff backend
+        # Create a wrapper that captures p and t
+        f_wrapper! = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        # Prepare jacobian for this specific function
+        prep_local = DifferentiationInterface.prepare_jacobian(f_wrapper!, du, backend, u)
+        # Compute dense jacobian first, then copy to sparse
+        jac_dense = Matrix(jaccache)
+        DifferentiationInterface.jacobian!(f_wrapper!, du, jac_dense, prep_local, backend, u)
+        # Copy non-zero entries back to sparse matrix
+        for (i, j, v) in zip(findnz(jaccache)...)
+            jaccache[i, j] = jac_dense[i, j]
+        end
         jcurPtr[] = true
 
         # W = I - gamma*J

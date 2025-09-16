@@ -1,3 +1,5 @@
+using Sundials
+
 # Create context for tests
 ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
 Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
