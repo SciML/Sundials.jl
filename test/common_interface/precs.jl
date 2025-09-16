@@ -1,6 +1,6 @@
 using Sundials, Test, LinearAlgebra, IncompleteLU
 import AlgebraicMultigrid
-import SparseConnectivityTracer, DifferentiationInterface, ForwardDiff
+import SparseConnectivityTracer, ForwardDiff
 
 const N = 32
 const xyd_brusselator = range(0; stop = 1, length = N)
@@ -58,23 +58,25 @@ const jaccache = similar(SparseConnectivityTracer.jacobian_sparsity(brus_uf, du,
 const W = I - 1.0 * jaccache
 
 # setup sparse AD for Jacobian
-# Setup sparse AD backend using DifferentiationInterface
-const backend = DifferentiationInterface.AutoSparse(
-    DifferentiationInterface.AutoForwardDiff();
-    sparsity_detector = SparseConnectivityTracer.TracerSparsityDetector(),
-    coloring_algorithm = DifferentiationInterface.GreedyColoringAlgorithm()
-)
-# Prepare for in-place jacobian computation with correct signature
-const extras = DifferentiationInterface.prepare_jacobian(brus_uf, Float64.(du), backend, Float64.(u0))
+# Setup for sparse jacobian computation using ForwardDiff
+# We'll compute the full jacobian with ForwardDiff (it's efficient for small problems)
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        # Use in-place jacobian! with correct argument order
-        f_closure! = (y, x) -> brusselator_2d_vec(y, x, p, t)
-        DifferentiationInterface.jacobian!(f_closure!, du, jaccache, extras, backend, u)
+        # Compute jacobian using ForwardDiff
+        # Create a wrapper that captures p and t
+        f_wrapper = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        # ForwardDiff.jacobian! expects (result, f, x) for in-place functions
+        # We need to convert to dense, compute, then copy to sparse
+        jac_dense = Matrix(jaccache)
+        ForwardDiff.jacobian!(jac_dense, f_wrapper, u)
+        # Copy back to sparse matrix
+        for (i, j, v) in zip(findnz(jaccache)...)
+            jaccache[i, j] = jac_dense[i, j]
+        end
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -109,9 +111,17 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     end
 
     if jok
-        # Use in-place jacobian! with correct argument order
-        f_closure! = (y, x) -> brusselator_2d_vec(y, x, p, t)
-        DifferentiationInterface.jacobian!(f_closure!, du, jaccache, extras, backend, u)
+        # Compute jacobian using ForwardDiff
+        # Create a wrapper that captures p and t
+        f_wrapper = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        # ForwardDiff.jacobian! expects (result, f, x) for in-place functions
+        # We need to convert to dense, compute, then copy to sparse
+        jac_dense = Matrix(jaccache)
+        ForwardDiff.jacobian!(jac_dense, f_wrapper, u)
+        # Copy back to sparse matrix
+        for (i, j, v) in zip(findnz(jaccache)...)
+            jaccache[i, j] = jac_dense[i, j]
+        end
         jcurPtr[] = true
 
         # W = I - gamma*J

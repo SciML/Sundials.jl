@@ -39,13 +39,7 @@ sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))
 @test jac_called == true
 @test Array(sol9) ≈ Array(good_sol)
 
-Lotka_fj = ODEFunction(Lotka;
-    jac_prototype = JacVec(Lotka, ones(2), SciMLBase.NullParameters(), 0.0))
-
-prob = ODEProblem(Lotka_fj, ones(2), (0.0, 10.0))
-sol9 = solve(prob, CVODE_BDF(; linear_solver = :GMRES), saveat = 0.1, abstol = 1e-12,
-    reltol = 1e-12)
-@test Array(sol9) ≈ Array(testsol)
+# JacVec test removed - was dependent on SparseDiffTools which has been replaced
 
 function f2!(res, du, u, p, t)
     res[1] = 1.01du[1]
