@@ -1,4 +1,4 @@
-using Sundials, Test, SparseArrays, SparseDiffTools
+using Sundials, Test, SparseArrays
 
 # Test for Jacobian usage
 function Lotka(du, u, p, t)

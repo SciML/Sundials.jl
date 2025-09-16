@@ -1,6 +1,6 @@
 using Sundials, Test, LinearAlgebra, IncompleteLU
 import AlgebraicMultigrid
-import SparseConnectivityTracer, SparseDiffTools
+import SparseConnectivityTracer, DifferentiationInterface, ForwardDiff
 
 const N = 32
 const xyd_brusselator = range(0; stop = 1, length = N)
@@ -58,20 +58,22 @@ const jaccache = similar(SparseConnectivityTracer.jacobian_sparsity(brus_uf, du,
 const W = I - 1.0 * jaccache
 
 # setup sparse AD for Jacobian
-colors = SparseDiffTools.matrix_colors(jaccache)
-const jaccache_fc = SparseDiffTools.ForwardColorJacCache(nothing, # don't use f to create unique Tag
-    u0,
-    colorvec = colors,
-    sparsity = jaccache)
+# Setup sparse AD backend using DifferentiationInterface
+const backend = DifferentiationInterface.AutoSparse(
+    DifferentiationInterface.AutoForwardDiff(),
+    sparsity_detector = SparseConnectivityTracer.TracerSparsityDetector(),
+    coloring_algorithm = DifferentiationInterface.GreedyColoringAlgorithm()
+)
+const extras = DifferentiationInterface.prepare_jacobian(brus_uf, backend, Float64.(du), Float64.(u0))
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
+        DifferentiationInterface.jacobian!(
             (y, x) -> brusselator_2d_vec(y, x, p, t),
-            u, jaccache_fc)
+            jaccache, backend, u, extras)
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -106,9 +108,9 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     end
 
     if jok
-        SparseDiffTools.forwarddiff_color_jacobian!(jaccache,
+        DifferentiationInterface.jacobian!(
             (y, x) -> brusselator_2d_vec(y, x, p, t),
-            u, jaccache_fc)
+            jaccache, backend, u, extras)
         jcurPtr[] = true
 
         # W = I - gamma*J
