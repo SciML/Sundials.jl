@@ -63,7 +63,7 @@ const W = I - 1.0 * jaccache
 # (requires pushforward performance which isn't defined for this combination)
 # So we use regular AutoForwardDiff() and compute dense then copy to sparse
 const backend = DifferentiationInterface.AutoForwardDiff()
-const prep = DifferentiationInterface.prepare_jacobian(brus_uf, Float64.(du), backend, Float64.(u0))
+const prep = DifferentiationInterface.prepare_jacobian(brus_uf, Float64.(du), backend, Float64.(u0); strict=Val(false))
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
