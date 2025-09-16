@@ -63,7 +63,8 @@ const W = I - 1.0 * jaccache
 # (requires pushforward performance which isn't defined for this combination)
 # So we use regular AutoForwardDiff() and compute dense then copy to sparse
 const backend = DifferentiationInterface.AutoForwardDiff()
-const prep = DifferentiationInterface.prepare_jacobian(brus_uf, Float64.(du), backend, Float64.(u0); strict=Val(false))
+# Don't prepare with a specific function - we'll prepare fresh in each callback
+# since the function changes with different p and t values
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
@@ -73,9 +74,11 @@ function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
         # Compute jacobian using DifferentiationInterface with ForwardDiff backend
         # Create a wrapper that captures p and t
         f_wrapper! = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        # Prepare jacobian for this specific function
+        prep_local = DifferentiationInterface.prepare_jacobian(f_wrapper!, du, backend, u)
         # Compute dense jacobian first, then copy to sparse
         jac_dense = Matrix(jaccache)
-        DifferentiationInterface.jacobian!(f_wrapper!, du, jac_dense, prep, backend, u)
+        DifferentiationInterface.jacobian!(f_wrapper!, du, jac_dense, prep_local, backend, u)
         # Copy non-zero entries back to sparse matrix
         for (i, j, v) in zip(findnz(jaccache)...)
             jaccache[i, j] = jac_dense[i, j]
@@ -117,9 +120,11 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
         # Compute jacobian using DifferentiationInterface with ForwardDiff backend
         # Create a wrapper that captures p and t
         f_wrapper! = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        # Prepare jacobian for this specific function
+        prep_local = DifferentiationInterface.prepare_jacobian(f_wrapper!, du, backend, u)
         # Compute dense jacobian first, then copy to sparse
         jac_dense = Matrix(jaccache)
-        DifferentiationInterface.jacobian!(f_wrapper!, du, jac_dense, prep, backend, u)
+        DifferentiationInterface.jacobian!(f_wrapper!, du, jac_dense, prep_local, backend, u)
         # Copy non-zero entries back to sparse matrix
         for (i, j, v) in zip(findnz(jaccache)...)
             jaccache[i, j] = jac_dense[i, j]
