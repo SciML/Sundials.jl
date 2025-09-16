@@ -49,11 +49,21 @@ end
         end
         @testset "CheckInit" begin
             @test_throws SciMLBase.CheckInitFailureError init(prob, IDA(); initializealg = SciMLBase.CheckInit())
-            prob[x] = 1.0
-            prob[y] = cbrt(4)
-            prob.ps[p] = 1
-            prob.ps[q] = sqrt(2)
-            @test_nowarn init(prob, IDA(); initializealg = SciMLBase.CheckInit())
+            # Create a new problem with correct initial values
+            # D(x) = p*y = 1*cbrt(4) = cbrt(4)
+            # D(y) = -x²/y²*D(x) = -1/cbrt(4)²*cbrt(4) = -1/cbrt(4)
+            prob_correct = DAEProblem(sys,
+                [D(x) => cbrt(4), D(y) => -1 / cbrt(4), p => 1.0, x => 1.0, y => cbrt(4), q => sqrt(2)],
+                (0.0, 0.4))
+            # Need to convert to IIP/OOP after creation to get proper numeric arrays
+            if iip
+                prob_correct_typed = DAEProblem{true}(prob_correct.f, prob_correct.du0, prob_correct.u0,
+                                                       prob_correct.tspan, prob_correct.p)
+            else
+                prob_correct_typed = DAEProblem{false}(prob_correct.f, prob_correct.du0, prob_correct.u0,
+                                                        prob_correct.tspan, prob_correct.p)
+            end
+            @test_nowarn init(prob_correct_typed, IDA(); initializealg = SciMLBase.CheckInit())
 
         end
     end
