@@ -60,20 +60,21 @@ const W = I - 1.0 * jaccache
 # setup sparse AD for Jacobian
 # Setup sparse AD backend using DifferentiationInterface
 const backend = DifferentiationInterface.AutoSparse(
-    DifferentiationInterface.AutoForwardDiff(),
+    DifferentiationInterface.AutoForwardDiff();
     sparsity_detector = SparseConnectivityTracer.TracerSparsityDetector(),
     coloring_algorithm = DifferentiationInterface.GreedyColoringAlgorithm()
 )
-const extras = DifferentiationInterface.prepare_jacobian(brus_uf, backend, Float64.(du), Float64.(u0))
+# Prepare for in-place jacobian computation with correct signature
+const extras = DifferentiationInterface.prepare_jacobian(brus_uf, Float64.(du), backend, Float64.(u0))
 
 prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
     if jok
-        DifferentiationInterface.jacobian!(
-            (y, x) -> brusselator_2d_vec(y, x, p, t),
-            jaccache, backend, u, extras)
+        # Use in-place jacobian! with correct argument order
+        f_closure! = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        DifferentiationInterface.jacobian!(f_closure!, du, jaccache, extras, backend, u)
         jcurPtr[] = true
 
         # W = I - gamma*J
@@ -108,9 +109,9 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
     end
 
     if jok
-        DifferentiationInterface.jacobian!(
-            (y, x) -> brusselator_2d_vec(y, x, p, t),
-            jaccache, backend, u, extras)
+        # Use in-place jacobian! with correct argument order
+        f_closure! = (y, x) -> brusselator_2d_vec(y, x, p, t)
+        DifferentiationInterface.jacobian!(f_closure!, du, jaccache, extras, backend, u)
         jcurPtr[] = true
 
         # W = I - gamma*J
