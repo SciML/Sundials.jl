@@ -75,8 +75,6 @@ function _initialize_dae!(integrator, prob, initalg::SciMLBase.OverrideInit, isi
     # For IDA, we need to reinitialize the solver after changing u, du, or p
     if integrator isa IDAIntegrator && success
         integrator.u_modified = true
-        # Just reinitialize - let IDA handle the rest during solve
-        IDAReinit!(integrator)
     end
 
     if !success
