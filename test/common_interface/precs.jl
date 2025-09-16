@@ -59,7 +59,9 @@ const W = I - 1.0 * jaccache
 
 # setup sparse AD for Jacobian
 # Setup sparse jacobian computation using DifferentiationInterface
-# Use regular ForwardDiff backend since AutoSparse doesn't support in-place functions
+# NOTE: AutoSparse doesn't support in-place functions with ForwardDiff in DI v0.7
+# (requires pushforward performance which isn't defined for this combination)
+# So we use regular AutoForwardDiff() and compute dense then copy to sparse
 const backend = DifferentiationInterface.AutoForwardDiff()
 const prep = DifferentiationInterface.prepare_jacobian(brus_uf, Float64.(du), backend, Float64.(u0))
 
