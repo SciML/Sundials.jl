@@ -83,7 +83,3 @@ sol = solve(prob, CVODE_BDF()) # , initializealg = SciMLBase.OverrideInit()) don
 - Added NonlinearSolveBase dependency for improved nonlinear solving
 - Added LinearSolve dependency for initialization support
 - Updated minimum SciMLBase version to 2.119.0
-
-## Previous Versions
-
-For changes in previous versions, see the git history and release notes on GitHub.
