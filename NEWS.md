@@ -68,7 +68,7 @@ CVODE and ARKODE now support the `initializealg` parameter for parameter initial
 
 ```julia
 # Now supported for ODE problems with initialization needs
-sol = solve(prob, CVODE_BDF(), initializealg = DefaultInit())
+sol = solve(prob, CVODE_BDF()) # , initializealg = SciMLBase.OverrideInit()) done by default
 ```
 
 ### Features
