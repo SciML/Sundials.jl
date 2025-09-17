@@ -236,9 +236,6 @@ DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator) = nothing
 struct DefaultInit <: DiffEqBase.DAEInitializationAlgorithm
 end
 
-# For backwards compatibility
-const IDADefaultInit = DefaultInit
-
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
         initializealg::DefaultInit)
     # DefaultInit intelligently chooses the actual initialization algorithm
