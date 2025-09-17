@@ -128,7 +128,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
-        initializealg = DiffEqBase.DefaultInit(),
+        initializealg = DefaultInit(),
         kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
 }
     tType = eltype(tupType)
@@ -464,6 +464,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
+        initializealg,
         ctx_handle)
     initialize_callbacks!(integrator)
     integrator
@@ -506,7 +507,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
-        initializealg = DiffEqBase.DefaultInit(),
+        initializealg = DefaultInit(),
         kwargs...) where {uType, tupType, isinplace, Method,
         LinearSolver,
         MassLinearSolver}
@@ -997,6 +998,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
+        initializealg,
         ctx_handle)
 
     initialize_callbacks!(integrator)

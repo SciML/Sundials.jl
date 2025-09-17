@@ -157,7 +157,7 @@ end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)
     # Implicitly does IDAReinit!
-    DiffEqBase.initialize_dae!(integrator, DiffEqBase.BrownFullBasicInit())
+    DiffEqBase.initialize_dae!(integrator, BrownFullBasicInit())
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
@@ -232,9 +232,25 @@ DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing
 
 # DAE Initialization
 
+# Temporary definitions until DiffEqBase 6.190.2 is available
+struct DefaultInit <: DiffEqBase.DAEInitializationAlgorithm end
+struct BrownFullBasicInit{T,F} <: DiffEqBase.DAEInitializationAlgorithm
+    abstol::T
+    nlsolve::F
+end
+BrownFullBasicInit(; abstol = 1e-10, nlsolve = nothing) = BrownFullBasicInit(abstol, nlsolve)
+struct ShampineCollocationInit{T,F} <: DiffEqBase.DAEInitializationAlgorithm
+    initdt::T
+    nlsolve::F
+end
+ShampineCollocationInit(; initdt = nothing, nlsolve = nothing) = ShampineCollocationInit(initdt, nlsolve)
+
+# Export them from the module
+export DefaultInit, BrownFullBasicInit, ShampineCollocationInit
+
 # DefaultInit for all Sundials integrators - handles ModelingToolkit parameter initialization
 function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator,
-        initializealg::DiffEqBase.DefaultInit)
+        initializealg::DefaultInit)
     # DefaultInit intelligently chooses the actual initialization algorithm
     prob = integrator.sol.prob
     if haskey(prob.kwargs, :initialization_data) && prob.kwargs[:initialization_data] !== nothing
@@ -251,7 +267,7 @@ function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator,
 end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-        initializealg::DiffEqBase.BrownFullBasicInit)
+        initializealg::BrownFullBasicInit)
     if integrator.u_modified
         IDAReinit!(integrator)
     end
@@ -284,7 +300,7 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
 end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-        initializealg::DiffEqBase.ShampineCollocationInit)
+        initializealg::ShampineCollocationInit)
     if integrator.u_modified
         IDAReinit!(integrator)
     end
@@ -335,14 +351,14 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
 
         To resolve this issue, you have several options:
         1. Fix your initial conditions (both `du0` and `u0`) to satisfy the DAE constraints
-        2. Use Brown's full basic initialization: initializealg = DiffEqBase.BrownFullBasicInit()
+        2. Use Brown's full basic initialization: initializealg = BrownFullBasicInit()
            - Optional: specify tolerance with BrownFullBasicInit(abstol=1e-8)
-        3. Use Shampine's collocation initialization: initializealg = DiffEqBase.ShampineCollocationInit()
+        3. Use Shampine's collocation initialization: initializealg = ShampineCollocationInit()
            - Optional: specify initial dt with ShampineCollocationInit(0.001)
         4. If using ModelingToolkit, use: initializealg = SciMLBase.OverrideInit()
 
         Example for automatic initialization:
-        solve(prob, IDA(); initializealg = DiffEqBase.BrownFullBasicInit())
+        solve(prob, IDA(); initializealg = BrownFullBasicInit())
         """)
     end
 end
