@@ -347,13 +347,6 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
     end
 end
 
-# Implementation of OverrideInit for IDAIntegrator - delegate to supertype
-function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-        initializealg::SciMLBase.OverrideInit)
-    # Call the generic implementation from SciMLBase
-    invoke(DiffEqBase.initialize_dae!, Tuple{Any, SciMLBase.OverrideInit}, integrator, initializealg)
-end
-
 DiffEqBase.has_reinit(integrator::AbstractSundialsIntegrator) = true
 function DiffEqBase.reinit!(integrator::AbstractSundialsIntegrator,
         u0 = integrator.sol.prob.u0;
