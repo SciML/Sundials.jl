@@ -62,6 +62,54 @@ sol = solve(prob, IDA(), initializealg = ShampineCollocationInit())
 - **Debugging**: Clearer error messages when initial conditions are inconsistent
 - **Performance**: Avoid unnecessary initialization computations when not needed
 
+#### Upgrade to Sundials v7
+
+This release updates the underlying Sundials C library from v6 to v7, which introduces significant API changes. This is a **breaking change** for users directly using the low-level Sundials API.
+
+**Key Changes:**
+
+1. **SUNContext requirement**: All Sundials objects now require a `SUNContext` object for creation. This context manages the Sundials environment and must be created before any solver objects.
+
+2. **Memory management**: The new context-based approach improves thread safety and resource management.
+
+**Migration Guide for Low-Level API Users:**
+
+If you're using the low-level Sundials API directly (not through the DiffEq interface):
+
+```julia
+# Old code (v4.x) - No context needed
+mem_ptr = CVodeCreate(CV_BDF)
+mem = Handle(mem_ptr)
+```
+
+```julia
+# New code (v5.0) - Context required
+ctx_ptr = Ref{SUNContext}(C_NULL)
+SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
+ctx = ctx_ptr[]
+mem_ptr = CVodeCreate(CV_BDF, ctx)  # Context passed as argument
+mem = Handle(mem_ptr)
+# ... use solver ...
+SUNContext_Free(ctx)  # Clean up context when done
+```
+
+**Automatic handling in high-level interface:**
+
+If you're using the standard DiffEq interface (`solve(prob, CVODE_BDF())`), **no changes are needed**. The context is automatically managed internally:
+
+```julia
+# This continues to work without changes
+sol = solve(prob, CVODE_BDF())
+```
+
+**Functions affected by context requirement:**
+- All solver creation functions (`CVodeCreate`, `ARKStepCreate`, `IDACreate`, `KINCreate`)
+- All vector creation functions (`N_VNew_Serial`, etc.)
+- All matrix creation functions (`SUNDenseMatrix`, `SUNBandMatrix`, etc.)
+- All linear solver creation functions (`SUNLinSol_Dense`, etc.)
+
+The context is automatically freed when the integrator is garbage collected through the `ContextHandle` mechanism.
+
 #### ModelingToolkit Initialization Support
 
 CVODE and ARKODE now support the `initializealg` parameter for parameter initialization compatibility with ModelingToolkit. This enables proper handling of problems with initialization requirements.
@@ -79,6 +127,7 @@ sol = solve(prob, CVODE_BDF()) # , initializealg = SciMLBase.OverrideInit()) don
 
 ### Dependency Updates
 
+- **Sundials_jll**: Updated from v5.x to v7.4.1 (major version bump)
 - Minimum DiffEqBase version: 6.190.2
 - Added NonlinearSolveBase dependency for improved nonlinear solving
 - Added LinearSolve dependency for initialization support
