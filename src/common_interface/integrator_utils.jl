@@ -238,7 +238,7 @@ DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing
 
 # DefaultInit for all Sundials integrators - handles ModelingToolkit parameter initialization
 function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator,
-        initializealg::DiffEqBase.DefaultInit)
+        initializealg::DefaultInit)
     # DefaultInit intelligently chooses the actual initialization algorithm
     prob = integrator.sol.prob
     if haskey(prob.kwargs, :initialization_data) && prob.kwargs[:initialization_data] !== nothing
@@ -255,7 +255,7 @@ function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator,
 end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-        initializealg::DiffEqBase.BrownFullBasicInit)
+        initializealg::BrownFullBasicInit)
     if integrator.u_modified
         IDAReinit!(integrator)
     end
@@ -288,7 +288,7 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
 end
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-        initializealg::DiffEqBase.ShampineCollocationInit)
+        initializealg::ShampineCollocationInit)
     if integrator.u_modified
         IDAReinit!(integrator)
     end

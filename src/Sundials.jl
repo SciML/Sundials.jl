@@ -10,8 +10,7 @@ using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
                   get_tstops_array, initialize!, isinplace,
                   reeval_internals_due_to_modification!, reinit!, savevalues!,
                   set_proposed_dt!, solve, solve!, step!, terminate!, u_modified!,
-                  update_coefficients!, warn_compat, DefaultInit, BrownFullBasicInit,
-                  ShampineCollocationInit
+                  update_coefficients!, warn_compat
 using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
                  SciMLBase, SplitODEProblem, VectorContinuousCallback
 import Accessors: @reset
@@ -52,6 +51,26 @@ using Sundials_jll: Sundials_jll, libsundials_core,
                     libsundials_sunmatrixband, libsundials_sunmatrixdense,
                     libsundials_sunmatrixsparse, libsundials_sunnonlinsolfixedpoint,
                     libsundials_sunnonlinsolnewton
+
+# Temporary definitions until DiffEqBase 6.190.2 is available
+# These will be removed once the new version is released
+if !isdefined(DiffEqBase, :DefaultInit)
+    abstract type DAEInitializationAlgorithm end
+    struct DefaultInit <: DAEInitializationAlgorithm end
+    struct BrownFullBasicInit{T, F} <: DAEInitializationAlgorithm
+        abstol::T
+        nlsolve::F
+    end
+    BrownFullBasicInit(; abstol = nothing, nlsolve = nothing) = BrownFullBasicInit(abstol, nlsolve)
+    struct ShampineCollocationInit{T, F} <: DAEInitializationAlgorithm
+        initdt::T
+        nlsolve::F
+    end
+    ShampineCollocationInit(; initdt = nothing, nlsolve = nothing) = ShampineCollocationInit(initdt, nlsolve)
+else
+    using DiffEqBase: DefaultInit, BrownFullBasicInit, ShampineCollocationInit
+    const DAEInitializationAlgorithm = DiffEqBase.DAEInitializationAlgorithm
+end
 
 export solve,
        SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
