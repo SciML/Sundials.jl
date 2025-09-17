@@ -155,11 +155,11 @@ function IDAReinit!(integrator::IDAIntegrator)
     integrator.u_modified = false
 end
 
-function handle_callback_modifiers!(integrator::IDAIntegrator)
+function handle_callback_modifiers!(integrator::IDAIntegrator, callback_initializealg = nothing)
     # Implicitly does IDAReinit!
-    # Use BrownFullBasicInit as it only modifies algebraic variables
-    # which is appropriate after callbacks have modified the solution
-    DiffEqBase.initialize_dae!(integrator, DiffEqBase.BrownFullBasicInit())
+    # Use callback's initialization algorithm if provided, otherwise use integrator's
+    initializealg = isnothing(callback_initializealg) ? integrator.initializealg : callback_initializealg
+    DiffEqBase.initialize_dae!(integrator, initializealg)
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
@@ -220,13 +220,15 @@ end
     end
 end
 
-function DiffEqBase.reeval_internals_due_to_modification!(integrator::AbstractSundialsIntegrator)
+function DiffEqBase.reeval_internals_due_to_modification!(integrator::AbstractSundialsIntegrator,
+        continuous_modification = true; callback_initializealg = nothing)
     integrator.userfun.p = integrator.p
     nothing
 end
-function DiffEqBase.reeval_internals_due_to_modification!(integrator::IDAIntegrator)
+function DiffEqBase.reeval_internals_due_to_modification!(integrator::IDAIntegrator,
+        continuous_modification = true; callback_initializealg = nothing)
     integrator.userfun.p = integrator.p
-    handle_callback_modifiers!(integrator::IDAIntegrator)
+    handle_callback_modifiers!(integrator, callback_initializealg)
 end
 
 # Required for callbacks
