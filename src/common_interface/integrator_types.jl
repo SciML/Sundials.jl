@@ -134,6 +134,8 @@ mutable struct ARKODEIntegrator{N,
     callback_cache::CallbackCacheType
     last_event_error::Float64
     initializealg::IA
+    cfj1::Ptr{Cvoid}
+    cfj2::Ptr{Cvoid}
     ctx_handle::ContextHandle
 end
 

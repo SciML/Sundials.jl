@@ -10,7 +10,8 @@ using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
                   get_tstops_array, initialize!, isinplace,
                   reeval_internals_due_to_modification!, reinit!, savevalues!,
                   set_proposed_dt!, solve, solve!, step!, terminate!, u_modified!,
-                  update_coefficients!, warn_compat
+                  update_coefficients!, warn_compat, DefaultInit, BrownFullBasicInit,
+                  ShampineCollocationInit
 using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
                  SciMLBase, SplitODEProblem, VectorContinuousCallback
 import Accessors: @reset
@@ -22,7 +23,11 @@ using Logging: Logging
 using SparseArrays: SparseArrays
 using LinearAlgebra: LinearAlgebra
 
+
+
+import NonlinearSolveBase # Required for KINSOL definition to NonlinearSolve
 import LinearSolve # Required for initialization
+
 using Libdl: Libdl
 using CEnum: CEnum, @cenum
 
@@ -54,7 +59,7 @@ using Sundials_jll: Sundials_jll, libsundials_core,
 
 export solve,
        SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
-       KINSOL
+       KINSOL, DefaultInit, BrownFullBasicInit, ShampineCollocationInit
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)
@@ -96,7 +101,7 @@ include("common_interface/verbosity.jl")
 include("common_interface/algorithms.jl")
 include("common_interface/integrator_types.jl")
 include("common_interface/integrator_utils.jl")
-include("common_interface/initialize_dae.jl")
+include("common_interface/initialize.jl")
 include("common_interface/solve.jl")
 
 import PrecompileTools

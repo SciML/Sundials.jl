@@ -79,13 +79,13 @@ tspan = (0.0, 100.0)
 differential_vars = BitVector([true, true, false])
 bvcond(u, t, integrator) = t - round(t)
 bvaffect!(integrator) = integrator.p[4] = 2.0
-cb = ContinuousCallback(bvcond, bvaffect!)
+cb = ContinuousCallback(bvcond, bvaffect!; initializealg = Sundials.BrownFullBasicInit())
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
-sol = solve(prob, IDA(), callback = cb, tstops = [50.0], abstol = 1e-12, reltol = 1e-12)
+sol = solve(prob, IDA(), callback = cb, tstops = [50.0], abstol = 1e-12, reltol = 1e-12, initializealg = Sundials.BrownFullBasicInit())
 @test sol.t[end] ≈ 100.0
 
 # Test that SubArrays are not allowed as outputs to the integrator
 u_out = similar(u₀)
 cb = DiscreteCallback(Returns(true), integ -> integ(@view(u_out[2:2]), integ.t))
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
-@test_throws ArgumentError solve(prob, IDA(), callback = cb)
+@test_throws ArgumentError solve(prob, IDA(), initializealg = Sundials.BrownFullBasicInit(), callback = cb)

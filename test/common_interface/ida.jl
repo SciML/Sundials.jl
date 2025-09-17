@@ -111,7 +111,7 @@ sol = solve(dae_prob, IDA())
 
 du0 = [0.0] # inconsistent
 dae_prob = DAEProblem(f!, du0, u0, tspan; differential_vars = [true])
-sol = solve(dae_prob, IDA())
+sol = solve(dae_prob, IDA(); initializealg = BrownFullBasicInit())
 
 function f!(res, du, u, p, t)
     res[1] = u[1] - 1.01
@@ -132,7 +132,7 @@ function DiffEqBase.initialize_dae!(integrator::Sundials.IDAIntegrator,
         initializealg::DumbInit)
     integrator.u .= 1
     integrator.u_modified = true
-    DiffEqBase.initialize_dae!(integrator, Sundials.IDADefaultInit())
+    DiffEqBase.initialize_dae!(integrator, Sundials.BrownFullBasicInit())
 end
 f(du, u, p, t) = du - u # u(t) = exp(t)
 prob = DAEProblem(f, zeros(1), zeros(1), (0, 1), differential_vars = trues(1))
@@ -152,7 +152,7 @@ function f_initial_data(du, u, p, t)
     return [du[1] - (u[1] + 10.0)]
 end
 prob = DAEProblem(f_initial_data, [0.0], [1.0], (0.0, 1.0); differential_vars = [true])
-sol = solve(prob, IDA())
+sol = solve(prob, IDA(), initializealg = Sundials.BrownFullBasicInit())
 # If this is one, it incorrectly saved u, if it is 0., it incorrectly solved
 # the pre-init value rather than the post-init one.
 @test sol(0.0, Val{1})[1] ≈ 11.0
@@ -162,7 +162,7 @@ daefun = (du, u, p, t) -> [du[1] - u[2], u[2] - p]
 callback = PresetTimeCallback(0.5, integ->(integ.p = -integ.p;))
 prob = DAEProblem(daefun, [0.0, 0.0], [0.0, -1.0], (0.0, 1), 1;
     differential_vars = [true, false], callback)
-sol = solve(prob, IDA())
+sol = solve(prob, IDA(), initializealg = Sundials.BrownFullBasicInit())
 @test sol.retcode == ReturnCode.Success
 # test that the callback flipping p caused u[2] to get flipped.
 first_t = findfirst(isequal(0.5), sol.t)
