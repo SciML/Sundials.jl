@@ -128,7 +128,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
-        initializealg = nothing,
+        initializealg = DefaultInit(),
         kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
 }
     tType = eltype(tupType)
@@ -506,7 +506,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
-        initializealg = nothing,
+        initializealg = DefaultInit(),
         kwargs...) where {uType, tupType, isinplace, Method,
         LinearSolver,
         MassLinearSolver}
@@ -1093,11 +1093,6 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         callback_cache = nothing
     end
 
-
-    # Use DefaultInit if not specified, which will delegate to the appropriate algorithm
-    if initializealg === nothing
-        initializealg = DefaultInit()
-    end
     tspan = prob.tspan
     t0 = tspan[1]
 
