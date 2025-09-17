@@ -128,7 +128,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
-        initializealg = SundialsDefaultInit(),
+        initializealg = nothing,
         kwargs...) where {uType, tupType, isinplace, Method, LinearSolver
 }
     tType = eltype(tupType)
@@ -464,9 +464,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
-        initializealg,
         ctx_handle)
-    DiffEqBase.initialize_dae!(integrator)
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -508,7 +506,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         stop_at_next_tstop = false,
         userdata = nothing,
         alias_u0 = false,
-        initializealg = SundialsDefaultInit(),
+        initializealg = nothing,
         kwargs...) where {uType, tupType, isinplace, Method,
         LinearSolver,
         MassLinearSolver}
@@ -999,10 +997,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         1,
         callback_cache,
         0.0,
-        initializealg,
         ctx_handle)
 
-    DiffEqBase.initialize_dae!(integrator)
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -1066,7 +1062,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     advance_to_tstop = false,
     stop_at_next_tstop = false,
     userdata = nothing,
-    initializealg = SundialsDefaultInit(),
+    initializealg = nothing,
     kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
 }
     tType = eltype(tupType)
@@ -1097,6 +1093,11 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
         callback_cache = nothing
     end
 
+
+    # Use DefaultInit if not specified, which will delegate to the appropriate algorithm
+    if initializealg === nothing
+        initializealg = DefaultInit()
+    end
     tspan = prob.tspan
     t0 = tspan[1]
 
@@ -1381,7 +1382,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     # Context will be freed when integrator is garbage collected
     # through the Handle mechanism
 
-    DiffEqBase.initialize_dae!(integrator)
+    DiffEqBase.initialize_dae!(integrator, initializealg)
     integrator.u_modified && IDAReinit!(integrator)
 
     if save_start

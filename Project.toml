@@ -1,7 +1,7 @@
 name = "Sundials"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "4.28.0"
+version = "5.0.0"
 
 [deps]
 Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
@@ -29,7 +29,7 @@ ArrayInterface = "7.17.1"
 CEnum = "0.5"
 DAEProblemLibrary = "0.1"
 DataStructures = "0.18, 0.19"
-DiffEqBase = "6.154"
+DiffEqBase = "6.190.2"
 DiffEqCallbacks = "4"
 DifferentiationInterface = "0.6, 0.7"
 ExplicitImports = "1"
