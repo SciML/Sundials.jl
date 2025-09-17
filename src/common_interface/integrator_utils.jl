@@ -233,11 +233,8 @@ DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing
 # DAE Initialization
 DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator) = nothing
 
-struct DefaultInit <: DiffEqBase.DAEInitializationAlgorithm
-end
-
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
-        initializealg::DefaultInit)
+        initializealg::DiffEqBase.DefaultInit)
     # DefaultInit intelligently chooses the actual initialization algorithm
     prob = integrator.sol.prob
     if haskey(prob.kwargs, :initialization_data) && prob.kwargs[:initialization_data] !== nothing
@@ -248,9 +245,6 @@ function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
         DiffEqBase.initialize_dae!(integrator, SciMLBase.CheckInit())
     end
 end
-
-# Import initialization algorithms from DiffEqBase
-using DiffEqBase: BrownFullBasicInit, ShampineCollocationInit
 
 function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
         initializealg::DiffEqBase.BrownFullBasicInit)

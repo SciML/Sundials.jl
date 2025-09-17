@@ -10,7 +10,8 @@ using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
                   get_tstops_array, initialize!, isinplace,
                   reeval_internals_due_to_modification!, reinit!, savevalues!,
                   set_proposed_dt!, solve, solve!, step!, terminate!, u_modified!,
-                  update_coefficients!, warn_compat
+                  update_coefficients!, warn_compat, DefaultInit, BrownFullBasicInit,
+                  ShampineCollocationInit
 using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
                  SciMLBase, SplitODEProblem, VectorContinuousCallback
 import Accessors: @reset
@@ -54,7 +55,7 @@ using Sundials_jll: Sundials_jll, libsundials_core,
 
 export solve,
        SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
-       KINSOL
+       KINSOL, DefaultInit, BrownFullBasicInit, ShampineCollocationInit
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)
