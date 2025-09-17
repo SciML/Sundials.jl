@@ -157,7 +157,7 @@ end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)
     # Implicitly does IDAReinit!
-    DiffEqBase.initialize_dae!(integrator, DiffEqBase.DiffEqBase.BrownFullBasicInit())
+    DiffEqBase.initialize_dae!(integrator, integrator.initializealg)
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
