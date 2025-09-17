@@ -23,7 +23,11 @@ using Logging: Logging
 using SparseArrays: SparseArrays
 using LinearAlgebra: LinearAlgebra
 
+
+
+import NonlinearSolveBase # Required for KINSOL definition to NonlinearSolve
 import LinearSolve # Required for initialization
+
 using Libdl: Libdl
 using CEnum: CEnum, @cenum
 
