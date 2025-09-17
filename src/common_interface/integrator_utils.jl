@@ -231,18 +231,22 @@ end
 DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing
 
 # DAE Initialization
-DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator) = nothing
 
-function DiffEqBase.initialize_dae!(integrator::IDAIntegrator,
+# DefaultInit for all Sundials integrators - handles ModelingToolkit parameter initialization
+function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator,
         initializealg::DiffEqBase.DefaultInit)
     # DefaultInit intelligently chooses the actual initialization algorithm
     prob = integrator.sol.prob
     if haskey(prob.kwargs, :initialization_data) && prob.kwargs[:initialization_data] !== nothing
         # Use OverrideInit for ModelingToolkit problems with initialization_data
+        # This handles parameter initialization for both ODE (CVODE) and DAE (IDA) problems
         DiffEqBase.initialize_dae!(integrator, SciMLBase.OverrideInit())
     else
-        # Default to CheckInit - require opt-in for initialization
-        DiffEqBase.initialize_dae!(integrator, SciMLBase.CheckInit())
+        # For IDA, use CheckInit as default
+        # For CVODE/ARKODE, the SciMLBase fallback will handle it
+        if integrator isa IDAIntegrator
+            DiffEqBase.initialize_dae!(integrator, SciMLBase.CheckInit())
+        end
     end
 end
 
