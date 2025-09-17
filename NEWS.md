@@ -62,7 +62,7 @@ sol = solve(prob, IDA(), initializealg = ShampineCollocationInit())
 - **Debugging**: Clearer error messages when initial conditions are inconsistent
 - **Performance**: Avoid unnecessary initialization computations when not needed
 
-#### ODE/SDE Initialization Support
+#### ModelingToolkit Initialization Support
 
 CVODE and ARKODE now support the `initializealg` parameter for parameter initialization compatibility with ModelingToolkit. This enables proper handling of problems with initialization requirements.
 
