@@ -157,7 +157,9 @@ end
 
 function handle_callback_modifiers!(integrator::IDAIntegrator)
     # Implicitly does IDAReinit!
-    DiffEqBase.initialize_dae!(integrator, integrator.initializealg)
+    # Use BrownFullBasicInit as it only modifies algebraic variables
+    # which is appropriate after callbacks have modified the solution
+    DiffEqBase.initialize_dae!(integrator, DiffEqBase.BrownFullBasicInit())
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
