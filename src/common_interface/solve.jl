@@ -1064,7 +1064,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     advance_to_tstop = false,
     stop_at_next_tstop = false,
     userdata = nothing,
-    initializealg = nothing,
+    initializealg = DiffEqBase.DefaultInit(),
     kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
 }
     tType = eltype(tupType)
