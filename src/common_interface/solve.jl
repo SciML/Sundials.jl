@@ -466,6 +466,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         0.0,
         initializealg,
         ctx_handle)
+    DiffEqBase.initialize_dae!(integrator, initializealg)
+    integrator.u_modified && CVodeReInit(integrator.mem, integrator.t, integrator.u_nvec)
     initialize_callbacks!(integrator)
     integrator
 end # function solve
@@ -590,7 +592,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         f! = prob.f
     end
 
-    if prob.problem_type isa SplitODEProblem
+    cfj1, cfj2, mem = if prob.problem_type isa SplitODEProblem
 
         ### Fix the more general function to Sundials allowed style
         if !isinplace && prob.u0 isa Number
@@ -628,6 +630,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         cfj2 = getcfunjac2(userfun)
 
         mem = arkodemem(; fi = cfj1, fe = cfj2)
+        cfj1, cfj2, mem
     else
         use_jac_prototype = (isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
                              LinearSolver ∈ SPARSE_SOLVERS)
@@ -645,13 +648,17 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
                 @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
             end
             cfj1 = getcfun1(userfun)
+            cfj2 = C_NULL
             mem = erkodemem(; f = cfj1)
+            cfj1, cfj2, mem
         elseif alg.stiffness == Implicit()
             function getcfun2(::T) where {T}
                 @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
             end
+            cfj1 = C_NULL
             cfj2 = getcfun2(userfun)
             mem = arkodemem(; fi = cfj2)
+            cfj1, cfj2, mem
         end
     end
 
@@ -999,7 +1006,11 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         callback_cache,
         0.0,
         initializealg,
+        cfj1, cfj2,
         ctx_handle)
+    DiffEqBase.initialize_dae!(integrator, initializealg)
+    integrator.u_modified &&  ARKStepReInit(integrator.mem, integrator.cfj2, integrator.cfj1,
+        integrator.t, integrator.u_nvec)
 
     initialize_callbacks!(integrator)
     integrator
@@ -1064,7 +1075,7 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractDAEProblem{uType, duType, tu
     advance_to_tstop = false,
     stop_at_next_tstop = false,
     userdata = nothing,
-    initializealg = DiffEqBase.DefaultInit(),
+    initializealg = DefaultInit(),
     kwargs...) where {uType, duType, tupType, isinplace, LinearSolver
 }
     tType = eltype(tupType)

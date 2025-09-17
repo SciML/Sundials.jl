@@ -12,7 +12,7 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 
         @testset "$alg" for alg in [CVODE_BDF, CVODE_Adams, ARKODE]
             integ = init(prob, alg())
-            @test integ.initializealg isa Sundials.SundialsDefaultInit
+            @test integ.initializealg isa Sundials.DefaultInit
             @test integ[x] ≈ 1.0
             @test integ[y] ≈ cbrt(4)
             @test integ.ps[p] ≈ 1.0
