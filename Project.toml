@@ -1,7 +1,7 @@
 name = "Sundials"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "5.0.0"
+version = "5.1.0"
 
 [deps]
 Accessors = "7d9f7c33-5ae7-4f3b-8dc6-eff91059b697"
@@ -40,7 +40,7 @@ Libdl = "1"
 LinearAlgebra = "1"
 LinearSolve = "3.40.0"
 Logging = "1"
-NonlinearSolveBase = "1.16"
+NonlinearSolveBase = "1.16, 2"
 ModelingToolkit = "10"
 ODEProblemLibrary = "1"
 PrecompileTools = "1"
