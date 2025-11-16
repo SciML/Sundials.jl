@@ -302,25 +302,24 @@ end
 """
 ```julia
 ARKODE(stiffness=Sundials.Implicit();
-      method=:Newton,linear_solver=:Dense,
-      jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower,
-      non_zero=0,krylov_dim=0,
-      max_hnil_warns = 10,
-      max_error_test_failures = 7,
-      max_nonlinear_iters = 3,
-      max_convergence_failures = 10,
-      predictor_method = 0,
-      nonlinear_convergence_coefficient = 0.1,
-      dense_order = 3,
-      order = 4,
-      set_optimal_params = false,
-      crdown = 0.3,
-      dgmax = 0.2,
-      rdiv = 2.3,
-      msbp = 20,
-      adaptivity_method = 0,
-      prec = nothing, psetup = nothing, prec_side = 0
-      )
+       method=:Newton,linear_solver=:Dense,
+       jac_upper=0,jac_lower=0,stored_upper = jac_upper+jac_lower,
+       non_zero=0,krylov_dim=0,
+       max_hnil_warns = 10,
+       max_error_test_failures = 7,
+       max_nonlinear_iters = 3,
+       max_convergence_failures = 10,
+       predictor_method = 0,
+       nonlinear_convergence_coefficient = 0.1,
+       dense_order = 3,
+       order = 4,
+       set_optimal_params = false,
+       crdown = 0.3,
+       dgmax = 0.2,
+       rdiv = 2.3,
+       msbp = 20,
+       adaptivity_method = 0,
+       prec = nothing, psetup = nothing, prec_side = 0)
 ```
 
 ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choice of options.
@@ -330,87 +329,89 @@ ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choic
 The main options for ARKODE are the choice between explicit and implicit and the method
 order, given via:
 
+```julia
 ARKODE(Sundials.Explicit()) # Solve with explicit tableau of default order 4
-ARKODE(Sundials.Implicit(),order = 3) # Solve with explicit tableau of order 3
+ARKODE(Sundials.Implicit(), order = 3) # Solve with explicit tableau of order 3
+```
 
 The order choices for explicit are 2 through 8 and for implicit 3 through 5. Specific
 methods can also be set through the etable and itable options for explicit and implicit
 tableaus respectively. The available tableaus are:
 
-etable:
+`etable`:
 
-* HEUN_EULER_2_1_2: 2nd order Heun's method
-* BOGACKI_SHAMPINE_4_2_3:
-* ARK324L2SA_ERK_4_2_3: explicit portion of Kennedy and Carpenter's 3rd order method
-* ZONNEVELD_5_3_4: 4th order explicit method
-* ARK436L2SA_ERK_6_3_4: explicit portion of Kennedy and Carpenter's 4th order method
-* SAYFY_ABURUB_6_3_4: 4th order explicit method
-* CASH_KARP_6_4_5: 5th order explicit method
-* FEHLBERG_6_4_5: Fehlberg's classic 5th order method
-* DORMAND_PRINCE_7_4_5: the classic 5th order Dormand-Prince method
-* ARK548L2SA_ERK_8_4_5: explicit portion of Kennedy and Carpenter's 5th order method
-* VERNER_8_5_6: Verner's classic 5th order method
-* FEHLBERG_13_7_8: Fehlberg's 8th order method
+* `HEUN_EULER_2_1_2`: 2nd order Heun's method
+* `BOGACKI_SHAMPINE_4_2_3`: third-order method of Bogacki and Shampine
+* `ARK324L2SA_ERK_4_2_3`: explicit portion of Kennedy and Carpenter's 3rd order method
+* `ZONNEVELD_5_3_4`: 4th order explicit method
+* `ARK436L2SA_ERK_6_3_4`: explicit portion of Kennedy and Carpenter's 4th order method
+* `SAYFY_ABURUB_6_3_4`: 4th order explicit method
+* `CASH_KARP_6_4_5`: 5th order explicit method
+* `FEHLBERG_6_4_5`: Fehlberg's classic 5th order method
+* `DORMAND_PRINCE_7_4_5`: the classic 5th order Dormand-Prince method
+* `ARK548L2SA_ERK_8_4_5`: explicit portion of Kennedy and Carpenter's 5th order method
+* `VERNER_8_5_6`: Verner's classic 5th order method
+* `FEHLBERG_13_7_8`: Fehlberg's 8th order method
 
-itable:
+`itable`:
 
-* SDIRK_2_1_2: An A-B-stable 2nd order SDIRK method
-* BILLINGTON_3_3_2: A second order method with a 3rd order error predictor of less stability
-* TRBDF2_3_3_2: The classic TR-BDF2 method
-* KVAERNO_4_2_3: an L-stable 3rd order ESDIRK method
-* ARK324L2SA_DIRK_4_2_3: implicit portion of Kennedy and Carpenter's 3th order method
-* CASH_5_2_4: Cash's 4th order L-stable SDIRK method
-* CASH_5_3_4: Cash's 2nd 4th order L-stable SDIRK method
-* SDIRK_5_3_4: Hairer's 4th order SDIRK method
-* KVAERNO_5_3_4: Kvaerno's 4th order ESDIRK method
-* ARK436L2SA_DIRK_6_3_4: implicit portion of Kennedy and Carpenter's 4th order method
-* KVAERNO_7_4_5: Kvaerno's 5th order ESDIRK method
-* ARK548L2SA_DIRK_8_4_5: implicit portion of Kennedy and Carpenter's 5th order method
+* `SDIRK_2_1_2`: An A-B-stable 2nd order SDIRK method
+* `BILLINGTON_3_3_2`: A second order method with a 3rd order error predictor of less stability
+* `TRBDF2_3_3_2`: The classic TR-BDF2 method
+* `KVAERNO_4_2_3`: an L-stable 3rd order ESDIRK method
+* `ARK324L2SA_DIRK_4_2_3`: implicit portion of Kennedy and Carpenter's 3th order method
+* `CASH_5_2_4`: Cash's 4th order L-stable SDIRK method
+* `CASH_5_3_4`: Cash's 2nd 4th order L-stable SDIRK method
+* `SDIRK_5_3_4`: Hairer's 4th order SDIRK method
+* `KVAERNO_5_3_4`: Kvaerno's 4th order ESDIRK method
+* `ARK436L2SA_DIRK_6_3_4`: implicit portion of Kennedy and Carpenter's 4th order method
+* `KVAERNO_7_4_5`: Kvaerno's 5th order ESDIRK method
+* `ARK548L2SA_DIRK_8_4_5`: implicit portion of Kennedy and Carpenter's 5th order method
 
 These can be set for example via:
 
 ```julia
-ARKODE(Sundials.Explicit(),etable = Sundials.DORMAND_PRINCE_7_4_5)
-ARKODE(Sundials.Implicit(),itable = Sundials.KVAERNO_4_2_3)
+ARKODE(Sundials.Explicit(), etable = Sundials.DORMAND_PRINCE_7_4_5)
+ARKODE(Sundials.Implicit(), itable = Sundials.KVAERNO_4_2_3)
 ```
 
 ### Method Choices
 
-* method - This is the method for solving the implicit equation. For BDF this defaults to
-    :Newton while for Adams this defaults to :Functional. These choices match the
-    recommended pairing in the Sundials.jl manual. However, note that using the :Newton
-    method may take less iterations but requires more memory than the :Function iteration
+* `method` - This is the method for solving the implicit equation. For BDF this defaults to
+    `:Newton` while for Adams this defaults to `:Functional`. These choices match the
+    recommended pairing in the Sundials.jl manual. However, note that using the `:Newton`
+    method may take less iterations but requires more memory than the `:Function` iteration
     approach.
-* linear_solver - This is the linear solver which is used in the :Newton method.
+* `linear_solver` - This is the linear solver which is used in the `:Newton` method.
 
 ### Linear Solver Choices
 
 The choices for the linear solver are:
 
-* :Dense - A dense linear solver.
-* :Band - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
-* :LapackDense - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
-* :LapackBand - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
-* :Diagonal - This method is specialized for diagonal Jacobians.
-* :GMRES - A GMRES method. Recommended first choice Krylov method
-* :BCG - A Biconjugate gradient method.
-* :PCG - A preconditioned conjugate gradient method. Only for symmetric linear systems.
-* :TFQMR - A TFQMR method.
-* :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
+* `:Dense` - A dense linear solver.
+* `:Band` - A solver specialized for banded Jacobians. If used, you must set the position of the upper and lower non-zero diagonals via jac_upper and jac_lower.
+* `:LapackDense` - A version of the dense linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Dense on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
+* `:LapackBand` - A version of the banded linear solver that uses the Julia-provided OpenBLAS-linked LAPACK for multithreaded operations. This will be faster than :Band on larger systems but has noticeable overhead on smaller (<100 ODE) systems.
+* `:Diagonal` - This method is specialized for diagonal Jacobians.
+* `:GMRES` - A GMRES method. Recommended first choice Krylov method
+* `:BCG` - A Biconjugate gradient method.
+* `:PCG` - A preconditioned conjugate gradient method. Only for symmetric linear systems.
+* `:TFQMR` - A TFQMR method.
+* `:KLU` - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
 
 ### Preconditioners
 
 Note that here `prec` is a preconditioner function
-`prec(z,r,p,t,y,fy,gamma,delta,lr)` where:
+`prec(z, r, p, t, y, fy, gamma, delta, lr)` where:
 
 - `z`: the computed output vector
 - `r`: the right-hand side vector of the linear system
 - `p`: the parameters
 - `t`: the current independent variable
 - `du`: the current value of `f(u,p,t)`
-- `gamma`: the `gamma` of `W = M - gamma*J`
+- `gamma`: the `gamma` of `W = M - gamma * J`
 - `delta`: the iterative method tolerance
-- `lr`: a flag for whether `lr=1` (left) or `lr=2` (right)
+- `lr`: a flag for whether `lr = 1` (left) or `lr = 2` (right)
   preconditioning
 
 and `psetup` is the preconditioner setup function for pre-computing Jacobian
@@ -422,8 +423,8 @@ information `psetup(p, t, u, du, jok, jcurPtr, gamma)`. Where:
 - `du`: the current `f(u,p,t)`
 - `jok`: a bool indicating whether the Jacobian needs to be updated
 - `jcurPtr`: a reference to an Int for whether the Jacobian was updated.
-  `jcurPtr[]=true` should be set if the Jacobian was updated, and
-  `jcurPtr[]=false` should be set if the Jacobian was not updated.
+  `jcurPtr[] = true` should be set if the Jacobian was updated, and
+  `jcurPtr[] = false` should be set if the Jacobian was not updated.
 - `gamma`: the `gamma` of `W = M - gamma*J`
 
 `psetup` is optional when `prec` is set.
@@ -462,7 +463,7 @@ struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
     prec_side::Int
 end
 
-Base.@pure function ARKODE(stiffness = Implicit();
+function ARKODE(stiffness = Implicit();
         method = :Newton,
         linear_solver = :Dense,
         mass_linear_solver = :Dense,
