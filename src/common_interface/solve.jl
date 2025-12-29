@@ -65,6 +65,8 @@ function DiffEqBase.__solve(
         else # Then it's an in-place function on an abstract array
             f! = (du, u) -> prob.f(du, u, p)
         end
+    else
+        error("Problem function must be ODEFunction or NonlinearFunction")
     end
     u = zero(u0)
     resid = similar(u)
@@ -195,6 +197,8 @@ function DiffEqBase.__init(prob::DiffEqBase.AbstractODEProblem{uType, tupType, i
         alg_code = CV_BDF
     elseif alg isa CVODE_Adams
         alg_code = CV_ADAMS
+    else
+        error("Algorithm must be CVODE_BDF or CVODE_Adams")
     end
 
     #if Method == :Newton

@@ -34,6 +34,9 @@ end
 UserFunctionAndData(func) = func
 UserFunctionAndData(func, data::Nothing) = func
 
+# Enable accessing the struct via userfun[] syntax
+Base.getindex(userfun::UserFunctionAndData) = userfun
+
 function kinsolfun(y::N_Vector, fy::N_Vector, userfun::UserFunctionAndData)
     userfun[].func(convert(Vector, fy), convert(Vector, y), userfun[].data)
     return KIN_SUCCESS
@@ -197,6 +200,8 @@ function cvode!(f::Function,
         mem_ptr = CVodeCreate(CV_BDF, ctx)
     elseif integrator == :Adams
         mem_ptr = CVodeCreate(CV_ADAMS, ctx)
+    else
+        error("integrator must be :BDF or :Adams, got: $integrator")
     end
 
     (mem_ptr == C_NULL) && error("Failed to allocate CVODE solver object")
