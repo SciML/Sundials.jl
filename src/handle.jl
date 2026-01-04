@@ -73,8 +73,10 @@ end
 mutable struct NonLinSolHandle{T <: SundialsNonLinearSolver} <: SundialsHandle
     ptr::SUNNonlinearSolver
     destroyed::Bool
-    function NonLinSolHandle(ptr::SUNNonlinearSolver,
-            M::T) where {T <: SundialsNonLinearSolver}
+    function NonLinSolHandle(
+            ptr::SUNNonlinearSolver,
+            M::T
+        ) where {T <: SundialsNonLinearSolver}
         h = new{T}(ptr, false)
         finalizer(release_handle, h)
         return h
@@ -118,21 +120,21 @@ function release_handle(h::MatrixHandle{DenseMatrix})
         Sundials.SUNMatDestroy_Dense(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 function release_handle(h::MatrixHandle{BandMatrix})
     if !isempty(h)
         Sundials.SUNMatDestroy_Band(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 function release_handle(h::MatrixHandle{SparseMatrix})
     if !isempty(h)
         Sundials.SUNMatDestroy_Sparse(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{Dense})
@@ -140,7 +142,7 @@ function release_handle(h::LinSolHandle{Dense})
         Sundials.SUNLinSolFree_Dense(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{Band})
@@ -148,7 +150,7 @@ function release_handle(h::LinSolHandle{Band})
         Sundials.SUNLinSolFree_Band(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{SPGMR})
@@ -156,7 +158,7 @@ function release_handle(h::LinSolHandle{SPGMR})
         Sundials.SUNLinSolFree_SPGMR(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{SPFGMR})
@@ -164,7 +166,7 @@ function release_handle(h::LinSolHandle{SPFGMR})
         Sundials.SUNLinSolFree_SPFGMR(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{SPBCGS})
@@ -172,7 +174,7 @@ function release_handle(h::LinSolHandle{SPBCGS})
         Sundials.SUNLinSolFree_SPBCGS(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{PCG})
@@ -180,7 +182,7 @@ function release_handle(h::LinSolHandle{PCG})
         Sundials.SUNLinSolFree_PCG(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{PTFQMR})
@@ -188,7 +190,7 @@ function release_handle(h::LinSolHandle{PTFQMR})
         Sundials.SUNLinSolFree_SPTFQMR(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{KLU})
@@ -196,7 +198,7 @@ function release_handle(h::LinSolHandle{KLU})
         Sundials.SUNLinSolFree_KLU(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{LapackBand})
@@ -204,7 +206,7 @@ function release_handle(h::LinSolHandle{LapackBand})
         Sundials.SUNLinSolFree_LapackBand(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::LinSolHandle{LapackDense})
@@ -212,7 +214,7 @@ function release_handle(h::LinSolHandle{LapackDense})
         Sundials.SUNLinSolFree_LapackDense(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::NonLinSolHandle{FixedPoint})
@@ -220,7 +222,7 @@ function release_handle(h::NonLinSolHandle{FixedPoint})
         Sundials.SUNNonlinSolFree_FixedPoint(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 function release_handle(h::NonLinSolHandle{Newton})
@@ -228,7 +230,7 @@ function release_handle(h::NonLinSolHandle{Newton})
         Sundials.SUNNonlinSolFree_Newton(h.ptr)
         h.destroyed = true
     end
-    nothing
+    return nothing
 end
 
 Base.empty!(h::LinSolHandle) = release_handle(h)

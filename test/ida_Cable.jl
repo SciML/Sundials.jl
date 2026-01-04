@@ -27,11 +27,11 @@ const dt = 0.1
 const timesteps = round(Int, tf / dt)
 const t = collect(0.0:dt:(dt * (timesteps - 1)))
 
-const d = 4.0 * 1e-4 ## Cable diameter in cm
+const d = 4.0 * 1.0e-4 ## Cable diameter in cm
 const R_m = 2.5e11 ## Membrane resistance in Ohms/cm^2
 const G_m = 1.0 / R_m ## Membrane conductance
 const R_i = 30.0  ## Longitudinal resistivity in Ohms*cm
-const C_m = 1e-6  ## Membrane capacitance in F/cm^2
+const C_m = 1.0e-6  ## Membrane capacitance in F/cm^2
 
 ## Define the injected current J
 const J = zeros(timesteps, xsteps)
@@ -40,8 +40,11 @@ const I_in = 0.1
 const I_delay = 1.0
 ## Duration of injected current
 const I_dur = 5.0
-J[max(1, round(Int, (I_delay) / dt)):round(Int, (I_delay + I_dur) / dt), round(
-    Int, 1 * xsteps / 2)] = I_in
+J[
+    max(1, round(Int, (I_delay) / dt)):round(Int, (I_delay + I_dur) / dt), round(
+        Int, 1 * xsteps / 2
+    ),
+] = I_in
 
 const G_J = map(i -> CoordInterpGrid(t, vec(J[:, i]), 0.0, InterpQuadratic), 1:xsteps)
 
@@ -58,9 +61,11 @@ function cableres(t, u, up, r)
     for i in 2:(xsteps - 2)
         loc = i
         r[loc] = C_m * up[loc] -
-                 (d / (4 * R_i)) * (u[loc - 1] + u[loc + 1] -
-                                    2.0 * u[loc]) +
-                 G_m * u[loc] - R_m * (G_J[loc])[t]
+            (d / (4 * R_i)) * (
+            u[loc - 1] + u[loc + 1] -
+                2.0 * u[loc]
+        ) +
+            G_m * u[loc] - R_m * (G_J[loc])[t]
     end
 
     return Sundials.CV_SUCCESS
@@ -84,19 +89,27 @@ function initial()
     return (u, up, id)
 end
 
-function idabandsol(f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
+function idabandsol(
+        f::Function, y0::Vector{Float64}, yp0::Vector{Float64},
         id::Vector{Float64}, t::Vector{Float64};
-        reltol::Float64 = 1e-4, abstol::Float64 = 1e-6)
+        reltol::Float64 = 1.0e-4, abstol::Float64 = 1.0e-6
+    )
     neq = length(y0)
     mem = Sundials.IDACreate()
 
     function getcfunband(f::T) where {T}
-        @cfunction(Sundials.idasolfun, Cint,
-            (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
-                Sundials.N_Vector, Ref{T}))
+        return @cfunction(
+            Sundials.idasolfun, Cint,
+            (
+                Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
+                Sundials.N_Vector, Ref{T},
+            )
+        )
     end
-    Sundials.@checkflag Sundials.IDAInit(mem, getcfunband(f),
-        t[1], y0, yp0)
+    Sundials.@checkflag Sundials.IDAInit(
+        mem, getcfunband(f),
+        t[1], y0, yp0
+    )
     Sundials.@checkflag Sundials.IDASetId(mem, id)
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
@@ -122,5 +135,7 @@ end
 u0, up0, id = initial()
 
 yout,
-ypout = @time idabandsol(cableres, u0, up0, id, map(x -> x, t);
-    reltol = 1e-3, abstol = 1e-4)
+    ypout = @time idabandsol(
+    cableres, u0, up0, id, map(x -> x, t);
+    reltol = 1.0e-3, abstol = 1.0e-4
+)

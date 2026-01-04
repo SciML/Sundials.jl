@@ -16,8 +16,10 @@ function f(t, y_nv, ydot_nv, user_data)
     return Sundials.ARK_SUCCESS
 end
 
-f_C = @cfunction(f, Cint,
-    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+f_C = @cfunction(
+    f, Cint,
+    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid})
+)
 
 neq = 3
 
@@ -26,10 +28,10 @@ t1 = 0.4
 tmult = 10.0
 nout = 12
 y0 = [1.0, 0.0, 0.0]
-reltol = 1e-4
-abstol = 1e-11
+reltol = 1.0e-4
+abstol = 1.0e-11
 userdata = nothing
-h0 = 1e-4 * reltol
+h0 = 1.0e-4 * reltol
 
 y0_nvec = Sundials.NVector(y0, ctx)
 mem_ptr = Sundials.ARKStepCreate(C_NULL, f_C, t0, y0_nvec, ctx)
@@ -37,7 +39,7 @@ arkStep_mem = Sundials.Handle(mem_ptr)
 Sundials.@checkflag Sundials.ARKStepSetInitStep(arkStep_mem, h0)
 Sundials.@checkflag Sundials.ARKStepSetMaxErrTestFails(arkStep_mem, 20)
 Sundials.@checkflag Sundials.ARKStepSetMaxNonlinIters(arkStep_mem, 8)
-Sundials.@checkflag Sundials.ARKStepSetNonlinConvCoef(arkStep_mem, 1.e-7)
+Sundials.@checkflag Sundials.ARKStepSetNonlinConvCoef(arkStep_mem, 1.0e-7)
 Sundials.@checkflag Sundials.ARKStepSetMaxNumSteps(arkStep_mem, 100000)
 Sundials.@checkflag Sundials.ARKStepSetPredictorMethod(arkStep_mem, 1)
 

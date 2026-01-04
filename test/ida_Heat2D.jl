@@ -55,9 +55,11 @@ function heatres(t, u, up, r)
         for i in 2:(MGRID - 2)
             loc = offset + i
             r[loc] = up[loc] -
-                     coeff *
-                     (u[loc - 1] + u[loc + 1] + u[loc - MGRID] + u[loc + MGRID] -
-                      4.0 * u[loc])
+                coeff *
+                (
+                u[loc - 1] + u[loc + 1] + u[loc - MGRID] + u[loc + MGRID] -
+                    4.0 * u[loc]
+            )
         end
     end
 
@@ -107,29 +109,37 @@ function initial()
     return (u, up, id, constraints)
 end
 
-function idabandsol(f::Function,
+function idabandsol(
+        f::Function,
         y0::Vector{Float64},
         yp0::Vector{Float64},
         id::Vector{Float64},
         constraints::Vector{Float64},
         t::Vector{Float64};
-        reltol::Float64 = 1e-4,
-        abstol::Float64 = 1e-6)
+        reltol::Float64 = 1.0e-4,
+        abstol::Float64 = 1.0e-6
+    )
     neq = length(y0)
     mem = Sundials.IDACreate(ctx)
     y0_nvec = Sundials.NVector(y0, ctx)
     yp0_nvec = Sundials.NVector(yp0, ctx)
-    Sundials.@checkflag Sundials.IDAInit(mem,
-        @cfunction(Sundials.idasolfun,
+    Sundials.@checkflag Sundials.IDAInit(
+        mem,
+        @cfunction(
+            Sundials.idasolfun,
             Cint,
-            (Sundials.realtype,
+            (
+                Sundials.realtype,
                 Sundials.N_Vector,
                 Sundials.N_Vector,
                 Sundials.N_Vector,
-                Ref{Function})),
+                Ref{Function},
+            )
+        ),
         t[1],
         y0_nvec,
-        yp0_nvec)
+        yp0_nvec
+    )
     id_nvec = Sundials.NVector(id, ctx)
     Sundials.@checkflag Sundials.IDASetId(mem, id_nvec)
     constraints_nvec = Sundials.NVector(constraints, ctx)
@@ -137,7 +147,7 @@ function idabandsol(f::Function,
     Sundials.@checkflag Sundials.IDASetUserData(mem, f)
     Sundials.@checkflag Sundials.IDASStolerances(mem, reltol, abstol)
 
-    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID, ctx)#,2MGRID)
+    A = Sundials.SUNBandMatrix(neq, MGRID, MGRID, ctx) #,2MGRID)
     LS = Sundials.SUNLinSol_Band(y0_nvec, A, ctx)
     Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A)
 
@@ -154,7 +164,8 @@ function idabandsol(f::Function,
     tout = [0.0]
     for k in 2:length(t)
         Sundials.@checkflag Sundials.IDASolve(
-            mem, t[k], tout, y_nvec, yp_nvec, Sundials.IDA_NORMAL)
+            mem, t[k], tout, y_nvec, yp_nvec, Sundials.IDA_NORMAL
+        )
         copyto!(y, y_nvec.v)
         copyto!(yp, yp_nvec.v)
         yres[:, k] = y
@@ -172,7 +183,7 @@ tstep = 0.005
 t = collect(0.0:tstep:(tstep * nsteps))
 u0, up0, id, constraints = initial()
 
-idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t); reltol = 0.0, abstol = 1e-3)
+idabandsol(heatres, u0, up0, id, constraints, map(x -> x, t); reltol = 0.0, abstol = 1.0e-3)
 
 # Clean up context
 Sundials.SUNContext_Free(ctx)

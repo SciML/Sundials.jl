@@ -41,8 +41,8 @@ t0 = 0.0
 tf = 10.0
 dTout = 1.0
 neq = 1
-reltol = 1e-6
-abstol = 1e-10
+reltol = 1.0e-6
+abstol = 1.0e-10
 y0 = [0.0]
 
 function f(t, y, ydot, user_data)
@@ -52,8 +52,10 @@ function f(t, y, ydot, user_data)
     return Sundials.ARK_SUCCESS
 end
 
-f_C = @cfunction(f, Cint,
-    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid}))
+f_C = @cfunction(
+    f, Cint,
+    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid})
+)
 
 y0_nvec = Sundials.NVector(y0, ctx)
 mem_ptr = Sundials.ERKStepCreate(f_C, t0, y0_nvec, ctx)
@@ -63,11 +65,12 @@ Sundials.@checkflag Sundials.ERKStepSStolerances(erkStep_mem, reltol, abstol)
 res = [0.0]
 t = [t0]
 tout = t0 + dTout
-while (tf - t[1] > 1e-15)
+while (tf - t[1] > 1.0e-15)
     y = similar(y0)
     y_nvec = Sundials.NVector(y, ctx)
     Sundials.@checkflag Sundials.ERKStepEvolve(
-        erkStep_mem, tout, y_nvec, t, Sundials.ARK_NORMAL)
+        erkStep_mem, tout, y_nvec, t, Sundials.ARK_NORMAL
+    )
     copyto!(y, y_nvec.v)
     push!(res, y[1])
     global tout += dTout
@@ -77,7 +80,7 @@ end
 t = 0.0:1:10
 y_analytic = log.((0.5 * t .^ 2 .+ t .+ 1))
 for i in 1:length(t)
-    @test isapprox(y_analytic[1], res[1]; atol = 1e-3)
+    @test isapprox(y_analytic[1], res[1]; atol = 1.0e-3)
 end
 y = nothing
 temp = Ref(Clong(-1))

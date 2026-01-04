@@ -7,7 +7,7 @@ function make_mm_probs(mm_A, ::Type{Val{iip}}) where {iip}
     function mm_f(du, u, p, t)
         LinearAlgebra.mul!(du, mm_A, u)
         du .+= t * mm_b
-        nothing
+        return nothing
     end
     mm_g(du, u, p, t) = (@. du = u + t; nothing)
 
@@ -21,23 +21,26 @@ function make_mm_probs(mm_A, ::Type{Val{iip}}) where {iip}
     tspan = (0.0, 1.0)
 
     prob = ODEProblem(
-        ODEFunction{iip, true}(mm_f; analytic = mm_analytic,
-            mass_matrix = mm_A),
+        ODEFunction{iip, true}(
+            mm_f; analytic = mm_analytic,
+            mass_matrix = mm_A
+        ),
         u0,
-        tspan)
+        tspan
+    )
     prob2 = ODEProblem(ODEFunction{iip, true}(mm_g; analytic = mm_analytic), u0, tspan)
 
-    prob, prob2
+    return prob, prob2
 end
 
 mm_A = Float64[-2 1 4; 4 -2 1; 2 1 3]
 prob, prob2 = make_mm_probs(mm_A, Val{true})
 
-sol = solve(prob, ARKODE(); abstol = 1e-8, reltol = 1e-8)
-sol2 = solve(prob2, ARKODE(); abstol = 1e-8, reltol = 1e-8)
+sol = solve(prob, ARKODE(); abstol = 1.0e-8, reltol = 1.0e-8)
+sol2 = solve(prob2, ARKODE(); abstol = 1.0e-8, reltol = 1.0e-8)
 
 # Compare solutions at common time points since they may have different internal timesteps
 # The adaptive timestepping may choose different points internally
 t_common = range(0.0, 1.0, length = 100)
 max_diff = maximum(norm(sol(t) - sol2(t)) for t in t_common)
-@test max_diff < 1e-7
+@test max_diff < 1.0e-7

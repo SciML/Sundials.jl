@@ -3,7 +3,7 @@
 function Base.convert(::Type{Matrix}, J::DlsMat)
     _dlsmat = unsafe_load(J)
     # own is false as memory is allocated by sundials
-    unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N); own = false)
+    return unsafe_wrap(Array, _dlsmat.data, (_dlsmat.M, _dlsmat.N); own = false)
 end
 
 function Base.convert(::Type{Matrix}, J::SUNMatrix)
@@ -11,7 +11,7 @@ function Base.convert(::Type{Matrix}, J::SUNMatrix)
     _mat = convert(SUNMatrixContent_Dense, _sunmat.content)
     mat = unsafe_load(_mat)
     # own is false as memory is allocated by sundials
-    unsafe_wrap(Array, mat.data, (mat.M, mat.N); own = false)
+    return unsafe_wrap(Array, mat.data, (mat.M, mat.N); own = false)
 end
 
 # sparse SUNMatrix uses zero-offset indices, so provide copyto!, not convert

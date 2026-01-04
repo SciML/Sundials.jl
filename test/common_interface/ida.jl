@@ -11,14 +11,16 @@ mutable struct precflags
 end
 
 p = precflags(false, false)
-prob = DAEProblem(prob_dae_resrob.f, prob_dae_resrob.du0, prob_dae_resrob.u0,
-    prob_dae_resrob.tspan, p)
+prob = DAEProblem(
+    prob_dae_resrob.f, prob_dae_resrob.du0, prob_dae_resrob.u0,
+    prob_dae_resrob.tspan, p
+)
 
 dt = 1000
 saveat = float(collect(0:dt:100000))
 sol1 = solve(prob, IDA())
 @info "Multiple abstol"
-sol = solve(prob, IDA(); abstol = [1e-9, 1e-8, 1e-7])
+sol = solve(prob, IDA(); abstol = [1.0e-9, 1.0e-8, 1.0e-7])
 @info "Band solver"
 sol2 = solve(prob, IDA(; linear_solver = :Band, jac_upper = 2, jac_lower = 2))
 # Testing iterative solvers
@@ -43,9 +45,9 @@ sol11 = solve(prob, IDA(; linear_solver = :Dense))
 @test sol9.retcode == ReturnCode.Success
 @test sol10.retcode == ReturnCode.Success
 @test sol11.retcode == ReturnCode.Success
-@test isapprox(sol1.u[end], sol9.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol10.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol11.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol9.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol10.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol11.u[end]; rtol = 1.0e-3)
 
 # Test iterative solvers work
 @test sol3.retcode == ReturnCode.Success
@@ -53,10 +55,10 @@ sol11 = solve(prob, IDA(; linear_solver = :Dense))
 @test sol6.retcode == ReturnCode.Success
 @test_broken sol7.retcode == ReturnCode.Success  # PCG requires symmetric linear system
 # Iterative solvers without preconditioner are unstable - mark as broken
-@test_broken isapprox(sol1.u[end], sol3.u[end]; rtol = 1e-3)  # GMRES without preconditioner
-@test_broken isapprox(sol1.u[end], sol5.u[end]; rtol = 1e-3)  # TFQMR convergence issues
-@test_broken isapprox(sol1.u[end], sol6.u[end]; rtol = 1e-3)  # FGMRES without preconditioner
-@test_broken isapprox(sol1.u[end], sol7.u[end]; rtol = 1e-3)  # PCG requires symmetric
+@test_broken isapprox(sol1.u[end], sol3.u[end]; rtol = 1.0e-3)  # GMRES without preconditioner
+@test_broken isapprox(sol1.u[end], sol5.u[end]; rtol = 1.0e-3)  # TFQMR convergence issues
+@test_broken isapprox(sol1.u[end], sol6.u[end]; rtol = 1.0e-3)  # FGMRES without preconditioner
+@test_broken isapprox(sol1.u[end], sol7.u[end]; rtol = 1.0e-3)  # PCG requires symmetric
 
 # Test identity preconditioner
 prec = (z, r, p, t, y, fy, resid, gamma, delta) -> (p.prec_used = true; z .= r)
@@ -128,19 +130,21 @@ init(dae_prob, IDA(), initializealg = NoInit()).u == [0.0]
 
 # test that initializers which modify states actually modify the states
 struct DumbInit <: DiffEqBase.DAEInitializationAlgorithm end
-function DiffEqBase.initialize_dae!(integrator::Sundials.IDAIntegrator,
-        initializealg::DumbInit)
+function DiffEqBase.initialize_dae!(
+        integrator::Sundials.IDAIntegrator,
+        initializealg::DumbInit
+    )
     integrator.u .= 1
     integrator.u_modified = true
-    DiffEqBase.initialize_dae!(integrator, Sundials.BrownFullBasicInit())
+    return DiffEqBase.initialize_dae!(integrator, Sundials.BrownFullBasicInit())
 end
 f(du, u, p, t) = du - u # u(t) = exp(t)
 prob = DAEProblem(f, zeros(1), zeros(1), (0, 1), differential_vars = trues(1))
 sol = solve(prob, IDA(), initializealg = DumbInit())
 # test that initializealg is reflected in the sol
-isapprox(only(sol.u[begin]), 1, rtol = 1e-3)
+isapprox(only(sol.u[begin]), 1, rtol = 1.0e-3)
 # test that solve produced the right answer.
-isapprox(only(sol.u[end]), exp(1), rtol = 1e-3)
+isapprox(only(sol.u[end]), exp(1), rtol = 1.0e-3)
 
 f_noconverge(out, du, u, p, t) = out .= [du[1] + u[1] / (t - 1)]
 prob = DAEProblem(f_noconverge, [1.0], [1.0], (0, 2); differential_vars = [true])
@@ -159,9 +163,11 @@ sol = solve(prob, IDA(), initializealg = Sundials.BrownFullBasicInit())
 
 # test that callbacks modifying p get the new p
 daefun = (du, u, p, t) -> [du[1] - u[2], u[2] - p]
-callback = PresetTimeCallback(0.5, integ->(integ.p = -integ.p;))
-prob = DAEProblem(daefun, [0.0, 0.0], [0.0, -1.0], (0.0, 1), 1;
-    differential_vars = [true, false], callback)
+callback = PresetTimeCallback(0.5, integ -> (integ.p = -integ.p;))
+prob = DAEProblem(
+    daefun, [0.0, 0.0], [0.0, -1.0], (0.0, 1), 1;
+    differential_vars = [true, false], callback
+)
 sol = solve(prob, IDA(), initializealg = Sundials.BrownFullBasicInit())
 @test sol.retcode == ReturnCode.Success
 # test that the callback flipping p caused u[2] to get flipped.

@@ -4,7 +4,7 @@ using Sundials, Test, SparseArrays
 function Lotka(du, u, p, t)
     du[1] = u[1] - u[1] * u[2] # REPL[7], line 3:
     du[2] = -3 * u[2] + 1 * u[1] * u[2]
-    nothing
+    return nothing
 end
 
 jac_called = false
@@ -15,18 +15,20 @@ function Lotka_jac(J, u, p, t)
     J[1, 2] = -u[1]
     J[2, 1] = 1 * u[2]
     J[2, 2] = -3 + u[1]
-    nothing
+    return nothing
 end
 
 Lotka_f = ODEFunction(Lotka; jac = Lotka_jac)
 prob = ODEProblem(Lotka_f, ones(2), (0.0, 10.0))
 good_sol = solve(prob, CVODE_BDF())
-testsol = solve(prob, CVODE_BDF(), saveat = 0.1, abstol = 1e-12, reltol = 1e-12)
+testsol = solve(prob, CVODE_BDF(), saveat = 0.1, abstol = 1.0e-12, reltol = 1.0e-12)
 @test jac_called == true
 
-Lotka_f = ODEFunction(Lotka;
+Lotka_f = ODEFunction(
+    Lotka;
     jac = Lotka_jac,
-    jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4)))
+    jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4))
+)
 
 prob = ODEProblem(Lotka_f, ones(2), (0.0, 10.0))
 jac_called = false
@@ -50,7 +52,7 @@ jac_called = false
 function f2_jac!(out, du, u, p, gamma, t)
     global jac_called
     jac_called = true
-    out[1] = 1.01
+    return out[1] = 1.01
 end
 
 f2_f = DAEFunction(f2!; jac = f2_jac!)
@@ -64,7 +66,7 @@ good_sol = solve(dae_prob, IDA())
 
 function testjac(res, du, u, p, t)
     res[1] = du[1] - 1.5 * u[1] + 1.0 * u[1] * u[2]
-    res[2] = du[2] + 3 * u[2] - u[1] * u[2]
+    return res[2] = du[2] + 3 * u[2] - u[1] * u[2]
 end
 
 jac_called = false
@@ -75,16 +77,18 @@ function testjac_jac(J, du, u, p, gamma, t)
     J[1, 2] = 1.0 * u[1]
     J[2, 1] = -1 * u[2]
     J[2, 2] = gamma + 3 - u[1]
-    nothing
+    return nothing
 end
 
 testjac_f = DAEFunction(testjac; jac = testjac_jac)
 
-prob3 = DAEProblem(testjac_f,
+prob3 = DAEProblem(
+    testjac_f,
     [0.5, -2.0],
     ones(2),
     (0.0, 10.0);
-    differential_vars = [true, true])
+    differential_vars = [true, true]
+)
 sol3 = solve(prob3, IDA())
 
 @test jac_called == true
@@ -94,11 +98,11 @@ sol4 = solve(prob4, IDA())
 
 @test jac_called == false
 
-@test maximum(sol3 - sol4) < 1e-6
+@test maximum(sol3 - sol4) < 1.0e-6
 
 function testjac(res, du, u, p, t)
     res[1] = du[1] - 1.5 * u[1] + 1.0 * u[1] * u[2]
-    res[2] = du[2] + 3 * u[2] - u[1] * u[2]
+    return res[2] = du[2] + 3 * u[2] - u[1] * u[2]
 end
 
 jac_called = false
@@ -109,33 +113,41 @@ function testjac_jac(J, du, u, p, gamma, t)
     J[1, 2] = 1.0 * u[1]
     J[2, 1] = -1 * u[2]
     J[2, 2] = gamma + 3 - u[1]
-    nothing
+    return nothing
 end
 
-testjac_f = DAEFunction(testjac;
+testjac_f = DAEFunction(
+    testjac;
     jac = testjac_jac,
-    jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4)))
+    jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4))
+)
 
-prob5 = DAEProblem(testjac_f,
+prob5 = DAEProblem(
+    testjac_f,
     [0.5, -2.0],
     ones(2),
     (0.0, 10.0);
-    differential_vars = [true, true])
+    differential_vars = [true, true]
+)
 sol5 = solve(prob5, IDA())
 
-testjac_f = DAEFunction(testjac;
+testjac_f = DAEFunction(
+    testjac;
     jac = testjac_jac,
-    jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4)))
-prob6 = DAEProblem(testjac_f,
+    jac_prototype = sparse([1, 2, 1, 2], [1, 1, 2, 2], zeros(4))
+)
+prob6 = DAEProblem(
+    testjac_f,
     [0.5, -2.0],
     ones(2),
     (0.0, 10.0);
-    differential_vars = [true, true])
+    differential_vars = [true, true]
+)
 sol6 = solve(prob6, IDA(; linear_solver = :KLU))
 if sol5.retcode == ReturnCode.Success && sol6.retcode == ReturnCode.Success &&
-   length(sol5.u) == length(sol6.u)
+        length(sol5.u) == length(sol6.u)
     max_diff = maximum(maximum(abs.(sol5.u[i] - sol6.u[i])) for i in 1:length(sol5.u))
-    @test max_diff < 1e-6
+    @test max_diff < 1.0e-6
 else
-    @test_skip maximum(sol5 - sol6) < 1e-6
+    @test_skip maximum(sol5 - sol6) < 1.0e-6
 end
