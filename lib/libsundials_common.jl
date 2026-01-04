@@ -3,13 +3,15 @@ const SUNContext = Ptr{Cvoid}
 
 # SUNContext functions
 function SUNContext_Create(comm::Ptr{Cvoid}, ctx::Ptr{SUNContext})
-    ccall((:SUNContext_Create, libsundials_core), Cint,
-        (Ptr{Cvoid}, Ptr{SUNContext}), comm, ctx)
+    return ccall(
+        (:SUNContext_Create, libsundials_core), Cint,
+        (Ptr{Cvoid}, Ptr{SUNContext}), comm, ctx
+    )
 end
 
 function SUNContext_Free(ctx::SUNContext)
     ctx_ptr = Ref(ctx)
-    ccall((:SUNContext_Free, libsundials_core), Cint, (Ptr{SUNContext},), ctx_ptr)
+    return ccall((:SUNContext_Free, libsundials_core), Cint, (Ptr{SUNContext},), ctx_ptr)
 end
 
 struct klu_l_symbolic

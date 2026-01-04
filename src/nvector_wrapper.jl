@@ -31,7 +31,7 @@ mutable struct NVector <: DenseVector{realtype}
 end
 
 function release_handle(nv::NVector)
-    N_VDestroy_Serial(nv.n_v)
+    return N_VDestroy_Serial(nv.n_v)
     # Don't free context here - it will be freed by the integrator
 end
 
@@ -91,12 +91,16 @@ Base.similar(nv::NVector) = NVector(similar(nv.v), nv.ctx)
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
 # asarray() creates an array pointing to N_Vector data, but does not take the ownership
 @inline function asarray(x::N_Vector)
-    unsafe_wrap(Array, N_VGetArrayPointer_Serial(x),
-        (nvlength(x),); own = false)
+    return unsafe_wrap(
+        Array, N_VGetArrayPointer_Serial(x),
+        (nvlength(x),); own = false
+    )
 end
 @inline function asarray(x::N_Vector, dims::Tuple)
-    unsafe_wrap(Array, N_VGetArrayPointer_Serial(x),
-        dims; own = false)
+    return unsafe_wrap(
+        Array, N_VGetArrayPointer_Serial(x),
+        dims; own = false
+    )
 end
 asarray(x::Vector{realtype}) = x
 asarray(x::Ptr{realtype}, dims::Tuple) = unsafe_wrap(Array, x, dims; own = false)

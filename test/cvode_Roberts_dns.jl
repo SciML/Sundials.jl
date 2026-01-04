@@ -21,18 +21,25 @@ function g(t, y_nv, gout_ptr, user_data)
     return Sundials.CV_SUCCESS
 end
 
-g_C = @cfunction(g, Cint,
-    (Sundials.realtype, Sundials.N_Vector, Ptr{Sundials.realtype}, Ptr{Cvoid}))
+g_C = @cfunction(
+    g, Cint,
+    (Sundials.realtype, Sundials.N_Vector, Ptr{Sundials.realtype}, Ptr{Cvoid})
+)
 
 ## Jacobian routine. Compute J(t,y) = df/dy.
 # broken -- needs a wrapper from Sundials._DlsMat to Matrix and Jac user function wrapper
 function Jac(N, t, ny, fy, Jptr, user_data, tmp1, tmp2, tmp3)
     y = convert(Vector, ny)
     dlsmat = unpack(
-        IOString(unsafe_wrap(convert(Ptr{UInt8}, Jptr),
-            (sum(map(sizeof, Sundials._DlsMat)) + 10,),
-            false)),
-        Sundials._DlsMat)
+        IOString(
+            unsafe_wrap(
+                convert(Ptr{UInt8}, Jptr),
+                (sum(map(sizeof, Sundials._DlsMat)) + 10,),
+                false
+            )
+        ),
+        Sundials._DlsMat
+    )
     J = unsafe_wrap(unsafe_ref(dlsmat.cols), (Int(neq), Int(neq)), false)
     J[1, 1] = -0.04
     J[1, 2] = 1.0e4 * y[3]
@@ -51,8 +58,8 @@ t1 = 0.4
 tmult = 10.0
 nout = 12
 y0 = [1.0, 0.0, 0.0]
-reltol = 1e-4
-abstol = [1e-8, 1e-14, 1e-6]
+reltol = 1.0e-4
+abstol = [1.0e-8, 1.0e-14, 1.0e-6]
 userdata = nothing
 ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
 Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
@@ -63,16 +70,20 @@ userfun = Sundials.UserFunctionAndData(f, userdata)
 Sundials.CVodeSetUserData(cvode_mem, userfun)
 
 function getcfunrob(userfun::T) where {T}
-    @cfunction(Sundials.cvodefun,
+    return @cfunction(
+        Sundials.cvodefun,
         Cint,
-        (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ref{T}))
+        (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ref{T})
+    )
 end
 
 # Create NVector before using it
 y0_nvec = Sundials.NVector(y0, ctx)
 
-Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t1,
-    y0_nvec)
+Sundials.@checkflag Sundials.CVodeInit(
+    cvode_mem, getcfunrob(userfun), t1,
+    y0_nvec
+)
 Sundials.@checkflag Sundials.CVodeInit(cvode_mem, getcfunrob(userfun), t0, y0_nvec)
 abstol_nvec = Sundials.NVector(abstol, ctx)
 Sundials.@checkflag Sundials.CVodeSVtolerances(cvode_mem, reltol, abstol_nvec)

@@ -6,10 +6,10 @@ dt = 1 // 2^(4)
 saveat = float(collect(0:dt:1))
 sol = solve(prob, CVODE_BDF())
 sol = solve(prob, CVODE_Adams())
-@test sol.errors[:l2] < 1e-3
-sol = solve(prob, CVODE_Adams(); reltol = 1e-5)
-@test sol.errors[:l2] < 1e-5
-sol = solve(prob, CVODE_Adams(); reltol = 1e-5, abstol = [1e-7])
+@test sol.errors[:l2] < 1.0e-3
+sol = solve(prob, CVODE_Adams(); reltol = 1.0e-5)
+@test sol.errors[:l2] < 1.0e-5
+sol = solve(prob, CVODE_Adams(); reltol = 1.0e-5, abstol = [1.0e-7])
 sol = solve(prob, CVODE_Adams(); saveat = saveat)
 
 @test sol.t == saveat
@@ -55,8 +55,10 @@ sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1], timeseries_errors = false
 
 @test sol[1, :] == sol_idxs[1, :]
 
-sol_idxs = solve(prob, CVODE_Adams(); save_idxs = [1, 2], timeseries_errors = false,
-    calculate_error = false)
+sol_idxs = solve(
+    prob, CVODE_Adams(); save_idxs = [1, 2], timeseries_errors = false,
+    calculate_error = false
+)
 @test length(sol_idxs[:, 1]) == 2
 @test sol[1, :] == sol_idxs[1, :]
 @test sol[2, :] == sol_idxs[2, :]
@@ -66,8 +68,10 @@ k = (du, u, p, t) -> du[1] = u[1]
 prob = ODEProblem(k, [1.0], (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 h = (u, p, t) -> u
-u0 = [1.0 2.0
-      3.0 2.0]
+u0 = [
+    1.0 2.0
+    3.0 2.0
+]
 prob = ODEProblem(h, u0, (0.0, 1.0))
 sol = solve(prob, CVODE_BDF())
 
@@ -86,30 +90,35 @@ sol9 = solve(prob, CVODE_BDF(; linear_solver = :Dense))
 sol10 = solve(prob, CVODE_BDF(; linear_solver = :LapackDense))
 sol11 = solve(prob, CVODE_BDF(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3))
 
-@test isapprox(sol1.u[end], sol2.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol3.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol5.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol6.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol7.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol8.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol9.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol10.u[end]; rtol = 1e-3)
-@test isapprox(sol1.u[end], sol11.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol2.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol3.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol5.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol6.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol7.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol8.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol9.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol10.u[end]; rtol = 1.0e-3)
+@test isapprox(sol1.u[end], sol11.u[end]; rtol = 1.0e-3)
 
 # Test identity preconditioner
 global prec_used = false
 global psetup_used = false
 prec = (z, r, p, t, y, fy, gamma, delta, lr) -> (global prec_used = true; z .= r)
 psetup = (
-    p, t, u, du, jok, jcurPtr, gamma) -> (global psetup_used = true; jcurPtr[] = false)
+    p, t, u, du, jok, jcurPtr, gamma,
+) -> (global psetup_used = true; jcurPtr[] = false)
 sol4 = solve(prob, CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec))
-@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
+@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1.0e-3)
 @test prec_used
-sol4 = solve(prob,
-    CVODE_BDF(; linear_solver = :GMRES, prec_side = 3, prec = prec,
-        psetup = psetup))
-@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1e-3)
+sol4 = solve(
+    prob,
+    CVODE_BDF(;
+        linear_solver = :GMRES, prec_side = 3, prec = prec,
+        psetup = psetup
+    )
+)
+@test isapprox(sol1.u[end], sol4.u[end]; rtol = 1.0e-3)
 @test psetup_used
 
 # Backwards

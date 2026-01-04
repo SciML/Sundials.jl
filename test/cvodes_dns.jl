@@ -13,7 +13,7 @@ function mycopy!(pp, arr::Matrix)
     for j in 1:nj
         arr[:, j] = Sundials.asarray(ps[j])
     end
-    arr
+    return arr
 end
 
 function mycopy!(arr::Matrix, pp)
@@ -22,6 +22,7 @@ function mycopy!(arr::Matrix, pp)
     for j in 1:nj
         Sundials.asarray(ps[j])[:] = arr[:, j]
     end
+    return
 end
 
 f!(dy, t, y, p) = (dy[:] = y .* p)
@@ -39,7 +40,7 @@ function srhs(t, y, ydot, ys, ysdot)
 
     jac = ForwardDiff.jacobian((dy, p) -> f!(dy, t, y, p), dyt, p, c2, Val{false}())
     #jac = ReverseDiff.jacobian!(t2, p)
-    ysdot[:, 1:np] += jac
+    return ysdot[:, 1:np] += jac
 end
 
 """
@@ -50,13 +51,15 @@ y[i, t] is the solutions component i at timestep t.
 ys[i, j, t] is the i-th component sensitivity wrt the j-th parameter at timestep t.
 ys[i, np+j, t] the i-th component sensitivity wrt the j-th initial condition value.
 """
-function sens(f!::Function,
+function sens(
+        f!::Function,
         t0::Float64,
         y0::Vector{Float64},
         p::Vector{Float64},
         tout::Vector{Float64};
-        reltol::Float64 = 1e-5,
-        abstol::Float64 = 1e-5)
+        reltol::Float64 = 1.0e-5,
+        abstol::Float64 = 1.0e-5
+    )
     n = length(y0)
     np = length(p)
     ys0 = zeros(n, np .+ n)
@@ -66,7 +69,7 @@ function sens(f!::Function,
     #t2 = ReverseDiff.JacobianTape((dy,p)->f!(dy,0,y0,p), dyt, p)
 
     pbar = abs.(vcat(p, y0))
-    y, ys = cvodes(f!, srhs, t0, y0, ys0, p, reltol, abstol, pbar, tout)
+    return y, ys = cvodes(f!, srhs, t0, y0, ys0, p, reltol, abstol, pbar, tout)
 end
 
 ### internals
@@ -82,8 +85,10 @@ struct CVSData
 end
 
 function CVSData(f, fs, p, n::Int, nS::Int)
-    CVSData(f, fs, p, Array{Float64}(undef, n, nS),
-        Array{Float64}(undef, n, nS))
+    return CVSData(
+        f, fs, p, Array{Float64}(undef, n, nS),
+        Array{Float64}(undef, n, nS)
+    )
 end
 
 function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
@@ -91,7 +96,8 @@ function cvrhsfn(t::Float64, y::N_Vector, dy::N_Vector, data::CVSData)
     return Sundials.CV_SUCCESS
 end
 
-function cvsensrhsfn(ns::Cint,
+function cvsensrhsfn(
+        ns::Cint,
         t::Float64,
         y::N_Vector,
         dy::N_Vector,
@@ -99,7 +105,8 @@ function cvsensrhsfn(ns::Cint,
         dys::N_Vector_S,
         data::CVSData,
         tmp1::N_Vector,
-        tmp2::N_Vector)
+        tmp2::N_Vector
+    )
     jys = data.jys
     jdys = data.jdys
     mycopy!(ys, data.jys)
@@ -124,12 +131,16 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     yS0n = [Sundials.NVector(yS0[:, j], ctx) for j in 1:Ns]
     yS0nv = [N_Vector(n) for n in yS0n]
     pyS0 = pointer(yS0nv)
-    crhs = Sundials.@cfunction(cvrhsfn,
+    crhs = Sundials.@cfunction(
+        cvrhsfn,
         Cint,
-        (Sundials.realtype, N_Vector, N_Vector, Ref{CVSData}))
-    csensrhs = Sundials.@cfunction(cvsensrhsfn,
+        (Sundials.realtype, N_Vector, N_Vector, Ref{CVSData})
+    )
+    csensrhs = Sundials.@cfunction(
+        cvsensrhsfn,
         Cint,
-        (Cint,
+        (
+            Cint,
             Sundials.realtype,
             N_Vector,
             N_Vector,
@@ -137,7 +148,9 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
             N_Vector_S,
             Ref{CVSData},
             N_Vector,
-            N_Vector))
+            N_Vector,
+        )
+    )
 
     ##
 
@@ -162,7 +175,7 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
         ys[:, :, i] = ysret
     end
     empty!(cvode_mem)
-    y, ys
+    return y, ys
 end
 
 t0 = 0.0
@@ -170,8 +183,8 @@ t = [1.0, 2.0]
 y0 = [1.0, 2.0]
 p = [3.0, 4.0]
 y, ys = sens(f!, t0, y0, p, t)
-@test_broken isapprox(y[1, 1], 20.0856; rtol = 1e-3)
-@test_broken isapprox(ys[2, 2, 2], 11924.3; rtol = 1e-3) # todo: check if these are indeed the right results
+@test_broken isapprox(y[1, 1], 20.0856; rtol = 1.0e-3)
+@test_broken isapprox(ys[2, 2, 2], 11924.3; rtol = 1.0e-3) # todo: check if these are indeed the right results
 
 # Clean up context
 Sundials.SUNContext_Free(ctx)

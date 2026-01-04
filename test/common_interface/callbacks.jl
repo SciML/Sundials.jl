@@ -2,16 +2,16 @@ using Sundials, Test
 
 callback_f = function (du, u, p, t)
     du[1] = u[2]
-    du[2] = -9.81
+    return du[2] = -9.81
 end
 
 condition = function (u, t, integrator) # Event when event_f(u,t,k) == 0
-    u[1]
+    return u[1]
 end
 
 affect! = nothing
 affect_neg! = function (integrator)
-    integrator.u[2] = -integrator.u[2]
+    return integrator.u[2] = -integrator.u[2]
 end
 
 callback = ContinuousCallback(condition, affect!, affect_neg!)
@@ -26,12 +26,12 @@ sol = solve(prob, CVODE_BDF(); callback = callback)
 @test sol(4.0)[1] > 0
 
 condition = function (out, u, t, integrator)
-    out[1] = u[1]
+    return out[1] = u[1]
 end
 
 affect! = nothing
 affect_neg! = function (integrator, idx)
-    if idx == 1
+    return if idx == 1
         integrator.u[2] = -integrator.u[2]
     end
 end
@@ -45,17 +45,17 @@ sol = solve(prob, CVODE_BDF(); callback = callback)
 u0 = [1.0, 0.0]
 function fun2(du, u, p, t)
     du[2] = -u[1]
-    du[1] = u[2]
+    return du[1] = u[2]
 end
 tspan = (0.0, 10.0)
 prob = ODEProblem(fun2, u0, tspan)
 
 function condition2(u, t, integrator)
-    get_du(integrator)[1] > 0
+    return get_du(integrator)[1] > 0
 end
 affect2!(integrator) = terminate!(integrator)
 times_finalize_called = 0
-cb = DiscreteCallback(condition2, affect2!, finalize = (args...)->global times_finalize_called+=1)
+cb = DiscreteCallback(condition2, affect2!, finalize = (args...) -> global times_finalize_called += 1)
 sol = solve(prob, CVODE_BDF(); callback = cb)
 @test sol.t[end] < 3.5
 @test times_finalize_called == 1
@@ -63,14 +63,14 @@ sol = solve(prob, CVODE_BDF(); callback = cb)
 condition3(u, t, integrator) = u[2]
 affect3!(integrator) = terminate!(integrator)
 cb = ContinuousCallback(condition3, affect3!)
-sol = solve(prob, CVODE_Adams(); callback = cb, abstol = 1e-12, reltol = 1e-12)
+sol = solve(prob, CVODE_Adams(); callback = cb, abstol = 1.0e-12, reltol = 1.0e-12)
 @test sol.t[end] ≈ pi
 
 # test that a BitVector in combination with callback gets converted to a NVector correctly
 fbv = function (out, du, u, p, t)
     out[1] = -p[1] * u[1] + p[3] * u[2] * u[3] - du[1]
     out[2] = +p[1] * u[1] - p[2] * u[2]^2 - p[3] * u[2] * u[3] - du[2]
-    out[3] = u[1] + u[2] + u[3] - p[4]
+    return out[3] = u[1] + u[2] + u[3] - p[4]
 end
 u₀ = [1.0, 0, 0]
 du₀ = [0.0, 0.0, 0.0]
@@ -81,7 +81,7 @@ bvcond(u, t, integrator) = t - round(t)
 bvaffect!(integrator) = integrator.p[4] = 2.0
 cb = ContinuousCallback(bvcond, bvaffect!; initializealg = Sundials.BrownFullBasicInit())
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
-sol = solve(prob, IDA(), callback = cb, tstops = [50.0], abstol = 1e-12, reltol = 1e-12, initializealg = Sundials.BrownFullBasicInit())
+sol = solve(prob, IDA(), callback = cb, tstops = [50.0], abstol = 1.0e-12, reltol = 1.0e-12, initializealg = Sundials.BrownFullBasicInit())
 @test sol.t[end] ≈ 100.0
 
 # Test that SubArrays are not allowed as outputs to the integrator

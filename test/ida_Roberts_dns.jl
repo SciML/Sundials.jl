@@ -1,4 +1,4 @@
-using Sundials 
+using Sundials
 
 # Create context for tests
 ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
@@ -51,9 +51,13 @@ function resrob(tres, yy_nv, yp_nv, rr_nv, user_data)
     return Sundials.IDA_SUCCESS
 end
 
-resrob_C = @cfunction(resrob, Cint,
-    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
-        Sundials.N_Vector, Ptr{Cvoid}))
+resrob_C = @cfunction(
+    resrob, Cint,
+    (
+        Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
+        Sundials.N_Vector, Ptr{Cvoid},
+    )
+)
 
 ## Root function routine. Compute functions g_i(t,y) for i = 0,1.
 function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
@@ -64,9 +68,13 @@ function grob(t, yy_nv, yp_nv, gout_ptr, user_data)
     return Sundials.IDA_SUCCESS
 end
 
-grob_C = @cfunction(grob, Cint,
-    (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
-        Ptr{Sundials.realtype}, Ptr{Cvoid}))
+grob_C = @cfunction(
+    grob, Cint,
+    (
+        Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector,
+        Ptr{Sundials.realtype}, Ptr{Cvoid},
+    )
+)
 
 ## Define the Jacobian function. BROKEN - JJ is wrong
 function jacrob(Neq, tt, cj, yy, yp, resvec, JJ, user_data, tempv1, tempv2, tempv3)
@@ -88,8 +96,8 @@ nout = 12
 t0 = 0.0
 yy0 = [1.0, 0.0, 0.0]
 yp0 = [-0.04, 0.04, 0.0]
-rtol = 1e-4
-avtol = [1e-8, 1e-14, 1e-6]
+rtol = 1.0e-4
+avtol = [1.0e-8, 1.0e-14, 1.0e-6]
 tout1 = 0.4
 
 mem = Sundials.IDACreate(ctx)

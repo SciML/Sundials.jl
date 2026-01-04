@@ -1,6 +1,8 @@
-mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, reltolType,
-    abstolType,
-    F5}
+mutable struct DEOptions{
+        SType, TstopType, SType2, TstopType2, SIX, CType, reltolType,
+        abstolType,
+        F5,
+    }
     saveat::SType
     tstops::TstopType
     saveat_cache::SType2
@@ -28,20 +30,22 @@ mutable struct DEOptions{SType, TstopType, SType2, TstopType2, SIX, CType, relto
 end
 
 abstract type AbstractSundialsIntegrator{algType} <:
-              DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
+DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
 
-mutable struct CVODEIntegrator{N,
-    pType,
-    solType,
-    algType,
-    fType,
-    UFType,
-    JType,
-    oType,
-    LStype,
-    Atype,
-    CallbackCacheType,
-    IA} <: AbstractSundialsIntegrator{algType}
+mutable struct CVODEIntegrator{
+        N,
+        pType,
+        solType,
+        algType,
+        fType,
+        UFType,
+        JType,
+        oType,
+        LStype,
+        Atype,
+        CallbackCacheType,
+        IA,
+    } <: AbstractSundialsIntegrator{algType}
     u::Array{Float64, N}
     u_nvec::NVector
     p::pType
@@ -71,9 +75,11 @@ mutable struct CVODEIntegrator{N,
     ctx_handle::ContextHandle
 end
 
-function (integrator::CVODEIntegrator)(t::Number,
+function (integrator::CVODEIntegrator)(
+        t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+        idxs = nothing
+    ) where {T}
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec)
@@ -81,31 +87,35 @@ function (integrator::CVODEIntegrator)(t::Number,
     return idxs === nothing ? out : out[idxs]
 end
 
-function (integrator::CVODEIntegrator)(out,
+function (integrator::CVODEIntegrator)(
+        out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+        idxs = nothing
+    ) where {T}
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
 
-mutable struct ARKODEIntegrator{N,
-    pType,
-    solType,
-    algType,
-    fType,
-    UFType,
-    JType,
-    oType,
-    LStype,
-    Atype,
-    MLStype,
-    Mtype,
-    CallbackCacheType,
-    MemType,
-    IA} <: AbstractSundialsIntegrator{ARKODE}
+mutable struct ARKODEIntegrator{
+        N,
+        pType,
+        solType,
+        algType,
+        fType,
+        UFType,
+        JType,
+        oType,
+        LStype,
+        Atype,
+        MLStype,
+        Mtype,
+        CallbackCacheType,
+        MemType,
+        IA,
+    } <: AbstractSundialsIntegrator{ARKODE}
     u::Array{Float64, N}
     u_nvec::NVector
     p::pType
@@ -139,12 +149,19 @@ mutable struct ARKODEIntegrator{N,
     ctx_handle::ContextHandle
 end
 
-function (integrator::ARKODEIntegrator{
-        N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA})(t::Number,
+function (
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA,
+        }
+    )(
+        t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
+        idxs = nothing
+    ) where {
+        N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
+    }
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
@@ -152,12 +169,19 @@ function (integrator::ARKODEIntegrator{
     return idxs === nothing ? out : out[idxs]
 end
 
-function (integrator::ARKODEIntegrator{
-        N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA})(t::Number,
+function (
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA,
+        }
+    )(
+        t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
+        idxs = nothing
+    ) where {
+        N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
+    }
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
@@ -165,44 +189,60 @@ function (integrator::ARKODEIntegrator{
     return idxs === nothing ? out : out[idxs]
 end
 
-function (integrator::ARKODEIntegrator{
-        N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA})(out,
+function (
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA,
+        }
+    )(
+        out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
+        idxs = nothing
+    ) where {
+        N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
+    }
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
 
-function (integrator::ARKODEIntegrator{
-        N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA})(out,
+function (
+        integrator::ARKODEIntegrator{
+            N, pType, solType, algType, fType, UFType, JType, oType,
+            LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA,
+        }
+    )(
+        out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {N, pType, solType, algType, fType, UFType, JType, oType,
-        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T}
+        idxs = nothing
+    ) where {
+        N, pType, solType, algType, fType, UFType, JType, oType,
+        LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
+    }
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
 
-mutable struct IDAIntegrator{N,
-    pType,
-    solType,
-    algType,
-    fType,
-    UFType,
-    JType,
-    oType,
-    LStype,
-    Atype,
-    CallbackCacheType,
-    IA} <: AbstractSundialsIntegrator{IDA}
+mutable struct IDAIntegrator{
+        N,
+        pType,
+        solType,
+        algType,
+        fType,
+        UFType,
+        JType,
+        oType,
+        LStype,
+        Atype,
+        CallbackCacheType,
+        IA,
+    } <: AbstractSundialsIntegrator{IDA}
     u::Array{Float64, N}
     du::Array{Float64, N}
     p::pType
@@ -236,9 +276,11 @@ mutable struct IDAIntegrator{N,
     ctx_handle::ContextHandle
 end
 
-function (integrator::IDAIntegrator)(t::Number,
+function (integrator::IDAIntegrator)(
+        t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+        idxs = nothing
+    ) where {T}
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec)
@@ -246,26 +288,30 @@ function (integrator::IDAIntegrator)(t::Number,
     return idxs === nothing ? out : out[idxs]
 end
 
-function (integrator::IDAIntegrator)(out,
+function (integrator::IDAIntegrator)(
+        out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+        idxs = nothing
+    ) where {T}
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
     integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec)
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
-function (integrator::IDAIntegrator)(out::SubArray,
+function (integrator::IDAIntegrator)(
+        out::SubArray,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing) where {T}
+        idxs = nothing
+    ) where {T}
     throw(ArgumentError("Views are not supported with IDA!"))
 end
 
 ###  Error check (retcode)
 
 function DiffEqBase.check_error(integrator::AbstractSundialsIntegrator)
-    interpret_sundials_retcode(integrator.flag)
+    return interpret_sundials_retcode(integrator.flag)
 end
 
 DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
@@ -277,7 +323,7 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
 @inline function DiffEqBase.step!(integrator::AbstractSundialsIntegrator)
     if integrator.opts.advance_to_tstop
         # The call to first is an overload of Base.first implemented in DataStructures
-        while integrator.tdir * (integrator.t - first(integrator.opts.tstops)) < -1e6eps()
+        while integrator.tdir * (integrator.t - first(integrator.opts.tstops)) < -1.0e6eps()
             tstop = first(integrator.opts.tstops)
             set_stop_time(integrator, tstop)
             integrator.tprev = integrator.t
@@ -308,5 +354,5 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
         DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
     end
     handle_tstop!(integrator)
-    nothing
+    return nothing
 end

@@ -10,19 +10,23 @@ limit(a, N) = a == N + 1 ? 1 : a == 0 ? N : a
 function brusselator_2d_loop(du, u, p, t)
     A, B, alpha, dx = p
     alpha = alpha / dx^2
-    @inbounds for I in CartesianIndices((N, N))
+    return @inbounds for I in CartesianIndices((N, N))
         i, j = Tuple(I)
         x, y = xyd_brusselator[I[1]], xyd_brusselator[I[2]]
         ip1, im1, jp1,
-        jm1 = limit(i + 1, N), limit(i - 1, N), limit(j + 1, N),
-        limit(j - 1, N)
-        du[i, j, 1] = alpha * (u[im1, j, 1] + u[ip1, j, 1] + u[i, jp1, 1] + u[i, jm1, 1] -
-                       4u[i, j, 1]) +
-                      B + u[i, j, 1]^2 * u[i, j, 2] - (A + 1) * u[i, j, 1] +
-                      brusselator_f(x, y, t)
-        du[i, j, 2] = alpha * (u[im1, j, 2] + u[ip1, j, 2] + u[i, jp1, 2] + u[i, jm1, 2] -
-                       4u[i, j, 2]) +
-                      A * u[i, j, 1] - u[i, j, 1]^2 * u[i, j, 2]
+            jm1 = limit(i + 1, N), limit(i - 1, N), limit(j + 1, N),
+            limit(j - 1, N)
+        du[i, j, 1] = alpha * (
+            u[im1, j, 1] + u[ip1, j, 1] + u[i, jp1, 1] + u[i, jm1, 1] -
+                4u[i, j, 1]
+        ) +
+            B + u[i, j, 1]^2 * u[i, j, 2] - (A + 1) * u[i, j, 1] +
+            brusselator_f(x, y, t)
+        du[i, j, 2] = alpha * (
+            u[im1, j, 2] + u[ip1, j, 2] + u[i, jp1, 2] + u[i, jm1, 2] -
+                4u[i, j, 2]
+        ) +
+            A * u[i, j, 1] - u[i, j, 1]^2 * u[i, j, 2]
     end
 end
 
@@ -44,16 +48,18 @@ function init_brusselator_2d(xyd)
         u[I, 1] = 22 * (y * (1 - y))^(3 / 2)
         u[I, 2] = 27 * (x * (1 - x))^(3 / 2)
     end
-    u
+    return u
 end
 u0 = vec(init_brusselator_2d(xyd_brusselator))
 du = similar(u0)
 
-prob_ode_brusselator_2d = ODEProblem(brusselator_2d_vec,
-    u0, (0.0, 11.5), p)
+prob_ode_brusselator_2d = ODEProblem(
+    brusselator_2d_vec,
+    u0, (0.0, 11.5), p
+)
 
 detector = SparseConnectivityTracer.TracerSparsityDetector()
-brus_uf = (du, u)->brusselator_2d_vec(du, u, p, 0.1)
+brus_uf = (du, u) -> brusselator_2d_vec(du, u, p, 0.1)
 const jaccache = similar(SparseConnectivityTracer.jacobian_sparsity(brus_uf, du, u0, detector), Float64)
 const W = I - 1.0 * jaccache
 
@@ -70,7 +76,7 @@ prectmp = ilu(W; τ = 50.0)
 const preccache = Ref(prectmp)
 
 function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
-    if jok
+    return if jok
         # Compute jacobian using DifferentiationInterface with ForwardDiff backend
         # Create a wrapper that captures p and t
         f_wrapper! = (y, x) -> brusselator_2d_vec(y, x, p, t)
@@ -96,18 +102,34 @@ function psetupilu(p, t, u, du, jok, jcurPtr, gamma)
 end
 
 function precilu(z, r, p, t, y, fy, gamma, delta, lr)
-    ldiv!(z, preccache[], r)
+    return ldiv!(z, preccache[], r)
 end
 
 # AlgebraicMultigrid can fail with LAPACK errors on some systems
 prectmp2 = try
-    AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(W;
-        presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-            1))),
-        postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-            1)))))
+    AlgebraicMultigrid.aspreconditioner(
+        AlgebraicMultigrid.ruge_stuben(
+            W;
+            presmoother = AlgebraicMultigrid.Jacobi(
+                rand(
+                    size(
+                        W,
+                        1
+                    )
+                )
+            ),
+            postsmoother = AlgebraicMultigrid.Jacobi(
+                rand(
+                    size(
+                        W,
+                        1
+                    )
+                )
+            )
+        )
+    )
 catch e
-    @warn "AlgebraicMultigrid setup failed, using identity preconditioner as fallback" exception=e
+    @warn "AlgebraicMultigrid setup failed, using identity preconditioner as fallback" exception = e
     nothing
 end
 const preccache2 = Ref(prectmp2)
@@ -116,7 +138,7 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
         return  # Skip setup if AMG failed initially
     end
 
-    if jok
+    return if jok
         # Compute jacobian using DifferentiationInterface with ForwardDiff backend
         # Create a wrapper that captures p and t
         f_wrapper! = (y, x) -> brusselator_2d_vec(y, x, p, t)
@@ -138,20 +160,35 @@ function psetupamg(p, t, u, du, jok, jcurPtr, gamma)
 
         # Build preconditioner on W
         try
-            preccache2[] = AlgebraicMultigrid.aspreconditioner(AlgebraicMultigrid.ruge_stuben(
-                W;
-                presmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-                    1))),
-                postsmoother = AlgebraicMultigrid.Jacobi(rand(size(W,
-                    1)))))
+            preccache2[] = AlgebraicMultigrid.aspreconditioner(
+                AlgebraicMultigrid.ruge_stuben(
+                    W;
+                    presmoother = AlgebraicMultigrid.Jacobi(
+                        rand(
+                            size(
+                                W,
+                                1
+                            )
+                        )
+                    ),
+                    postsmoother = AlgebraicMultigrid.Jacobi(
+                        rand(
+                            size(
+                                W,
+                                1
+                            )
+                        )
+                    )
+                )
+            )
         catch e
-            @warn "AlgebraicMultigrid update failed in psetupamg" exception=e
+            @warn "AlgebraicMultigrid update failed in psetupamg" exception = e
         end
     end
 end
 
 function precamg(z, r, p, t, y, fy, gamma, delta, lr)
-    if preccache2[] === nothing
+    return if preccache2[] === nothing
         # Identity preconditioner fallback
         z .= r
     else
@@ -159,14 +196,24 @@ function precamg(z, r, p, t, y, fy, gamma, delta, lr)
     end
 end
 
-sol1 = solve(prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
-    save_everystep = false);
-sol2 = solve(prob_ode_brusselator_2d,
-    CVODE_BDF(; linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
-        prec_side = 1); save_everystep = false);
-sol3 = solve(prob_ode_brusselator_2d,
-    CVODE_BDF(; linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
-        prec_side = 1); save_everystep = false);
+sol1 = solve(
+    prob_ode_brusselator_2d, CVODE_BDF(; linear_solver = :GMRES);
+    save_everystep = false
+);
+sol2 = solve(
+    prob_ode_brusselator_2d,
+    CVODE_BDF(;
+        linear_solver = :GMRES, prec = precilu, psetup = psetupilu,
+        prec_side = 1
+    ); save_everystep = false
+);
+sol3 = solve(
+    prob_ode_brusselator_2d,
+    CVODE_BDF(;
+        linear_solver = :GMRES, prec = precamg, psetup = psetupamg,
+        prec_side = 1
+    ); save_everystep = false
+);
 @test sol1.stats.nf > sol2.stats.nf
 # AlgebraicMultigrid can fail with LAPACK errors - mark as broken if it failed
 if preccache2[] === nothing

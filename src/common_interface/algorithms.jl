@@ -4,7 +4,7 @@
 abstract type SundialsODEAlgorithm{Method, LinearSolver} <: DiffEqBase.AbstractODEAlgorithm end
 abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgorithm end
 abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} <:
-              SciMLBase.AbstractNonlinearAlgorithm end
+SciMLBase.AbstractNonlinearAlgorithm end
 
 SciMLBase.alg_order(alg::Union{SundialsODEAlgorithm, SundialsDAEAlgorithm}) = alg.max_order
 
@@ -123,25 +123,31 @@ Base.@pure function CVODE_BDF(;
         max_convergence_failures = 10,
         prec = nothing,
         psetup = nothing,
-        prec_side = 0)
+        prec_side = 0
+    )
     if linear_solver == :Band && (jac_upper == 0 || jac_lower == 0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if !(linear_solver in (:None,
-        :Diagonal,
-        :Dense,
-        :LapackDense,
-        :Band,
-        :LapackBand,
-        :BCG,
-        :GMRES,
-        :FGMRES,
-        :PCG,
-        :TFQMR,
-        :KLU))
+    if !(
+            linear_solver in (
+                :None,
+                :Diagonal,
+                :Dense,
+                :LapackDense,
+                :Band,
+                :LapackBand,
+                :BCG,
+                :GMRES,
+                :FGMRES,
+                :PCG,
+                :TFQMR,
+                :KLU,
+            )
+        )
         error("Linear solver choice not accepted.")
     end
-    CVODE_BDF{method, linear_solver, typeof(prec), typeof(psetup)}(jac_upper,
+    CVODE_BDF{method, linear_solver, typeof(prec), typeof(psetup)}(
+        jac_upper,
         jac_lower,
         krylov_dim,
         stability_limit_detect,
@@ -152,7 +158,8 @@ Base.@pure function CVODE_BDF(;
         max_convergence_failures,
         prec,
         psetup,
-        prec_side)
+        prec_side
+    )
 end
 """
 ```julia
@@ -240,7 +247,7 @@ See [the CVODE manual](https://computing.llnl.gov/sites/default/files/cv_guide-5
 for details on the additional options.
 """
 struct CVODE_Adams{Method, LinearSolver, P, PS} <:
-       SundialsODEAlgorithm{Method, LinearSolver}
+    SundialsODEAlgorithm{Method, LinearSolver}
     jac_upper::Int
     jac_lower::Int
     krylov_dim::Int
@@ -268,25 +275,31 @@ Base.@pure function CVODE_Adams(;
         max_convergence_failures = 10,
         prec = nothing,
         psetup = nothing,
-        prec_side = 0)
+        prec_side = 0
+    )
     if linear_solver == :Band && (jac_upper == 0 || jac_lower == 0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if !(linear_solver in (:None,
-        :Diagonal,
-        :Dense,
-        :LapackDense,
-        :Band,
-        :LapackBand,
-        :BCG,
-        :GMRES,
-        :FGMRES,
-        :PCG,
-        :TFQMR,
-        :KLU))
+    if !(
+            linear_solver in (
+                :None,
+                :Diagonal,
+                :Dense,
+                :LapackDense,
+                :Band,
+                :LapackBand,
+                :BCG,
+                :GMRES,
+                :FGMRES,
+                :PCG,
+                :TFQMR,
+                :KLU,
+            )
+        )
         error("Linear solver choice not accepted.")
     end
-    CVODE_Adams{method, linear_solver, typeof(prec), typeof(psetup)}(jac_upper,
+    CVODE_Adams{method, linear_solver, typeof(prec), typeof(psetup)}(
+        jac_upper,
         jac_lower,
         krylov_dim,
         stability_limit_detect,
@@ -297,7 +310,8 @@ Base.@pure function CVODE_Adams(;
         max_convergence_failures,
         prec,
         psetup,
-        prec_side)
+        prec_side
+    )
 end
 """
 ```julia
@@ -435,7 +449,7 @@ See the [ARKODE manual](https://computing.llnl.gov/sites/default/files/ark_guide
 for details on the additional options.
 """
 struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
-       SundialsODEAlgorithm{Method, LinearSolver}
+    SundialsODEAlgorithm{Method, LinearSolver}
     stiffness::T
     jac_upper::Int
     jac_lower::Int
@@ -463,7 +477,8 @@ struct ARKODE{Method, LinearSolver, MassLinearSolver, T, T1, T2, P, PS} <:
     prec_side::Int
 end
 
-function ARKODE(stiffness = Implicit();
+function ARKODE(
+        stiffness = Implicit();
         method = :Newton,
         linear_solver = :Dense,
         mass_linear_solver = :Dense,
@@ -492,46 +507,58 @@ function ARKODE(stiffness = Implicit();
         etable = nothing,
         prec = nothing,
         psetup = nothing,
-        prec_side = 0)
+        prec_side = 0
+    )
     if linear_solver == :Band && (jac_upper == 0 || jac_lower == 0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if !(linear_solver in (:None,
-        :Diagonal,
-        :Dense,
-        :LapackDense,
-        :Band,
-        :LapackBand,
-        :BCG,
-        :GMRES,
-        :FGMRES,
-        :PCG,
-        :TFQMR,
-        :KLU))
+    if !(
+            linear_solver in (
+                :None,
+                :Diagonal,
+                :Dense,
+                :LapackDense,
+                :Band,
+                :LapackBand,
+                :BCG,
+                :GMRES,
+                :FGMRES,
+                :PCG,
+                :TFQMR,
+                :KLU,
+            )
+        )
         error("Linear solver choice not accepted.")
     end
-    if !(mass_linear_solver in (:None,
-        :Diagonal,
-        :Dense,
-        :LapackDense,
-        :Band,
-        :LapackBand,
-        :BCG,
-        :GMRES,
-        :FGMRES,
-        :PCG,
-        :TFQMR,
-        :KLU))
+    if !(
+            mass_linear_solver in (
+                :None,
+                :Diagonal,
+                :Dense,
+                :LapackDense,
+                :Band,
+                :LapackBand,
+                :BCG,
+                :GMRES,
+                :FGMRES,
+                :PCG,
+                :TFQMR,
+                :KLU,
+            )
+        )
         error("Mass Matrix Linear solver choice not accepted.")
     end
-    ARKODE{method,
+    return ARKODE{
+        method,
         linear_solver,
         mass_linear_solver,
         typeof(stiffness),
         typeof(itable),
         typeof(etable),
         typeof(prec),
-        typeof(psetup)}(stiffness,
+        typeof(psetup),
+    }(
+        stiffness,
         jac_upper,
         jac_lower,
         mass_upper,
@@ -555,7 +582,8 @@ function ARKODE(stiffness = Implicit();
         etable,
         prec,
         psetup,
-        prec_side)
+        prec_side
+    )
 end
 
 SciMLBase.alg_order(alg::ARKODE) = 5
@@ -679,25 +707,31 @@ Base.@pure function IDA(;
         init_all = false,
         max_convergence_failures = 10,
         prec = nothing,
-        psetup = nothing)
+        psetup = nothing
+    )
     if linear_solver == :Band && (jac_upper == 0 || jac_lower == 0)
         error("Banded solver must set the jac_upper and jac_lower")
     end
-    if !(linear_solver in (:None,
-        :Diagonal,
-        :Dense,
-        :LapackDense,
-        :Band,
-        :LapackBand,
-        :BCG,
-        :GMRES,
-        :FGMRES,
-        :PCG,
-        :TFQMR,
-        :KLU))
+    if !(
+            linear_solver in (
+                :None,
+                :Diagonal,
+                :Dense,
+                :LapackDense,
+                :Band,
+                :LapackBand,
+                :BCG,
+                :GMRES,
+                :FGMRES,
+                :PCG,
+                :TFQMR,
+                :KLU,
+            )
+        )
         error("Linear solver choice not accepted.")
     end
-    IDA{linear_solver, typeof(prec), typeof(psetup)}(jac_upper,
+    IDA{linear_solver, typeof(prec), typeof(psetup)}(
+        jac_upper,
         jac_lower,
         krylov_dim,
         max_order,
@@ -713,7 +747,8 @@ Base.@pure function IDA(;
         use_linesearch_ic,
         init_all,
         prec,
-        psetup)
+        psetup
+    )
 end
 
 """
@@ -781,41 +816,54 @@ Base.@pure function KINSOL(;
         prec_side = 0,
         krylov_dim = 0,
         globalization_strategy = :None,
-        maxsetupcalls = 0)
-    if !(linear_solver in (:None,
-        :Dense,
-        :LapackDense,
-        :Band,
-        :LapackBand,
-        :BCG,
-        :GMRES,
-        :FGMRES,
-        :PCG,
-        :TFQMR,
-        :KLU))
+        maxsetupcalls = 0
+    )
+    if !(
+            linear_solver in (
+                :None,
+                :Dense,
+                :LapackDense,
+                :Band,
+                :LapackBand,
+                :BCG,
+                :GMRES,
+                :FGMRES,
+                :PCG,
+                :TFQMR,
+                :KLU,
+            )
+        )
         error("Linear solver choice not accepted.")
     end
     if !(globalization_strategy in (:LineSearch, :None))
         error("Globalization strategy not accepted.")
     end
-    KINSOL{linear_solver}(jac_upper, jac_lower, userdata, prec_side, krylov_dim,
-        globalization_strategy, maxsetupcalls)
+    KINSOL{linear_solver}(
+        jac_upper, jac_lower, userdata, prec_side, krylov_dim,
+        globalization_strategy, maxsetupcalls
+    )
 end
 
 method_choice(alg::SundialsODEAlgorithm{Method}) where {Method} = Method
 method_choice(alg::SundialsDAEAlgorithm) = :Newton
-function linear_solver(alg::SundialsODEAlgorithm{
+function linear_solver(
+        alg::SundialsODEAlgorithm{
+            Method,
+            LinearSolver,
+        }
+    ) where {
         Method,
-        LinearSolver
-}) where {Method,
-        LinearSolver}
-    LinearSolver
+        LinearSolver,
+    }
+    return LinearSolver
 end
 linear_solver(alg::SundialsDAEAlgorithm{LinearSolver}) where {LinearSolver} = LinearSolver
-function linear_solver(alg::SundialsNonlinearSolveAlgorithm{
+function linear_solver(
+        alg::SundialsNonlinearSolveAlgorithm{
+            LinearSolver,
+        }
+    ) where {
         LinearSolver,
-}) where {
-        LinearSolver,
-}
-    LinearSolver
+    }
+    return LinearSolver
 end

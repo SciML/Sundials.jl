@@ -39,7 +39,7 @@ ctx = ctx_ptr[]
  * ----------------------------------------------------------------*/
 =#
 
-using Sundials# Test
+using Sundials # Test
 
 function ff(t, y_nv, ydot_nv, user_data)
     y = convert(Vector, y_nv)
@@ -72,14 +72,17 @@ y0 = [0.90001, -9.999, 1000.0]
 y0_nvec = Sundials.NVector(y0, ctx)
 _mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0_nvec, ctx);
 inner_arkode_mem = Sundials.Handle(_mem_ptr)
-Sundials.@checkflag Sundials.ARKStepSetTableNum(inner_arkode_mem,
+Sundials.@checkflag Sundials.ARKStepSetTableNum(
+    inner_arkode_mem,
     -1,
-    Sundials.KNOTH_WOLKE_3_3)
+    Sundials.KNOTH_WOLKE_3_3
+)
 Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
 
 # Slow integrator portion
 _arkode_mem_ptr = Sundials.MRIStepCreate(
-    fs, T0, y0_nvec, Sundials.MRISTEP_ARKSTEP, inner_arkode_mem, ctx)
+    fs, T0, y0_nvec, Sundials.MRISTEP_ARKSTEP, inner_arkode_mem, ctx
+)
 arkode_mem = Sundials.Handle(_arkode_mem_ptr)
 Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
 
@@ -97,10 +100,10 @@ for i in 1:Nt
 end
 
 for i in 1:3
-    sol_1 = [-0.927671 -8.500060 904.786828]
+    sol_1 = [-0.927671 -8.50006 904.786828]
     sol_end = [0.547358 -0.523577 135.169441]
-    @test isapprox(res[1][i], sol_1[i]; atol = 1e-3)
-    @test isapprox(res[Nt][i], sol_end[i]; atol = 1e-3)
+    @test isapprox(res[1][i], sol_1[i]; atol = 1.0e-3)
+    @test isapprox(res[Nt][i], sol_end[i]; atol = 1.0e-3)
 end
 
 # Clean up context

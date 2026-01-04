@@ -11,7 +11,7 @@
 macro checkflag(ex, throw_error = false)
     @assert Base.Meta.isexpr(ex, :call)
     fname = ex.args[1]
-    quote
+    return quote
         flag = $(esc(ex))
         if flag < 0
             if $(esc(throw_error))
@@ -47,19 +47,21 @@ function kinsolfun(y::N_Vector, fy::N_Vector, userfun)
     return KIN_SUCCESS
 end
 
-function ___kinsol(f,
+function ___kinsol(
+        f,
         y0::Vector{Float64};
         userdata::Any = nothing,
         linear_solver::Symbol = :Dense,
         jac_upper::Int = 0,
         jac_lower::Int = 0,
-        abstol::Float64 = eps(Float64) ^ (4 // 5),
+        abstol::Float64 = eps(Float64)^(4 // 5),
         prec_side::Int = 0,
         krylov_dim::Int = 0,
         jac_prototype = nothing,
         maxiters = 1000,
         strategy = :None,
-        maxsetupcalls = 0)
+        maxsetupcalls = 0
+    )
     # f, Function to be optimized of the form f(y::Vector{Float64}, fy::Vector{Float64})
     #    where `y` is the input vector, and `fy` is the result of the function
     # y0, Vector of initial values
@@ -77,7 +79,7 @@ function ___kinsol(f,
     #   see: https://github.com/JuliaLang/julia/issues/2554
     userfun = UserFunctionAndData(f, userdata)
     function getcfun(userfun::T) where {T}
-        @cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{T}))
+        return @cfunction(kinsolfun, Cint, (N_Vector, N_Vector, Ref{T}))
     end
     y0_nvec = NVector(y0, ctx)
     flag = @checkflag KINInit(kmem, getcfun(userfun), y0_nvec) true
@@ -174,25 +176,29 @@ end
 return: a solution matrix with time steps in `t` along rows and
         state variable `y` along columns
 """
-function cvode(f::Function,
+function cvode(
+        f::Function,
         y0::Vector{Float64},
         t::AbstractVector,
         userdata::Any = nothing;
-        kwargs...)
+        kwargs...
+    )
     y = zeros(length(t), length(y0))
     n = cvode!(f, y, y0, t, userdata; kwargs...)
     return y[1:n, :]
 end
 
-function cvode!(f::Function,
+function cvode!(
+        f::Function,
         y::Matrix{Float64},
         y0::Vector{Float64},
         t::AbstractVector,
         userdata::Any = nothing;
         integrator = :BDF,
-        reltol::Float64 = 1e-3,
-        abstol::Float64 = 1e-6,
-        callback = (x, y, z) -> true)
+        reltol::Float64 = 1.0e-3,
+        abstol::Float64 = 1.0e-6,
+        callback = (x, y, z) -> true
+    )
     ctx_ptr = Ref{SUNContext}(C_NULL)
     SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
     ctx = ctx_ptr[]
@@ -213,7 +219,7 @@ function cvode!(f::Function,
     y0nv = NVector(y0, ctx)
 
     function getcfun(userfun::T) where {T}
-        @cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
+        return @cfunction(cvodefun, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
     end
     flag = @checkflag CVodeInit(mem, getcfun(userfun), t[1], y0nv) true
 
@@ -242,16 +248,20 @@ function cvode!(f::Function,
     return c
 end
 
-function idasolfun(t::Float64,
+function idasolfun(
+        t::Float64,
         y::N_Vector,
         yp::N_Vector,
         r::N_Vector,
-        userfun::UserFunctionAndData)
-    userfun.func(t,
+        userfun::UserFunctionAndData
+    )
+    userfun.func(
+        t,
         convert(Vector, y),
         convert(Vector, yp),
         convert(Vector, r),
-        userfun.data)
+        userfun.data
+    )
     return IDA_SUCCESS
 end
 
@@ -277,14 +287,16 @@ end
 return: (y,yp) two solution matrices representing the states and state derivatives
          with time steps in `t` along rows and state variable `y` or `yp` along columns
 """
-function idasol(f,
+function idasol(
+        f,
         y0::Vector{Float64},
         yp0::Vector{Float64},
         t::Vector{Float64},
         userdata::Any = nothing;
-        reltol::Float64 = 1e-3,
-        abstol::Float64 = 1e-6,
-        diffstates::Union{Vector{Bool}, Nothing} = nothing)
+        reltol::Float64 = 1.0e-3,
+        abstol::Float64 = 1.0e-6,
+        diffstates::Union{Vector{Bool}, Nothing} = nothing
+    )
     ctx_ptr = Ref{SUNContext}(C_NULL)
     SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{SUNContext}, ctx_ptr))
     ctx = ctx_ptr[]
@@ -298,7 +310,7 @@ function idasol(f,
     userfun = UserFunctionAndData(f, userdata)
 
     function getcfun(userfun::T) where {T}
-        @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
+        return @cfunction(idasolfun, Cint, (realtype, N_Vector, N_Vector, N_Vector, Ref{T}))
     end
     y0nv = NVector(y0, ctx)
     yp0nv = NVector(yp0, ctx)

@@ -4,8 +4,8 @@ import ODEProblemLibrary: prob_ode_linear, prob_ode_2Dlinear
 prob = prob_ode_linear
 dt = 1 // 2^(4)
 sol = solve(prob, ARKODE())
-@test sol.errors[:l2] < 5e-2
-sol = solve(prob, ARKODE(); abstol = [1e-7])
+@test sol.errors[:l2] < 5.0e-2
+sol = solve(prob, ARKODE(); abstol = [1.0e-7])
 
 f1 = (du, u, p, t) -> du .= u
 f2 = (du, u, p, t) -> du .= u
@@ -16,19 +16,23 @@ dt = 1 // 2^(4)
 sol_lapack = solve(prob, ARKODE(; linear_solver = :LapackDense))
 @test sol_lapack.retcode == ReturnCode.Success
 
-prob = SplitODEProblem(SplitFunction(f1, f2; analytic = (u0, p, t) -> exp(2t) * u0),
+prob = SplitODEProblem(
+    SplitFunction(f1, f2; analytic = (u0, p, t) -> exp(2t) * u0),
     rand(4, 2),
-    (0.0, 1.0))
+    (0.0, 1.0)
+)
 
 sol = solve(prob, ARKODE(; linear_solver = :Dense))
-@test sol.errors[:l2] < 1e-2
+@test sol.errors[:l2] < 1.0e-2
 
 # Testing LapackBand solver
-sol = solve(prob,
+sol = solve(
+    prob,
     ARKODE(; linear_solver = :LapackBand, jac_upper = 3, jac_lower = 3);
-    reltol = 1e-12,
-    abstol = 1e-12)
-@test sol.errors[:l2] < 1e-6
+    reltol = 1.0e-12,
+    abstol = 1.0e-12
+)
+@test sol.errors[:l2] < 1.0e-6
 
 #
 # Test for Sundials.jl issue #253
@@ -40,7 +44,7 @@ sol = solve(prob,
 #
 # Function
 function Eq_Dif(dq, q, t)
-    dq .= 10 * q
+    return dq .= 10 * q
 end
 # Alias
 fn(dq, q, p, t) = Eq_Dif(dq, q, t)
@@ -51,12 +55,14 @@ q = zeros(10)
 # Define problem
 prob = ODEProblem(fn, q, tspan)
 # Test explicit ARKODE methods with ERKStep
-method = ARKODE(Sundials.Explicit();
+method = ARKODE(
+    Sundials.Explicit();
     etable = Sundials.VERNER_8_5_6,
     order = 8,
     set_optimal_params = false,
     max_hnil_warns = 10,
-    max_error_test_failures = 7)
+    max_error_test_failures = 7
+)
 # Removed max_nonlinear_iters and max_convergence_failures as they don't apply to explicit methods
 # Solve
 sol = solve(prob, method)

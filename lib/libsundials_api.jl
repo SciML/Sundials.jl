@@ -8,5378 +8,7008 @@
 # Remove automatic use of @cfunction by CVRhsFn_wrapper and similar
 # (this is unsafe as a C ptr is returned from the temporary @cfunction closure which may then be garbage collected)
 
-function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
-        y0::Union{N_Vector, NVector}, sunctx::SUNContext)
-    ccall((:ARKStepCreate, libsundials_arkode), ARKStepMemPtr,
-        (ARKRhsFn, ARKRhsFn, realtype, N_Vector, SUNContext), fe, fi, t0, y0, sunctx)
+function ARKStepCreate(
+        fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
+        y0::Union{N_Vector, NVector}, sunctx::SUNContext
+    )
+    return ccall(
+        (:ARKStepCreate, libsundials_arkode), ARKStepMemPtr,
+        (ARKRhsFn, ARKRhsFn, realtype, N_Vector, SUNContext), fe, fi, t0, y0, sunctx
+    )
 end
 
 function ARKStepCreate(fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, sunctx::SUNContext)
     __y0 = convert(NVector, y0, sunctx)
-    ARKStepCreate(fe, fi, t0, __y0, sunctx)
+    return ARKStepCreate(fe, fi, t0, __y0, sunctx)
 end
 
-function ARKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
+function ARKStepResize(
+        arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
         t0::realtype,
-        resize::ARKVecResizeFn, resize_data)
-    ccall((:ARKStepResize, libsundials_arkode), Cint,
+        resize::ARKVecResizeFn, resize_data
+    )
+    return ccall(
+        (:ARKStepResize, libsundials_arkode), Cint,
         (ARKStepMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}),
-        arkode_mem, ynew, hscale, t0, resize, resize_data)
+        arkode_mem, ynew, hscale, t0, resize, resize_data
+    )
 end
 
 function ARKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data, ctx::SUNContext)
     __ynew = convert(NVector, ynew, ctx)
-    ARKStepResize(arkode_mem, __ynew, hscale, t0, resize, resize_data)
+    return ARKStepResize(arkode_mem, __ynew, hscale, t0, resize, resize_data)
 end
 
-function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
-        y0::Union{N_Vector, NVector})
-    ccall((:ARKStepReInit, libsundials_arkode), Cint,
+function ARKStepReInit(
+        arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0::realtype,
+        y0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:ARKStepReInit, libsundials_arkode), Cint,
         (ARKStepMemPtr, ARKRhsFn, ARKRhsFn, realtype, N_Vector), arkode_mem, fe, fi, t0,
-        y0)
+        y0
+    )
 end
 
 function ARKStepReInit(arkode_mem, fe::ARKRhsFn, fi::ARKRhsFn, t0, y0, ctx::SUNContext)
     __y0 = convert(NVector, y0, ctx)
-    ARKStepReInit(arkode_mem, fe, fi, t0, __y0)
+    return ARKStepReInit(arkode_mem, fe, fi, t0, __y0)
 end
 
 function ARKStepSStolerances(arkode_mem, reltol::realtype, abstol::realtype)
-    ccall((:ARKStepSStolerances, libsundials_arkode), Cint,
-        (ARKStepMemPtr, realtype, realtype), arkode_mem, reltol, abstol)
+    return ccall(
+        (:ARKStepSStolerances, libsundials_arkode), Cint,
+        (ARKStepMemPtr, realtype, realtype), arkode_mem, reltol, abstol
+    )
 end
 
 function ARKStepSVtolerances(arkode_mem, reltol::realtype, abstol::Union{N_Vector, NVector})
-    ccall((:ARKStepSVtolerances, libsundials_arkode), Cint,
-        (ARKStepMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
+    return ccall(
+        (:ARKStepSVtolerances, libsundials_arkode), Cint,
+        (ARKStepMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol
+    )
 end
 
 function ARKStepSVtolerances(arkode_mem, reltol, abstol, ctx::SUNContext)
-    ARKStepSVtolerances(arkode_mem, reltol, abstol, ctx)
+    return ARKStepSVtolerances(arkode_mem, reltol, abstol, ctx)
 end
 
 function ARKStepWFtolerances(arkode_mem, efun::ARKEwtFn)
-    ccall((:ARKStepWFtolerances, libsundials_arkode), Cint, (ARKStepMemPtr, ARKEwtFn),
-        arkode_mem, efun)
+    return ccall(
+        (:ARKStepWFtolerances, libsundials_arkode), Cint, (ARKStepMemPtr, ARKEwtFn),
+        arkode_mem, efun
+    )
 end
 
 function ARKStepResStolerance(arkode_mem, rabstol::realtype)
-    ccall((:ARKStepResStolerance, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, rabstol)
+    return ccall(
+        (:ARKStepResStolerance, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, rabstol
+    )
 end
 
 function ARKStepResVtolerance(arkode_mem, rabstol::Union{N_Vector, NVector})
-    ccall((:ARKStepResVtolerance, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
-        arkode_mem, rabstol)
+    return ccall(
+        (:ARKStepResVtolerance, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
+        arkode_mem, rabstol
+    )
 end
 
 function ARKStepResVtolerance(arkode_mem, rabstol, ctx::SUNContext)
-    ARKStepResVtolerance(arkode_mem, rabstol, ctx)
+    return ARKStepResVtolerance(arkode_mem, rabstol, ctx)
 end
 
 function ARKStepResFtolerance(arkode_mem, rfun::ARKRwtFn)
-    ccall((:ARKStepResFtolerance, libsundials_arkode), Cint, (ARKStepMemPtr, ARKRwtFn),
-        arkode_mem, rfun)
+    return ccall(
+        (:ARKStepResFtolerance, libsundials_arkode), Cint, (ARKStepMemPtr, ARKRwtFn),
+        arkode_mem, rfun
+    )
 end
 
 function ARKStepSetLinearSolver(arkode_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:ARKStepSetLinearSolver, libsundials_arkode), Cint,
-        (ARKStepMemPtr, SUNLinearSolver, SUNMatrix), arkode_mem, LS, A)
+    return ccall(
+        (:ARKStepSetLinearSolver, libsundials_arkode), Cint,
+        (ARKStepMemPtr, SUNLinearSolver, SUNMatrix), arkode_mem, LS, A
+    )
 end
 
-function ARKStepSetMassLinearSolver(arkode_mem, LS::SUNLinearSolver, M::SUNMatrix,
-        time_dep::Cint)
-    ccall((:ARKStepSetMassLinearSolver, libsundials_arkode), Cint,
-        (ARKStepMemPtr, SUNLinearSolver, SUNMatrix, Cint), arkode_mem, LS, M, time_dep)
+function ARKStepSetMassLinearSolver(
+        arkode_mem, LS::SUNLinearSolver, M::SUNMatrix,
+        time_dep::Cint
+    )
+    return ccall(
+        (:ARKStepSetMassLinearSolver, libsundials_arkode), Cint,
+        (ARKStepMemPtr, SUNLinearSolver, SUNMatrix, Cint), arkode_mem, LS, M, time_dep
+    )
 end
 
 function ARKStepSetMassLinearSolver(arkode_mem, LS, M, time_dep)
-    ARKStepSetMassLinearSolver(arkode_mem, LS, M, convert(Cint, time_dep))
+    return ARKStepSetMassLinearSolver(arkode_mem, LS, M, convert(Cint, time_dep))
 end
 
 function ARKStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
-    ccall((:ARKStepRootInit, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, ARKRootFn),
-        arkode_mem, nrtfn, g)
+    return ccall(
+        (:ARKStepRootInit, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, ARKRootFn),
+        arkode_mem, nrtfn, g
+    )
 end
 
 function ARKStepRootInit(arkode_mem, nrtfn, g)
-    ARKStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
+    return ARKStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
 end
 
 function ARKStepSetDefaults(arkode_mem)
-    ccall((:ARKStepSetDefaults, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+    return ccall((:ARKStepSetDefaults, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
 end
 
 function ARKStepSetOptimalParams(arkode_mem)
-    ccall((:ARKStepSetOptimalParams, libsundials_arkode), Cint, (ARKStepMemPtr,),
-        arkode_mem)
+    return ccall(
+        (:ARKStepSetOptimalParams, libsundials_arkode), Cint, (ARKStepMemPtr,),
+        arkode_mem
+    )
 end
 
 function ARKStepSetOrder(arkode_mem, maxord::Cint)
-    ccall((:ARKStepSetOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem,
-        maxord)
+    return ccall(
+        (:ARKStepSetOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem,
+        maxord
+    )
 end
 
 function ARKStepSetOrder(arkode_mem, maxord)
-    ARKStepSetOrder(arkode_mem, convert(Cint, maxord))
+    return ARKStepSetOrder(arkode_mem, convert(Cint, maxord))
 end
 
 function ARKStepSetInterpolantType(arkode_mem, itype::Cint)
-    ccall((:ARKStepSetInterpolantType, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, itype)
+    return ccall(
+        (:ARKStepSetInterpolantType, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, itype
+    )
 end
 
 function ARKStepSetInterpolantType(arkode_mem, itype)
-    ARKStepSetInterpolantType(arkode_mem, convert(Cint, itype))
+    return ARKStepSetInterpolantType(arkode_mem, convert(Cint, itype))
 end
 
 function ARKStepSetInterpolantDegree(arkode_mem, degree::Cint)
-    ccall((:ARKStepSetInterpolantDegree, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, degree)
+    return ccall(
+        (:ARKStepSetInterpolantDegree, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, degree
+    )
 end
 
 function ARKStepSetInterpolantDegree(arkode_mem, degree)
-    ARKStepSetInterpolantDegree(arkode_mem, convert(Cint, degree))
+    return ARKStepSetInterpolantDegree(arkode_mem, convert(Cint, degree))
 end
 
 function ARKStepSetDenseOrder(arkode_mem, dord::Cint)
-    ccall((:ARKStepSetDenseOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, dord)
+    return ccall(
+        (:ARKStepSetDenseOrder, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, dord
+    )
 end
 
 function ARKStepSetDenseOrder(arkode_mem, dord)
-    ARKStepSetDenseOrder(arkode_mem, convert(Cint, dord))
+    return ARKStepSetDenseOrder(arkode_mem, convert(Cint, dord))
 end
 
 function ARKStepSetNonlinearSolver(arkode_mem, NLS::SUNNonlinearSolver)
-    ccall((:ARKStepSetNonlinearSolver, libsundials_arkode), Cint,
-        (ARKStepMemPtr, SUNNonlinearSolver), arkode_mem, NLS)
+    return ccall(
+        (:ARKStepSetNonlinearSolver, libsundials_arkode), Cint,
+        (ARKStepMemPtr, SUNNonlinearSolver), arkode_mem, NLS
+    )
 end
 
 function ARKStepSetLinear(arkode_mem, timedepend::Cint)
-    ccall((:ARKStepSetLinear, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem,
-        timedepend)
+    return ccall(
+        (:ARKStepSetLinear, libsundials_arkode), Cint, (ARKStepMemPtr, Cint), arkode_mem,
+        timedepend
+    )
 end
 
 function ARKStepSetLinear(arkode_mem, timedepend)
-    ARKStepSetLinear(arkode_mem, convert(Cint, timedepend))
+    return ARKStepSetLinear(arkode_mem, convert(Cint, timedepend))
 end
 
 function ARKStepSetNonlinear(arkode_mem)
-    ccall((:ARKStepSetNonlinear, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+    return ccall((:ARKStepSetNonlinear, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
 end
 
 function ARKStepSetExplicit(arkode_mem)
-    ccall((:ARKStepSetExplicit, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+    return ccall((:ARKStepSetExplicit, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
 end
 
 function ARKStepSetImplicit(arkode_mem)
-    ccall((:ARKStepSetImplicit, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+    return ccall((:ARKStepSetImplicit, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
 end
 
 function ARKStepSetImEx(arkode_mem)
-    ccall((:ARKStepSetImEx, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
+    return ccall((:ARKStepSetImEx, libsundials_arkode), Cint, (ARKStepMemPtr,), arkode_mem)
 end
 
-function ARKStepSetTables(arkode_mem, q::Cint, p::Cint, Bi::ARKodeButcherTable,
-        Be::ARKodeButcherTable)
-    ccall((:ARKStepSetTables, libsundials_arkode), Cint,
+function ARKStepSetTables(
+        arkode_mem, q::Cint, p::Cint, Bi::ARKodeButcherTable,
+        Be::ARKodeButcherTable
+    )
+    return ccall(
+        (:ARKStepSetTables, libsundials_arkode), Cint,
         (ARKStepMemPtr, Cint, Cint, ARKodeButcherTable, ARKodeButcherTable), arkode_mem,
-        q, p, Bi, Be)
+        q, p, Bi, Be
+    )
 end
 
 function ARKStepSetTables(arkode_mem, q, p, Bi, Be)
-    ARKStepSetTables(arkode_mem, convert(Cint, q), convert(Cint, p), Bi, Be)
+    return ARKStepSetTables(arkode_mem, convert(Cint, q), convert(Cint, p), Bi, Be)
 end
 
 function ARKStepSetTableNum(arkode_mem, itable::Cint, etable::Cint)
-    ccall((:ARKStepSetTableNum, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, Cint),
-        arkode_mem, itable, etable)
+    return ccall(
+        (:ARKStepSetTableNum, libsundials_arkode), Cint, (ARKStepMemPtr, Cint, Cint),
+        arkode_mem, itable, etable
+    )
 end
 
 function ARKStepSetTableNum(arkode_mem, itable, etable)
-    ARKStepSetTableNum(arkode_mem, convert(Cint, itable), convert(Cint, etable))
+    return ARKStepSetTableNum(arkode_mem, convert(Cint, itable), convert(Cint, etable))
 end
 
 function ARKStepSetCFLFraction(arkode_mem, cfl_frac::realtype)
-    ccall((:ARKStepSetCFLFraction, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, cfl_frac)
+    return ccall(
+        (:ARKStepSetCFLFraction, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, cfl_frac
+    )
 end
 
 function ARKStepSetSafetyFactor(arkode_mem, safety::realtype)
-    ccall((:ARKStepSetSafetyFactor, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, safety)
+    return ccall(
+        (:ARKStepSetSafetyFactor, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, safety
+    )
 end
 
 function ARKStepSetErrorBias(arkode_mem, bias::realtype)
-    ccall((:ARKStepSetErrorBias, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, bias)
+    return ccall(
+        (:ARKStepSetErrorBias, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, bias
+    )
 end
 
 function ARKStepSetMaxGrowth(arkode_mem, mx_growth::realtype)
-    ccall((:ARKStepSetMaxGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, mx_growth)
+    return ccall(
+        (:ARKStepSetMaxGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, mx_growth
+    )
 end
 
 function ARKStepSetFixedStepBounds(arkode_mem, lb::realtype, ub::realtype)
-    ccall((:ARKStepSetFixedStepBounds, libsundials_arkode), Cint,
-        (ARKStepMemPtr, realtype, realtype), arkode_mem, lb, ub)
+    return ccall(
+        (:ARKStepSetFixedStepBounds, libsundials_arkode), Cint,
+        (ARKStepMemPtr, realtype, realtype), arkode_mem, lb, ub
+    )
 end
 
-function ARKStepSetAdaptivityMethod(arkode_mem, imethod::Cint, idefault::Cint, pq::Cint,
-        adapt_params)
-    ccall((:ARKStepSetAdaptivityMethod, libsundials_arkode), Cint,
+function ARKStepSetAdaptivityMethod(
+        arkode_mem, imethod::Cint, idefault::Cint, pq::Cint,
+        adapt_params
+    )
+    return ccall(
+        (:ARKStepSetAdaptivityMethod, libsundials_arkode), Cint,
         (ARKStepMemPtr, Cint, Cint, Cint, Ptr{realtype}), arkode_mem, imethod, idefault,
-        pq, adapt_params)
+        pq, adapt_params
+    )
 end
 
 function ARKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
-    ARKStepSetAdaptivityMethod(arkode_mem, convert(Cint, imethod), convert(Cint, idefault),
-        convert(Cint, pq), adapt_params)
+    return ARKStepSetAdaptivityMethod(
+        arkode_mem, convert(Cint, imethod), convert(Cint, idefault),
+        convert(Cint, pq), adapt_params
+    )
 end
 
 function ARKStepSetAdaptivityFn(arkode_mem, hfun::ARKAdaptFn, h_data)
-    ccall((:ARKStepSetAdaptivityFn, libsundials_arkode), Cint,
-        (ARKStepMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data)
+    return ccall(
+        (:ARKStepSetAdaptivityFn, libsundials_arkode), Cint,
+        (ARKStepMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data
+    )
 end
 
 function ARKStepSetMaxFirstGrowth(arkode_mem, etamx1::realtype)
-    ccall((:ARKStepSetMaxFirstGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, etamx1)
+    return ccall(
+        (:ARKStepSetMaxFirstGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, etamx1
+    )
 end
 
 function ARKStepSetMaxEFailGrowth(arkode_mem, etamxf::realtype)
-    ccall((:ARKStepSetMaxEFailGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, etamxf)
+    return ccall(
+        (:ARKStepSetMaxEFailGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, etamxf
+    )
 end
 
 function ARKStepSetSmallNumEFails(arkode_mem, small_nef::Cint)
-    ccall((:ARKStepSetSmallNumEFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, small_nef)
+    return ccall(
+        (:ARKStepSetSmallNumEFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, small_nef
+    )
 end
 
 function ARKStepSetSmallNumEFails(arkode_mem, small_nef)
-    ARKStepSetSmallNumEFails(arkode_mem, convert(Cint, small_nef))
+    return ARKStepSetSmallNumEFails(arkode_mem, convert(Cint, small_nef))
 end
 
 function ARKStepSetMaxCFailGrowth(arkode_mem, etacf::realtype)
-    ccall((:ARKStepSetMaxCFailGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, etacf)
+    return ccall(
+        (:ARKStepSetMaxCFailGrowth, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, etacf
+    )
 end
 
 function ARKStepSetNonlinCRDown(arkode_mem, crdown::realtype)
-    ccall((:ARKStepSetNonlinCRDown, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, crdown)
+    return ccall(
+        (:ARKStepSetNonlinCRDown, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, crdown
+    )
 end
 
 function ARKStepSetNonlinRDiv(arkode_mem, rdiv::realtype)
-    ccall((:ARKStepSetNonlinRDiv, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, rdiv)
+    return ccall(
+        (:ARKStepSetNonlinRDiv, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, rdiv
+    )
 end
 
 function ARKStepSetDeltaGammaMax(arkode_mem, dgmax::realtype)
-    ccall((:ARKStepSetDeltaGammaMax, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, dgmax)
+    return ccall(
+        (:ARKStepSetDeltaGammaMax, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, dgmax
+    )
 end
 
 function ARKStepSetLSetupFrequency(arkode_mem, msbp::Cint)
-    ccall(
+    return ccall(
         (:ARKStepSetLSetupFrequency, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, msbp)
+        arkode_mem, msbp
+    )
 end
 
 function ARKStepSetLSetupFrequency(arkode_mem, msbp)
-    ARKStepSetLSetupFrequency(arkode_mem, convert(Cint, msbp))
+    return ARKStepSetLSetupFrequency(arkode_mem, convert(Cint, msbp))
 end
 
 function ARKStepSetPredictorMethod(arkode_mem, method::Cint)
-    ccall((:ARKStepSetPredictorMethod, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, method)
+    return ccall(
+        (:ARKStepSetPredictorMethod, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, method
+    )
 end
 
 function ARKStepSetPredictorMethod(arkode_mem, method)
-    ARKStepSetPredictorMethod(arkode_mem, convert(Cint, method))
+    return ARKStepSetPredictorMethod(arkode_mem, convert(Cint, method))
 end
 
 function ARKStepSetStabilityFn(arkode_mem, EStab::ARKExpStabFn, estab_data)
-    ccall((:ARKStepSetStabilityFn, libsundials_arkode), Cint,
-        (ARKStepMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data)
+    return ccall(
+        (:ARKStepSetStabilityFn, libsundials_arkode), Cint,
+        (ARKStepMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data
+    )
 end
 
 function ARKStepSetMaxErrTestFails(arkode_mem, maxnef::Cint)
-    ccall((:ARKStepSetMaxErrTestFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, maxnef)
+    return ccall(
+        (:ARKStepSetMaxErrTestFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, maxnef
+    )
 end
 
 function ARKStepSetMaxErrTestFails(arkode_mem, maxnef)
-    ARKStepSetMaxErrTestFails(arkode_mem, convert(Cint, maxnef))
+    return ARKStepSetMaxErrTestFails(arkode_mem, convert(Cint, maxnef))
 end
 
 function ARKStepSetMaxNonlinIters(arkode_mem, maxcor::Cint)
-    ccall((:ARKStepSetMaxNonlinIters, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, maxcor)
+    return ccall(
+        (:ARKStepSetMaxNonlinIters, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, maxcor
+    )
 end
 
 function ARKStepSetMaxNonlinIters(arkode_mem, maxcor)
-    ARKStepSetMaxNonlinIters(arkode_mem, convert(Cint, maxcor))
+    return ARKStepSetMaxNonlinIters(arkode_mem, convert(Cint, maxcor))
 end
 
 function ARKStepSetMaxConvFails(arkode_mem, maxncf::Cint)
-    ccall((:ARKStepSetMaxConvFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, maxncf)
+    return ccall(
+        (:ARKStepSetMaxConvFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, maxncf
+    )
 end
 
 function ARKStepSetMaxConvFails(arkode_mem, maxncf)
-    ARKStepSetMaxConvFails(arkode_mem, convert(Cint, maxncf))
+    return ARKStepSetMaxConvFails(arkode_mem, convert(Cint, maxncf))
 end
 
 function ARKStepSetNonlinConvCoef(arkode_mem, nlscoef::realtype)
-    ccall((:ARKStepSetNonlinConvCoef, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, nlscoef)
+    return ccall(
+        (:ARKStepSetNonlinConvCoef, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, nlscoef
+    )
 end
 
 function ARKStepSetConstraints(arkode_mem, constraints::Union{N_Vector, NVector})
-    ccall((:ARKStepSetConstraints, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
-        arkode_mem, constraints)
+    return ccall(
+        (:ARKStepSetConstraints, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
+        arkode_mem, constraints
+    )
 end
 
 function ARKStepSetConstraints(arkode_mem, constraints, ctx::SUNContext)
-    ARKStepSetConstraints(arkode_mem, constraints, ctx)
+    return ARKStepSetConstraints(arkode_mem, constraints, ctx)
 end
 
 function ARKStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
-    ccall((:ARKStepSetMaxNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Clong),
-        arkode_mem, mxsteps)
+    return ccall(
+        (:ARKStepSetMaxNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Clong),
+        arkode_mem, mxsteps
+    )
 end
 
 function ARKStepSetMaxNumSteps(arkode_mem, mxsteps)
-    ARKStepSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
+    return ARKStepSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
 end
 
 function ARKStepSetMaxHnilWarns(arkode_mem, mxhnil::Cint)
-    ccall((:ARKStepSetMaxHnilWarns, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, mxhnil)
+    return ccall(
+        (:ARKStepSetMaxHnilWarns, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, mxhnil
+    )
 end
 
 function ARKStepSetMaxHnilWarns(arkode_mem, mxhnil)
-    ARKStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
+    return ARKStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
 end
 
 function ARKStepSetInitStep(arkode_mem, hin::realtype)
-    ccall((:ARKStepSetInitStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, hin)
+    return ccall(
+        (:ARKStepSetInitStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, hin
+    )
 end
 
 function ARKStepSetMinStep(arkode_mem, hmin::realtype)
-    ccall((:ARKStepSetMinStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, hmin)
+    return ccall(
+        (:ARKStepSetMinStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, hmin
+    )
 end
 
 function ARKStepSetMaxStep(arkode_mem, hmax::realtype)
-    ccall((:ARKStepSetMaxStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, hmax)
+    return ccall(
+        (:ARKStepSetMaxStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, hmax
+    )
 end
 
 function ARKStepSetStopTime(arkode_mem, tstop::realtype)
-    ccall((:ARKStepSetStopTime, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, tstop)
+    return ccall(
+        (:ARKStepSetStopTime, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, tstop
+    )
 end
 
 function ARKStepSetFixedStep(arkode_mem, hfixed::realtype)
-    ccall((:ARKStepSetFixedStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, hfixed)
+    return ccall(
+        (:ARKStepSetFixedStep, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, hfixed
+    )
 end
 
 function ARKStepSetMaxNumConstrFails(arkode_mem, maxfails::Cint)
-    ccall((:ARKStepSetMaxNumConstrFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
-        arkode_mem, maxfails)
+    return ccall(
+        (:ARKStepSetMaxNumConstrFails, libsundials_arkode), Cint, (ARKStepMemPtr, Cint),
+        arkode_mem, maxfails
+    )
 end
 
 function ARKStepSetMaxNumConstrFails(arkode_mem, maxfails)
-    ARKStepSetMaxNumConstrFails(arkode_mem, convert(Cint, maxfails))
+    return ARKStepSetMaxNumConstrFails(arkode_mem, convert(Cint, maxfails))
 end
 
 function ARKStepSetRootDirection(arkode_mem, rootdir)
-    ccall((:ARKStepSetRootDirection, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}),
-        arkode_mem, rootdir)
+    return ccall(
+        (:ARKStepSetRootDirection, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}),
+        arkode_mem, rootdir
+    )
 end
 
 function ARKStepSetNoInactiveRootWarn(arkode_mem)
-    ccall((:ARKStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ARKStepMemPtr,),
-        arkode_mem)
+    return ccall(
+        (:ARKStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ARKStepMemPtr,),
+        arkode_mem
+    )
 end
 
 function ARKStepSetErrHandlerFn(arkode_mem, ehfun::ARKErrHandlerFn, eh_data)
-    ccall((:ARKStepSetErrHandlerFn, libsundials_arkode), Cint,
-        (ARKStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
+    return ccall(
+        (:ARKStepSetErrHandlerFn, libsundials_arkode), Cint,
+        (ARKStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data
+    )
 end
 
 function ARKStepSetErrFile(arkode_mem, errfp)
-    ccall((:ARKStepSetErrFile, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, errfp)
+    return ccall(
+        (:ARKStepSetErrFile, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Libc.FILE}),
+        arkode_mem, errfp
+    )
 end
 
 function ARKStepSetUserData(arkode_mem, user_data)
-    ccall(
+    return ccall(
         (:ARKStepSetUserData, libsundials_arkode), Cint, (ARKStepMemPtr, Any), arkode_mem,
-        user_data)
+        user_data
+    )
 end
 
 function ARKStepSetDiagnostics(arkode_mem, diagfp)
-    ccall((:ARKStepSetDiagnostics, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, diagfp)
+    return ccall(
+        (:ARKStepSetDiagnostics, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, diagfp
+    )
 end
 
 function ARKStepSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessFn)
-    ccall((:ARKStepSetPostprocessStepFn, libsundials_arkode), Cint,
-        (ARKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep)
+    return ccall(
+        (:ARKStepSetPostprocessStepFn, libsundials_arkode), Cint,
+        (ARKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep
+    )
 end
 
 function ARKStepSetPostprocessStageFn(arkode_mem, ProcessStage::ARKPostProcessFn)
-    ccall((:ARKStepSetPostprocessStageFn, libsundials_arkode), Cint,
-        (ARKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage)
+    return ccall(
+        (:ARKStepSetPostprocessStageFn, libsundials_arkode), Cint,
+        (ARKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage
+    )
 end
 
 function ARKStepSetStagePredictFn(arkode_mem, PredictStage::ARKStepStagePredictFn)
-    ccall((:ARKStepSetStagePredictFn, libsundials_arkode), Cint,
-        (ARKStepMemPtr, ARKStepStagePredictFn), arkode_mem, PredictStage)
+    return ccall(
+        (:ARKStepSetStagePredictFn, libsundials_arkode), Cint,
+        (ARKStepMemPtr, ARKStepStagePredictFn), arkode_mem, PredictStage
+    )
 end
 
 function ARKStepSetJacFn(arkode_mem, jac::ARKLsJacFn)
-    ccall((:ARKStepSetJacFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKLsJacFn),
-        arkode_mem, jac)
+    return ccall(
+        (:ARKStepSetJacFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKLsJacFn),
+        arkode_mem, jac
+    )
 end
 
 function ARKStepSetMassFn(arkode_mem, mass::ARKLsMassFn)
-    ccall((:ARKStepSetMassFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKLsMassFn),
-        arkode_mem, mass)
+    return ccall(
+        (:ARKStepSetMassFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKLsMassFn),
+        arkode_mem, mass
+    )
 end
 
 function ARKStepSetJacEvalFrequency(arkode_mem, msbj::Clong)
-    ccall(
+    return ccall(
         (:ARKStepSetJacEvalFrequency, libsundials_arkode), Cint, (ARKStepMemPtr, Clong),
-        arkode_mem, msbj)
+        arkode_mem, msbj
+    )
 end
 
 function ARKStepSetJacEvalFrequency(arkode_mem, msbj)
-    ARKStepSetJacEvalFrequency(arkode_mem, convert(Clong, msbj))
+    return ARKStepSetJacEvalFrequency(arkode_mem, convert(Clong, msbj))
 end
 
 function ARKStepSetLinearSolutionScaling(arkode_mem, onoff::Cint)
-    ccall((:ARKStepSetLinearSolutionScaling, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Cint), arkode_mem, onoff)
+    return ccall(
+        (:ARKStepSetLinearSolutionScaling, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Cint), arkode_mem, onoff
+    )
 end
 
 function ARKStepSetLinearSolutionScaling(arkode_mem, onoff)
-    ARKStepSetLinearSolutionScaling(arkode_mem, convert(Cint, onoff))
+    return ARKStepSetLinearSolutionScaling(arkode_mem, convert(Cint, onoff))
 end
 
 function ARKStepSetEpsLin(arkode_mem, eplifac::realtype)
-    ccall((:ARKStepSetEpsLin, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, eplifac)
+    return ccall(
+        (:ARKStepSetEpsLin, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, eplifac
+    )
 end
 
 function ARKStepSetMassEpsLin(arkode_mem, eplifac::realtype)
-    ccall((:ARKStepSetMassEpsLin, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
-        arkode_mem, eplifac)
+    return ccall(
+        (:ARKStepSetMassEpsLin, libsundials_arkode), Cint, (ARKStepMemPtr, realtype),
+        arkode_mem, eplifac
+    )
 end
 
-function ARKStepSetPreconditioner(arkode_mem, psetup::ARKLsPrecSetupFn,
-        psolve::ARKLsPrecSolveFn)
-    ccall((:ARKStepSetPreconditioner, libsundials_arkode), Cint,
-        (ARKStepMemPtr, ARKLsPrecSetupFn, ARKLsPrecSolveFn), arkode_mem, psetup, psolve)
+function ARKStepSetPreconditioner(
+        arkode_mem, psetup::ARKLsPrecSetupFn,
+        psolve::ARKLsPrecSolveFn
+    )
+    return ccall(
+        (:ARKStepSetPreconditioner, libsundials_arkode), Cint,
+        (ARKStepMemPtr, ARKLsPrecSetupFn, ARKLsPrecSolveFn), arkode_mem, psetup, psolve
+    )
 end
 
-function ARKStepSetMassPreconditioner(arkode_mem, psetup::ARKLsMassPrecSetupFn,
-        psolve::ARKLsMassPrecSolveFn)
-    ccall((:ARKStepSetMassPreconditioner, libsundials_arkode), Cint,
+function ARKStepSetMassPreconditioner(
+        arkode_mem, psetup::ARKLsMassPrecSetupFn,
+        psolve::ARKLsMassPrecSolveFn
+    )
+    return ccall(
+        (:ARKStepSetMassPreconditioner, libsundials_arkode), Cint,
         (ARKStepMemPtr, ARKLsMassPrecSetupFn, ARKLsMassPrecSolveFn), arkode_mem, psetup,
-        psolve)
+        psolve
+    )
 end
 
-function ARKStepSetJacTimes(arkode_mem, jtsetup::ARKLsJacTimesSetupFn,
-        jtimes::ARKLsJacTimesVecFn)
-    ccall((:ARKStepSetJacTimes, libsundials_arkode), Cint,
+function ARKStepSetJacTimes(
+        arkode_mem, jtsetup::ARKLsJacTimesSetupFn,
+        jtimes::ARKLsJacTimesVecFn
+    )
+    return ccall(
+        (:ARKStepSetJacTimes, libsundials_arkode), Cint,
         (ARKStepMemPtr, ARKLsJacTimesSetupFn, ARKLsJacTimesVecFn), arkode_mem, jtsetup,
-        jtimes)
+        jtimes
+    )
 end
 
-function ARKStepSetMassTimes(arkode_mem, msetup::ARKLsMassTimesSetupFn,
-        mtimes::ARKLsMassTimesVecFn, mtimes_data)
-    ccall((:ARKStepSetMassTimes, libsundials_arkode), Cint,
+function ARKStepSetMassTimes(
+        arkode_mem, msetup::ARKLsMassTimesSetupFn,
+        mtimes::ARKLsMassTimesVecFn, mtimes_data
+    )
+    return ccall(
+        (:ARKStepSetMassTimes, libsundials_arkode), Cint,
         (ARKStepMemPtr, ARKLsMassTimesSetupFn, ARKLsMassTimesVecFn, Ptr{Cvoid}),
-        arkode_mem, msetup, mtimes, mtimes_data)
+        arkode_mem, msetup, mtimes, mtimes_data
+    )
 end
 
 function ARKStepSetLinSysFn(arkode_mem, linsys::ARKLsLinSysFn)
-    ccall((:ARKStepSetLinSysFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKLsLinSysFn),
-        arkode_mem, linsys)
+    return ccall(
+        (:ARKStepSetLinSysFn, libsundials_arkode), Cint, (ARKStepMemPtr, ARKLsLinSysFn),
+        arkode_mem, linsys
+    )
 end
 
-function ARKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
-        itask::Cint)
-    ccall((:ARKStepEvolve, libsundials_arkode), Cint,
+function ARKStepEvolve(
+        arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+        itask::Cint
+    )
+    return ccall(
+        (:ARKStepEvolve, libsundials_arkode), Cint,
         (ARKStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout,
-        tret, itask)
+        tret, itask
+    )
 end
 
 function ARKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx::SUNContext)
-    ARKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
+    return ARKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
 end
 
 function ARKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
-    ccall((:ARKStepGetDky, libsundials_arkode), Cint,
-        (ARKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
+    return ccall(
+        (:ARKStepGetDky, libsundials_arkode), Cint,
+        (ARKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky
+    )
 end
 
 function ARKStepGetDky(arkode_mem, t, k, dky, ctx::SUNContext)
-    ARKStepGetDky(arkode_mem, t, k, dky, ctx)
+    return ARKStepGetDky(arkode_mem, t, k, dky, ctx)
 end
 
 function ARKStepGetNumExpSteps(arkode_mem, expsteps)
-    ccall((:ARKStepGetNumExpSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, expsteps)
+    return ccall(
+        (:ARKStepGetNumExpSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, expsteps
+    )
 end
 
 function ARKStepGetNumAccSteps(arkode_mem, accsteps)
-    ccall((:ARKStepGetNumAccSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, accsteps)
+    return ccall(
+        (:ARKStepGetNumAccSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, accsteps
+    )
 end
 
 function ARKStepGetNumStepAttempts(arkode_mem, step_attempts)
-    ccall((:ARKStepGetNumStepAttempts, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, step_attempts)
+    return ccall(
+        (:ARKStepGetNumStepAttempts, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, step_attempts
+    )
 end
 
 function ARKStepGetNumRhsEvals(arkode_mem, nfe_evals, nfi_evals)
-    ccall((:ARKStepGetNumRhsEvals, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nfe_evals, nfi_evals)
+    return ccall(
+        (:ARKStepGetNumRhsEvals, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nfe_evals, nfi_evals
+    )
 end
 
 function ARKStepGetNumLinSolvSetups(arkode_mem, nlinsetups)
-    ccall((:ARKStepGetNumLinSolvSetups, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nlinsetups)
+    return ccall(
+        (:ARKStepGetNumLinSolvSetups, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nlinsetups
+    )
 end
 
 function ARKStepGetNumErrTestFails(arkode_mem, netfails)
-    ccall((:ARKStepGetNumErrTestFails, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, netfails)
+    return ccall(
+        (:ARKStepGetNumErrTestFails, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, netfails
+    )
 end
 
 function ARKStepGetCurrentButcherTables(arkode_mem, Bi, Be)
-    ccall((:ARKStepGetCurrentButcherTables, libsundials_arkode), Cint,
+    return ccall(
+        (:ARKStepGetCurrentButcherTables, libsundials_arkode), Cint,
         (ARKStepMemPtr, Ptr{ARKodeButcherTable}, Ptr{ARKodeButcherTable}), arkode_mem, Bi,
-        Be)
+        Be
+    )
 end
 
 function ARKStepGetEstLocalErrors(arkode_mem, ele::Union{N_Vector, NVector})
-    ccall((:ARKStepGetEstLocalErrors, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
-        arkode_mem, ele)
+    return ccall(
+        (:ARKStepGetEstLocalErrors, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
+        arkode_mem, ele
+    )
 end
 
 function ARKStepGetEstLocalErrors(arkode_mem, ele, ctx::SUNContext)
     __ele = convert(NVector, ele, ctx)
-    ARKStepGetEstLocalErrors(arkode_mem, __ele)
+    return ARKStepGetEstLocalErrors(arkode_mem, __ele)
 end
 
 function ARKStepGetWorkSpace(arkode_mem, lenrw, leniw)
-    ccall((:ARKStepGetWorkSpace, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
+    return ccall(
+        (:ARKStepGetWorkSpace, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw
+    )
 end
 
 function ARKStepGetNumSteps(arkode_mem, nsteps)
-    ccall((:ARKStepGetNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nsteps)
+    return ccall(
+        (:ARKStepGetNumSteps, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, nsteps
+    )
 end
 
 function ARKStepGetActualInitStep(arkode_mem, hinused)
-    ccall((:ARKStepGetActualInitStep, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hinused)
+    return ccall(
+        (:ARKStepGetActualInitStep, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hinused
+    )
 end
 
 function ARKStepGetLastStep(arkode_mem, hlast)
-    ccall((:ARKStepGetLastStep, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}),
-        arkode_mem, hlast)
+    return ccall(
+        (:ARKStepGetLastStep, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{realtype}),
+        arkode_mem, hlast
+    )
 end
 
 function ARKStepGetCurrentStep(arkode_mem, hcur)
-    ccall((:ARKStepGetCurrentStep, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hcur)
+    return ccall(
+        (:ARKStepGetCurrentStep, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, hcur
+    )
 end
 
 function ARKStepGetCurrentTime(arkode_mem, tcur)
-    ccall((:ARKStepGetCurrentTime, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tcur)
+    return ccall(
+        (:ARKStepGetCurrentTime, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tcur
+    )
 end
 
 function ARKStepGetCurrentState(arkode_mem, ycur)
-    ccall((:ARKStepGetCurrentState, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{N_Vector}), arkode_mem, ycur)
+    return ccall(
+        (:ARKStepGetCurrentState, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{N_Vector}), arkode_mem, ycur
+    )
 end
 
 function ARKStepGetCurrentGamma(arkode_mem, gamma)
-    ccall((:ARKStepGetCurrentGamma, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, gamma)
+    return ccall(
+        (:ARKStepGetCurrentGamma, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, gamma
+    )
 end
 
 function ARKStepGetTolScaleFactor(arkode_mem, tolsfac)
-    ccall((:ARKStepGetTolScaleFactor, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tolsfac)
+    return ccall(
+        (:ARKStepGetTolScaleFactor, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{realtype}), arkode_mem, tolsfac
+    )
 end
 
 function ARKStepGetErrWeights(arkode_mem, eweight::Union{N_Vector, NVector})
-    ccall((:ARKStepGetErrWeights, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
-        arkode_mem, eweight)
+    return ccall(
+        (:ARKStepGetErrWeights, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
+        arkode_mem, eweight
+    )
 end
 
 function ARKStepGetErrWeights(arkode_mem, eweight, ctx::SUNContext)
-    ARKStepGetErrWeights(arkode_mem, eweight, ctx)
+    return ARKStepGetErrWeights(arkode_mem, eweight, ctx)
 end
 
 function ARKStepGetResWeights(arkode_mem, rweight::Union{N_Vector, NVector})
-    ccall((:ARKStepGetResWeights, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
-        arkode_mem, rweight)
+    return ccall(
+        (:ARKStepGetResWeights, libsundials_arkode), Cint, (ARKStepMemPtr, N_Vector),
+        arkode_mem, rweight
+    )
 end
 
 function ARKStepGetResWeights(arkode_mem, rweight, ctx::SUNContext)
-    ARKStepGetResWeights(arkode_mem, rweight, ctx)
+    return ARKStepGetResWeights(arkode_mem, rweight, ctx)
 end
 
 function ARKStepGetNumGEvals(arkode_mem, ngevals)
-    ccall((:ARKStepGetNumGEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, ngevals)
+    return ccall(
+        (:ARKStepGetNumGEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, ngevals
+    )
 end
 
 function ARKStepGetRootInfo(arkode_mem, rootsfound)
-    ccall((:ARKStepGetRootInfo, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}),
-        arkode_mem, rootsfound)
+    return ccall(
+        (:ARKStepGetRootInfo, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Cint}),
+        arkode_mem, rootsfound
+    )
 end
 
 function ARKStepGetNumConstrFails(arkode_mem, nconstrfails)
-    ccall((:ARKStepGetNumConstrFails, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nconstrfails)
+    return ccall(
+        (:ARKStepGetNumConstrFails, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nconstrfails
+    )
 end
 
 function ARKStepGetReturnFlagName(flag::Clong)
-    ccall((:ARKStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
+    return ccall((:ARKStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
 function ARKStepGetReturnFlagName(flag)
-    ARKStepGetReturnFlagName(convert(Clong, flag))
+    return ARKStepGetReturnFlagName(convert(Clong, flag))
 end
 
 function ARKStepWriteParameters(arkode_mem, fp)
-    ccall((:ARKStepWriteParameters, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, fp)
+    return ccall(
+        (:ARKStepWriteParameters, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, fp
+    )
 end
 
 function ARKStepWriteButcher(arkode_mem, fp)
-    ccall(
+    return ccall(
         (:ARKStepWriteButcher, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, fp)
+        arkode_mem, fp
+    )
 end
 
-function ARKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, step_attempts,
-        nfe_evals, nfi_evals, nlinsetups, netfails)
-    ccall((:ARKStepGetTimestepperStats, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong},
-            Ptr{Clong}, Ptr{Clong}), arkode_mem, expsteps, accsteps, step_attempts,
-        nfe_evals, nfi_evals, nlinsetups, netfails)
+function ARKStepGetTimestepperStats(
+        arkode_mem, expsteps, accsteps, step_attempts,
+        nfe_evals, nfi_evals, nlinsetups, netfails
+    )
+    return ccall(
+        (:ARKStepGetTimestepperStats, libsundials_arkode), Cint,
+        (
+            ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong},
+            Ptr{Clong}, Ptr{Clong},
+        ), arkode_mem, expsteps, accsteps, step_attempts,
+        nfe_evals, nfi_evals, nlinsetups, netfails
+    )
 end
 
 function ARKStepGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur)
-    ccall((:ARKStepGetStepStats, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype},
-            Ptr{realtype}), arkode_mem, nsteps, hinused, hlast, hcur, tcur)
+    return ccall(
+        (:ARKStepGetStepStats, libsundials_arkode), Cint,
+        (
+            ARKStepMemPtr, Ptr{Clong}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype},
+            Ptr{realtype},
+        ), arkode_mem, nsteps, hinused, hlast, hcur, tcur
+    )
 end
 
 function ARKStepGetNumNonlinSolvIters(arkode_mem, nniters)
-    ccall((:ARKStepGetNumNonlinSolvIters, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nniters)
+    return ccall(
+        (:ARKStepGetNumNonlinSolvIters, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nniters
+    )
 end
 
 function ARKStepGetNumNonlinSolvConvFails(arkode_mem, nncfails)
-    ccall((:ARKStepGetNumNonlinSolvConvFails, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nncfails)
+    return ccall(
+        (:ARKStepGetNumNonlinSolvConvFails, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nncfails
+    )
 end
 
 function ARKStepGetNonlinSolvStats(arkode_mem, nniters, nncfails)
-    ccall((:ARKStepGetNonlinSolvStats, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nniters, nncfails)
+    return ccall(
+        (:ARKStepGetNonlinSolvStats, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, nniters, nncfails
+    )
 end
 
 function ARKStepGetLinWorkSpace(arkode_mem, lenrwLS, leniwLS)
-    ccall((:ARKStepGetLinWorkSpace, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:ARKStepGetLinWorkSpace, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS
+    )
 end
 
 function ARKStepGetNumJacEvals(arkode_mem, njevals)
-    ccall((:ARKStepGetNumJacEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, njevals)
+    return ccall(
+        (:ARKStepGetNumJacEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, njevals
+    )
 end
 
 function ARKStepGetNumPrecEvals(arkode_mem, npevals)
-    ccall((:ARKStepGetNumPrecEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, npevals)
+    return ccall(
+        (:ARKStepGetNumPrecEvals, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, npevals
+    )
 end
 
 function ARKStepGetNumPrecSolves(arkode_mem, npsolves)
-    ccall(
+    return ccall(
         (:ARKStepGetNumPrecSolves, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, npsolves)
+        arkode_mem, npsolves
+    )
 end
 
 function ARKStepGetNumLinIters(arkode_mem, nliters)
-    ccall((:ARKStepGetNumLinIters, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nliters)
+    return ccall(
+        (:ARKStepGetNumLinIters, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, nliters
+    )
 end
 
 function ARKStepGetNumLinConvFails(arkode_mem, nlcfails)
-    ccall((:ARKStepGetNumLinConvFails, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nlcfails)
+    return ccall(
+        (:ARKStepGetNumLinConvFails, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nlcfails
+    )
 end
 
 function ARKStepGetNumJTSetupEvals(arkode_mem, njtsetups)
-    ccall((:ARKStepGetNumJTSetupEvals, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, njtsetups)
+    return ccall(
+        (:ARKStepGetNumJTSetupEvals, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, njtsetups
+    )
 end
 
 function ARKStepGetNumJtimesEvals(arkode_mem, njvevals)
-    ccall((:ARKStepGetNumJtimesEvals, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, njvevals)
+    return ccall(
+        (:ARKStepGetNumJtimesEvals, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, njvevals
+    )
 end
 
 function ARKStepGetNumLinRhsEvals(arkode_mem, nfevalsLS)
-    ccall((:ARKStepGetNumLinRhsEvals, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nfevalsLS)
+    return ccall(
+        (:ARKStepGetNumLinRhsEvals, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nfevalsLS
+    )
 end
 
 function ARKStepGetLastLinFlag(arkode_mem, flag)
-    ccall((:ARKStepGetLastLinFlag, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, flag)
+    return ccall(
+        (:ARKStepGetLastLinFlag, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, flag
+    )
 end
 
 function ARKStepGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)
-    ccall((:ARKStepGetMassWorkSpace, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwMLS, leniwMLS)
+    return ccall(
+        (:ARKStepGetMassWorkSpace, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwMLS, leniwMLS
+    )
 end
 
 function ARKStepGetNumMassSetups(arkode_mem, nmsetups)
-    ccall(
+    return ccall(
         (:ARKStepGetNumMassSetups, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nmsetups)
+        arkode_mem, nmsetups
+    )
 end
 
 function ARKStepGetNumMassMultSetups(arkode_mem, nmvsetups)
-    ccall((:ARKStepGetNumMassMultSetups, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmvsetups)
+    return ccall(
+        (:ARKStepGetNumMassMultSetups, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmvsetups
+    )
 end
 
 function ARKStepGetNumMassMult(arkode_mem, nmvevals)
-    ccall((:ARKStepGetNumMassMult, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nmvevals)
+    return ccall(
+        (:ARKStepGetNumMassMult, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, nmvevals
+    )
 end
 
 function ARKStepGetNumMassSolves(arkode_mem, nmsolves)
-    ccall(
+    return ccall(
         (:ARKStepGetNumMassSolves, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nmsolves)
+        arkode_mem, nmsolves
+    )
 end
 
 function ARKStepGetNumMassPrecEvals(arkode_mem, nmpevals)
-    ccall((:ARKStepGetNumMassPrecEvals, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmpevals)
+    return ccall(
+        (:ARKStepGetNumMassPrecEvals, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmpevals
+    )
 end
 
 function ARKStepGetNumMassPrecSolves(arkode_mem, nmpsolves)
-    ccall((:ARKStepGetNumMassPrecSolves, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmpsolves)
+    return ccall(
+        (:ARKStepGetNumMassPrecSolves, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmpsolves
+    )
 end
 
 function ARKStepGetNumMassIters(arkode_mem, nmiters)
-    ccall((:ARKStepGetNumMassIters, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nmiters)
+    return ccall(
+        (:ARKStepGetNumMassIters, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, nmiters
+    )
 end
 
 function ARKStepGetNumMassConvFails(arkode_mem, nmcfails)
-    ccall((:ARKStepGetNumMassConvFails, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmcfails)
+    return ccall(
+        (:ARKStepGetNumMassConvFails, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nmcfails
+    )
 end
 
 function ARKStepGetNumMTSetups(arkode_mem, nmtsetups)
-    ccall((:ARKStepGetNumMTSetups, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nmtsetups)
+    return ccall(
+        (:ARKStepGetNumMTSetups, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, nmtsetups
+    )
 end
 
 function ARKStepGetLastMassFlag(arkode_mem, flag)
-    ccall((:ARKStepGetLastMassFlag, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
-        arkode_mem, flag)
+    return ccall(
+        (:ARKStepGetLastMassFlag, libsundials_arkode), Cint, (ARKStepMemPtr, Ptr{Clong}),
+        arkode_mem, flag
+    )
 end
 
 function ARKStepGetLinReturnFlagName(flag::Clong)
-    ccall((:ARKStepGetLinReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
+    return ccall((:ARKStepGetLinReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
 function ARKStepGetLinReturnFlagName(flag)
-    ARKStepGetLinReturnFlagName(convert(Clong, flag))
+    return ARKStepGetLinReturnFlagName(convert(Clong, flag))
 end
 
 function ARKStepFree(arkode_mem)
-    ccall((:ARKStepFree, libsundials_arkode), Cvoid, (Ref{ARKStepMemPtr},), arkode_mem)
+    return ccall((:ARKStepFree, libsundials_arkode), Cvoid, (Ref{ARKStepMemPtr},), arkode_mem)
 end
 
 function ARKStepPrintMem(arkode_mem, outfile)
-    ccall((:ARKStepPrintMem, libsundials_arkode), Cvoid, (ARKStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, outfile)
+    return ccall(
+        (:ARKStepPrintMem, libsundials_arkode), Cvoid, (ARKStepMemPtr, Ptr{Libc.FILE}),
+        arkode_mem, outfile
+    )
 end
 
 function ARKBandPrecInit(arkode_mem, N::sunindextype, mu::sunindextype, ml::sunindextype)
-    ccall((:ARKBandPrecInit, libsundials_arkode), Cint,
-        (ARKStepMemPtr, sunindextype, sunindextype, sunindextype), arkode_mem, N, mu, ml)
+    return ccall(
+        (:ARKBandPrecInit, libsundials_arkode), Cint,
+        (ARKStepMemPtr, sunindextype, sunindextype, sunindextype), arkode_mem, N, mu, ml
+    )
 end
 
 function ARKBandPrecGetWorkSpace(arkode_mem, lenrwLS, leniwLS)
-    ccall((:ARKBandPrecGetWorkSpace, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:ARKBandPrecGetWorkSpace, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwLS, leniwLS
+    )
 end
 
 function ARKBandPrecGetNumRhsEvals(arkode_mem, nfevalsBP)
-    ccall((:ARKBandPrecGetNumRhsEvals, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nfevalsBP)
+    return ccall(
+        (:ARKBandPrecGetNumRhsEvals, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, nfevalsBP
+    )
 end
 
-function ARKBBDPrecInit(arkode_mem, Nlocal::sunindextype, mudq::sunindextype,
+function ARKBBDPrecInit(
+        arkode_mem, Nlocal::sunindextype, mudq::sunindextype,
         mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype,
-        dqrely::realtype, gloc::ARKLocalFn, cfn::ARKCommFn)
-    ccall((:ARKBBDPrecInit, libsundials_arkode), Cint,
-        (ARKStepMemPtr, sunindextype, sunindextype, sunindextype, sunindextype,
-            sunindextype, realtype, ARKLocalFn, ARKCommFn), arkode_mem, Nlocal, mudq, mldq,
-        mukeep, mlkeep, dqrely, gloc, cfn)
+        dqrely::realtype, gloc::ARKLocalFn, cfn::ARKCommFn
+    )
+    return ccall(
+        (:ARKBBDPrecInit, libsundials_arkode), Cint,
+        (
+            ARKStepMemPtr, sunindextype, sunindextype, sunindextype, sunindextype,
+            sunindextype, realtype, ARKLocalFn, ARKCommFn,
+        ), arkode_mem, Nlocal, mudq, mldq,
+        mukeep, mlkeep, dqrely, gloc, cfn
+    )
 end
 
-function ARKBBDPrecReInit(arkode_mem, mudq::sunindextype, mldq::sunindextype,
-        dqrely::realtype)
-    ccall((:ARKBBDPrecReInit, libsundials_arkode), Cint,
+function ARKBBDPrecReInit(
+        arkode_mem, mudq::sunindextype, mldq::sunindextype,
+        dqrely::realtype
+    )
+    return ccall(
+        (:ARKBBDPrecReInit, libsundials_arkode), Cint,
         (ARKStepMemPtr, sunindextype, sunindextype, realtype), arkode_mem, mudq, mldq,
-        dqrely)
+        dqrely
+    )
 end
 
 function ARKBBDPrecGetWorkSpace(arkode_mem, lenrwBBDP, leniwBBDP)
-    ccall((:ARKBBDPrecGetWorkSpace, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwBBDP, leniwBBDP)
+    return ccall(
+        (:ARKBBDPrecGetWorkSpace, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrwBBDP, leniwBBDP
+    )
 end
 
 function ARKBBDPrecGetNumGfnEvals(arkode_mem, ngevalsBBDP)
-    ccall((:ARKBBDPrecGetNumGfnEvals, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, ngevalsBBDP)
+    return ccall(
+        (:ARKBBDPrecGetNumGfnEvals, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ptr{Clong}), arkode_mem, ngevalsBBDP
+    )
 end
 
 function ARKodeButcherTable_Alloc(stages::Cint, embedded::Cint)
-    ccall(
+    return ccall(
         (:ARKodeButcherTable_Alloc, libsundials_arkode), ARKodeButcherTable, (Cint, Cint),
-        stages, embedded)
+        stages, embedded
+    )
 end
 
 function ARKodeButcherTable_Alloc(stages, embedded)
-    ARKodeButcherTable_Alloc(convert(Cint, stages), convert(Cint, embedded))
+    return ARKodeButcherTable_Alloc(convert(Cint, stages), convert(Cint, embedded))
 end
 
 function ARKodeButcherTable_Create(s::Cint, q::Cint, p::Cint, c, A, b, d)
-    ccall((:ARKodeButcherTable_Create, libsundials_arkode), ARKodeButcherTable,
+    return ccall(
+        (:ARKodeButcherTable_Create, libsundials_arkode), ARKodeButcherTable,
         (Cint, Cint, Cint, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), s,
-        q, p, c, A, b, d)
+        q, p, c, A, b, d
+    )
 end
 
 function ARKodeButcherTable_Create(s, q, p, c, A, b, d)
-    ARKodeButcherTable_Create(
+    return ARKodeButcherTable_Create(
         convert(Cint, s), convert(Cint, q), convert(Cint, p), c, A, b,
-        d)
+        d
+    )
 end
 
 function ARKodeButcherTable_Copy(B::ARKodeButcherTable)
-    ccall((:ARKodeButcherTable_Copy, libsundials_arkode), ARKodeButcherTable,
-        (ARKodeButcherTable,), B)
+    return ccall(
+        (:ARKodeButcherTable_Copy, libsundials_arkode), ARKodeButcherTable,
+        (ARKodeButcherTable,), B
+    )
 end
 
 function ARKodeButcherTable_Space(B::ARKodeButcherTable, liw, lrw)
-    ccall((:ARKodeButcherTable_Space, libsundials_arkode), Cvoid,
-        (ARKodeButcherTable, Ptr{sunindextype}, Ptr{sunindextype}), B, liw, lrw)
+    return ccall(
+        (:ARKodeButcherTable_Space, libsundials_arkode), Cvoid,
+        (ARKodeButcherTable, Ptr{sunindextype}, Ptr{sunindextype}), B, liw, lrw
+    )
 end
 
 function ARKodeButcherTable_Free(B::ARKodeButcherTable)
-    ccall((:ARKodeButcherTable_Free, libsundials_arkode), Cvoid, (ARKodeButcherTable,), B)
+    return ccall((:ARKodeButcherTable_Free, libsundials_arkode), Cvoid, (ARKodeButcherTable,), B)
 end
 
 function ARKodeButcherTable_Write(B::ARKodeButcherTable, outfile)
-    ccall((:ARKodeButcherTable_Write, libsundials_arkode), Cvoid,
-        (ARKodeButcherTable, Ptr{Cint}), B, outfile)
+    return ccall(
+        (:ARKodeButcherTable_Write, libsundials_arkode), Cvoid,
+        (ARKodeButcherTable, Ptr{Cint}), B, outfile
+    )
 end
 
 function ARKodeButcherTable_CheckOrder(B::ARKodeButcherTable, q, p, outfile)
-    ccall((:ARKodeButcherTable_CheckOrder, libsundials_arkode), Cint,
-        (ARKodeButcherTable, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), B, q, p, outfile)
+    return ccall(
+        (:ARKodeButcherTable_CheckOrder, libsundials_arkode), Cint,
+        (ARKodeButcherTable, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), B, q, p, outfile
+    )
 end
 
 function ARKodeButcherTable_CheckARKOrder(
         B1::ARKodeButcherTable, B2::ARKodeButcherTable, q,
-        p, outfile)
-    ccall((:ARKodeButcherTable_CheckARKOrder, libsundials_arkode), Cint,
+        p, outfile
+    )
+    return ccall(
+        (:ARKodeButcherTable_CheckARKOrder, libsundials_arkode), Cint,
         (ARKodeButcherTable, ARKodeButcherTable, Ptr{Cint}, Ptr{Cint}, Ptr{Cint}), B1, B2,
-        q, p, outfile)
+        q, p, outfile
+    )
 end
 
 function ARKodeButcherTable_LoadDIRK(imethod::Cint)
-    ccall((:ARKodeButcherTable_LoadDIRK, libsundials_arkode), ARKodeButcherTable, (Cint,),
-        imethod)
+    return ccall(
+        (:ARKodeButcherTable_LoadDIRK, libsundials_arkode), ARKodeButcherTable, (Cint,),
+        imethod
+    )
 end
 
 function ARKodeButcherTable_LoadDIRK(imethod)
-    ARKodeButcherTable_LoadDIRK(convert(Cint, imethod))
+    return ARKodeButcherTable_LoadDIRK(convert(Cint, imethod))
 end
 
 function ARKodeButcherTable_LoadERK(imethod::Cint)
-    ccall((:ARKodeButcherTable_LoadERK, libsundials_arkode), ARKodeButcherTable, (Cint,),
-        imethod)
+    return ccall(
+        (:ARKodeButcherTable_LoadERK, libsundials_arkode), ARKodeButcherTable, (Cint,),
+        imethod
+    )
 end
 
 function ARKodeButcherTable_LoadERK(imethod)
-    ARKodeButcherTable_LoadERK(convert(Cint, imethod))
+    return ARKodeButcherTable_LoadERK(convert(Cint, imethod))
 end
 
 function ERKStepCreate(f::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector}, sunctx::SUNContext)
-    ccall((:ERKStepCreate, libsundials_arkode), ERKStepMemPtr,
-        (ARKRhsFn, realtype, N_Vector, SUNContext), f, t0, y0, sunctx)
+    return ccall(
+        (:ERKStepCreate, libsundials_arkode), ERKStepMemPtr,
+        (ARKRhsFn, realtype, N_Vector, SUNContext), f, t0, y0, sunctx
+    )
 end
 
 function ERKStepCreate(f::ARKRhsFn, t0, y0, sunctx::SUNContext)
     __y0 = convert(NVector, y0, sunctx)
-    ERKStepCreate(f, t0, __y0, sunctx)
+    return ERKStepCreate(f, t0, __y0, sunctx)
 end
 
-function ERKStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
+function ERKStepResize(
+        arkode_mem, ynew::Union{N_Vector, NVector}, hscale::realtype,
         t0::realtype,
-        resize::ARKVecResizeFn, resize_data)
-    ccall((:ERKStepResize, libsundials_arkode), Cint,
+        resize::ARKVecResizeFn, resize_data
+    )
+    return ccall(
+        (:ERKStepResize, libsundials_arkode), Cint,
         (ERKStepMemPtr, N_Vector, realtype, realtype, ARKVecResizeFn, Ptr{Cvoid}),
-        arkode_mem, ynew, hscale, t0, resize, resize_data)
+        arkode_mem, ynew, hscale, t0, resize, resize_data
+    )
 end
 
 function ERKStepResize(arkode_mem, ynew, hscale, t0, resize, resize_data, ctx::SUNContext)
     __ynew = convert(NVector, ynew, ctx)
-    ERKStepResize(arkode_mem, __ynew, hscale, t0, resize, resize_data)
+    return ERKStepResize(arkode_mem, __ynew, hscale, t0, resize, resize_data)
 end
 
 function ERKStepReInit(arkode_mem, f::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
-    ccall((:ERKStepReInit, libsundials_arkode), Cint,
-        (ERKStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, f, t0, y0)
+    return ccall(
+        (:ERKStepReInit, libsundials_arkode), Cint,
+        (ERKStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, f, t0, y0
+    )
 end
 
 function ERKStepReInit(arkode_mem, f::ARKRhsFn, t0, y0, ctx::SUNContext)
     __y0 = convert(NVector, y0, ctx)
-    ERKStepReInit(arkode_mem, f, t0, __y0)
+    return ERKStepReInit(arkode_mem, f, t0, __y0)
 end
 
 function ERKStepSStolerances(arkode_mem, reltol::realtype, abstol::realtype)
-    ccall((:ERKStepSStolerances, libsundials_arkode), Cint,
-        (ERKStepMemPtr, realtype, realtype), arkode_mem, reltol, abstol)
+    return ccall(
+        (:ERKStepSStolerances, libsundials_arkode), Cint,
+        (ERKStepMemPtr, realtype, realtype), arkode_mem, reltol, abstol
+    )
 end
 
 function ERKStepSVtolerances(arkode_mem, reltol::realtype, abstol::Union{N_Vector, NVector})
-    ccall((:ERKStepSVtolerances, libsundials_arkode), Cint,
-        (ERKStepMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol)
+    return ccall(
+        (:ERKStepSVtolerances, libsundials_arkode), Cint,
+        (ERKStepMemPtr, realtype, N_Vector), arkode_mem, reltol, abstol
+    )
 end
 
 function ERKStepSVtolerances(arkode_mem, reltol, abstol, ctx::SUNContext)
-    ERKStepSVtolerances(arkode_mem, reltol, abstol, ctx)
+    return ERKStepSVtolerances(arkode_mem, reltol, abstol, ctx)
 end
 
 function ERKStepWFtolerances(arkode_mem, efun::ARKEwtFn)
-    ccall((:ERKStepWFtolerances, libsundials_arkode), Cint, (ERKStepMemPtr, ARKEwtFn),
-        arkode_mem, efun)
+    return ccall(
+        (:ERKStepWFtolerances, libsundials_arkode), Cint, (ERKStepMemPtr, ARKEwtFn),
+        arkode_mem, efun
+    )
 end
 
 function ERKStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
-    ccall((:ERKStepRootInit, libsundials_arkode), Cint, (ERKStepMemPtr, Cint, ARKRootFn),
-        arkode_mem, nrtfn, g)
+    return ccall(
+        (:ERKStepRootInit, libsundials_arkode), Cint, (ERKStepMemPtr, Cint, ARKRootFn),
+        arkode_mem, nrtfn, g
+    )
 end
 
 function ERKStepRootInit(arkode_mem, nrtfn, g)
-    ERKStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
+    return ERKStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
 end
 
 function ERKStepSetDefaults(arkode_mem)
-    ccall((:ERKStepSetDefaults, libsundials_arkode), Cint, (ERKStepMemPtr,), arkode_mem)
+    return ccall((:ERKStepSetDefaults, libsundials_arkode), Cint, (ERKStepMemPtr,), arkode_mem)
 end
 
 function ERKStepSetOrder(arkode_mem, maxord::Cint)
-    ccall((:ERKStepSetOrder, libsundials_arkode), Cint, (ERKStepMemPtr, Cint), arkode_mem,
-        maxord)
+    return ccall(
+        (:ERKStepSetOrder, libsundials_arkode), Cint, (ERKStepMemPtr, Cint), arkode_mem,
+        maxord
+    )
 end
 
 function ERKStepSetOrder(arkode_mem, maxord)
-    ERKStepSetOrder(arkode_mem, convert(Cint, maxord))
+    return ERKStepSetOrder(arkode_mem, convert(Cint, maxord))
 end
 
 function ERKStepSetInterpolantType(arkode_mem, itype::Cint)
-    ccall((:ERKStepSetInterpolantType, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, itype)
+    return ccall(
+        (:ERKStepSetInterpolantType, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, itype
+    )
 end
 
 function ERKStepSetInterpolantType(arkode_mem, itype)
-    ERKStepSetInterpolantType(arkode_mem, convert(Cint, itype))
+    return ERKStepSetInterpolantType(arkode_mem, convert(Cint, itype))
 end
 
 function ERKStepSetInterpolantDegree(arkode_mem, degree::Cint)
-    ccall((:ERKStepSetInterpolantDegree, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, degree)
+    return ccall(
+        (:ERKStepSetInterpolantDegree, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, degree
+    )
 end
 
 function ERKStepSetInterpolantDegree(arkode_mem, degree)
-    ERKStepSetInterpolantDegree(arkode_mem, convert(Cint, degree))
+    return ERKStepSetInterpolantDegree(arkode_mem, convert(Cint, degree))
 end
 
 function ERKStepSetDenseOrder(arkode_mem, dord::Cint)
-    ccall((:ERKStepSetDenseOrder, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, dord)
+    return ccall(
+        (:ERKStepSetDenseOrder, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, dord
+    )
 end
 
 function ERKStepSetDenseOrder(arkode_mem, dord)
-    ERKStepSetDenseOrder(arkode_mem, convert(Cint, dord))
+    return ERKStepSetDenseOrder(arkode_mem, convert(Cint, dord))
 end
 
 function ERKStepSetTable(arkode_mem, B::ARKodeButcherTable)
-    ccall(
+    return ccall(
         (:ERKStepSetTable, libsundials_arkode), Cint, (ERKStepMemPtr, ARKodeButcherTable),
-        arkode_mem, B)
+        arkode_mem, B
+    )
 end
 
 function ERKStepSetTableNum(arkode_mem, itable::Cint)
-    ccall((:ERKStepSetTableNum, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, itable)
+    return ccall(
+        (:ERKStepSetTableNum, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, itable
+    )
 end
 
 function ERKStepSetTableNum(arkode_mem, itable)
-    ERKStepSetTableNum(arkode_mem, convert(Cint, itable))
+    return ERKStepSetTableNum(arkode_mem, convert(Cint, itable))
 end
 
 function ERKStepSetCFLFraction(arkode_mem, cfl_frac::realtype)
-    ccall((:ERKStepSetCFLFraction, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, cfl_frac)
+    return ccall(
+        (:ERKStepSetCFLFraction, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, cfl_frac
+    )
 end
 
 function ERKStepSetSafetyFactor(arkode_mem, safety::realtype)
-    ccall((:ERKStepSetSafetyFactor, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, safety)
+    return ccall(
+        (:ERKStepSetSafetyFactor, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, safety
+    )
 end
 
 function ERKStepSetErrorBias(arkode_mem, bias::realtype)
-    ccall((:ERKStepSetErrorBias, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, bias)
+    return ccall(
+        (:ERKStepSetErrorBias, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, bias
+    )
 end
 
 function ERKStepSetMaxGrowth(arkode_mem, mx_growth::realtype)
-    ccall((:ERKStepSetMaxGrowth, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, mx_growth)
+    return ccall(
+        (:ERKStepSetMaxGrowth, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, mx_growth
+    )
 end
 
 function ERKStepSetFixedStepBounds(arkode_mem, lb::realtype, ub::realtype)
-    ccall((:ERKStepSetFixedStepBounds, libsundials_arkode), Cint,
-        (ERKStepMemPtr, realtype, realtype), arkode_mem, lb, ub)
+    return ccall(
+        (:ERKStepSetFixedStepBounds, libsundials_arkode), Cint,
+        (ERKStepMemPtr, realtype, realtype), arkode_mem, lb, ub
+    )
 end
 
-function ERKStepSetAdaptivityMethod(arkode_mem, imethod::Cint, idefault::Cint, pq::Cint,
-        adapt_params)
-    ccall((:ERKStepSetAdaptivityMethod, libsundials_arkode), Cint,
+function ERKStepSetAdaptivityMethod(
+        arkode_mem, imethod::Cint, idefault::Cint, pq::Cint,
+        adapt_params
+    )
+    return ccall(
+        (:ERKStepSetAdaptivityMethod, libsundials_arkode), Cint,
         (ERKStepMemPtr, Cint, Cint, Cint, Ptr{realtype}), arkode_mem, imethod, idefault,
-        pq, adapt_params)
+        pq, adapt_params
+    )
 end
 
 function ERKStepSetAdaptivityMethod(arkode_mem, imethod, idefault, pq, adapt_params)
-    ERKStepSetAdaptivityMethod(arkode_mem, convert(Cint, imethod), convert(Cint, idefault),
-        convert(Cint, pq), adapt_params)
+    return ERKStepSetAdaptivityMethod(
+        arkode_mem, convert(Cint, imethod), convert(Cint, idefault),
+        convert(Cint, pq), adapt_params
+    )
 end
 
 function ERKStepSetAdaptivityFn(arkode_mem, hfun::ARKAdaptFn, h_data)
-    ccall((:ERKStepSetAdaptivityFn, libsundials_arkode), Cint,
-        (ERKStepMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data)
+    return ccall(
+        (:ERKStepSetAdaptivityFn, libsundials_arkode), Cint,
+        (ERKStepMemPtr, ARKAdaptFn, Ptr{Cvoid}), arkode_mem, hfun, h_data
+    )
 end
 
 function ERKStepSetMaxFirstGrowth(arkode_mem, etamx1::realtype)
-    ccall((:ERKStepSetMaxFirstGrowth, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, etamx1)
+    return ccall(
+        (:ERKStepSetMaxFirstGrowth, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, etamx1
+    )
 end
 
 function ERKStepSetMaxEFailGrowth(arkode_mem, etamxf::realtype)
-    ccall((:ERKStepSetMaxEFailGrowth, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, etamxf)
+    return ccall(
+        (:ERKStepSetMaxEFailGrowth, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, etamxf
+    )
 end
 
 function ERKStepSetSmallNumEFails(arkode_mem, small_nef::Cint)
-    ccall((:ERKStepSetSmallNumEFails, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, small_nef)
+    return ccall(
+        (:ERKStepSetSmallNumEFails, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, small_nef
+    )
 end
 
 function ERKStepSetSmallNumEFails(arkode_mem, small_nef)
-    ERKStepSetSmallNumEFails(arkode_mem, convert(Cint, small_nef))
+    return ERKStepSetSmallNumEFails(arkode_mem, convert(Cint, small_nef))
 end
 
 function ERKStepSetStabilityFn(arkode_mem, EStab::ARKExpStabFn, estab_data)
-    ccall((:ERKStepSetStabilityFn, libsundials_arkode), Cint,
-        (ERKStepMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data)
+    return ccall(
+        (:ERKStepSetStabilityFn, libsundials_arkode), Cint,
+        (ERKStepMemPtr, ARKExpStabFn, Ptr{Cvoid}), arkode_mem, EStab, estab_data
+    )
 end
 
 function ERKStepSetMaxErrTestFails(arkode_mem, maxnef::Cint)
-    ccall((:ERKStepSetMaxErrTestFails, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, maxnef)
+    return ccall(
+        (:ERKStepSetMaxErrTestFails, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, maxnef
+    )
 end
 
 function ERKStepSetMaxErrTestFails(arkode_mem, maxnef)
-    ERKStepSetMaxErrTestFails(arkode_mem, convert(Cint, maxnef))
+    return ERKStepSetMaxErrTestFails(arkode_mem, convert(Cint, maxnef))
 end
 
 function ERKStepSetConstraints(arkode_mem, constraints::Union{N_Vector, NVector})
-    ccall((:ERKStepSetConstraints, libsundials_arkode), Cint, (ERKStepMemPtr, N_Vector),
-        arkode_mem, constraints)
+    return ccall(
+        (:ERKStepSetConstraints, libsundials_arkode), Cint, (ERKStepMemPtr, N_Vector),
+        arkode_mem, constraints
+    )
 end
 
 function ERKStepSetConstraints(arkode_mem, constraints, ctx::SUNContext)
-    ERKStepSetConstraints(arkode_mem, constraints, ctx)
+    return ERKStepSetConstraints(arkode_mem, constraints, ctx)
 end
 
 function ERKStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
-    ccall((:ERKStepSetMaxNumSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Clong),
-        arkode_mem, mxsteps)
+    return ccall(
+        (:ERKStepSetMaxNumSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Clong),
+        arkode_mem, mxsteps
+    )
 end
 
 function ERKStepSetMaxNumSteps(arkode_mem, mxsteps)
-    ERKStepSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
+    return ERKStepSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
 end
 
 function ERKStepSetMaxHnilWarns(arkode_mem, mxhnil::Cint)
-    ccall((:ERKStepSetMaxHnilWarns, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, mxhnil)
+    return ccall(
+        (:ERKStepSetMaxHnilWarns, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, mxhnil
+    )
 end
 
 function ERKStepSetMaxHnilWarns(arkode_mem, mxhnil)
-    ERKStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
+    return ERKStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
 end
 
 function ERKStepSetInitStep(arkode_mem, hin::realtype)
-    ccall((:ERKStepSetInitStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, hin)
+    return ccall(
+        (:ERKStepSetInitStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, hin
+    )
 end
 
 function ERKStepSetMinStep(arkode_mem, hmin::realtype)
-    ccall((:ERKStepSetMinStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, hmin)
+    return ccall(
+        (:ERKStepSetMinStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, hmin
+    )
 end
 
 function ERKStepSetMaxStep(arkode_mem, hmax::realtype)
-    ccall((:ERKStepSetMaxStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, hmax)
+    return ccall(
+        (:ERKStepSetMaxStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, hmax
+    )
 end
 
 function ERKStepSetStopTime(arkode_mem, tstop::realtype)
-    ccall((:ERKStepSetStopTime, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, tstop)
+    return ccall(
+        (:ERKStepSetStopTime, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, tstop
+    )
 end
 
 function ERKStepSetFixedStep(arkode_mem, hfixed::realtype)
-    ccall((:ERKStepSetFixedStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
-        arkode_mem, hfixed)
+    return ccall(
+        (:ERKStepSetFixedStep, libsundials_arkode), Cint, (ERKStepMemPtr, realtype),
+        arkode_mem, hfixed
+    )
 end
 
 function ERKStepSetMaxNumConstrFails(arkode_mem, maxfails::Cint)
-    ccall((:ERKStepSetMaxNumConstrFails, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
-        arkode_mem, maxfails)
+    return ccall(
+        (:ERKStepSetMaxNumConstrFails, libsundials_arkode), Cint, (ERKStepMemPtr, Cint),
+        arkode_mem, maxfails
+    )
 end
 
 function ERKStepSetMaxNumConstrFails(arkode_mem, maxfails)
-    ERKStepSetMaxNumConstrFails(arkode_mem, convert(Cint, maxfails))
+    return ERKStepSetMaxNumConstrFails(arkode_mem, convert(Cint, maxfails))
 end
 
 function ERKStepSetRootDirection(arkode_mem, rootdir)
-    ccall((:ERKStepSetRootDirection, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Cint}),
-        arkode_mem, rootdir)
+    return ccall(
+        (:ERKStepSetRootDirection, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Cint}),
+        arkode_mem, rootdir
+    )
 end
 
 function ERKStepSetNoInactiveRootWarn(arkode_mem)
-    ccall((:ERKStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ERKStepMemPtr,),
-        arkode_mem)
+    return ccall(
+        (:ERKStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (ERKStepMemPtr,),
+        arkode_mem
+    )
 end
 
 function ERKStepSetErrHandlerFn(arkode_mem, ehfun::ARKErrHandlerFn, eh_data)
-    ccall((:ERKStepSetErrHandlerFn, libsundials_arkode), Cint,
-        (ERKStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
+    return ccall(
+        (:ERKStepSetErrHandlerFn, libsundials_arkode), Cint,
+        (ERKStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data
+    )
 end
 
 function ERKStepSetErrFile(arkode_mem, errfp)
-    ccall((:ERKStepSetErrFile, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, errfp)
+    return ccall(
+        (:ERKStepSetErrFile, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Libc.FILE}),
+        arkode_mem, errfp
+    )
 end
 
 function ERKStepSetUserData(arkode_mem, user_data)
-    ccall(
+    return ccall(
         (:ERKStepSetUserData, libsundials_arkode), Cint, (ERKStepMemPtr, Any), arkode_mem,
-        user_data)
+        user_data
+    )
 end
 
 function ERKStepSetDiagnostics(arkode_mem, diagfp)
-    ccall((:ERKStepSetDiagnostics, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, diagfp)
+    return ccall(
+        (:ERKStepSetDiagnostics, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, diagfp
+    )
 end
 
 function ERKStepSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessFn)
-    ccall((:ERKStepSetPostprocessStepFn, libsundials_arkode), Cint,
-        (ERKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep)
+    return ccall(
+        (:ERKStepSetPostprocessStepFn, libsundials_arkode), Cint,
+        (ERKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep
+    )
 end
 
 function ERKStepSetPostprocessStageFn(arkode_mem, ProcessStage::ARKPostProcessFn)
-    ccall((:ERKStepSetPostprocessStageFn, libsundials_arkode), Cint,
-        (ERKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage)
+    return ccall(
+        (:ERKStepSetPostprocessStageFn, libsundials_arkode), Cint,
+        (ERKStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage
+    )
 end
 
-function ERKStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
-        itask::Cint)
-    ccall((:ERKStepEvolve, libsundials_arkode), Cint,
+function ERKStepEvolve(
+        arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+        itask::Cint
+    )
+    return ccall(
+        (:ERKStepEvolve, libsundials_arkode), Cint,
         (ERKStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout,
-        tret, itask)
+        tret, itask
+    )
 end
 
 function ERKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx::SUNContext)
-    ERKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
+    return ERKStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
 end
 
 function ERKStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
-    ccall((:ERKStepGetDky, libsundials_arkode), Cint,
-        (ERKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
+    return ccall(
+        (:ERKStepGetDky, libsundials_arkode), Cint,
+        (ERKStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky
+    )
 end
 
 function ERKStepGetDky(arkode_mem, t, k, dky, ctx::SUNContext)
-    ERKStepGetDky(arkode_mem, t, k, dky, ctx)
+    return ERKStepGetDky(arkode_mem, t, k, dky, ctx)
 end
 
 function ERKStepGetNumExpSteps(arkode_mem, expsteps)
-    ccall((:ERKStepGetNumExpSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
-        arkode_mem, expsteps)
+    return ccall(
+        (:ERKStepGetNumExpSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
+        arkode_mem, expsteps
+    )
 end
 
 function ERKStepGetNumAccSteps(arkode_mem, accsteps)
-    ccall((:ERKStepGetNumAccSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
-        arkode_mem, accsteps)
+    return ccall(
+        (:ERKStepGetNumAccSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
+        arkode_mem, accsteps
+    )
 end
 
 function ERKStepGetNumStepAttempts(arkode_mem, step_attempts)
-    ccall((:ERKStepGetNumStepAttempts, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{Clong}), arkode_mem, step_attempts)
+    return ccall(
+        (:ERKStepGetNumStepAttempts, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{Clong}), arkode_mem, step_attempts
+    )
 end
 
 function ERKStepGetNumRhsEvals(arkode_mem, nfevals)
-    ccall((:ERKStepGetNumRhsEvals, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nfevals)
+    return ccall(
+        (:ERKStepGetNumRhsEvals, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
+        arkode_mem, nfevals
+    )
 end
 
 function ERKStepGetNumErrTestFails(arkode_mem, netfails)
-    ccall((:ERKStepGetNumErrTestFails, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{Clong}), arkode_mem, netfails)
+    return ccall(
+        (:ERKStepGetNumErrTestFails, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{Clong}), arkode_mem, netfails
+    )
 end
 
 function ERKStepGetCurrentButcherTable(arkode_mem, B)
-    ccall((:ERKStepGetCurrentButcherTable, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B)
+    return ccall(
+        (:ERKStepGetCurrentButcherTable, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B
+    )
 end
 
 function ERKStepGetEstLocalErrors(arkode_mem, ele::Union{N_Vector, NVector})
-    ccall((:ERKStepGetEstLocalErrors, libsundials_arkode), Cint, (ERKStepMemPtr, N_Vector),
-        arkode_mem, ele)
+    return ccall(
+        (:ERKStepGetEstLocalErrors, libsundials_arkode), Cint, (ERKStepMemPtr, N_Vector),
+        arkode_mem, ele
+    )
 end
 
 function ERKStepGetEstLocalErrors(arkode_mem, ele, ctx::SUNContext)
     __ele = convert(NVector, ele, ctx)
-    ERKStepGetEstLocalErrors(arkode_mem, __ele)
+    return ERKStepGetEstLocalErrors(arkode_mem, __ele)
 end
 
 function ERKStepGetWorkSpace(arkode_mem, lenrw, leniw)
-    ccall((:ERKStepGetWorkSpace, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
+    return ccall(
+        (:ERKStepGetWorkSpace, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw
+    )
 end
 
 function ERKStepGetNumSteps(arkode_mem, nsteps)
-    ccall((:ERKStepGetNumSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
-        arkode_mem, nsteps)
+    return ccall(
+        (:ERKStepGetNumSteps, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
+        arkode_mem, nsteps
+    )
 end
 
 function ERKStepGetActualInitStep(arkode_mem, hinused)
-    ccall((:ERKStepGetActualInitStep, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, hinused)
+    return ccall(
+        (:ERKStepGetActualInitStep, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, hinused
+    )
 end
 
 function ERKStepGetLastStep(arkode_mem, hlast)
-    ccall((:ERKStepGetLastStep, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{realtype}),
-        arkode_mem, hlast)
+    return ccall(
+        (:ERKStepGetLastStep, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{realtype}),
+        arkode_mem, hlast
+    )
 end
 
 function ERKStepGetCurrentStep(arkode_mem, hcur)
-    ccall((:ERKStepGetCurrentStep, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, hcur)
+    return ccall(
+        (:ERKStepGetCurrentStep, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, hcur
+    )
 end
 
 function ERKStepGetCurrentTime(arkode_mem, tcur)
-    ccall((:ERKStepGetCurrentTime, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, tcur)
+    return ccall(
+        (:ERKStepGetCurrentTime, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, tcur
+    )
 end
 
 function ERKStepGetTolScaleFactor(arkode_mem, tolsfac)
-    ccall((:ERKStepGetTolScaleFactor, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, tolsfac)
+    return ccall(
+        (:ERKStepGetTolScaleFactor, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{realtype}), arkode_mem, tolsfac
+    )
 end
 
 function ERKStepGetErrWeights(arkode_mem, eweight::Union{N_Vector, NVector})
-    ccall((:ERKStepGetErrWeights, libsundials_arkode), Cint, (ERKStepMemPtr, N_Vector),
-        arkode_mem, eweight)
+    return ccall(
+        (:ERKStepGetErrWeights, libsundials_arkode), Cint, (ERKStepMemPtr, N_Vector),
+        arkode_mem, eweight
+    )
 end
 
 function ERKStepGetErrWeights(arkode_mem, eweight, ctx::SUNContext)
-    ERKStepGetErrWeights(arkode_mem, eweight, ctx)
+    return ERKStepGetErrWeights(arkode_mem, eweight, ctx)
 end
 
 function ERKStepGetNumGEvals(arkode_mem, ngevals)
-    ccall((:ERKStepGetNumGEvals, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
-        arkode_mem, ngevals)
+    return ccall(
+        (:ERKStepGetNumGEvals, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Clong}),
+        arkode_mem, ngevals
+    )
 end
 
 function ERKStepGetRootInfo(arkode_mem, rootsfound)
-    ccall((:ERKStepGetRootInfo, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Cint}),
-        arkode_mem, rootsfound)
+    return ccall(
+        (:ERKStepGetRootInfo, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Cint}),
+        arkode_mem, rootsfound
+    )
 end
 
 function ERKStepGetNumConstrFails(arkode_mem, nconstrfails)
-    ccall((:ERKStepGetNumConstrFails, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{Clong}), arkode_mem, nconstrfails)
+    return ccall(
+        (:ERKStepGetNumConstrFails, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{Clong}), arkode_mem, nconstrfails
+    )
 end
 
 function ERKStepGetReturnFlagName(flag::Clong)
-    ccall((:ERKStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
+    return ccall((:ERKStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
 function ERKStepGetReturnFlagName(flag)
-    ERKStepGetReturnFlagName(convert(Clong, flag))
+    return ERKStepGetReturnFlagName(convert(Clong, flag))
 end
 
 function ERKStepWriteParameters(arkode_mem, fp)
-    ccall((:ERKStepWriteParameters, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, fp)
+    return ccall(
+        (:ERKStepWriteParameters, libsundials_arkode), Cint,
+        (ERKStepMemPtr, Ptr{Libc.FILE}), arkode_mem, fp
+    )
 end
 
 function ERKStepWriteButcher(arkode_mem, fp)
-    ccall(
+    return ccall(
         (:ERKStepWriteButcher, libsundials_arkode), Cint, (ERKStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, fp)
+        arkode_mem, fp
+    )
 end
 
-function ERKStepGetTimestepperStats(arkode_mem, expsteps, accsteps, step_attempts, nfevals,
-        netfails)
-    ccall((:ERKStepGetTimestepperStats, libsundials_arkode), Cint,
+function ERKStepGetTimestepperStats(
+        arkode_mem, expsteps, accsteps, step_attempts, nfevals,
+        netfails
+    )
+    return ccall(
+        (:ERKStepGetTimestepperStats, libsundials_arkode), Cint,
         (ERKStepMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}),
-        arkode_mem, expsteps, accsteps, step_attempts, nfevals, netfails)
+        arkode_mem, expsteps, accsteps, step_attempts, nfevals, netfails
+    )
 end
 
 function ERKStepGetStepStats(arkode_mem, nsteps, hinused, hlast, hcur, tcur)
-    ccall((:ERKStepGetStepStats, libsundials_arkode), Cint,
-        (ERKStepMemPtr, Ptr{Clong}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype},
-            Ptr{realtype}), arkode_mem, nsteps, hinused, hlast, hcur, tcur)
+    return ccall(
+        (:ERKStepGetStepStats, libsundials_arkode), Cint,
+        (
+            ERKStepMemPtr, Ptr{Clong}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype},
+            Ptr{realtype},
+        ), arkode_mem, nsteps, hinused, hlast, hcur, tcur
+    )
 end
 
 function ERKStepFree(arkode_mem)
-    ccall((:ERKStepFree, libsundials_arkode), Cvoid, (Ref{ERKStepMemPtr},), arkode_mem)
+    return ccall((:ERKStepFree, libsundials_arkode), Cvoid, (Ref{ERKStepMemPtr},), arkode_mem)
 end
 
 function ERKStepPrintMem(arkode_mem, outfile)
-    ccall((:ERKStepPrintMem, libsundials_arkode), Cvoid, (ERKStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, outfile)
-end
-
-function MRIStepCreate(fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector},
-        inner_step_id::MRISTEP_ID,
-        inner_step_mem, sunctx::SUNContext)
-    ccall((:MRIStepCreate, libsundials_arkode), MRIStepMemPtr,
-        (ARKRhsFn, realtype, N_Vector, MRISTEP_ID, Ptr{Cvoid}, SUNContext), fs, t0, y0, inner_step_id,
-        inner_step_mem, sunctx)
+    return ccall(
+        (:ERKStepPrintMem, libsundials_arkode), Cvoid, (ERKStepMemPtr, Ptr{Libc.FILE}),
+        arkode_mem, outfile
+    )
 end
 
 function MRIStepCreate(
-        fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunctx::SUNContext)
-    __y0 = convert(NVector, y0, sunctx)
-    MRIStepCreate(fs, t0, __y0, inner_step_id, inner_step_mem, sunctx)
+        fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector},
+        inner_step_id::MRISTEP_ID,
+        inner_step_mem, sunctx::SUNContext
+    )
+    return ccall(
+        (:MRIStepCreate, libsundials_arkode), MRIStepMemPtr,
+        (ARKRhsFn, realtype, N_Vector, MRISTEP_ID, Ptr{Cvoid}, SUNContext), fs, t0, y0, inner_step_id,
+        inner_step_mem, sunctx
+    )
 end
 
-function MRIStepResize(arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype,
+function MRIStepCreate(
+        fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunctx::SUNContext
+    )
+    __y0 = convert(NVector, y0, sunctx)
+    return MRIStepCreate(fs, t0, __y0, inner_step_id, inner_step_mem, sunctx)
+end
+
+function MRIStepResize(
+        arkode_mem, ynew::Union{N_Vector, NVector}, t0::realtype,
         resize::ARKVecResizeFn,
-        resize_data)
-    ccall((:MRIStepResize, libsundials_arkode), Cint,
+        resize_data
+    )
+    return ccall(
+        (:MRIStepResize, libsundials_arkode), Cint,
         (MRIStepMemPtr, N_Vector, realtype, ARKVecResizeFn, Ptr{Cvoid}), arkode_mem, ynew,
-        t0, resize, resize_data)
+        t0, resize, resize_data
+    )
 end
 
 function MRIStepResize(arkode_mem, ynew, t0, resize, resize_data, ctx::SUNContext)
     __ynew = convert(NVector, ynew, ctx)
-    MRIStepResize(arkode_mem, __ynew, t0, resize, resize_data)
+    return MRIStepResize(arkode_mem, __ynew, t0, resize, resize_data)
 end
 
 function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
-    ccall((:MRIStepReInit, libsundials_arkode), Cint,
-        (MRIStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, fs, t0, y0)
+    return ccall(
+        (:MRIStepReInit, libsundials_arkode), Cint,
+        (MRIStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, fs, t0, y0
+    )
 end
 
 function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0, y0, ctx::SUNContext)
     __y0 = convert(NVector, y0, ctx)
-    MRIStepReInit(arkode_mem, fs, t0, __y0)
+    return MRIStepReInit(arkode_mem, fs, t0, __y0)
 end
 
 function MRIStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
-    ccall((:MRIStepRootInit, libsundials_arkode), Cint, (MRIStepMemPtr, Cint, ARKRootFn),
-        arkode_mem, nrtfn, g)
+    return ccall(
+        (:MRIStepRootInit, libsundials_arkode), Cint, (MRIStepMemPtr, Cint, ARKRootFn),
+        arkode_mem, nrtfn, g
+    )
 end
 
 function MRIStepRootInit(arkode_mem, nrtfn, g)
-    MRIStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
+    return MRIStepRootInit(arkode_mem, convert(Cint, nrtfn), g)
 end
 
 function MRIStepSetDefaults(arkode_mem)
-    ccall((:MRIStepSetDefaults, libsundials_arkode), Cint, (MRIStepMemPtr,), arkode_mem)
+    return ccall((:MRIStepSetDefaults, libsundials_arkode), Cint, (MRIStepMemPtr,), arkode_mem)
 end
 
 function MRIStepSetInterpolantType(arkode_mem, itype::Cint)
-    ccall((:MRIStepSetInterpolantType, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
-        arkode_mem, itype)
+    return ccall(
+        (:MRIStepSetInterpolantType, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
+        arkode_mem, itype
+    )
 end
 
 function MRIStepSetInterpolantType(arkode_mem, itype)
-    MRIStepSetInterpolantType(arkode_mem, convert(Cint, itype))
+    return MRIStepSetInterpolantType(arkode_mem, convert(Cint, itype))
 end
 
 function MRIStepSetInterpolantDegree(arkode_mem, degree::Cint)
-    ccall((:MRIStepSetInterpolantDegree, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
-        arkode_mem, degree)
+    return ccall(
+        (:MRIStepSetInterpolantDegree, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
+        arkode_mem, degree
+    )
 end
 
 function MRIStepSetInterpolantDegree(arkode_mem, degree)
-    MRIStepSetInterpolantDegree(arkode_mem, convert(Cint, degree))
+    return MRIStepSetInterpolantDegree(arkode_mem, convert(Cint, degree))
 end
 
 function MRIStepSetDenseOrder(arkode_mem, dord::Cint)
-    ccall((:MRIStepSetDenseOrder, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
-        arkode_mem, dord)
+    return ccall(
+        (:MRIStepSetDenseOrder, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
+        arkode_mem, dord
+    )
 end
 
 function MRIStepSetDenseOrder(arkode_mem, dord)
-    MRIStepSetDenseOrder(arkode_mem, convert(Cint, dord))
+    return MRIStepSetDenseOrder(arkode_mem, convert(Cint, dord))
 end
 
 function MRIStepSetTable(arkode_mem, q::Cint, B::ARKodeButcherTable)
-    ccall((:MRIStepSetTable, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Cint, ARKodeButcherTable), arkode_mem, q, B)
+    return ccall(
+        (:MRIStepSetTable, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Cint, ARKodeButcherTable), arkode_mem, q, B
+    )
 end
 
 function MRIStepSetTable(arkode_mem, q, B)
-    MRIStepSetTable(arkode_mem, convert(Cint, q), B)
+    return MRIStepSetTable(arkode_mem, convert(Cint, q), B)
 end
 
 function MRIStepSetTableNum(arkode_mem, itable::Cint)
-    ccall((:MRIStepSetTableNum, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
-        arkode_mem, itable)
+    return ccall(
+        (:MRIStepSetTableNum, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
+        arkode_mem, itable
+    )
 end
 
 function MRIStepSetTableNum(arkode_mem, itable)
-    MRIStepSetTableNum(arkode_mem, convert(Cint, itable))
+    return MRIStepSetTableNum(arkode_mem, convert(Cint, itable))
 end
 
 function MRIStepSetMaxNumSteps(arkode_mem, mxsteps::Clong)
-    ccall((:MRIStepSetMaxNumSteps, libsundials_arkode), Cint, (MRIStepMemPtr, Clong),
-        arkode_mem, mxsteps)
+    return ccall(
+        (:MRIStepSetMaxNumSteps, libsundials_arkode), Cint, (MRIStepMemPtr, Clong),
+        arkode_mem, mxsteps
+    )
 end
 
 function MRIStepSetMaxNumSteps(arkode_mem, mxsteps)
-    MRIStepSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
+    return MRIStepSetMaxNumSteps(arkode_mem, convert(Clong, mxsteps))
 end
 
 function MRIStepSetMaxHnilWarns(arkode_mem, mxhnil::Cint)
-    ccall((:MRIStepSetMaxHnilWarns, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
-        arkode_mem, mxhnil)
+    return ccall(
+        (:MRIStepSetMaxHnilWarns, libsundials_arkode), Cint, (MRIStepMemPtr, Cint),
+        arkode_mem, mxhnil
+    )
 end
 
 function MRIStepSetMaxHnilWarns(arkode_mem, mxhnil)
-    MRIStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
+    return MRIStepSetMaxHnilWarns(arkode_mem, convert(Cint, mxhnil))
 end
 
 function MRIStepSetStopTime(arkode_mem, tstop::realtype)
-    ccall((:MRIStepSetStopTime, libsundials_arkode), Cint, (MRIStepMemPtr, realtype),
-        arkode_mem, tstop)
+    return ccall(
+        (:MRIStepSetStopTime, libsundials_arkode), Cint, (MRIStepMemPtr, realtype),
+        arkode_mem, tstop
+    )
 end
 
 function MRIStepSetFixedStep(arkode_mem, hsfixed::realtype)
-    ccall((:MRIStepSetFixedStep, libsundials_arkode), Cint, (MRIStepMemPtr, realtype),
-        arkode_mem, hsfixed)
+    return ccall(
+        (:MRIStepSetFixedStep, libsundials_arkode), Cint, (MRIStepMemPtr, realtype),
+        arkode_mem, hsfixed
+    )
 end
 
 function MRIStepSetRootDirection(arkode_mem, rootdir)
-    ccall((:MRIStepSetRootDirection, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Cint}),
-        arkode_mem, rootdir)
+    return ccall(
+        (:MRIStepSetRootDirection, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Cint}),
+        arkode_mem, rootdir
+    )
 end
 
 function MRIStepSetNoInactiveRootWarn(arkode_mem)
-    ccall((:MRIStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (MRIStepMemPtr,),
-        arkode_mem)
+    return ccall(
+        (:MRIStepSetNoInactiveRootWarn, libsundials_arkode), Cint, (MRIStepMemPtr,),
+        arkode_mem
+    )
 end
 
 function MRIStepSetErrHandlerFn(arkode_mem, ehfun::ARKErrHandlerFn, eh_data)
-    ccall((:MRIStepSetErrHandlerFn, libsundials_arkode), Cint,
-        (MRIStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data)
+    return ccall(
+        (:MRIStepSetErrHandlerFn, libsundials_arkode), Cint,
+        (MRIStepMemPtr, ARKErrHandlerFn, Ptr{Cvoid}), arkode_mem, ehfun, eh_data
+    )
 end
 
 function MRIStepSetErrFile(arkode_mem, errfp)
-    ccall((:MRIStepSetErrFile, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, errfp)
+    return ccall(
+        (:MRIStepSetErrFile, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Libc.FILE}),
+        arkode_mem, errfp
+    )
 end
 
 function MRIStepSetUserData(arkode_mem, user_data)
-    ccall(
+    return ccall(
         (:MRIStepSetUserData, libsundials_arkode), Cint, (MRIStepMemPtr, Any), arkode_mem,
-        user_data)
+        user_data
+    )
 end
 
 function MRIStepSetDiagnostics(arkode_mem, diagfp)
-    ccall((:MRIStepSetDiagnostics, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Ptr{Libc.FILE}), arkode_mem, diagfp)
+    return ccall(
+        (:MRIStepSetDiagnostics, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Ptr{Libc.FILE}), arkode_mem, diagfp
+    )
 end
 
 function MRIStepSetPostprocessStepFn(arkode_mem, ProcessStep::ARKPostProcessFn)
-    ccall((:MRIStepSetPostprocessStepFn, libsundials_arkode), Cint,
-        (MRIStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep)
+    return ccall(
+        (:MRIStepSetPostprocessStepFn, libsundials_arkode), Cint,
+        (MRIStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStep
+    )
 end
 
 function MRIStepSetPostprocessStageFn(arkode_mem, ProcessStage::ARKPostProcessFn)
-    ccall((:MRIStepSetPostprocessStageFn, libsundials_arkode), Cint,
-        (MRIStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage)
+    return ccall(
+        (:MRIStepSetPostprocessStageFn, libsundials_arkode), Cint,
+        (MRIStepMemPtr, ARKPostProcessFn), arkode_mem, ProcessStage
+    )
 end
 
 function MRIStepSetPreInnerFn(arkode_mem, prefn::MRIStepPreInnerFn)
-    ccall((:MRIStepSetPreInnerFn, libsundials_arkode), Cint,
-        (MRIStepMemPtr, MRIStepPreInnerFn), arkode_mem, prefn)
+    return ccall(
+        (:MRIStepSetPreInnerFn, libsundials_arkode), Cint,
+        (MRIStepMemPtr, MRIStepPreInnerFn), arkode_mem, prefn
+    )
 end
 
 function MRIStepSetPostInnerFn(arkode_mem, postfn::MRIStepPostInnerFn)
-    ccall((:MRIStepSetPostInnerFn, libsundials_arkode), Cint,
-        (MRIStepMemPtr, MRIStepPostInnerFn), arkode_mem, postfn)
+    return ccall(
+        (:MRIStepSetPostInnerFn, libsundials_arkode), Cint,
+        (MRIStepMemPtr, MRIStepPostInnerFn), arkode_mem, postfn
+    )
 end
 
-function MRIStepEvolve(arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
-        itask::Cint)
-    ccall((:MRIStepEvolve, libsundials_arkode), Cint,
+function MRIStepEvolve(
+        arkode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+        itask::Cint
+    )
+    return ccall(
+        (:MRIStepEvolve, libsundials_arkode), Cint,
         (MRIStepMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), arkode_mem, tout, yout,
-        tret, itask)
+        tret, itask
+    )
 end
 
 function MRIStepEvolve(arkode_mem, tout, yout, tret, itask, ctx::SUNContext)
-    MRIStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
+    return MRIStepEvolve(arkode_mem, tout, yout, tret, itask, ctx)
 end
 
 function MRIStepGetDky(arkode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
-    ccall((:MRIStepGetDky, libsundials_arkode), Cint,
-        (MRIStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky)
+    return ccall(
+        (:MRIStepGetDky, libsundials_arkode), Cint,
+        (MRIStepMemPtr, realtype, Cint, N_Vector), arkode_mem, t, k, dky
+    )
 end
 
 function MRIStepGetDky(arkode_mem, t, k, dky, ctx::SUNContext)
-    MRIStepGetDky(arkode_mem, t, k, dky, ctx)
+    return MRIStepGetDky(arkode_mem, t, k, dky, ctx)
 end
 
 function MRIStepGetNumRhsEvals(arkode_mem, nfs_evals)
-    ccall((:MRIStepGetNumRhsEvals, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}),
-        arkode_mem, nfs_evals)
+    return ccall(
+        (:MRIStepGetNumRhsEvals, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}),
+        arkode_mem, nfs_evals
+    )
 end
 
 function MRIStepGetCurrentButcherTables(arkode_mem, B)
-    ccall((:MRIStepGetCurrentButcherTables, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B)
+    return ccall(
+        (:MRIStepGetCurrentButcherTables, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Ptr{ARKodeButcherTable}), arkode_mem, B
+    )
 end
 
 function MRIStepGetWorkSpace(arkode_mem, lenrw, leniw)
-    ccall((:MRIStepGetWorkSpace, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw)
+    return ccall(
+        (:MRIStepGetWorkSpace, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Ptr{Clong}, Ptr{Clong}), arkode_mem, lenrw, leniw
+    )
 end
 
 function MRIStepGetNumSteps(arkode_mem, nssteps)
-    ccall((:MRIStepGetNumSteps, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}),
-        arkode_mem, nssteps)
+    return ccall(
+        (:MRIStepGetNumSteps, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}),
+        arkode_mem, nssteps
+    )
 end
 
 function MRIStepGetLastStep(arkode_mem, hlast)
-    ccall((:MRIStepGetLastStep, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{realtype}),
-        arkode_mem, hlast)
+    return ccall(
+        (:MRIStepGetLastStep, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{realtype}),
+        arkode_mem, hlast
+    )
 end
 
 function MRIStepGetCurrentTime(arkode_mem, tcur)
-    ccall((:MRIStepGetCurrentTime, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Ptr{realtype}), arkode_mem, tcur)
+    return ccall(
+        (:MRIStepGetCurrentTime, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Ptr{realtype}), arkode_mem, tcur
+    )
 end
 
 function MRIStepGetCurrentState(arkode_mem, ycur)
-    ccall((:MRIStepGetCurrentState, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Ptr{N_Vector}), arkode_mem, ycur)
+    return ccall(
+        (:MRIStepGetCurrentState, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Ptr{N_Vector}), arkode_mem, ycur
+    )
 end
 
 function MRIStepGetNumGEvals(arkode_mem, ngevals)
-    ccall((:MRIStepGetNumGEvals, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}),
-        arkode_mem, ngevals)
+    return ccall(
+        (:MRIStepGetNumGEvals, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Clong}),
+        arkode_mem, ngevals
+    )
 end
 
 function MRIStepGetRootInfo(arkode_mem, rootsfound)
-    ccall((:MRIStepGetRootInfo, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Cint}),
-        arkode_mem, rootsfound)
+    return ccall(
+        (:MRIStepGetRootInfo, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Cint}),
+        arkode_mem, rootsfound
+    )
 end
 
 function MRIStepGetLastInnerStepFlag(arkode_mem, flag)
-    ccall((:MRIStepGetLastInnerStepFlag, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Ptr{Cint}), arkode_mem, flag)
+    return ccall(
+        (:MRIStepGetLastInnerStepFlag, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Ptr{Cint}), arkode_mem, flag
+    )
 end
 
 function MRIStepGetReturnFlagName(flag::Clong)
-    ccall((:MRIStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
+    return ccall((:MRIStepGetReturnFlagName, libsundials_arkode), Cstring, (Clong,), flag)
 end
 
 function MRIStepGetReturnFlagName(flag)
-    MRIStepGetReturnFlagName(convert(Clong, flag))
+    return MRIStepGetReturnFlagName(convert(Clong, flag))
 end
 
 function MRIStepWriteParameters(arkode_mem, fp)
-    ccall((:MRIStepWriteParameters, libsundials_arkode), Cint,
-        (MRIStepMemPtr, Ptr{Libc.FILE}), arkode_mem, fp)
+    return ccall(
+        (:MRIStepWriteParameters, libsundials_arkode), Cint,
+        (MRIStepMemPtr, Ptr{Libc.FILE}), arkode_mem, fp
+    )
 end
 
 function MRIStepWriteButcher(arkode_mem, fp)
-    ccall(
+    return ccall(
         (:MRIStepWriteButcher, libsundials_arkode), Cint, (MRIStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, fp)
+        arkode_mem, fp
+    )
 end
 
 function MRIStepFree(arkode_mem)
-    ccall((:MRIStepFree, libsundials_arkode), Cvoid, (Ref{MRIStepMemPtr},), arkode_mem)
+    return ccall((:MRIStepFree, libsundials_arkode), Cvoid, (Ref{MRIStepMemPtr},), arkode_mem)
 end
 
 function MRIStepPrintMem(arkode_mem, outfile)
-    ccall((:MRIStepPrintMem, libsundials_arkode), Cvoid, (MRIStepMemPtr, Ptr{Libc.FILE}),
-        arkode_mem, outfile)
+    return ccall(
+        (:MRIStepPrintMem, libsundials_arkode), Cvoid, (MRIStepMemPtr, Ptr{Libc.FILE}),
+        arkode_mem, outfile
+    )
 end
 
 function CVodeCreate(lmm::Cint, sunctx::SUNContext)
-    ccall((:CVodeCreate, libsundials_cvodes), CVODEMemPtr, (Cint, SUNContext), lmm, sunctx)
+    return ccall((:CVodeCreate, libsundials_cvodes), CVODEMemPtr, (Cint, SUNContext), lmm, sunctx)
 end
 
 function CVodeCreate(lmm, sunctx)
-    CVodeCreate(convert(Cint, lmm), sunctx)
+    return CVodeCreate(convert(Cint, lmm), sunctx)
 end
 
 function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
-    ccall((:CVodeInit, libsundials_cvodes), Cint,
-        (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0)
+    return ccall(
+        (:CVodeInit, libsundials_cvodes), Cint,
+        (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0
+    )
 end
 
 function CVodeInit(cvode_mem, f::CVRhsFn, t0, y0, ctx::SUNContext)
     __y0 = convert(NVector, y0, ctx)
-    CVodeInit(cvode_mem, f, t0, __y0)
+    return CVodeInit(cvode_mem, f, t0, __y0)
 end
 
 function CVodeReInit(cvode_mem, t0::realtype, y0::Union{N_Vector, NVector})
-    ccall((:CVodeReInit, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector),
-        cvode_mem, t0, y0)
+    return ccall(
+        (:CVodeReInit, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector),
+        cvode_mem, t0, y0
+    )
 end
 
 function CVodeReInit(cvode_mem, t0, y0, ctx::SUNContext)
     __y0 = convert(NVector, y0, ctx)
-    CVodeReInit(cvode_mem, t0, __y0)
+    return CVodeReInit(cvode_mem, t0, __y0)
 end
 
 function CVodeSStolerances(cvode_mem, reltol::realtype, abstol::realtype)
-    ccall(
+    return ccall(
         (:CVodeSStolerances, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, realtype),
-        cvode_mem, reltol, abstol)
+        cvode_mem, reltol, abstol
+    )
 end
 
 function CVodeSVtolerances(cvode_mem, reltol::realtype, abstol::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:CVodeSVtolerances, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector),
-        cvode_mem, reltol, abstol)
+        cvode_mem, reltol, abstol
+    )
 end
 
 function CVodeSVtolerances(cvode_mem, reltol, abstol, ctx::SUNContext)
-    CVodeSVtolerances(cvode_mem, reltol, abstol, ctx)
+    return CVodeSVtolerances(cvode_mem, reltol, abstol, ctx)
 end
 
 function CVodeWFtolerances(cvode_mem, efun::CVEwtFn)
-    ccall(
+    return ccall(
         (:CVodeWFtolerances, libsundials_cvodes), Cint, (CVODEMemPtr, CVEwtFn), cvode_mem,
-        efun)
+        efun
+    )
 end
 
 function CVodeSetErrHandlerFn(cvode_mem, ehfun::CVErrHandlerFn, eh_data)
-    ccall((:CVodeSetErrHandlerFn, libsundials_cvodes), Cint,
-        (CVODEMemPtr, CVErrHandlerFn, Ptr{Cvoid}), cvode_mem, ehfun, eh_data)
+    return ccall(
+        (:CVodeSetErrHandlerFn, libsundials_cvodes), Cint,
+        (CVODEMemPtr, CVErrHandlerFn, Ptr{Cvoid}), cvode_mem, ehfun, eh_data
+    )
 end
 
 function CVodeSetErrFile(cvode_mem, errfp)
-    ccall((:CVodeSetErrFile, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Libc.FILE}),
-        cvode_mem, errfp)
+    return ccall(
+        (:CVodeSetErrFile, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Libc.FILE}),
+        cvode_mem, errfp
+    )
 end
 
 function CVodeSetUserData(cvode_mem, user_data)
-    ccall((:CVodeSetUserData, libsundials_cvodes), Cint, (CVODEMemPtr, Any), cvode_mem,
-        user_data)
+    return ccall(
+        (:CVodeSetUserData, libsundials_cvodes), Cint, (CVODEMemPtr, Any), cvode_mem,
+        user_data
+    )
 end
 
 function CVodeSetMaxOrd(cvode_mem, maxord::Cint)
-    ccall((:CVodeSetMaxOrd, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
-        maxord)
+    return ccall(
+        (:CVodeSetMaxOrd, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
+        maxord
+    )
 end
 
 function CVodeSetMaxOrd(cvode_mem, maxord)
-    CVodeSetMaxOrd(cvode_mem, convert(Cint, maxord))
+    return CVodeSetMaxOrd(cvode_mem, convert(Cint, maxord))
 end
 
 function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Clong)
-    ccall(
+    return ccall(
         (:CVodeSetMaxNumSteps, libsundials_cvodes), Cint, (CVODEMemPtr, Clong), cvode_mem,
-        mxsteps)
+        mxsteps
+    )
 end
 
 function CVodeSetMaxNumSteps(cvode_mem, mxsteps)
-    CVodeSetMaxNumSteps(cvode_mem, convert(Clong, mxsteps))
+    return CVodeSetMaxNumSteps(cvode_mem, convert(Clong, mxsteps))
 end
 
 function CVodeSetMaxHnilWarns(cvode_mem, mxhnil::Cint)
-    ccall(
+    return ccall(
         (:CVodeSetMaxHnilWarns, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
-        mxhnil)
+        mxhnil
+    )
 end
 
 function CVodeSetMaxHnilWarns(cvode_mem, mxhnil)
-    CVodeSetMaxHnilWarns(cvode_mem, convert(Cint, mxhnil))
+    return CVodeSetMaxHnilWarns(cvode_mem, convert(Cint, mxhnil))
 end
 
 function CVodeSetStabLimDet(cvode_mem, stldet::Cint)
-    ccall((:CVodeSetStabLimDet, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
-        stldet)
+    return ccall(
+        (:CVodeSetStabLimDet, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
+        stldet
+    )
 end
 
 function CVodeSetStabLimDet(cvode_mem, stldet)
-    CVodeSetStabLimDet(cvode_mem, convert(Cint, stldet))
+    return CVodeSetStabLimDet(cvode_mem, convert(Cint, stldet))
 end
 
 function CVodeSetInitStep(cvode_mem, hin::realtype)
-    ccall(
+    return ccall(
         (:CVodeSetInitStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
-        hin)
+        hin
+    )
 end
 
 function CVodeSetMinStep(cvode_mem, hmin::realtype)
-    ccall((:CVodeSetMinStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
-        hmin)
+    return ccall(
+        (:CVodeSetMinStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
+        hmin
+    )
 end
 
 function CVodeSetMaxStep(cvode_mem, hmax::realtype)
-    ccall((:CVodeSetMaxStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
-        hmax)
+    return ccall(
+        (:CVodeSetMaxStep, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
+        hmax
+    )
 end
 
 function CVodeSetStopTime(cvode_mem, tstop::realtype)
-    ccall(
+    return ccall(
         (:CVodeSetStopTime, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
-        tstop)
+        tstop
+    )
 end
 
 function CVodeSetMaxErrTestFails(cvode_mem, maxnef::Cint)
-    ccall((:CVodeSetMaxErrTestFails, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
-        cvode_mem, maxnef)
+    return ccall(
+        (:CVodeSetMaxErrTestFails, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
+        cvode_mem, maxnef
+    )
 end
 
 function CVodeSetMaxErrTestFails(cvode_mem, maxnef)
-    CVodeSetMaxErrTestFails(cvode_mem, convert(Cint, maxnef))
+    return CVodeSetMaxErrTestFails(cvode_mem, convert(Cint, maxnef))
 end
 
 function CVodeSetMaxNonlinIters(cvode_mem, maxcor::Cint)
-    ccall((:CVodeSetMaxNonlinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
-        cvode_mem, maxcor)
+    return ccall(
+        (:CVodeSetMaxNonlinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
+        cvode_mem, maxcor
+    )
 end
 
 function CVodeSetMaxNonlinIters(cvode_mem, maxcor)
-    CVodeSetMaxNonlinIters(cvode_mem, convert(Cint, maxcor))
+    return CVodeSetMaxNonlinIters(cvode_mem, convert(Cint, maxcor))
 end
 
 function CVodeSetMaxConvFails(cvode_mem, maxncf::Cint)
-    ccall(
+    return ccall(
         (:CVodeSetMaxConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
-        maxncf)
+        maxncf
+    )
 end
 
 function CVodeSetMaxConvFails(cvode_mem, maxncf)
-    CVodeSetMaxConvFails(cvode_mem, convert(Cint, maxncf))
+    return CVodeSetMaxConvFails(cvode_mem, convert(Cint, maxncf))
 end
 
 function CVodeSetNonlinConvCoef(cvode_mem, nlscoef::realtype)
-    ccall((:CVodeSetNonlinConvCoef, libsundials_cvodes), Cint, (CVODEMemPtr, realtype),
-        cvode_mem, nlscoef)
+    return ccall(
+        (:CVodeSetNonlinConvCoef, libsundials_cvodes), Cint, (CVODEMemPtr, realtype),
+        cvode_mem, nlscoef
+    )
 end
 
 function CVodeSetConstraints(cvode_mem, constraints::Union{N_Vector, NVector})
-    ccall((:CVodeSetConstraints, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
-        cvode_mem, constraints)
+    return ccall(
+        (:CVodeSetConstraints, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
+        cvode_mem, constraints
+    )
 end
 
 function CVodeSetConstraints(cvode_mem, constraints, ctx::SUNContext)
-    CVodeSetConstraints(cvode_mem, constraints, ctx)
+    return CVodeSetConstraints(cvode_mem, constraints, ctx)
 end
 
 function CVodeSetNonlinearSolver(cvode_mem, NLS::SUNNonlinearSolver)
-    ccall((:CVodeSetNonlinearSolver, libsundials_cvodes), Cint,
-        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS)
+    return ccall(
+        (:CVodeSetNonlinearSolver, libsundials_cvodes), Cint,
+        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS
+    )
 end
 
 function CVodeRootInit(cvode_mem, nrtfn::Cint, g::CVRootFn)
-    ccall((:CVodeRootInit, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVRootFn),
-        cvode_mem, nrtfn, g)
+    return ccall(
+        (:CVodeRootInit, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVRootFn),
+        cvode_mem, nrtfn, g
+    )
 end
 
 function CVodeRootInit(cvode_mem, nrtfn, g::CVRootFn)
-    CVodeRootInit(cvode_mem, convert(Cint, nrtfn), g)
+    return CVodeRootInit(cvode_mem, convert(Cint, nrtfn), g)
 end
 
 function CVodeSetRootDirection(cvode_mem, rootdir)
-    ccall((:CVodeSetRootDirection, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
-        cvode_mem, rootdir)
+    return ccall(
+        (:CVodeSetRootDirection, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
+        cvode_mem, rootdir
+    )
 end
 
 function CVodeSetNoInactiveRootWarn(cvode_mem)
-    ccall((:CVodeSetNoInactiveRootWarn, libsundials_cvodes), Cint, (CVODEMemPtr,),
-        cvode_mem)
+    return ccall(
+        (:CVodeSetNoInactiveRootWarn, libsundials_cvodes), Cint, (CVODEMemPtr,),
+        cvode_mem
+    )
 end
 
 function CVode(cvode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret, itask::Cint)
-    ccall((:CVode, libsundials_cvodes), Cint,
+    return ccall(
+        (:CVode, libsundials_cvodes), Cint,
         (CVODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), cvode_mem, tout, yout,
-        tret, itask)
+        tret, itask
+    )
 end
 
 function CVode(cvode_mem, tout, yout, tret, itask, ctx::SUNContext)
-    CVode(cvode_mem, tout, yout, tret, itask, ctx)
+    return CVode(cvode_mem, tout, yout, tret, itask, ctx)
 end
 
 function CVodeGetDky(cvode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:CVodeGetDky, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, Cint, N_Vector),
-        cvode_mem, t, k, dky)
+        cvode_mem, t, k, dky
+    )
 end
 
 function CVodeGetDky(cvode_mem, t, k, dky, ctx::SUNContext)
-    CVodeGetDky(cvode_mem, t, k, dky, ctx)
+    return CVodeGetDky(cvode_mem, t, k, dky, ctx)
 end
 
 function CVodeGetWorkSpace(cvode_mem, lenrw, leniw)
-    ccall((:CVodeGetWorkSpace, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrw, leniw)
+    return ccall(
+        (:CVodeGetWorkSpace, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrw, leniw
+    )
 end
 
 function CVodeGetNumSteps(cvode_mem, nsteps)
-    ccall((:CVodeGetNumSteps, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nsteps)
+    return ccall(
+        (:CVodeGetNumSteps, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nsteps
+    )
 end
 
 function CVodeGetNumRhsEvals(cvode_mem, nfevals)
-    ccall((:CVodeGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfevals)
+    return ccall(
+        (:CVodeGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfevals
+    )
 end
 
 function CVodeGetNumLinSolvSetups(cvode_mem, nlinsetups)
-    ccall((:CVodeGetNumLinSolvSetups, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nlinsetups)
+    return ccall(
+        (:CVodeGetNumLinSolvSetups, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nlinsetups
+    )
 end
 
 function CVodeGetNumErrTestFails(cvode_mem, netfails)
-    ccall((:CVodeGetNumErrTestFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, netfails)
+    return ccall(
+        (:CVodeGetNumErrTestFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, netfails
+    )
 end
 
 function CVodeGetLastOrder(cvode_mem, qlast)
-    ccall((:CVodeGetLastOrder, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
-        cvode_mem, qlast)
+    return ccall(
+        (:CVodeGetLastOrder, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
+        cvode_mem, qlast
+    )
 end
 
 function CVodeGetCurrentOrder(cvode_mem, qcur)
-    ccall((:CVodeGetCurrentOrder, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
-        cvode_mem, qcur)
+    return ccall(
+        (:CVodeGetCurrentOrder, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
+        cvode_mem, qcur
+    )
 end
 
 function CVodeGetCurrentGamma(cvode_mem, gamma)
-    ccall((:CVodeGetCurrentGamma, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
-        cvode_mem, gamma)
+    return ccall(
+        (:CVodeGetCurrentGamma, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
+        cvode_mem, gamma
+    )
 end
 
 function CVodeGetNumStabLimOrderReds(cvode_mem, nslred)
-    ccall((:CVodeGetNumStabLimOrderReds, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nslred)
+    return ccall(
+        (:CVodeGetNumStabLimOrderReds, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nslred
+    )
 end
 
 function CVodeGetActualInitStep(cvode_mem, hinused)
-    ccall(
+    return ccall(
         (:CVodeGetActualInitStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
-        cvode_mem, hinused)
+        cvode_mem, hinused
+    )
 end
 
 function CVodeGetLastStep(cvode_mem, hlast)
-    ccall((:CVodeGetLastStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
-        cvode_mem, hlast)
+    return ccall(
+        (:CVodeGetLastStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
+        cvode_mem, hlast
+    )
 end
 
 function CVodeGetCurrentStep(cvode_mem, hcur)
-    ccall((:CVodeGetCurrentStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
-        cvode_mem, hcur)
+    return ccall(
+        (:CVodeGetCurrentStep, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
+        cvode_mem, hcur
+    )
 end
 
 function CVodeGetCurrentState(cvode_mem, y)
-    ccall((:CVodeGetCurrentState, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{N_Vector}),
-        cvode_mem, y)
+    return ccall(
+        (:CVodeGetCurrentState, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{N_Vector}),
+        cvode_mem, y
+    )
 end
 
 function CVodeGetCurrentTime(cvode_mem, tcur)
-    ccall((:CVodeGetCurrentTime, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
-        cvode_mem, tcur)
+    return ccall(
+        (:CVodeGetCurrentTime, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
+        cvode_mem, tcur
+    )
 end
 
 function CVodeGetTolScaleFactor(cvode_mem, tolsfac)
-    ccall(
+    return ccall(
         (:CVodeGetTolScaleFactor, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}),
-        cvode_mem, tolsfac)
+        cvode_mem, tolsfac
+    )
 end
 
 function CVodeGetErrWeights(cvode_mem, eweight::Union{N_Vector, NVector})
-    ccall((:CVodeGetErrWeights, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
-        cvode_mem, eweight)
+    return ccall(
+        (:CVodeGetErrWeights, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
+        cvode_mem, eweight
+    )
 end
 
 function CVodeGetErrWeights(cvode_mem, eweight, ctx::SUNContext)
-    CVodeGetErrWeights(cvode_mem, eweight, ctx)
+    return CVodeGetErrWeights(cvode_mem, eweight, ctx)
 end
 
 function CVodeGetEstLocalErrors(cvode_mem, ele::Union{N_Vector, NVector})
-    ccall((:CVodeGetEstLocalErrors, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
-        cvode_mem, ele)
+    return ccall(
+        (:CVodeGetEstLocalErrors, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
+        cvode_mem, ele
+    )
 end
 
 function CVodeGetEstLocalErrors(cvode_mem, ele, ctx::SUNContext)
     __ele = convert(NVector, ele, ctx)
-    CVodeGetEstLocalErrors(cvode_mem, __ele)
+    return CVodeGetEstLocalErrors(cvode_mem, __ele)
 end
 
 function CVodeGetNumGEvals(cvode_mem, ngevals)
-    ccall((:CVodeGetNumGEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, ngevals)
+    return ccall(
+        (:CVodeGetNumGEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, ngevals
+    )
 end
 
 function CVodeGetRootInfo(cvode_mem, rootsfound)
-    ccall((:CVodeGetRootInfo, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
-        cvode_mem, rootsfound)
+    return ccall(
+        (:CVodeGetRootInfo, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Cint}),
+        cvode_mem, rootsfound
+    )
 end
 
-function CVodeGetIntegratorStats(cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast,
-        qcur, hinused, hlast, hcur, tcur)
-    ccall((:CVodeGetIntegratorStats, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint},
-            Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}),
+function CVodeGetIntegratorStats(
+        cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast,
+        qcur, hinused, hlast, hcur, tcur
+    )
+    return ccall(
+        (:CVodeGetIntegratorStats, libsundials_cvodes), Cint,
+        (
+            CVODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint},
+            Ptr{Cint}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype},
+        ),
         cvode_mem, nsteps, nfevals, nlinsetups, netfails, qlast, qcur, hinused, hlast,
-        hcur, tcur)
+        hcur, tcur
+    )
 end
 
 function CVodeGetNumNonlinSolvIters(cvode_mem, nniters)
-    ccall((:CVodeGetNumNonlinSolvIters, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nniters)
+    return ccall(
+        (:CVodeGetNumNonlinSolvIters, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nniters
+    )
 end
 
 function CVodeGetNumNonlinSolvConvFails(cvode_mem, nncfails)
-    ccall((:CVodeGetNumNonlinSolvConvFails, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nncfails)
+    return ccall(
+        (:CVodeGetNumNonlinSolvConvFails, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nncfails
+    )
 end
 
 function CVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
-    ccall((:CVodeGetNonlinSolvStats, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nniters, nncfails)
+    return ccall(
+        (:CVodeGetNonlinSolvStats, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nniters, nncfails
+    )
 end
 
 function CVodeGetReturnFlagName(flag::Clong)
-    ccall((:CVodeGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
+    return ccall((:CVodeGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVodeGetReturnFlagName(flag)
-    CVodeGetReturnFlagName(convert(Clong, flag))
+    return CVodeGetReturnFlagName(convert(Clong, flag))
 end
 
 function CVodeFree(cvode_mem)
-    ccall((:CVodeFree, libsundials_cvodes), Cvoid, (Ref{CVODEMemPtr},), cvode_mem)
+    return ccall((:CVodeFree, libsundials_cvodes), Cvoid, (Ref{CVODEMemPtr},), cvode_mem)
 end
 
 function CVBandPrecInit(cvode_mem, N::sunindextype, mu::sunindextype, ml::sunindextype)
-    ccall((:CVBandPrecInit, libsundials_cvodes), Cint,
-        (CVODEMemPtr, sunindextype, sunindextype, sunindextype), cvode_mem, N, mu, ml)
+    return ccall(
+        (:CVBandPrecInit, libsundials_cvodes), Cint,
+        (CVODEMemPtr, sunindextype, sunindextype, sunindextype), cvode_mem, N, mu, ml
+    )
 end
 
 function CVBandPrecGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVBandPrecGetWorkSpace, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:CVBandPrecGetWorkSpace, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS
+    )
 end
 
 function CVBandPrecGetNumRhsEvals(cvode_mem, nfevalsBP)
-    ccall((:CVBandPrecGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfevalsBP)
+    return ccall(
+        (:CVBandPrecGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfevalsBP
+    )
 end
 
-function CVBBDPrecInit(cvode_mem, Nlocal::sunindextype, mudq::sunindextype,
+function CVBBDPrecInit(
+        cvode_mem, Nlocal::sunindextype, mudq::sunindextype,
         mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype,
-        dqrely::realtype, gloc::CVLocalFn, cfn::CVCommFn)
-    ccall((:CVBBDPrecInit, libsundials_cvodes), Cint,
-        (CVODEMemPtr, sunindextype, sunindextype, sunindextype, sunindextype,
-            sunindextype, realtype, CVLocalFn, CVCommFn), cvode_mem, Nlocal, mudq, mldq,
-        mukeep, mlkeep, dqrely, gloc, cfn)
+        dqrely::realtype, gloc::CVLocalFn, cfn::CVCommFn
+    )
+    return ccall(
+        (:CVBBDPrecInit, libsundials_cvodes), Cint,
+        (
+            CVODEMemPtr, sunindextype, sunindextype, sunindextype, sunindextype,
+            sunindextype, realtype, CVLocalFn, CVCommFn,
+        ), cvode_mem, Nlocal, mudq, mldq,
+        mukeep, mlkeep, dqrely, gloc, cfn
+    )
 end
 
-function CVBBDPrecReInit(cvode_mem, mudq::sunindextype, mldq::sunindextype,
-        dqrely::realtype)
-    ccall((:CVBBDPrecReInit, libsundials_cvodes), Cint,
+function CVBBDPrecReInit(
+        cvode_mem, mudq::sunindextype, mldq::sunindextype,
+        dqrely::realtype
+    )
+    return ccall(
+        (:CVBBDPrecReInit, libsundials_cvodes), Cint,
         (CVODEMemPtr, sunindextype, sunindextype, realtype), cvode_mem, mudq, mldq,
-        dqrely)
+        dqrely
+    )
 end
 
 function CVBBDPrecGetWorkSpace(cvode_mem, lenrwBBDP, leniwBBDP)
-    ccall((:CVBBDPrecGetWorkSpace, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwBBDP, leniwBBDP)
+    return ccall(
+        (:CVBBDPrecGetWorkSpace, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwBBDP, leniwBBDP
+    )
 end
 
 function CVBBDPrecGetNumGfnEvals(cvode_mem, ngevalsBBDP)
-    ccall((:CVBBDPrecGetNumGfnEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, ngevalsBBDP)
+    return ccall(
+        (:CVBBDPrecGetNumGfnEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, ngevalsBBDP
+    )
 end
 
 function CVDiag(cvode_mem)
-    ccall((:CVDiag, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVDiag, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVDiagGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVDiagGetWorkSpace, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:CVDiagGetWorkSpace, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS
+    )
 end
 
 function CVDiagGetNumRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVDiagGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfevalsLS)
+    return ccall(
+        (:CVDiagGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfevalsLS
+    )
 end
 
 function CVDiagGetLastFlag(cvode_mem, flag)
-    ccall((:CVDiagGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, flag)
+    return ccall(
+        (:CVDiagGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, flag
+    )
 end
 
 function CVDiagGetReturnFlagName(flag::Clong)
-    ccall((:CVDiagGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
+    return ccall((:CVDiagGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVDiagGetReturnFlagName(flag)
-    CVDiagGetReturnFlagName(convert(Clong, flag))
+    return CVDiagGetReturnFlagName(convert(Clong, flag))
 end
 
 function CVDlsSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:CVodeSetLinearSolver, libsundials_cvodes), Cint,
-        (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
+    return ccall(
+        (:CVodeSetLinearSolver, libsundials_cvodes), Cint,
+        (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A
+    )
 end
 
 function CVDlsSetJacFn(cvode_mem, jac::CVDlsJacFn)
-    ccall((:CVDlsSetJacFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVDlsJacFn), cvode_mem,
-        jac)
+    return ccall(
+        (:CVDlsSetJacFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVDlsJacFn), cvode_mem,
+        jac
+    )
 end
 
 function CVDlsGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVDlsGetWorkSpace, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:CVDlsGetWorkSpace, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS
+    )
 end
 
 function CVDlsGetNumJacEvals(cvode_mem, njevals)
-    ccall((:CVDlsGetNumJacEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, njevals)
+    return ccall(
+        (:CVDlsGetNumJacEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, njevals
+    )
 end
 
 function CVDlsGetNumRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVDlsGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfevalsLS)
+    return ccall(
+        (:CVDlsGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfevalsLS
+    )
 end
 
 function CVDlsGetLastFlag(cvode_mem, flag)
-    ccall((:CVDlsGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, flag)
+    return ccall(
+        (:CVDlsGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, flag
+    )
 end
 
 function CVDlsGetReturnFlagName(flag::Clong)
-    ccall((:CVDlsGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
+    return ccall((:CVDlsGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVDlsGetReturnFlagName(flag)
-    CVDlsGetReturnFlagName(convert(Clong, flag))
+    return CVDlsGetReturnFlagName(convert(Clong, flag))
 end
 
 function CVodeSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:CVodeSetLinearSolver, libsundials_cvodes), Cint,
-        (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
+    return ccall(
+        (:CVodeSetLinearSolver, libsundials_cvodes), Cint,
+        (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A
+    )
 end
 
 function CVodeSetJacFn(cvode_mem, jac::CVLsJacFn)
-    ccall((:CVodeSetJacFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsJacFn), cvode_mem,
-        jac)
+    return ccall(
+        (:CVodeSetJacFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsJacFn), cvode_mem,
+        jac
+    )
 end
 
 function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj::Clong)
-    ccall((:CVodeSetMaxStepsBetweenJac, libsundials_cvodes), Cint, (CVODEMemPtr, Clong),
-        cvode_mem, msbj)
+    return ccall(
+        (:CVodeSetMaxStepsBetweenJac, libsundials_cvodes), Cint, (CVODEMemPtr, Clong),
+        cvode_mem, msbj
+    )
 end
 
 function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj)
-    CVodeSetMaxStepsBetweenJac(cvode_mem, convert(Clong, msbj))
+    return CVodeSetMaxStepsBetweenJac(cvode_mem, convert(Clong, msbj))
 end
 
 function CVodeSetLinearSolutionScaling(cvode_mem, onoff::Cint)
-    ccall((:CVodeSetLinearSolutionScaling, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
-        cvode_mem, onoff)
+    return ccall(
+        (:CVodeSetLinearSolutionScaling, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
+        cvode_mem, onoff
+    )
 end
 
 function CVodeSetLinearSolutionScaling(cvode_mem, onoff)
-    CVodeSetLinearSolutionScaling(cvode_mem, convert(Cint, onoff))
+    return CVodeSetLinearSolutionScaling(cvode_mem, convert(Cint, onoff))
 end
 
 function CVodeSetEpsLin(cvode_mem, eplifac::realtype)
-    ccall((:CVodeSetEpsLin, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
-        eplifac)
+    return ccall(
+        (:CVodeSetEpsLin, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
+        eplifac
+    )
 end
 
 function CVodeSetPreconditioner(cvode_mem, pset::CVLsPrecSetupFn, psolve::CVLsPrecSolveFn)
-    ccall((:CVodeSetPreconditioner, libsundials_cvodes), Cint,
-        (CVODEMemPtr, CVLsPrecSetupFn, CVLsPrecSolveFn), cvode_mem, pset, psolve)
+    return ccall(
+        (:CVodeSetPreconditioner, libsundials_cvodes), Cint,
+        (CVODEMemPtr, CVLsPrecSetupFn, CVLsPrecSolveFn), cvode_mem, pset, psolve
+    )
 end
 
-function CVodeSetJacTimes(cvode_mem, jtsetup::CVLsJacTimesSetupFn,
-        jtimes::CVLsJacTimesVecFn)
-    ccall((:CVodeSetJacTimes, libsundials_cvodes), Cint,
-        (CVODEMemPtr, CVLsJacTimesSetupFn, CVLsJacTimesVecFn), cvode_mem, jtsetup, jtimes)
+function CVodeSetJacTimes(
+        cvode_mem, jtsetup::CVLsJacTimesSetupFn,
+        jtimes::CVLsJacTimesVecFn
+    )
+    return ccall(
+        (:CVodeSetJacTimes, libsundials_cvodes), Cint,
+        (CVODEMemPtr, CVLsJacTimesSetupFn, CVLsJacTimesVecFn), cvode_mem, jtsetup, jtimes
+    )
 end
 
 function CVodeSetLinSysFn(cvode_mem, linsys::CVLsLinSysFn)
-    ccall((:CVodeSetLinSysFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsLinSysFn),
-        cvode_mem, linsys)
+    return ccall(
+        (:CVodeSetLinSysFn, libsundials_cvodes), Cint, (CVODEMemPtr, CVLsLinSysFn),
+        cvode_mem, linsys
+    )
 end
 
 function CVodeGetLinWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVodeGetLinWorkSpace, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:CVodeGetLinWorkSpace, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS
+    )
 end
 
 function CVodeGetNumJacEvals(cvode_mem, njevals)
-    ccall((:CVodeGetNumJacEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, njevals)
+    return ccall(
+        (:CVodeGetNumJacEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, njevals
+    )
 end
 
 function CVodeGetNumPrecEvals(cvode_mem, npevals)
-    ccall((:CVodeGetNumPrecEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, npevals)
+    return ccall(
+        (:CVodeGetNumPrecEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, npevals
+    )
 end
 
 function CVodeGetNumPrecSolves(cvode_mem, npsolves)
-    ccall((:CVodeGetNumPrecSolves, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, npsolves)
+    return ccall(
+        (:CVodeGetNumPrecSolves, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, npsolves
+    )
 end
 
 function CVodeGetNumLinIters(cvode_mem, nliters)
-    ccall((:CVodeGetNumLinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nliters)
+    return ccall(
+        (:CVodeGetNumLinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nliters
+    )
 end
 
 function CVodeGetNumLinConvFails(cvode_mem, nlcfails)
-    ccall((:CVodeGetNumLinConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nlcfails)
+    return ccall(
+        (:CVodeGetNumLinConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nlcfails
+    )
 end
 
 function CVodeGetNumJTSetupEvals(cvode_mem, njtsetups)
-    ccall((:CVodeGetNumJTSetupEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, njtsetups)
+    return ccall(
+        (:CVodeGetNumJTSetupEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, njtsetups
+    )
 end
 
 function CVodeGetNumJtimesEvals(cvode_mem, njvevals)
-    ccall((:CVodeGetNumJtimesEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, njvevals)
+    return ccall(
+        (:CVodeGetNumJtimesEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, njvevals
+    )
 end
 
 function CVodeGetNumLinRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVodeGetNumLinRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfevalsLS)
+    return ccall(
+        (:CVodeGetNumLinRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfevalsLS
+    )
 end
 
 function CVodeGetLastLinFlag(cvode_mem, flag)
-    ccall((:CVodeGetLastLinFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, flag)
+    return ccall(
+        (:CVodeGetLastLinFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, flag
+    )
 end
 
 function CVodeGetLinReturnFlagName(flag::Clong)
-    ccall((:CVodeGetLinReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
+    return ccall((:CVodeGetLinReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVodeGetLinReturnFlagName(flag)
-    CVodeGetLinReturnFlagName(convert(Clong, flag))
+    return CVodeGetLinReturnFlagName(convert(Clong, flag))
 end
 
 function CVSpilsSetLinearSolver(cvode_mem, LS::SUNLinearSolver)
-    ccall((:CVSpilsSetLinearSolver, libsundials_cvodes), Cint,
-        (CVODEMemPtr, SUNLinearSolver), cvode_mem, LS)
+    return ccall(
+        (:CVSpilsSetLinearSolver, libsundials_cvodes), Cint,
+        (CVODEMemPtr, SUNLinearSolver), cvode_mem, LS
+    )
 end
 
 function CVSpilsSetEpsLin(cvode_mem, eplifac::realtype)
-    ccall(
+    return ccall(
         (:CVSpilsSetEpsLin, libsundials_cvodes), Cint, (CVODEMemPtr, realtype), cvode_mem,
-        eplifac)
+        eplifac
+    )
 end
 
-function CVSpilsSetPreconditioner(cvode_mem, pset::CVSpilsPrecSetupFn,
-        psolve::CVSpilsPrecSolveFn)
-    ccall((:CVSpilsSetPreconditioner, libsundials_cvodes), Cint,
-        (CVODEMemPtr, CVSpilsPrecSetupFn, CVSpilsPrecSolveFn), cvode_mem, pset, psolve)
+function CVSpilsSetPreconditioner(
+        cvode_mem, pset::CVSpilsPrecSetupFn,
+        psolve::CVSpilsPrecSolveFn
+    )
+    return ccall(
+        (:CVSpilsSetPreconditioner, libsundials_cvodes), Cint,
+        (CVODEMemPtr, CVSpilsPrecSetupFn, CVSpilsPrecSolveFn), cvode_mem, pset, psolve
+    )
 end
 
-function CVSpilsSetJacTimes(cvode_mem, jtsetup::CVSpilsJacTimesSetupFn,
-        jtimes::CVSpilsJacTimesVecFn)
-    ccall((:CVSpilsSetJacTimes, libsundials_cvodes), Cint,
+function CVSpilsSetJacTimes(
+        cvode_mem, jtsetup::CVSpilsJacTimesSetupFn,
+        jtimes::CVSpilsJacTimesVecFn
+    )
+    return ccall(
+        (:CVSpilsSetJacTimes, libsundials_cvodes), Cint,
         (CVODEMemPtr, CVSpilsJacTimesSetupFn, CVSpilsJacTimesVecFn), cvode_mem, jtsetup,
-        jtimes)
+        jtimes
+    )
 end
 
 function CVSpilsGetWorkSpace(cvode_mem, lenrwLS, leniwLS)
-    ccall((:CVSpilsGetWorkSpace, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:CVSpilsGetWorkSpace, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, lenrwLS, leniwLS
+    )
 end
 
 function CVSpilsGetNumPrecEvals(cvode_mem, npevals)
-    ccall((:CVSpilsGetNumPrecEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, npevals)
+    return ccall(
+        (:CVSpilsGetNumPrecEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, npevals
+    )
 end
 
 function CVSpilsGetNumPrecSolves(cvode_mem, npsolves)
-    ccall((:CVSpilsGetNumPrecSolves, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, npsolves)
+    return ccall(
+        (:CVSpilsGetNumPrecSolves, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, npsolves
+    )
 end
 
 function CVSpilsGetNumLinIters(cvode_mem, nliters)
-    ccall((:CVSpilsGetNumLinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nliters)
+    return ccall(
+        (:CVSpilsGetNumLinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nliters
+    )
 end
 
 function CVSpilsGetNumConvFails(cvode_mem, nlcfails)
-    ccall((:CVSpilsGetNumConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nlcfails)
+    return ccall(
+        (:CVSpilsGetNumConvFails, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nlcfails
+    )
 end
 
 function CVSpilsGetNumJTSetupEvals(cvode_mem, njtsetups)
-    ccall(
+    return ccall(
         (:CVSpilsGetNumJTSetupEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, njtsetups)
+        cvode_mem, njtsetups
+    )
 end
 
 function CVSpilsGetNumJtimesEvals(cvode_mem, njvevals)
-    ccall((:CVSpilsGetNumJtimesEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, njvevals)
+    return ccall(
+        (:CVSpilsGetNumJtimesEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, njvevals
+    )
 end
 
 function CVSpilsGetNumRhsEvals(cvode_mem, nfevalsLS)
-    ccall((:CVSpilsGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfevalsLS)
+    return ccall(
+        (:CVSpilsGetNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfevalsLS
+    )
 end
 
 function CVSpilsGetLastFlag(cvode_mem, flag)
-    ccall((:CVSpilsGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, flag)
+    return ccall(
+        (:CVSpilsGetLastFlag, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, flag
+    )
 end
 
 function CVSpilsGetReturnFlagName(flag::Clong)
-    ccall((:CVSpilsGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
+    return ccall((:CVSpilsGetReturnFlagName, libsundials_cvodes), Cstring, (Clong,), flag)
 end
 
 function CVSpilsGetReturnFlagName(flag)
-    CVSpilsGetReturnFlagName(convert(Clong, flag))
+    return CVSpilsGetReturnFlagName(convert(Clong, flag))
 end
 
 function CVodeGetCurrentStateSens(cvode_mem, yS)
-    ccall((:CVodeGetCurrentStateSens, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Ptr{N_Vector}}), cvode_mem, yS)
+    return ccall(
+        (:CVodeGetCurrentStateSens, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Ptr{N_Vector}}), cvode_mem, yS
+    )
 end
 
 function CVodeGetCurrentSensSolveIndex(cvode_mem, index)
-    ccall((:CVodeGetCurrentSensSolveIndex, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Cint}), cvode_mem, index)
+    return ccall(
+        (:CVodeGetCurrentSensSolveIndex, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Cint}), cvode_mem, index
+    )
 end
 
 function CVodeQuadInit(cvode_mem, fQ::CVQuadRhsFn, yQ0::Union{N_Vector, NVector})
-    ccall((:CVodeQuadInit, libsundials_cvodes), Cint, (CVODEMemPtr, CVQuadRhsFn, N_Vector),
-        cvode_mem, fQ, yQ0)
+    return ccall(
+        (:CVodeQuadInit, libsundials_cvodes), Cint, (CVODEMemPtr, CVQuadRhsFn, N_Vector),
+        cvode_mem, fQ, yQ0
+    )
 end
 
 function CVodeQuadInit(cvode_mem, fQ, yQ0, ctx::SUNContext)
     __yQ0 = convert(NVector, yQ0, ctx)
-    CVodeQuadInit(cvode_mem, fQ, __yQ0)
+    return CVodeQuadInit(cvode_mem, fQ, __yQ0)
 end
 
 function CVodeQuadReInit(cvode_mem, yQ0::Union{N_Vector, NVector})
-    ccall((:CVodeQuadReInit, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector), cvode_mem,
-        yQ0)
+    return ccall(
+        (:CVodeQuadReInit, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector), cvode_mem,
+        yQ0
+    )
 end
 
 function CVodeQuadReInit(cvode_mem, yQ0, ctx::SUNContext)
     __yQ0 = convert(NVector, yQ0, ctx)
-    CVodeQuadReInit(cvode_mem, __yQ0)
+    return CVodeQuadReInit(cvode_mem, __yQ0)
 end
 
 function CVodeQuadSStolerances(cvode_mem, reltolQ::realtype, abstolQ::realtype)
-    ccall((:CVodeQuadSStolerances, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, realtype), cvode_mem, reltolQ, abstolQ)
+    return ccall(
+        (:CVodeQuadSStolerances, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, realtype), cvode_mem, reltolQ, abstolQ
+    )
 end
 
-function CVodeQuadSVtolerances(cvode_mem, reltolQ::realtype,
-        abstolQ::Union{N_Vector, NVector})
-    ccall((:CVodeQuadSVtolerances, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, N_Vector), cvode_mem, reltolQ, abstolQ)
+function CVodeQuadSVtolerances(
+        cvode_mem, reltolQ::realtype,
+        abstolQ::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeQuadSVtolerances, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, N_Vector), cvode_mem, reltolQ, abstolQ
+    )
 end
 
 function CVodeQuadSVtolerances(cvode_mem, reltolQ, abstolQ, ctx::SUNContext)
-    CVodeQuadSVtolerances(cvode_mem, reltolQ, abstolQ, ctx)
+    return CVodeQuadSVtolerances(cvode_mem, reltolQ, abstolQ, ctx)
 end
 
 function CVodeSetQuadErrCon(cvode_mem, errconQ::Cint)
-    ccall((:CVodeSetQuadErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
-        errconQ)
+    return ccall(
+        (:CVodeSetQuadErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
+        errconQ
+    )
 end
 
 function CVodeSetQuadErrCon(cvode_mem, errconQ)
-    CVodeSetQuadErrCon(cvode_mem, convert(Cint, errconQ))
+    return CVodeSetQuadErrCon(cvode_mem, convert(Cint, errconQ))
 end
 
 function CVodeGetQuad(cvode_mem, tret, yQout::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:CVodeGetQuad, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{realtype}, N_Vector),
-        cvode_mem, tret, yQout)
+        cvode_mem, tret, yQout
+    )
 end
 
 function CVodeGetQuad(cvode_mem, tret, yQout, ctx::SUNContext)
-    CVodeGetQuad(cvode_mem, tret, yQout, ctx)
+    return CVodeGetQuad(cvode_mem, tret, yQout, ctx)
 end
 
 function CVodeGetQuadDky(cvode_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
-    ccall((:CVodeGetQuadDky, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky)
+    return ccall(
+        (:CVodeGetQuadDky, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky
+    )
 end
 
 function CVodeGetQuadDky(cvode_mem, t, k, dky, ctx::SUNContext)
-    CVodeGetQuadDky(cvode_mem, t, k, dky, ctx)
+    return CVodeGetQuadDky(cvode_mem, t, k, dky, ctx)
 end
 
 function CVodeGetQuadNumRhsEvals(cvode_mem, nfQevals)
-    ccall((:CVodeGetQuadNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfQevals)
+    return ccall(
+        (:CVodeGetQuadNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfQevals
+    )
 end
 
 function CVodeGetQuadNumErrTestFails(cvode_mem, nQetfails)
-    ccall((:CVodeGetQuadNumErrTestFails, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nQetfails)
+    return ccall(
+        (:CVodeGetQuadNumErrTestFails, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nQetfails
+    )
 end
 
 function CVodeGetQuadErrWeights(cvode_mem, eQweight::Union{N_Vector, NVector})
-    ccall((:CVodeGetQuadErrWeights, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
-        cvode_mem, eQweight)
+    return ccall(
+        (:CVodeGetQuadErrWeights, libsundials_cvodes), Cint, (CVODEMemPtr, N_Vector),
+        cvode_mem, eQweight
+    )
 end
 
 function CVodeGetQuadErrWeights(cvode_mem, eQweight, ctx::SUNContext)
-    CVodeGetQuadErrWeights(cvode_mem, eQweight, ctx)
+    return CVodeGetQuadErrWeights(cvode_mem, eQweight, ctx)
 end
 
 function CVodeGetQuadStats(cvode_mem, nfQevals, nQetfails)
-    ccall((:CVodeGetQuadStats, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nfQevals, nQetfails)
+    return ccall(
+        (:CVodeGetQuadStats, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nfQevals, nQetfails
+    )
 end
 
 function CVodeQuadFree(cvode_mem)
-    ccall((:CVodeQuadFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeQuadFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeSensInit(cvode_mem, Ns::Cint, ism::Cint, fS::CVSensRhsFn, yS0)
-    ccall((:CVodeSensInit, libsundials_cvodes), Cint,
+    return ccall(
+        (:CVodeSensInit, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, Cint, CVSensRhsFn, Ptr{N_Vector}), cvode_mem, Ns, ism, fS,
-        yS0)
+        yS0
+    )
 end
 
 function CVodeSensInit(cvode_mem, Ns, ism, fS, yS0)
-    CVodeSensInit(cvode_mem, convert(Cint, Ns), convert(Cint, ism), fS, yS0)
+    return CVodeSensInit(cvode_mem, convert(Cint, Ns), convert(Cint, ism), fS, yS0)
 end
 
 function CVodeSensInit1(cvode_mem, Ns::Cint, ism::Cint, fS1::CVSensRhs1Fn, yS0)
-    ccall((:CVodeSensInit1, libsundials_cvodes), Cint,
+    return ccall(
+        (:CVodeSensInit1, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, Cint, CVSensRhs1Fn, Ptr{N_Vector}), cvode_mem, Ns, ism, fS1,
-        yS0)
+        yS0
+    )
 end
 
 function CVodeSensInit1(cvode_mem, Ns, ism, fS1, yS0)
-    CVodeSensInit1(cvode_mem, convert(Cint, Ns), convert(Cint, ism), fS1, yS0)
+    return CVodeSensInit1(cvode_mem, convert(Cint, Ns), convert(Cint, ism), fS1, yS0)
 end
 
 function CVodeSensReInit(cvode_mem, ism::Cint, yS0)
-    ccall((:CVodeSensReInit, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{N_Vector}),
-        cvode_mem, ism, yS0)
+    return ccall(
+        (:CVodeSensReInit, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{N_Vector}),
+        cvode_mem, ism, yS0
+    )
 end
 
 function CVodeSensReInit(cvode_mem, ism, yS0)
-    CVodeSensReInit(cvode_mem, convert(Cint, ism), yS0)
+    return CVodeSensReInit(cvode_mem, convert(Cint, ism), yS0)
 end
 
 function CVodeSensSStolerances(cvode_mem, reltolS::realtype, abstolS)
-    ccall((:CVodeSensSStolerances, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Ptr{realtype}), cvode_mem, reltolS, abstolS)
+    return ccall(
+        (:CVodeSensSStolerances, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Ptr{realtype}), cvode_mem, reltolS, abstolS
+    )
 end
 
 function CVodeSensSVtolerances(cvode_mem, reltolS::realtype, abstolS)
-    ccall((:CVodeSensSVtolerances, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Ptr{N_Vector}), cvode_mem, reltolS, abstolS)
+    return ccall(
+        (:CVodeSensSVtolerances, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Ptr{N_Vector}), cvode_mem, reltolS, abstolS
+    )
 end
 
 function CVodeSensEEtolerances(cvode_mem)
-    ccall((:CVodeSensEEtolerances, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeSensEEtolerances, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeSetSensDQMethod(cvode_mem, DQtype::Cint, DQrhomax::realtype)
-    ccall((:CVodeSetSensDQMethod, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
-        cvode_mem, DQtype, DQrhomax)
+    return ccall(
+        (:CVodeSetSensDQMethod, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
+        cvode_mem, DQtype, DQrhomax
+    )
 end
 
 function CVodeSetSensDQMethod(cvode_mem, DQtype, DQrhomax)
-    CVodeSetSensDQMethod(cvode_mem, convert(Cint, DQtype), DQrhomax)
+    return CVodeSetSensDQMethod(cvode_mem, convert(Cint, DQtype), DQrhomax)
 end
 
 function CVodeSetSensErrCon(cvode_mem, errconS::Cint)
-    ccall((:CVodeSetSensErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
-        errconS)
+    return ccall(
+        (:CVodeSetSensErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem,
+        errconS
+    )
 end
 
 function CVodeSetSensErrCon(cvode_mem, errconS)
-    CVodeSetSensErrCon(cvode_mem, convert(Cint, errconS))
+    return CVodeSetSensErrCon(cvode_mem, convert(Cint, errconS))
 end
 
 function CVodeSetSensMaxNonlinIters(cvode_mem, maxcorS::Cint)
-    ccall((:CVodeSetSensMaxNonlinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
-        cvode_mem, maxcorS)
+    return ccall(
+        (:CVodeSetSensMaxNonlinIters, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
+        cvode_mem, maxcorS
+    )
 end
 
 function CVodeSetSensMaxNonlinIters(cvode_mem, maxcorS)
-    CVodeSetSensMaxNonlinIters(cvode_mem, convert(Cint, maxcorS))
+    return CVodeSetSensMaxNonlinIters(cvode_mem, convert(Cint, maxcorS))
 end
 
 function CVodeSetSensParams(cvode_mem, p, pbar, plist)
-    ccall((:CVodeSetSensParams, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{realtype}, Ptr{realtype}, Ptr{Cint}), cvode_mem, p, pbar, plist)
+    return ccall(
+        (:CVodeSetSensParams, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{realtype}, Ptr{realtype}, Ptr{Cint}), cvode_mem, p, pbar, plist
+    )
 end
 
 function CVodeSetNonlinearSolverSensSim(cvode_mem, NLS::SUNNonlinearSolver)
-    ccall((:CVodeSetNonlinearSolverSensSim, libsundials_cvodes), Cint,
-        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS)
+    return ccall(
+        (:CVodeSetNonlinearSolverSensSim, libsundials_cvodes), Cint,
+        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS
+    )
 end
 
 function CVodeSetNonlinearSolverSensStg(cvode_mem, NLS::SUNNonlinearSolver)
-    ccall((:CVodeSetNonlinearSolverSensStg, libsundials_cvodes), Cint,
-        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS)
+    return ccall(
+        (:CVodeSetNonlinearSolverSensStg, libsundials_cvodes), Cint,
+        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS
+    )
 end
 
 function CVodeSetNonlinearSolverSensStg1(cvode_mem, NLS::SUNNonlinearSolver)
-    ccall((:CVodeSetNonlinearSolverSensStg1, libsundials_cvodes), Cint,
-        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS)
+    return ccall(
+        (:CVodeSetNonlinearSolverSensStg1, libsundials_cvodes), Cint,
+        (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS
+    )
 end
 
 function CVodeSensToggleOff(cvode_mem)
-    ccall((:CVodeSensToggleOff, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeSensToggleOff, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeGetSens(cvode_mem, tret, ySout)
-    ccall((:CVodeGetSens, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{realtype}, Ptr{N_Vector}), cvode_mem, tret, ySout)
+    return ccall(
+        (:CVodeGetSens, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{realtype}, Ptr{N_Vector}), cvode_mem, tret, ySout
+    )
 end
 
 function CVodeGetSens1(cvode_mem, tret, is::Cint, ySout::Union{N_Vector, NVector})
-    ccall((:CVodeGetSens1, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{realtype}, Cint, N_Vector), cvode_mem, tret, is, ySout)
+    return ccall(
+        (:CVodeGetSens1, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{realtype}, Cint, N_Vector), cvode_mem, tret, is, ySout
+    )
 end
 
 function CVodeGetSens1(cvode_mem, tret, is, ySout, ctx::SUNContext)
-    CVodeGetSens1(cvode_mem, tret, is, ySout, ctx)
+    return CVodeGetSens1(cvode_mem, tret, is, ySout, ctx)
 end
 
 function CVodeGetSensDky(cvode_mem, t::realtype, k::Cint, dkyA)
-    ccall((:CVodeGetSensDky, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Cint, Ptr{N_Vector}), cvode_mem, t, k, dkyA)
+    return ccall(
+        (:CVodeGetSensDky, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Cint, Ptr{N_Vector}), cvode_mem, t, k, dkyA
+    )
 end
 
 function CVodeGetSensDky(cvode_mem, t, k, dkyA)
-    CVodeGetSensDky(cvode_mem, t, convert(Cint, k), dkyA)
+    return CVodeGetSensDky(cvode_mem, t, convert(Cint, k), dkyA)
 end
 
-function CVodeGetSensDky1(cvode_mem, t::realtype, k::Cint, is::Cint,
-        dky::Union{N_Vector, NVector})
-    ccall((:CVodeGetSensDky1, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Cint, Cint, N_Vector), cvode_mem, t, k, is, dky)
+function CVodeGetSensDky1(
+        cvode_mem, t::realtype, k::Cint, is::Cint,
+        dky::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeGetSensDky1, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Cint, Cint, N_Vector), cvode_mem, t, k, is, dky
+    )
 end
 
 function CVodeGetSensDky1(cvode_mem, t, k, is, dky)
     __dky = convert(NVector, dky)
-    CVodeGetSensDky1(cvode_mem, t, convert(Cint, k), convert(Cint, is),
-        __dky)
+    return CVodeGetSensDky1(
+        cvode_mem, t, convert(Cint, k), convert(Cint, is),
+        __dky
+    )
 end
 
 function CVodeGetSensNumRhsEvals(cvode_mem, nfSevals)
-    ccall((:CVodeGetSensNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfSevals)
+    return ccall(
+        (:CVodeGetSensNumRhsEvals, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfSevals
+    )
 end
 
 function CVodeGetNumRhsEvalsSens(cvode_mem, nfevalsS)
-    ccall((:CVodeGetNumRhsEvalsSens, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
-        cvode_mem, nfevalsS)
+    return ccall(
+        (:CVodeGetNumRhsEvalsSens, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{Clong}),
+        cvode_mem, nfevalsS
+    )
 end
 
 function CVodeGetSensNumErrTestFails(cvode_mem, nSetfails)
-    ccall((:CVodeGetSensNumErrTestFails, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSetfails)
+    return ccall(
+        (:CVodeGetSensNumErrTestFails, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSetfails
+    )
 end
 
 function CVodeGetSensNumLinSolvSetups(cvode_mem, nlinsetupsS)
-    ccall((:CVodeGetSensNumLinSolvSetups, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlinsetupsS)
+    return ccall(
+        (:CVodeGetSensNumLinSolvSetups, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nlinsetupsS
+    )
 end
 
 function CVodeGetSensErrWeights(cvode_mem, eSweight)
-    ccall(
+    return ccall(
         (:CVodeGetSensErrWeights, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{N_Vector}),
-        cvode_mem, eSweight)
+        cvode_mem, eSweight
+    )
 end
 
 function CVodeGetSensStats(cvode_mem, nfSevals, nfevalsS, nSetfails, nlinsetupsS)
-    ccall((:CVodeGetSensStats, libsundials_cvodes), Cint,
+    return ccall(
+        (:CVodeGetSensStats, libsundials_cvodes), Cint,
         (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}), cvode_mem,
-        nfSevals, nfevalsS, nSetfails, nlinsetupsS)
+        nfSevals, nfevalsS, nSetfails, nlinsetupsS
+    )
 end
 
 function CVodeGetSensNumNonlinSolvIters(cvode_mem, nSniters)
-    ccall((:CVodeGetSensNumNonlinSolvIters, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSniters)
+    return ccall(
+        (:CVodeGetSensNumNonlinSolvIters, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSniters
+    )
 end
 
 function CVodeGetSensNumNonlinSolvConvFails(cvode_mem, nSncfails)
-    ccall((:CVodeGetSensNumNonlinSolvConvFails, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSncfails)
+    return ccall(
+        (:CVodeGetSensNumNonlinSolvConvFails, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSncfails
+    )
 end
 
 function CVodeGetStgrSensNumNonlinSolvIters(cvode_mem, nSTGR1niters)
-    ccall((:CVodeGetStgrSensNumNonlinSolvIters, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSTGR1niters)
+    return ccall(
+        (:CVodeGetStgrSensNumNonlinSolvIters, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSTGR1niters
+    )
 end
 
 function CVodeGetStgrSensNumNonlinSolvConvFails(cvode_mem, nSTGR1ncfails)
-    ccall((:CVodeGetStgrSensNumNonlinSolvConvFails, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSTGR1ncfails)
+    return ccall(
+        (:CVodeGetStgrSensNumNonlinSolvConvFails, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nSTGR1ncfails
+    )
 end
 
 function CVodeGetSensNonlinSolvStats(cvode_mem, nSniters, nSncfails)
-    ccall((:CVodeGetSensNonlinSolvStats, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nSniters, nSncfails)
+    return ccall(
+        (:CVodeGetSensNonlinSolvStats, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nSniters, nSncfails
+    )
 end
 
 function CVodeSensFree(cvode_mem)
-    ccall((:CVodeSensFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeSensFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeQuadSensInit(cvode_mem, fQS::CVQuadSensRhsFn, yQS0)
-    ccall((:CVodeQuadSensInit, libsundials_cvodes), Cint,
-        (CVODEMemPtr, CVQuadSensRhsFn, Ptr{N_Vector}), cvode_mem, fQS, yQS0)
+    return ccall(
+        (:CVodeQuadSensInit, libsundials_cvodes), Cint,
+        (CVODEMemPtr, CVQuadSensRhsFn, Ptr{N_Vector}), cvode_mem, fQS, yQS0
+    )
 end
 
 function CVodeQuadSensReInit(cvode_mem, yQS0)
-    ccall((:CVodeQuadSensReInit, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{N_Vector}),
-        cvode_mem, yQS0)
+    return ccall(
+        (:CVodeQuadSensReInit, libsundials_cvodes), Cint, (CVODEMemPtr, Ptr{N_Vector}),
+        cvode_mem, yQS0
+    )
 end
 
 function CVodeQuadSensSStolerances(cvode_mem, reltolQS::realtype, abstolQS)
-    ccall((:CVodeQuadSensSStolerances, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Ptr{realtype}), cvode_mem, reltolQS, abstolQS)
+    return ccall(
+        (:CVodeQuadSensSStolerances, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Ptr{realtype}), cvode_mem, reltolQS, abstolQS
+    )
 end
 
 function CVodeQuadSensSVtolerances(cvode_mem, reltolQS::realtype, abstolQS)
-    ccall((:CVodeQuadSensSVtolerances, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Ptr{N_Vector}), cvode_mem, reltolQS, abstolQS)
+    return ccall(
+        (:CVodeQuadSensSVtolerances, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Ptr{N_Vector}), cvode_mem, reltolQS, abstolQS
+    )
 end
 
 function CVodeQuadSensEEtolerances(cvode_mem)
-    ccall((:CVodeQuadSensEEtolerances, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeQuadSensEEtolerances, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeSetQuadSensErrCon(cvode_mem, errconQS::Cint)
-    ccall((:CVodeSetQuadSensErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
-        cvode_mem, errconQS)
+    return ccall(
+        (:CVodeSetQuadSensErrCon, libsundials_cvodes), Cint, (CVODEMemPtr, Cint),
+        cvode_mem, errconQS
+    )
 end
 
 function CVodeSetQuadSensErrCon(cvode_mem, errconQS)
-    CVodeSetQuadSensErrCon(cvode_mem, convert(Cint, errconQS))
+    return CVodeSetQuadSensErrCon(cvode_mem, convert(Cint, errconQS))
 end
 
 function CVodeGetQuadSens(cvode_mem, tret, yQSout)
-    ccall((:CVodeGetQuadSens, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{realtype}, Ptr{N_Vector}), cvode_mem, tret, yQSout)
+    return ccall(
+        (:CVodeGetQuadSens, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{realtype}, Ptr{N_Vector}), cvode_mem, tret, yQSout
+    )
 end
 
 function CVodeGetQuadSens1(cvode_mem, tret, is::Cint, yQSout::Union{N_Vector, NVector})
-    ccall((:CVodeGetQuadSens1, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{realtype}, Cint, N_Vector), cvode_mem, tret, is, yQSout)
+    return ccall(
+        (:CVodeGetQuadSens1, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{realtype}, Cint, N_Vector), cvode_mem, tret, is, yQSout
+    )
 end
 
 function CVodeGetQuadSens1(cvode_mem, tret, is, yQSout, ctx::SUNContext)
-    CVodeGetQuadSens1(cvode_mem, tret, is, yQSout, ctx)
+    return CVodeGetQuadSens1(cvode_mem, tret, is, yQSout, ctx)
 end
 
 function CVodeGetQuadSensDky(cvode_mem, t::realtype, k::Cint, dkyQS_all)
-    ccall((:CVodeGetQuadSensDky, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Cint, Ptr{N_Vector}), cvode_mem, t, k, dkyQS_all)
+    return ccall(
+        (:CVodeGetQuadSensDky, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Cint, Ptr{N_Vector}), cvode_mem, t, k, dkyQS_all
+    )
 end
 
 function CVodeGetQuadSensDky(cvode_mem, t, k, dkyQS_all)
-    CVodeGetQuadSensDky(cvode_mem, t, convert(Cint, k), dkyQS_all)
+    return CVodeGetQuadSensDky(cvode_mem, t, convert(Cint, k), dkyQS_all)
 end
 
-function CVodeGetQuadSensDky1(cvode_mem, t::realtype, k::Cint, is::Cint,
-        dkyQS::Union{N_Vector, NVector})
-    ccall((:CVodeGetQuadSensDky1, libsundials_cvodes), Cint,
-        (CVODEMemPtr, realtype, Cint, Cint, N_Vector), cvode_mem, t, k, is, dkyQS)
+function CVodeGetQuadSensDky1(
+        cvode_mem, t::realtype, k::Cint, is::Cint,
+        dkyQS::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeGetQuadSensDky1, libsundials_cvodes), Cint,
+        (CVODEMemPtr, realtype, Cint, Cint, N_Vector), cvode_mem, t, k, is, dkyQS
+    )
 end
 
 function CVodeGetQuadSensDky1(cvode_mem, t, k, is, dkyQS)
     __dkyQS = convert(NVector, dkyQS)
-    CVodeGetQuadSensDky1(cvode_mem, t, convert(Cint, k), convert(Cint, is),
-        __dkyQS)
+    return CVodeGetQuadSensDky1(
+        cvode_mem, t, convert(Cint, k), convert(Cint, is),
+        __dkyQS
+    )
 end
 
 function CVodeGetQuadSensNumRhsEvals(cvode_mem, nfQSevals)
-    ccall((:CVodeGetQuadSensNumRhsEvals, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfQSevals)
+    return ccall(
+        (:CVodeGetQuadSensNumRhsEvals, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfQSevals
+    )
 end
 
 function CVodeGetQuadSensNumErrTestFails(cvode_mem, nQSetfails)
-    ccall((:CVodeGetQuadSensNumErrTestFails, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nQSetfails)
+    return ccall(
+        (:CVodeGetQuadSensNumErrTestFails, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}), cvode_mem, nQSetfails
+    )
 end
 
 function CVodeGetQuadSensErrWeights(cvode_mem, eQSweight)
-    ccall((:CVodeGetQuadSensErrWeights, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{N_Vector}), cvode_mem, eQSweight)
+    return ccall(
+        (:CVodeGetQuadSensErrWeights, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{N_Vector}), cvode_mem, eQSweight
+    )
 end
 
 function CVodeGetQuadSensStats(cvode_mem, nfQSevals, nQSetfails)
-    ccall((:CVodeGetQuadSensStats, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nfQSevals, nQSetfails)
+    return ccall(
+        (:CVodeGetQuadSensStats, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nfQSevals, nQSetfails
+    )
 end
 
 function CVodeQuadSensFree(cvode_mem)
-    ccall((:CVodeQuadSensFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeQuadSensFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeAdjInit(cvode_mem, steps::Clong, interp::Cint)
-    ccall((:CVodeAdjInit, libsundials_cvodes), Cint, (CVODEMemPtr, Clong, Cint), cvode_mem,
-        steps, interp)
+    return ccall(
+        (:CVodeAdjInit, libsundials_cvodes), Cint, (CVODEMemPtr, Clong, Cint), cvode_mem,
+        steps, interp
+    )
 end
 
 function CVodeAdjInit(cvode_mem, steps, interp)
-    CVodeAdjInit(cvode_mem, convert(Clong, steps), convert(Cint, interp))
+    return CVodeAdjInit(cvode_mem, convert(Clong, steps), convert(Cint, interp))
 end
 
 function CVodeAdjReInit(cvode_mem)
-    ccall((:CVodeAdjReInit, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeAdjReInit, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeAdjFree(cvode_mem)
-    ccall((:CVodeAdjFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeAdjFree, libsundials_cvodes), Cvoid, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeCreateB(cvode_mem, lmmB::Cint, which)
-    ccall((:CVodeCreateB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{Cint}),
-        cvode_mem, lmmB, which)
+    return ccall(
+        (:CVodeCreateB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Ptr{Cint}),
+        cvode_mem, lmmB, which
+    )
 end
 
 function CVodeCreateB(cvode_mem, lmmB, which)
-    CVodeCreateB(cvode_mem, convert(Cint, lmmB), which)
+    return CVodeCreateB(cvode_mem, convert(Cint, lmmB), which)
 end
 
-function CVodeInitB(cvode_mem, which::Cint, fB::CVRhsFnB, tB0::realtype,
-        yB0::Union{N_Vector, NVector})
-    ccall((:CVodeInitB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, CVRhsFnB, realtype, N_Vector), cvode_mem, which, fB, tB0, yB0)
+function CVodeInitB(
+        cvode_mem, which::Cint, fB::CVRhsFnB, tB0::realtype,
+        yB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeInitB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, CVRhsFnB, realtype, N_Vector), cvode_mem, which, fB, tB0, yB0
+    )
 end
 
 function CVodeInitB(cvode_mem, which, fB, tB0, yB0, ctx::SUNContext)
     __yB0 = convert(NVector, yB0, ctx)
-    CVodeInitB(cvode_mem, which, fB, tB0, __yB0)
+    return CVodeInitB(cvode_mem, which, fB, tB0, __yB0)
 end
 
-function CVodeInitBS(cvode_mem, which::Cint, fBs::CVRhsFnBS, tB0::realtype,
-        yB0::Union{N_Vector, NVector})
-    ccall((:CVodeInitBS, libsundials_cvodes), Cint,
+function CVodeInitBS(
+        cvode_mem, which::Cint, fBs::CVRhsFnBS, tB0::realtype,
+        yB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeInitBS, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVRhsFnBS, realtype, N_Vector), cvode_mem, which, fBs, tB0,
-        yB0)
+        yB0
+    )
 end
 
 function CVodeInitBS(cvode_mem, which, fBs, tB0, yB0, ctx::SUNContext)
     __yB0 = convert(NVector, yB0, ctx)
-    CVodeInitBS(cvode_mem, which, fBs, tB0, __yB0)
+    return CVodeInitBS(cvode_mem, which, fBs, tB0, __yB0)
 end
 
 function CVodeReInitB(cvode_mem, which::Cint, tB0::realtype, yB0::Union{N_Vector, NVector})
-    ccall((:CVodeReInitB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, tB0, yB0)
+    return ccall(
+        (:CVodeReInitB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, tB0, yB0
+    )
 end
 
 function CVodeReInitB(cvode_mem, which, tB0, yB0, ctx::SUNContext)
     __yB0 = convert(NVector, yB0, ctx)
-    CVodeReInitB(cvode_mem, which, tB0, __yB0)
+    return CVodeReInitB(cvode_mem, which, tB0, __yB0)
 end
 
 function CVodeSStolerancesB(cvode_mem, which::Cint, reltolB::realtype, abstolB::realtype)
-    ccall((:CVodeSStolerancesB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, realtype, realtype), cvode_mem, which, reltolB, abstolB)
+    return ccall(
+        (:CVodeSStolerancesB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, realtype, realtype), cvode_mem, which, reltolB, abstolB
+    )
 end
 
 function CVodeSStolerancesB(cvode_mem, which, reltolB, abstolB)
-    CVodeSStolerancesB(cvode_mem, convert(Cint, which), reltolB, abstolB)
+    return CVodeSStolerancesB(cvode_mem, convert(Cint, which), reltolB, abstolB)
 end
 
-function CVodeSVtolerancesB(cvode_mem, which::Cint, reltolB::realtype,
-        abstolB::Union{N_Vector, NVector})
-    ccall((:CVodeSVtolerancesB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, reltolB, abstolB)
+function CVodeSVtolerancesB(
+        cvode_mem, which::Cint, reltolB::realtype,
+        abstolB::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeSVtolerancesB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, reltolB, abstolB
+    )
 end
 
 function CVodeSVtolerancesB(cvode_mem, which, reltolB, abstolB)
     __abstolB = convert(NVector, abstolB)
-    CVodeSVtolerancesB(cvode_mem, convert(Cint, which), reltolB,
-        __abstolB)
+    return CVodeSVtolerancesB(
+        cvode_mem, convert(Cint, which), reltolB,
+        __abstolB
+    )
 end
 
-function CVodeQuadInitB(cvode_mem, which::Cint, fQB::CVQuadRhsFnB,
-        yQB0::Union{N_Vector, NVector})
-    ccall((:CVodeQuadInitB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, CVQuadRhsFnB, N_Vector), cvode_mem, which, fQB, yQB0)
+function CVodeQuadInitB(
+        cvode_mem, which::Cint, fQB::CVQuadRhsFnB,
+        yQB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeQuadInitB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, CVQuadRhsFnB, N_Vector), cvode_mem, which, fQB, yQB0
+    )
 end
 
 function CVodeQuadInitB(cvode_mem, which, fQB, yQB0, ctx::SUNContext)
     __yQB0 = convert(NVector, yQB0, ctx)
-    CVodeQuadInitB(cvode_mem, which, fQB, __yQB0)
+    return CVodeQuadInitB(cvode_mem, which, fQB, __yQB0)
 end
 
-function CVodeQuadInitBS(cvode_mem, which::Cint, fQBs::CVQuadRhsFnBS,
-        yQB0::Union{N_Vector, NVector})
-    ccall((:CVodeQuadInitBS, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, CVQuadRhsFnBS, N_Vector), cvode_mem, which, fQBs, yQB0)
+function CVodeQuadInitBS(
+        cvode_mem, which::Cint, fQBs::CVQuadRhsFnBS,
+        yQB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeQuadInitBS, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, CVQuadRhsFnBS, N_Vector), cvode_mem, which, fQBs, yQB0
+    )
 end
 
 function CVodeQuadInitBS(cvode_mem, which, fQBs, yQB0, ctx::SUNContext)
     __yQB0 = convert(NVector, yQB0, ctx)
-    CVodeQuadInitBS(cvode_mem, which, fQBs, __yQB0)
+    return CVodeQuadInitBS(cvode_mem, which, fQBs, __yQB0)
 end
 
 function CVodeQuadReInitB(cvode_mem, which::Cint, yQB0::Union{N_Vector, NVector})
-    ccall((:CVodeQuadReInitB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, N_Vector),
-        cvode_mem, which, yQB0)
+    return ccall(
+        (:CVodeQuadReInitB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, N_Vector),
+        cvode_mem, which, yQB0
+    )
 end
 
 function CVodeQuadReInitB(cvode_mem, which, yQB0, ctx::SUNContext)
     __yQB0 = convert(NVector, yQB0, ctx)
-    CVodeQuadReInitB(cvode_mem, which, __yQB0)
+    return CVodeQuadReInitB(cvode_mem, which, __yQB0)
 end
 
-function CVodeQuadSStolerancesB(cvode_mem, which::Cint, reltolQB::realtype,
-        abstolQB::realtype)
-    ccall((:CVodeQuadSStolerancesB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, realtype, realtype), cvode_mem, which, reltolQB, abstolQB)
+function CVodeQuadSStolerancesB(
+        cvode_mem, which::Cint, reltolQB::realtype,
+        abstolQB::realtype
+    )
+    return ccall(
+        (:CVodeQuadSStolerancesB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, realtype, realtype), cvode_mem, which, reltolQB, abstolQB
+    )
 end
 
 function CVodeQuadSStolerancesB(cvode_mem, which, reltolQB, abstolQB)
-    CVodeQuadSStolerancesB(cvode_mem, convert(Cint, which), reltolQB, abstolQB)
+    return CVodeQuadSStolerancesB(cvode_mem, convert(Cint, which), reltolQB, abstolQB)
 end
 
-function CVodeQuadSVtolerancesB(cvode_mem, which::Cint, reltolQB::realtype,
-        abstolQB::Union{N_Vector, NVector})
-    ccall((:CVodeQuadSVtolerancesB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, reltolQB, abstolQB)
+function CVodeQuadSVtolerancesB(
+        cvode_mem, which::Cint, reltolQB::realtype,
+        abstolQB::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeQuadSVtolerancesB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, realtype, N_Vector), cvode_mem, which, reltolQB, abstolQB
+    )
 end
 
 function CVodeQuadSVtolerancesB(cvode_mem, which, reltolQB, abstolQB)
     __abstolQB = convert(NVector, abstolQB)
-    CVodeQuadSVtolerancesB(cvode_mem, convert(Cint, which), reltolQB,
-        __abstolQB)
+    return CVodeQuadSVtolerancesB(
+        cvode_mem, convert(Cint, which), reltolQB,
+        __abstolQB
+    )
 end
 
-function CVodeF(cvode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
-        itask::Cint, ncheckPtr)
-    ccall((:CVodeF, libsundials_cvodes), Cint,
+function CVodeF(
+        cvode_mem, tout::realtype, yout::Union{N_Vector, NVector}, tret,
+        itask::Cint, ncheckPtr
+    )
+    return ccall(
+        (:CVodeF, libsundials_cvodes), Cint,
         (CVODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint, Ptr{Cint}), cvode_mem,
-        tout, yout, tret, itask, ncheckPtr)
+        tout, yout, tret, itask, ncheckPtr
+    )
 end
 
 function CVodeF(cvode_mem, tout, yout, tret, itask, ncheckPtr)
     __yout = convert(NVector, yout)
-    CVodeF(cvode_mem, tout, __yout, tret, convert(Cint, itask),
-        ncheckPtr)
+    return CVodeF(
+        cvode_mem, tout, __yout, tret, convert(Cint, itask),
+        ncheckPtr
+    )
 end
 
 function CVodeB(cvode_mem, tBout::realtype, itaskB::Cint)
-    ccall((:CVodeB, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, Cint), cvode_mem,
-        tBout, itaskB)
+    return ccall(
+        (:CVodeB, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, Cint), cvode_mem,
+        tBout, itaskB
+    )
 end
 
 function CVodeB(cvode_mem, tBout, itaskB)
-    CVodeB(cvode_mem, tBout, convert(Cint, itaskB))
+    return CVodeB(cvode_mem, tBout, convert(Cint, itaskB))
 end
 
 function CVodeSetAdjNoSensi(cvode_mem)
-    ccall((:CVodeSetAdjNoSensi, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
+    return ccall((:CVodeSetAdjNoSensi, libsundials_cvodes), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
 function CVodeSetUserDataB(cvode_mem, which::Cint, user_dataB)
-    ccall((:CVodeSetUserDataB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Any),
-        cvode_mem, which, user_dataB)
+    return ccall(
+        (:CVodeSetUserDataB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Any),
+        cvode_mem, which, user_dataB
+    )
 end
 
 function CVodeSetUserDataB(cvode_mem, which, user_dataB)
-    CVodeSetUserDataB(cvode_mem, convert(Cint, which), user_dataB)
+    return CVodeSetUserDataB(cvode_mem, convert(Cint, which), user_dataB)
 end
 
 function CVodeSetMaxOrdB(cvode_mem, which::Cint, maxordB::Cint)
-    ccall((:CVodeSetMaxOrdB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint),
-        cvode_mem, which, maxordB)
+    return ccall(
+        (:CVodeSetMaxOrdB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint),
+        cvode_mem, which, maxordB
+    )
 end
 
 function CVodeSetMaxOrdB(cvode_mem, which, maxordB)
-    CVodeSetMaxOrdB(cvode_mem, convert(Cint, which), convert(Cint, maxordB))
+    return CVodeSetMaxOrdB(cvode_mem, convert(Cint, which), convert(Cint, maxordB))
 end
 
 function CVodeSetMaxNumStepsB(cvode_mem, which::Cint, mxstepsB::Clong)
-    ccall((:CVodeSetMaxNumStepsB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Clong),
-        cvode_mem, which, mxstepsB)
+    return ccall(
+        (:CVodeSetMaxNumStepsB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Clong),
+        cvode_mem, which, mxstepsB
+    )
 end
 
 function CVodeSetMaxNumStepsB(cvode_mem, which, mxstepsB)
-    CVodeSetMaxNumStepsB(cvode_mem, convert(Cint, which), convert(Clong, mxstepsB))
+    return CVodeSetMaxNumStepsB(cvode_mem, convert(Cint, which), convert(Clong, mxstepsB))
 end
 
 function CVodeSetStabLimDetB(cvode_mem, which::Cint, stldetB::Cint)
-    ccall((:CVodeSetStabLimDetB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint),
-        cvode_mem, which, stldetB)
+    return ccall(
+        (:CVodeSetStabLimDetB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint),
+        cvode_mem, which, stldetB
+    )
 end
 
 function CVodeSetStabLimDetB(cvode_mem, which, stldetB)
-    CVodeSetStabLimDetB(cvode_mem, convert(Cint, which), convert(Cint, stldetB))
+    return CVodeSetStabLimDetB(cvode_mem, convert(Cint, which), convert(Cint, stldetB))
 end
 
 function CVodeSetInitStepB(cvode_mem, which::Cint, hinB::realtype)
-    ccall((:CVodeSetInitStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
-        cvode_mem, which, hinB)
+    return ccall(
+        (:CVodeSetInitStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
+        cvode_mem, which, hinB
+    )
 end
 
 function CVodeSetInitStepB(cvode_mem, which, hinB)
-    CVodeSetInitStepB(cvode_mem, convert(Cint, which), hinB)
+    return CVodeSetInitStepB(cvode_mem, convert(Cint, which), hinB)
 end
 
 function CVodeSetMinStepB(cvode_mem, which::Cint, hminB::realtype)
-    ccall((:CVodeSetMinStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
-        cvode_mem, which, hminB)
+    return ccall(
+        (:CVodeSetMinStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
+        cvode_mem, which, hminB
+    )
 end
 
 function CVodeSetMinStepB(cvode_mem, which, hminB)
-    CVodeSetMinStepB(cvode_mem, convert(Cint, which), hminB)
+    return CVodeSetMinStepB(cvode_mem, convert(Cint, which), hminB)
 end
 
 function CVodeSetMaxStepB(cvode_mem, which::Cint, hmaxB::realtype)
-    ccall((:CVodeSetMaxStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
-        cvode_mem, which, hmaxB)
+    return ccall(
+        (:CVodeSetMaxStepB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
+        cvode_mem, which, hmaxB
+    )
 end
 
 function CVodeSetMaxStepB(cvode_mem, which, hmaxB)
-    CVodeSetMaxStepB(cvode_mem, convert(Cint, which), hmaxB)
+    return CVodeSetMaxStepB(cvode_mem, convert(Cint, which), hmaxB)
 end
 
-function CVodeSetConstraintsB(cvode_mem, which::Cint,
-        constraintsB::Union{N_Vector, NVector})
-    ccall((:CVodeSetConstraintsB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, N_Vector),
-        cvode_mem, which, constraintsB)
+function CVodeSetConstraintsB(
+        cvode_mem, which::Cint,
+        constraintsB::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeSetConstraintsB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, N_Vector),
+        cvode_mem, which, constraintsB
+    )
 end
 
 function CVodeSetConstraintsB(cvode_mem, which, constraintsB, ctx::SUNContext)
-    CVodeSetConstraintsB(cvode_mem, which, constraintsB, ctx)
+    return CVodeSetConstraintsB(cvode_mem, which, constraintsB, ctx)
 end
 
 function CVodeSetQuadErrConB(cvode_mem, which::Cint, errconQB::Cint)
-    ccall((:CVodeSetQuadErrConB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint),
-        cvode_mem, which, errconQB)
+    return ccall(
+        (:CVodeSetQuadErrConB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, Cint),
+        cvode_mem, which, errconQB
+    )
 end
 
 function CVodeSetQuadErrConB(cvode_mem, which, errconQB)
-    CVodeSetQuadErrConB(cvode_mem, convert(Cint, which), convert(Cint, errconQB))
+    return CVodeSetQuadErrConB(cvode_mem, convert(Cint, which), convert(Cint, errconQB))
 end
 
 function CVodeSetNonlinearSolverB(cvode_mem, which::Cint, NLS::SUNNonlinearSolver)
-    ccall((:CVodeSetNonlinearSolverB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, SUNNonlinearSolver), cvode_mem, which, NLS)
+    return ccall(
+        (:CVodeSetNonlinearSolverB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, SUNNonlinearSolver), cvode_mem, which, NLS
+    )
 end
 
 function CVodeSetNonlinearSolverB(cvode_mem, which, NLS)
-    CVodeSetNonlinearSolverB(cvode_mem, convert(Cint, which), NLS)
+    return CVodeSetNonlinearSolverB(cvode_mem, convert(Cint, which), NLS)
 end
 
 function CVodeGetB(cvode_mem, which::Cint, tBret, yB::Union{N_Vector, NVector})
-    ccall((:CVodeGetB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector), cvode_mem, which, tBret, yB)
+    return ccall(
+        (:CVodeGetB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector), cvode_mem, which, tBret, yB
+    )
 end
 
 function CVodeGetB(cvode_mem, which, tBret, yB, ctx::SUNContext)
     __yB = convert(NVector, yB, ctx)
-    CVodeGetB(cvode_mem, which, tBret, __yB)
+    return CVodeGetB(cvode_mem, which, tBret, __yB)
 end
 
 function CVodeGetQuadB(cvode_mem, which::Cint, tBret, qB::Union{N_Vector, NVector})
-    ccall((:CVodeGetQuadB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector), cvode_mem, which, tBret, qB)
+    return ccall(
+        (:CVodeGetQuadB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector), cvode_mem, which, tBret, qB
+    )
 end
 
 function CVodeGetQuadB(cvode_mem, which, tBret, qB, ctx::SUNContext)
-    CVodeGetQuadB(cvode_mem, which, tBret, qB, ctx)
+    return CVodeGetQuadB(cvode_mem, which, tBret, qB, ctx)
 end
 
 function CVodeGetAdjCVodeBmem(cvode_mem, which::Cint)
-    ccall((:CVodeGetAdjCVodeBmem, libsundials_cvodes), Ptr{Cvoid}, (CVODEMemPtr, Cint),
-        cvode_mem, which)
+    return ccall(
+        (:CVodeGetAdjCVodeBmem, libsundials_cvodes), Ptr{Cvoid}, (CVODEMemPtr, Cint),
+        cvode_mem, which
+    )
 end
 
 function CVodeGetAdjCVodeBmem(cvode_mem, which)
-    CVodeGetAdjCVodeBmem(cvode_mem, convert(Cint, which))
+    return CVodeGetAdjCVodeBmem(cvode_mem, convert(Cint, which))
 end
 
 function CVodeGetAdjY(cvode_mem, t::realtype, y::Union{N_Vector, NVector})
-    ccall((:CVodeGetAdjY, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector),
-        cvode_mem, t, y)
+    return ccall(
+        (:CVodeGetAdjY, libsundials_cvodes), Cint, (CVODEMemPtr, realtype, N_Vector),
+        cvode_mem, t, y
+    )
 end
 
 function CVodeGetAdjY(cvode_mem, t, y, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    CVodeGetAdjY(cvode_mem, t, __y)
+    return CVodeGetAdjY(cvode_mem, t, __y)
 end
 
 function CVodeGetAdjCheckPointsInfo(cvode_mem, ckpnt)
-    ccall((:CVodeGetAdjCheckPointsInfo, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{CVadjCheckPointRec}), cvode_mem, ckpnt)
+    return ccall(
+        (:CVodeGetAdjCheckPointsInfo, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{CVadjCheckPointRec}), cvode_mem, ckpnt
+    )
 end
 
 function CVodeGetAdjDataPointHermite(
         cvode_mem, which::Cint, t, y::Union{N_Vector, NVector},
-        yd::Union{N_Vector, NVector})
-    ccall((:CVodeGetAdjDataPointHermite, libsundials_cvodes), Cint,
+        yd::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeGetAdjDataPointHermite, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), cvode_mem, which, t, y,
-        yd)
+        yd
+    )
 end
 
 function CVodeGetAdjDataPointHermite(cvode_mem, which, t, y, yd)
     __y = convert(NVector, y)
     __yd = convert(NVector, yd)
-    CVodeGetAdjDataPointHermite(cvode_mem, convert(Cint, which), t, __y,
-        __yd)
+    return CVodeGetAdjDataPointHermite(
+        cvode_mem, convert(Cint, which), t, __y,
+        __yd
+    )
 end
 
-function CVodeGetAdjDataPointPolynomial(cvode_mem, which::Cint, t, order,
-        y::Union{N_Vector, NVector})
-    ccall((:CVodeGetAdjDataPointPolynomial, libsundials_cvodes), Cint,
+function CVodeGetAdjDataPointPolynomial(
+        cvode_mem, which::Cint, t, order,
+        y::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:CVodeGetAdjDataPointPolynomial, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, Ptr{realtype}, Ptr{Cint}, N_Vector), cvode_mem, which, t,
-        order, y)
+        order, y
+    )
 end
 
 function CVodeGetAdjDataPointPolynomial(cvode_mem, which, t, order, y)
     __y = convert(NVector, y)
-    CVodeGetAdjDataPointPolynomial(cvode_mem, convert(Cint, which), t, order,
-        __y)
+    return CVodeGetAdjDataPointPolynomial(
+        cvode_mem, convert(Cint, which), t, order,
+        __y
+    )
 end
 
 function CVodeGetAdjCurrentCheckPoint(cvode_mem, addr)
-    ccall((:CVodeGetAdjCurrentCheckPoint, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Ptr{Ptr{Cvoid}}), cvode_mem, addr)
+    return ccall(
+        (:CVodeGetAdjCurrentCheckPoint, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Ptr{Ptr{Cvoid}}), cvode_mem, addr
+    )
 end
 
-function CVBandPrecInitB(cvode_mem, which::Cint, nB::sunindextype, muB::sunindextype,
-        mlB::sunindextype)
-    ccall((:CVBandPrecInitB, libsundials_cvodes), Cint,
+function CVBandPrecInitB(
+        cvode_mem, which::Cint, nB::sunindextype, muB::sunindextype,
+        mlB::sunindextype
+    )
+    return ccall(
+        (:CVBandPrecInitB, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, sunindextype, sunindextype, sunindextype), cvode_mem, which,
-        nB, muB, mlB)
+        nB, muB, mlB
+    )
 end
 
 function CVBandPrecInitB(cvode_mem, which, nB, muB, mlB)
-    CVBandPrecInitB(cvode_mem, convert(Cint, which), nB, muB, mlB)
+    return CVBandPrecInitB(cvode_mem, convert(Cint, which), nB, muB, mlB)
 end
 
-function CVBBDPrecInitB(cvode_mem, which::Cint, NlocalB::sunindextype, mudqB::sunindextype,
+function CVBBDPrecInitB(
+        cvode_mem, which::Cint, NlocalB::sunindextype, mudqB::sunindextype,
         mldqB::sunindextype, mukeepB::sunindextype, mlkeepB::sunindextype,
-        dqrelyB::realtype, glocB::CVLocalFnB, cfnB::CVCommFnB)
-    ccall((:CVBBDPrecInitB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, sunindextype, sunindextype, sunindextype, sunindextype,
-            sunindextype, realtype, CVLocalFnB, CVCommFnB), cvode_mem, which, NlocalB, mudqB,
-        mldqB, mukeepB, mlkeepB, dqrelyB, glocB, cfnB)
+        dqrelyB::realtype, glocB::CVLocalFnB, cfnB::CVCommFnB
+    )
+    return ccall(
+        (:CVBBDPrecInitB, libsundials_cvodes), Cint,
+        (
+            CVODEMemPtr, Cint, sunindextype, sunindextype, sunindextype, sunindextype,
+            sunindextype, realtype, CVLocalFnB, CVCommFnB,
+        ), cvode_mem, which, NlocalB, mudqB,
+        mldqB, mukeepB, mlkeepB, dqrelyB, glocB, cfnB
+    )
 end
 
-function CVBBDPrecInitB(cvode_mem, which, NlocalB, mudqB, mldqB, mukeepB, mlkeepB, dqrelyB,
-        glocB, cfnB)
-    CVBBDPrecInitB(
+function CVBBDPrecInitB(
+        cvode_mem, which, NlocalB, mudqB, mldqB, mukeepB, mlkeepB, dqrelyB,
+        glocB, cfnB
+    )
+    return CVBBDPrecInitB(
         cvode_mem, convert(Cint, which), NlocalB, mudqB, mldqB, mukeepB, mlkeepB,
-        dqrelyB, glocB, cfnB)
+        dqrelyB, glocB, cfnB
+    )
 end
 
-function CVBBDPrecReInitB(cvode_mem, which::Cint, mudqB::sunindextype, mldqB::sunindextype,
-        dqrelyB::realtype)
-    ccall((:CVBBDPrecReInitB, libsundials_cvodes), Cint,
+function CVBBDPrecReInitB(
+        cvode_mem, which::Cint, mudqB::sunindextype, mldqB::sunindextype,
+        dqrelyB::realtype
+    )
+    return ccall(
+        (:CVBBDPrecReInitB, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, sunindextype, sunindextype, realtype), cvode_mem, which,
-        mudqB, mldqB, dqrelyB)
+        mudqB, mldqB, dqrelyB
+    )
 end
 
 function CVBBDPrecReInitB(cvode_mem, which, mudqB, mldqB, dqrelyB)
-    CVBBDPrecReInitB(cvode_mem, convert(Cint, which), mudqB, mldqB, dqrelyB)
+    return CVBBDPrecReInitB(cvode_mem, convert(Cint, which), mudqB, mldqB, dqrelyB)
 end
 
 function CVDiagB(cvode_mem, which::Cint)
-    ccall((:CVDiagB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, which)
+    return ccall((:CVDiagB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint), cvode_mem, which)
 end
 
 function CVDiagB(cvode_mem, which)
-    CVDiagB(cvode_mem, convert(Cint, which))
+    return CVDiagB(cvode_mem, convert(Cint, which))
 end
 
 function CVDlsSetLinearSolverB(cvode_mem, which::Cint, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:CVodeSetLinearSolverB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, SUNLinearSolver, SUNMatrix), cvode_mem, which, LS, A)
+    return ccall(
+        (:CVodeSetLinearSolverB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, SUNLinearSolver, SUNMatrix), cvode_mem, which, LS, A
+    )
 end
 
 function CVDlsSetLinearSolverB(cvode_mem, which, LS, A)
-    CVDlsSetLinearSolverB(cvode_mem, convert(Cint, which), LS, A)
+    return CVDlsSetLinearSolverB(cvode_mem, convert(Cint, which), LS, A)
 end
 
 function CVDlsSetJacFnB(cvode_mem, which::Cint, jacB::CVDlsJacFnB)
-    ccall((:CVDlsSetJacFnB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVDlsJacFnB),
-        cvode_mem, which, jacB)
+    return ccall(
+        (:CVDlsSetJacFnB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVDlsJacFnB),
+        cvode_mem, which, jacB
+    )
 end
 
 function CVDlsSetJacFnB(cvode_mem, which, jacB)
-    CVDlsSetJacFnB(cvode_mem, convert(Cint, which), jacB)
+    return CVDlsSetJacFnB(cvode_mem, convert(Cint, which), jacB)
 end
 
 function CVDlsSetJacFnBS(cvode_mem, which::Cint, jacBS::CVDlsJacFnBS)
-    ccall((:CVDlsSetJacFnBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVDlsJacFnBS),
-        cvode_mem, which, jacBS)
+    return ccall(
+        (:CVDlsSetJacFnBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVDlsJacFnBS),
+        cvode_mem, which, jacBS
+    )
 end
 
 function CVDlsSetJacFnBS(cvode_mem, which, jacBS)
-    CVDlsSetJacFnBS(cvode_mem, convert(Cint, which), jacBS)
+    return CVDlsSetJacFnBS(cvode_mem, convert(Cint, which), jacBS)
 end
 
 function CVodeSetLinearSolverB(cvode_mem, which::Cint, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:CVodeSetLinearSolverB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, SUNLinearSolver, SUNMatrix), cvode_mem, which, LS, A)
+    return ccall(
+        (:CVodeSetLinearSolverB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, SUNLinearSolver, SUNMatrix), cvode_mem, which, LS, A
+    )
 end
 
 function CVodeSetLinearSolverB(cvode_mem, which, LS, A)
-    CVodeSetLinearSolverB(cvode_mem, convert(Cint, which), LS, A)
+    return CVodeSetLinearSolverB(cvode_mem, convert(Cint, which), LS, A)
 end
 
 function CVodeSetJacFnB(cvode_mem, which::Cint, jacB::CVLsJacFnB)
-    ccall((:CVodeSetJacFnB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacFnB),
-        cvode_mem, which, jacB)
+    return ccall(
+        (:CVodeSetJacFnB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacFnB),
+        cvode_mem, which, jacB
+    )
 end
 
 function CVodeSetJacFnB(cvode_mem, which, jacB)
-    CVodeSetJacFnB(cvode_mem, convert(Cint, which), jacB)
+    return CVodeSetJacFnB(cvode_mem, convert(Cint, which), jacB)
 end
 
 function CVodeSetJacFnBS(cvode_mem, which::Cint, jacBS::CVLsJacFnBS)
-    ccall((:CVodeSetJacFnBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacFnBS),
-        cvode_mem, which, jacBS)
+    return ccall(
+        (:CVodeSetJacFnBS, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, CVLsJacFnBS),
+        cvode_mem, which, jacBS
+    )
 end
 
 function CVodeSetJacFnBS(cvode_mem, which, jacBS)
-    CVodeSetJacFnBS(cvode_mem, convert(Cint, which), jacBS)
+    return CVodeSetJacFnBS(cvode_mem, convert(Cint, which), jacBS)
 end
 
 function CVodeSetEpsLinB(cvode_mem, which::Cint, eplifacB::realtype)
-    ccall((:CVodeSetEpsLinB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
-        cvode_mem, which, eplifacB)
+    return ccall(
+        (:CVodeSetEpsLinB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
+        cvode_mem, which, eplifacB
+    )
 end
 
 function CVodeSetEpsLinB(cvode_mem, which, eplifacB)
-    CVodeSetEpsLinB(cvode_mem, convert(Cint, which), eplifacB)
+    return CVodeSetEpsLinB(cvode_mem, convert(Cint, which), eplifacB)
 end
 
 function CVodeSetLinearSolutionScalingB(cvode_mem, which::Cint, onoffB::Cint)
-    ccall((:CVodeSetLinearSolutionScalingB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, Cint), cvode_mem, which, onoffB)
+    return ccall(
+        (:CVodeSetLinearSolutionScalingB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, Cint), cvode_mem, which, onoffB
+    )
 end
 
 function CVodeSetLinearSolutionScalingB(cvode_mem, which, onoffB)
-    CVodeSetLinearSolutionScalingB(cvode_mem, convert(Cint, which), convert(Cint, onoffB))
+    return CVodeSetLinearSolutionScalingB(cvode_mem, convert(Cint, which), convert(Cint, onoffB))
 end
 
-function CVodeSetPreconditionerB(cvode_mem, which::Cint, psetB::CVLsPrecSetupFnB,
-        psolveB::CVLsPrecSolveFnB)
-    ccall((:CVodeSetPreconditionerB, libsundials_cvodes), Cint,
+function CVodeSetPreconditionerB(
+        cvode_mem, which::Cint, psetB::CVLsPrecSetupFnB,
+        psolveB::CVLsPrecSolveFnB
+    )
+    return ccall(
+        (:CVodeSetPreconditionerB, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVLsPrecSetupFnB, CVLsPrecSolveFnB), cvode_mem, which, psetB,
-        psolveB)
+        psolveB
+    )
 end
 
 function CVodeSetPreconditionerB(cvode_mem, which, psetB, psolveB)
-    CVodeSetPreconditionerB(cvode_mem, convert(Cint, which), psetB, psolveB)
+    return CVodeSetPreconditionerB(cvode_mem, convert(Cint, which), psetB, psolveB)
 end
 
-function CVodeSetPreconditionerBS(cvode_mem, which::Cint, psetBS::CVLsPrecSetupFnBS,
-        psolveBS::CVLsPrecSolveFnBS)
-    ccall((:CVodeSetPreconditionerBS, libsundials_cvodes), Cint,
+function CVodeSetPreconditionerBS(
+        cvode_mem, which::Cint, psetBS::CVLsPrecSetupFnBS,
+        psolveBS::CVLsPrecSolveFnBS
+    )
+    return ccall(
+        (:CVodeSetPreconditionerBS, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVLsPrecSetupFnBS, CVLsPrecSolveFnBS), cvode_mem, which,
-        psetBS, psolveBS)
+        psetBS, psolveBS
+    )
 end
 
 function CVodeSetPreconditionerBS(cvode_mem, which, psetBS, psolveBS)
-    CVodeSetPreconditionerBS(cvode_mem, convert(Cint, which), psetBS, psolveBS)
+    return CVodeSetPreconditionerBS(cvode_mem, convert(Cint, which), psetBS, psolveBS)
 end
 
-function CVodeSetJacTimesB(cvode_mem, which::Cint, jtsetupB::CVLsJacTimesSetupFnB,
-        jtimesB::CVLsJacTimesVecFnB)
-    ccall((:CVodeSetJacTimesB, libsundials_cvodes), Cint,
+function CVodeSetJacTimesB(
+        cvode_mem, which::Cint, jtsetupB::CVLsJacTimesSetupFnB,
+        jtimesB::CVLsJacTimesVecFnB
+    )
+    return ccall(
+        (:CVodeSetJacTimesB, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVLsJacTimesSetupFnB, CVLsJacTimesVecFnB), cvode_mem, which,
-        jtsetupB, jtimesB)
+        jtsetupB, jtimesB
+    )
 end
 
 function CVodeSetJacTimesB(cvode_mem, which, jtsetupB, jtimesB)
-    CVodeSetJacTimesB(cvode_mem, convert(Cint, which), jtsetupB, jtimesB)
+    return CVodeSetJacTimesB(cvode_mem, convert(Cint, which), jtsetupB, jtimesB)
 end
 
-function CVodeSetJacTimesBS(cvode_mem, which::Cint, jtsetupBS::CVLsJacTimesSetupFnBS,
-        jtimesBS::CVLsJacTimesVecFnBS)
-    ccall((:CVodeSetJacTimesBS, libsundials_cvodes), Cint,
+function CVodeSetJacTimesBS(
+        cvode_mem, which::Cint, jtsetupBS::CVLsJacTimesSetupFnBS,
+        jtimesBS::CVLsJacTimesVecFnBS
+    )
+    return ccall(
+        (:CVodeSetJacTimesBS, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVLsJacTimesSetupFnBS, CVLsJacTimesVecFnBS), cvode_mem, which,
-        jtsetupBS, jtimesBS)
+        jtsetupBS, jtimesBS
+    )
 end
 
 function CVodeSetJacTimesBS(cvode_mem, which, jtsetupBS, jtimesBS)
-    CVodeSetJacTimesBS(cvode_mem, convert(Cint, which), jtsetupBS, jtimesBS)
+    return CVodeSetJacTimesBS(cvode_mem, convert(Cint, which), jtsetupBS, jtimesBS)
 end
 
 function CVodeSetLinSysFnB(cvode_mem, which::Cint, linsys::CVLsLinSysFnB)
-    ccall((:CVodeSetLinSysFnB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, CVLsLinSysFnB), cvode_mem, which, linsys)
+    return ccall(
+        (:CVodeSetLinSysFnB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, CVLsLinSysFnB), cvode_mem, which, linsys
+    )
 end
 
 function CVodeSetLinSysFnB(cvode_mem, which, linsys)
-    CVodeSetLinSysFnB(cvode_mem, convert(Cint, which), linsys)
+    return CVodeSetLinSysFnB(cvode_mem, convert(Cint, which), linsys)
 end
 
 function CVodeSetLinSysFnBS(cvode_mem, which::Cint, linsys::CVLsLinSysFnBS)
-    ccall((:CVodeSetLinSysFnBS, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, CVLsLinSysFnBS), cvode_mem, which, linsys)
+    return ccall(
+        (:CVodeSetLinSysFnBS, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, CVLsLinSysFnBS), cvode_mem, which, linsys
+    )
 end
 
 function CVodeSetLinSysFnBS(cvode_mem, which, linsys)
-    CVodeSetLinSysFnBS(cvode_mem, convert(Cint, which), linsys)
+    return CVodeSetLinSysFnBS(cvode_mem, convert(Cint, which), linsys)
 end
 
 function CVSpilsSetLinearSolverB(cvode_mem, which::Cint, LS::SUNLinearSolver)
-    ccall((:CVSpilsSetLinearSolverB, libsundials_cvodes), Cint,
-        (CVODEMemPtr, Cint, SUNLinearSolver), cvode_mem, which, LS)
+    return ccall(
+        (:CVSpilsSetLinearSolverB, libsundials_cvodes), Cint,
+        (CVODEMemPtr, Cint, SUNLinearSolver), cvode_mem, which, LS
+    )
 end
 
 function CVSpilsSetLinearSolverB(cvode_mem, which, LS)
-    CVSpilsSetLinearSolverB(cvode_mem, convert(Cint, which), LS)
+    return CVSpilsSetLinearSolverB(cvode_mem, convert(Cint, which), LS)
 end
 
 function CVSpilsSetEpsLinB(cvode_mem, which::Cint, eplifacB::realtype)
-    ccall((:CVSpilsSetEpsLinB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
-        cvode_mem, which, eplifacB)
+    return ccall(
+        (:CVSpilsSetEpsLinB, libsundials_cvodes), Cint, (CVODEMemPtr, Cint, realtype),
+        cvode_mem, which, eplifacB
+    )
 end
 
 function CVSpilsSetEpsLinB(cvode_mem, which, eplifacB)
-    CVSpilsSetEpsLinB(cvode_mem, convert(Cint, which), eplifacB)
+    return CVSpilsSetEpsLinB(cvode_mem, convert(Cint, which), eplifacB)
 end
 
-function CVSpilsSetPreconditionerB(cvode_mem, which::Cint, psetB::CVSpilsPrecSetupFnB,
-        psolveB::CVSpilsPrecSolveFnB)
-    ccall((:CVSpilsSetPreconditionerB, libsundials_cvodes), Cint,
+function CVSpilsSetPreconditionerB(
+        cvode_mem, which::Cint, psetB::CVSpilsPrecSetupFnB,
+        psolveB::CVSpilsPrecSolveFnB
+    )
+    return ccall(
+        (:CVSpilsSetPreconditionerB, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVSpilsPrecSetupFnB, CVSpilsPrecSolveFnB), cvode_mem, which,
-        psetB, psolveB)
+        psetB, psolveB
+    )
 end
 
 function CVSpilsSetPreconditionerB(cvode_mem, which, psetB, psolveB)
-    CVSpilsSetPreconditionerB(cvode_mem, convert(Cint, which), psetB, psolveB)
+    return CVSpilsSetPreconditionerB(cvode_mem, convert(Cint, which), psetB, psolveB)
 end
 
-function CVSpilsSetPreconditionerBS(cvode_mem, which::Cint, psetBS::CVSpilsPrecSetupFnBS,
-        psolveBS::CVSpilsPrecSolveFnBS)
-    ccall((:CVSpilsSetPreconditionerBS, libsundials_cvodes), Cint,
+function CVSpilsSetPreconditionerBS(
+        cvode_mem, which::Cint, psetBS::CVSpilsPrecSetupFnBS,
+        psolveBS::CVSpilsPrecSolveFnBS
+    )
+    return ccall(
+        (:CVSpilsSetPreconditionerBS, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVSpilsPrecSetupFnBS, CVSpilsPrecSolveFnBS), cvode_mem, which,
-        psetBS, psolveBS)
+        psetBS, psolveBS
+    )
 end
 
 function CVSpilsSetPreconditionerBS(cvode_mem, which, psetBS, psolveBS)
-    CVSpilsSetPreconditionerBS(cvode_mem, convert(Cint, which), psetBS, psolveBS)
+    return CVSpilsSetPreconditionerBS(cvode_mem, convert(Cint, which), psetBS, psolveBS)
 end
 
-function CVSpilsSetJacTimesB(cvode_mem, which::Cint, jtsetupB::CVSpilsJacTimesSetupFnB,
-        jtimesB::CVSpilsJacTimesVecFnB)
-    ccall((:CVSpilsSetJacTimesB, libsundials_cvodes), Cint,
+function CVSpilsSetJacTimesB(
+        cvode_mem, which::Cint, jtsetupB::CVSpilsJacTimesSetupFnB,
+        jtimesB::CVSpilsJacTimesVecFnB
+    )
+    return ccall(
+        (:CVSpilsSetJacTimesB, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVSpilsJacTimesSetupFnB, CVSpilsJacTimesVecFnB), cvode_mem,
-        which, jtsetupB, jtimesB)
+        which, jtsetupB, jtimesB
+    )
 end
 
 function CVSpilsSetJacTimesB(cvode_mem, which, jtsetupB, jtimesB)
-    CVSpilsSetJacTimesB(cvode_mem, convert(Cint, which), jtsetupB, jtimesB)
+    return CVSpilsSetJacTimesB(cvode_mem, convert(Cint, which), jtsetupB, jtimesB)
 end
 
-function CVSpilsSetJacTimesBS(cvode_mem, which::Cint, jtsetupBS::CVSpilsJacTimesSetupFnBS,
-        jtimesBS::CVSpilsJacTimesVecFnBS)
-    ccall((:CVSpilsSetJacTimesBS, libsundials_cvodes), Cint,
+function CVSpilsSetJacTimesBS(
+        cvode_mem, which::Cint, jtsetupBS::CVSpilsJacTimesSetupFnBS,
+        jtimesBS::CVSpilsJacTimesVecFnBS
+    )
+    return ccall(
+        (:CVSpilsSetJacTimesBS, libsundials_cvodes), Cint,
         (CVODEMemPtr, Cint, CVSpilsJacTimesSetupFnBS, CVSpilsJacTimesVecFnBS), cvode_mem,
-        which, jtsetupBS, jtimesBS)
+        which, jtsetupBS, jtimesBS
+    )
 end
 
 function CVSpilsSetJacTimesBS(cvode_mem, which, jtsetupBS, jtimesBS)
-    CVSpilsSetJacTimesBS(cvode_mem, convert(Cint, which), jtsetupBS, jtimesBS)
+    return CVSpilsSetJacTimesBS(cvode_mem, convert(Cint, which), jtsetupBS, jtimesBS)
 end
 
 function IDACreate(sunctx::SUNContext)
-    ccall((:IDACreate, libsundials_idas), IDAMemPtr, (SUNContext,), sunctx)
+    return ccall((:IDACreate, libsundials_idas), IDAMemPtr, (SUNContext,), sunctx)
 end
 
-function IDAInit(ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector},
-        yp0::Union{N_Vector, NVector})
-    ccall((:IDAInit, libsundials_idas), Cint,
-        (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0)
+function IDAInit(
+        ida_mem, res::IDAResFn, t0::realtype, yy0::Union{N_Vector, NVector},
+        yp0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAInit, libsundials_idas), Cint,
+        (IDAMemPtr, IDAResFn, realtype, N_Vector, N_Vector), ida_mem, res, t0, yy0, yp0
+    )
 end
 
 function IDAInit(ida_mem, res::IDAResFn, t0, yy0, yp0, ctx::SUNContext)
     __yy0 = convert(NVector, yy0, ctx)
     __yp0 = convert(NVector, yp0, ctx)
-    IDAInit(ida_mem, res, t0, __yy0, __yp0)
+    return IDAInit(ida_mem, res, t0, __yy0, __yp0)
 end
 
-function IDAReInit(ida_mem, t0::realtype, yy0::Union{N_Vector, NVector},
-        yp0::Union{N_Vector, NVector})
-    ccall((:IDAReInit, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector),
-        ida_mem, t0, yy0, yp0)
+function IDAReInit(
+        ida_mem, t0::realtype, yy0::Union{N_Vector, NVector},
+        yp0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAReInit, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector),
+        ida_mem, t0, yy0, yp0
+    )
 end
 
 function IDAReInit(ida_mem, t0, yy0, yp0, ctx::SUNContext)
     __yy0 = convert(NVector, yy0, ctx)
     __yp0 = convert(NVector, yp0, ctx)
-    IDAReInit(ida_mem, t0, __yy0, __yp0)
+    return IDAReInit(ida_mem, t0, __yy0, __yp0)
 end
 
 function IDASStolerances(ida_mem, reltol::realtype, abstol::realtype)
-    ccall((:IDASStolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, realtype),
-        ida_mem, reltol, abstol)
+    return ccall(
+        (:IDASStolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, realtype),
+        ida_mem, reltol, abstol
+    )
 end
 
 function IDASVtolerances(ida_mem, reltol::realtype, abstol::Union{N_Vector, NVector})
-    ccall((:IDASVtolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector),
-        ida_mem, reltol, abstol)
+    return ccall(
+        (:IDASVtolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector),
+        ida_mem, reltol, abstol
+    )
 end
 
 function IDASVtolerances(ida_mem, reltol, abstol, ctx::SUNContext)
-    IDASVtolerances(ida_mem, reltol, abstol, ctx)
+    return IDASVtolerances(ida_mem, reltol, abstol, ctx)
 end
 
 function IDAWFtolerances(ida_mem, efun::IDAEwtFn)
-    ccall((:IDAWFtolerances, libsundials_idas), Cint, (IDAMemPtr, IDAEwtFn), ida_mem, efun)
+    return ccall((:IDAWFtolerances, libsundials_idas), Cint, (IDAMemPtr, IDAEwtFn), ida_mem, efun)
 end
 
 function IDACalcIC(ida_mem, icopt::Cint, tout1::realtype)
-    ccall(
+    return ccall(
         (:IDACalcIC, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem, icopt,
-        tout1)
+        tout1
+    )
 end
 
 function IDACalcIC(ida_mem, icopt, tout1)
-    IDACalcIC(ida_mem, convert(Cint, icopt), tout1)
+    return IDACalcIC(ida_mem, convert(Cint, icopt), tout1)
 end
 
 function IDASetNonlinConvCoefIC(ida_mem, epiccon::realtype)
-    ccall(
+    return ccall(
         (:IDASetNonlinConvCoefIC, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
-        epiccon)
+        epiccon
+    )
 end
 
 function IDASetMaxNumStepsIC(ida_mem, maxnh::Cint)
-    ccall((:IDASetMaxNumStepsIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnh)
+    return ccall((:IDASetMaxNumStepsIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnh)
 end
 
 function IDASetMaxNumStepsIC(ida_mem, maxnh)
-    IDASetMaxNumStepsIC(ida_mem, convert(Cint, maxnh))
+    return IDASetMaxNumStepsIC(ida_mem, convert(Cint, maxnh))
 end
 
 function IDASetMaxNumJacsIC(ida_mem, maxnj::Cint)
-    ccall((:IDASetMaxNumJacsIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnj)
+    return ccall((:IDASetMaxNumJacsIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxnj)
 end
 
 function IDASetMaxNumJacsIC(ida_mem, maxnj)
-    IDASetMaxNumJacsIC(ida_mem, convert(Cint, maxnj))
+    return IDASetMaxNumJacsIC(ida_mem, convert(Cint, maxnj))
 end
 
 function IDASetMaxNumItersIC(ida_mem, maxnit::Cint)
-    ccall((:IDASetMaxNumItersIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
-        maxnit)
+    return ccall(
+        (:IDASetMaxNumItersIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
+        maxnit
+    )
 end
 
 function IDASetMaxNumItersIC(ida_mem, maxnit)
-    IDASetMaxNumItersIC(ida_mem, convert(Cint, maxnit))
+    return IDASetMaxNumItersIC(ida_mem, convert(Cint, maxnit))
 end
 
 function IDASetLineSearchOffIC(ida_mem, lsoff::Cint)
-    ccall((:IDASetLineSearchOffIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
-        lsoff)
+    return ccall(
+        (:IDASetLineSearchOffIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
+        lsoff
+    )
 end
 
 function IDASetLineSearchOffIC(ida_mem, lsoff)
-    IDASetLineSearchOffIC(ida_mem, convert(Cint, lsoff))
+    return IDASetLineSearchOffIC(ida_mem, convert(Cint, lsoff))
 end
 
 function IDASetStepToleranceIC(ida_mem, steptol::realtype)
-    ccall((:IDASetStepToleranceIC, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
-        steptol)
+    return ccall(
+        (:IDASetStepToleranceIC, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
+        steptol
+    )
 end
 
 function IDASetMaxBacksIC(ida_mem, maxbacks::Cint)
-    ccall((:IDASetMaxBacksIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxbacks)
+    return ccall((:IDASetMaxBacksIC, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxbacks)
 end
 
 function IDASetMaxBacksIC(ida_mem, maxbacks)
-    IDASetMaxBacksIC(ida_mem, convert(Cint, maxbacks))
+    return IDASetMaxBacksIC(ida_mem, convert(Cint, maxbacks))
 end
 
 function IDASetErrHandlerFn(ida_mem, ehfun::IDAErrHandlerFn, eh_data)
-    ccall((:IDASetErrHandlerFn, libsundials_idas), Cint,
-        (IDAMemPtr, IDAErrHandlerFn, Ptr{Cvoid}), ida_mem, ehfun, eh_data)
+    return ccall(
+        (:IDASetErrHandlerFn, libsundials_idas), Cint,
+        (IDAMemPtr, IDAErrHandlerFn, Ptr{Cvoid}), ida_mem, ehfun, eh_data
+    )
 end
 
 function IDASetErrFile(ida_mem, errfp)
-    ccall((:IDASetErrFile, libsundials_idas), Cint, (IDAMemPtr, Ptr{Libc.FILE}), ida_mem,
-        errfp)
+    return ccall(
+        (:IDASetErrFile, libsundials_idas), Cint, (IDAMemPtr, Ptr{Libc.FILE}), ida_mem,
+        errfp
+    )
 end
 
 function IDASetUserData(ida_mem, user_data)
-    ccall((:IDASetUserData, libsundials_idas), Cint, (IDAMemPtr, Any), ida_mem, user_data)
+    return ccall((:IDASetUserData, libsundials_idas), Cint, (IDAMemPtr, Any), ida_mem, user_data)
 end
 
 function IDASetMaxOrd(ida_mem, maxord::Cint)
-    ccall((:IDASetMaxOrd, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxord)
+    return ccall((:IDASetMaxOrd, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxord)
 end
 
 function IDASetMaxOrd(ida_mem, maxord)
-    IDASetMaxOrd(ida_mem, convert(Cint, maxord))
+    return IDASetMaxOrd(ida_mem, convert(Cint, maxord))
 end
 
 function IDASetMaxNumSteps(ida_mem, mxsteps::Clong)
-    ccall((:IDASetMaxNumSteps, libsundials_idas), Cint, (IDAMemPtr, Clong), ida_mem,
-        mxsteps)
+    return ccall(
+        (:IDASetMaxNumSteps, libsundials_idas), Cint, (IDAMemPtr, Clong), ida_mem,
+        mxsteps
+    )
 end
 
 function IDASetMaxNumSteps(ida_mem, mxsteps)
-    IDASetMaxNumSteps(ida_mem, convert(Clong, mxsteps))
+    return IDASetMaxNumSteps(ida_mem, convert(Clong, mxsteps))
 end
 
 function IDASetInitStep(ida_mem, hin::realtype)
-    ccall((:IDASetInitStep, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, hin)
+    return ccall((:IDASetInitStep, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, hin)
 end
 
 function IDASetMaxStep(ida_mem, hmax::realtype)
-    ccall((:IDASetMaxStep, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, hmax)
+    return ccall((:IDASetMaxStep, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, hmax)
 end
 
 function IDASetStopTime(ida_mem, tstop::realtype)
-    ccall((:IDASetStopTime, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, tstop)
+    return ccall((:IDASetStopTime, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, tstop)
 end
 
 function IDASetNonlinConvCoef(ida_mem, epcon::realtype)
-    ccall((:IDASetNonlinConvCoef, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
-        epcon)
+    return ccall(
+        (:IDASetNonlinConvCoef, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
+        epcon
+    )
 end
 
 function IDASetMaxErrTestFails(ida_mem, maxnef::Cint)
-    ccall((:IDASetMaxErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
-        maxnef)
+    return ccall(
+        (:IDASetMaxErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
+        maxnef
+    )
 end
 
 function IDASetMaxErrTestFails(ida_mem, maxnef)
-    IDASetMaxErrTestFails(ida_mem, convert(Cint, maxnef))
+    return IDASetMaxErrTestFails(ida_mem, convert(Cint, maxnef))
 end
 
 function IDASetMaxNonlinIters(ida_mem, maxcor::Cint)
-    ccall((:IDASetMaxNonlinIters, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
-        maxcor)
+    return ccall(
+        (:IDASetMaxNonlinIters, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
+        maxcor
+    )
 end
 
 function IDASetMaxNonlinIters(ida_mem, maxcor)
-    IDASetMaxNonlinIters(ida_mem, convert(Cint, maxcor))
+    return IDASetMaxNonlinIters(ida_mem, convert(Cint, maxcor))
 end
 
 function IDASetMaxConvFails(ida_mem, maxncf::Cint)
-    ccall((:IDASetMaxConvFails, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxncf)
+    return ccall((:IDASetMaxConvFails, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, maxncf)
 end
 
 function IDASetMaxConvFails(ida_mem, maxncf)
-    IDASetMaxConvFails(ida_mem, convert(Cint, maxncf))
+    return IDASetMaxConvFails(ida_mem, convert(Cint, maxncf))
 end
 
 function IDASetSuppressAlg(ida_mem, suppressalg::Cint)
-    ccall((:IDASetSuppressAlg, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
-        suppressalg)
+    return ccall(
+        (:IDASetSuppressAlg, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
+        suppressalg
+    )
 end
 
 function IDASetSuppressAlg(ida_mem, suppressalg)
-    IDASetSuppressAlg(ida_mem, convert(Cint, suppressalg))
+    return IDASetSuppressAlg(ida_mem, convert(Cint, suppressalg))
 end
 
 function IDASetId(ida_mem, id::Union{N_Vector, NVector})
-    ccall((:IDASetId, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, id)
+    return ccall((:IDASetId, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, id)
 end
 
 function IDASetId(ida_mem, id, ctx::SUNContext)
     __id = convert(NVector, id, ctx)
-    IDASetId(ida_mem, __id)
+    return IDASetId(ida_mem, __id)
 end
 
 function IDASetConstraints(ida_mem, constraints::Union{N_Vector, NVector})
-    ccall((:IDASetConstraints, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
-        constraints)
+    return ccall(
+        (:IDASetConstraints, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
+        constraints
+    )
 end
 
 function IDASetConstraints(ida_mem, constraints, ctx::SUNContext)
-    IDASetConstraints(ida_mem, constraints, ctx)
+    return IDASetConstraints(ida_mem, constraints, ctx)
 end
 
 function IDASetNonlinearSolver(ida_mem, NLS::SUNNonlinearSolver)
-    ccall(
+    return ccall(
         (:IDASetNonlinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNNonlinearSolver),
-        ida_mem, NLS)
+        ida_mem, NLS
+    )
 end
 
 function IDARootInit(ida_mem, nrtfn::Cint, g::IDARootFn)
-    ccall((:IDARootInit, libsundials_idas), Cint, (IDAMemPtr, Cint, IDARootFn), ida_mem,
-        nrtfn, g)
+    return ccall(
+        (:IDARootInit, libsundials_idas), Cint, (IDAMemPtr, Cint, IDARootFn), ida_mem,
+        nrtfn, g
+    )
 end
 
 function IDARootInit(ida_mem, nrtfn, g::IDARootFn)
-    IDARootInit(ida_mem, convert(Cint, nrtfn), g)
+    return IDARootInit(ida_mem, convert(Cint, nrtfn), g)
 end
 
 function IDASetRootDirection(ida_mem, rootdir)
-    ccall((:IDASetRootDirection, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
-        rootdir)
+    return ccall(
+        (:IDASetRootDirection, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
+        rootdir
+    )
 end
 
 function IDASetNoInactiveRootWarn(ida_mem)
-    ccall((:IDASetNoInactiveRootWarn, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
+    return ccall((:IDASetNoInactiveRootWarn, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
-function IDASolve(ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector},
+function IDASolve(
+        ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector},
         ypret::Union{N_Vector, NVector},
-        itask::Cint)
-    ccall((:IDASolve, libsundials_idas), Cint,
+        itask::Cint
+    )
+    return ccall(
+        (:IDASolve, libsundials_idas), Cint,
         (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint), ida_mem, tout,
-        tret, yret, ypret, itask)
+        tret, yret, ypret, itask
+    )
 end
 
 function IDASolve(ida_mem, tout, tret, yret, ypret, itask)
     __yret = convert(NVector, yret)
     __ypret = convert(NVector, ypret)
-    IDASolve(ida_mem, tout, tret, __yret, __ypret,
-        convert(Cint, itask))
+    return IDASolve(
+        ida_mem, tout, tret, __yret, __ypret,
+        convert(Cint, itask)
+    )
 end
 
 function IDAComputeY(ida_mem, ycor::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
-    ccall((:IDAComputeY, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem,
-        ycor, y)
+    return ccall(
+        (:IDAComputeY, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem,
+        ycor, y
+    )
 end
 
 function IDAComputeY(ida_mem, ycor, y, ctx::SUNContext)
-    IDAComputeY(ida_mem, ycor, y)
+    return IDAComputeY(ida_mem, ycor, y)
 end
 
 function IDAComputeYp(ida_mem, ycor::Union{N_Vector, NVector}, yp::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:IDAComputeYp, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector), ida_mem,
-        ycor, yp)
+        ycor, yp
+    )
 end
 
 function IDAComputeYp(ida_mem, ycor, yp, ctx::SUNContext)
-    IDAComputeYp(ida_mem, ycor, yp)
+    return IDAComputeYp(ida_mem, ycor, yp)
 end
 
 function IDAGetDky(ida_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
-    ccall((:IDAGetDky, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint, N_Vector),
-        ida_mem, t, k, dky)
+    return ccall(
+        (:IDAGetDky, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint, N_Vector),
+        ida_mem, t, k, dky
+    )
 end
 
 function IDAGetDky(ida_mem, t, k, dky, ctx::SUNContext)
-    IDAGetDky(ida_mem, t, k, dky, ctx)
+    return IDAGetDky(ida_mem, t, k, dky, ctx)
 end
 
 function IDAGetWorkSpace(ida_mem, lenrw, leniw)
-    ccall((:IDAGetWorkSpace, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}),
-        ida_mem, lenrw, leniw)
+    return ccall(
+        (:IDAGetWorkSpace, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}),
+        ida_mem, lenrw, leniw
+    )
 end
 
 function IDAGetNumSteps(ida_mem, nsteps)
-    ccall((:IDAGetNumSteps, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        nsteps)
+    return ccall(
+        (:IDAGetNumSteps, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        nsteps
+    )
 end
 
 function IDAGetNumResEvals(ida_mem, nrevals)
-    ccall((:IDAGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        nrevals)
+    return ccall(
+        (:IDAGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        nrevals
+    )
 end
 
 function IDAGetNumLinSolvSetups(ida_mem, nlinsetups)
-    ccall((:IDAGetNumLinSolvSetups, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nlinsetups)
+    return ccall(
+        (:IDAGetNumLinSolvSetups, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nlinsetups
+    )
 end
 
 function IDAGetNumErrTestFails(ida_mem, netfails)
-    ccall((:IDAGetNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, netfails)
+    return ccall(
+        (:IDAGetNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, netfails
+    )
 end
 
 function IDAGetNumBacktrackOps(ida_mem, nbacktr)
-    ccall((:IDAGetNumBacktrackOps, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nbacktr)
+    return ccall(
+        (:IDAGetNumBacktrackOps, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nbacktr
+    )
 end
 
-function IDAGetConsistentIC(ida_mem, yy0_mod::Union{N_Vector, NVector},
-        yp0_mod::Union{N_Vector, NVector})
-    ccall((:IDAGetConsistentIC, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector),
-        ida_mem, yy0_mod, yp0_mod)
+function IDAGetConsistentIC(
+        ida_mem, yy0_mod::Union{N_Vector, NVector},
+        yp0_mod::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetConsistentIC, libsundials_idas), Cint, (IDAMemPtr, N_Vector, N_Vector),
+        ida_mem, yy0_mod, yp0_mod
+    )
 end
 
 function IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod, ctx::SUNContext)
-    IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod)
+    return IDAGetConsistentIC(ida_mem, yy0_mod, yp0_mod)
 end
 
 function IDAGetLastOrder(ida_mem, klast)
-    ccall((:IDAGetLastOrder, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
-        klast)
+    return ccall(
+        (:IDAGetLastOrder, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
+        klast
+    )
 end
 
 function IDAGetCurrentOrder(ida_mem, kcur)
-    ccall((:IDAGetCurrentOrder, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
-        kcur)
+    return ccall(
+        (:IDAGetCurrentOrder, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
+        kcur
+    )
 end
 
 function IDAGetCurrentCj(ida_mem, cj)
-    ccall((:IDAGetCurrentCj, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem,
-        cj)
+    return ccall(
+        (:IDAGetCurrentCj, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem,
+        cj
+    )
 end
 
 function IDAGetCurrentY(ida_mem, ycur)
-    ccall((:IDAGetCurrentY, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem,
-        ycur)
+    return ccall(
+        (:IDAGetCurrentY, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem,
+        ycur
+    )
 end
 
 function IDAGetCurrentYp(ida_mem, ypcur)
-    ccall((:IDAGetCurrentYp, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem,
-        ypcur)
+    return ccall(
+        (:IDAGetCurrentYp, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem,
+        ypcur
+    )
 end
 
 function IDAGetActualInitStep(ida_mem, hinused)
-    ccall((:IDAGetActualInitStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}),
-        ida_mem, hinused)
+    return ccall(
+        (:IDAGetActualInitStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}),
+        ida_mem, hinused
+    )
 end
 
 function IDAGetLastStep(ida_mem, hlast)
-    ccall((:IDAGetLastStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem,
-        hlast)
+    return ccall(
+        (:IDAGetLastStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem,
+        hlast
+    )
 end
 
 function IDAGetCurrentStep(ida_mem, hcur)
-    ccall(
+    return ccall(
         (:IDAGetCurrentStep, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem,
-        hcur)
+        hcur
+    )
 end
 
 function IDAGetCurrentTime(ida_mem, tcur)
-    ccall(
+    return ccall(
         (:IDAGetCurrentTime, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}), ida_mem,
-        tcur)
+        tcur
+    )
 end
 
 function IDAGetTolScaleFactor(ida_mem, tolsfact)
-    ccall((:IDAGetTolScaleFactor, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}),
-        ida_mem, tolsfact)
+    return ccall(
+        (:IDAGetTolScaleFactor, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}),
+        ida_mem, tolsfact
+    )
 end
 
 function IDAGetErrWeights(ida_mem, eweight::Union{N_Vector, NVector})
-    ccall((:IDAGetErrWeights, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
-        eweight)
+    return ccall(
+        (:IDAGetErrWeights, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
+        eweight
+    )
 end
 
 function IDAGetErrWeights(ida_mem, eweight, ctx::SUNContext)
-    IDAGetErrWeights(ida_mem, eweight, ctx)
+    return IDAGetErrWeights(ida_mem, eweight, ctx)
 end
 
 function IDAGetEstLocalErrors(ida_mem, ele::Union{N_Vector, NVector})
-    ccall((:IDAGetEstLocalErrors, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
-        ele)
+    return ccall(
+        (:IDAGetEstLocalErrors, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
+        ele
+    )
 end
 
 function IDAGetEstLocalErrors(ida_mem, ele, ctx::SUNContext)
     __ele = convert(NVector, ele, ctx)
-    IDAGetEstLocalErrors(ida_mem, __ele)
+    return IDAGetEstLocalErrors(ida_mem, __ele)
 end
 
 function IDAGetNumGEvals(ida_mem, ngevals)
-    ccall((:IDAGetNumGEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        ngevals)
+    return ccall(
+        (:IDAGetNumGEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        ngevals
+    )
 end
 
 function IDAGetRootInfo(ida_mem, rootsfound)
-    ccall((:IDAGetRootInfo, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
-        rootsfound)
+    return ccall(
+        (:IDAGetRootInfo, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem,
+        rootsfound
+    )
 end
 
-function IDAGetIntegratorStats(ida_mem, nsteps, nrevals, nlinsetups, netfails, qlast, qcur,
-        hinused, hlast, hcur, tcur)
-    ccall((:IDAGetIntegratorStats, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint}, Ptr{Cint},
-            Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), ida_mem, nsteps,
-        nrevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur)
+function IDAGetIntegratorStats(
+        ida_mem, nsteps, nrevals, nlinsetups, netfails, qlast, qcur,
+        hinused, hlast, hcur, tcur
+    )
+    return ccall(
+        (:IDAGetIntegratorStats, libsundials_idas), Cint,
+        (
+            IDAMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Cint}, Ptr{Cint},
+            Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype},
+        ), ida_mem, nsteps,
+        nrevals, nlinsetups, netfails, qlast, qcur, hinused, hlast, hcur, tcur
+    )
 end
 
 function IDAGetNumNonlinSolvIters(ida_mem, nniters)
-    ccall((:IDAGetNumNonlinSolvIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nniters)
+    return ccall(
+        (:IDAGetNumNonlinSolvIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nniters
+    )
 end
 
 function IDAGetNumNonlinSolvConvFails(ida_mem, nncfails)
-    ccall((:IDAGetNumNonlinSolvConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nncfails)
+    return ccall(
+        (:IDAGetNumNonlinSolvConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nncfails
+    )
 end
 
 function IDAGetNonlinSolvStats(ida_mem, nniters, nncfails)
-    ccall((:IDAGetNonlinSolvStats, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nniters, nncfails)
+    return ccall(
+        (:IDAGetNonlinSolvStats, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nniters, nncfails
+    )
 end
 
 function IDAGetReturnFlagName(flag::Clong)
-    ccall((:IDAGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
+    return ccall((:IDAGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDAGetReturnFlagName(flag)
-    IDAGetReturnFlagName(convert(Clong, flag))
+    return IDAGetReturnFlagName(convert(Clong, flag))
 end
 
 function IDAFree(ida_mem)
-    ccall((:IDAFree, libsundials_idas), Cvoid, (Ref{IDAMemPtr},), ida_mem)
+    return ccall((:IDAFree, libsundials_idas), Cvoid, (Ref{IDAMemPtr},), ida_mem)
 end
 
-function IDABBDPrecInit(ida_mem, Nlocal::sunindextype, mudq::sunindextype,
+function IDABBDPrecInit(
+        ida_mem, Nlocal::sunindextype, mudq::sunindextype,
         mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype,
-        dq_rel_yy::realtype, Gres::IDABBDLocalFn, Gcomm::IDABBDCommFn)
-    ccall((:IDABBDPrecInit, libsundials_idas), Cint,
-        (IDAMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype,
-            realtype, IDABBDLocalFn, IDABBDCommFn), ida_mem, Nlocal, mudq, mldq, mukeep,
-        mlkeep, dq_rel_yy, Gres, Gcomm)
+        dq_rel_yy::realtype, Gres::IDABBDLocalFn, Gcomm::IDABBDCommFn
+    )
+    return ccall(
+        (:IDABBDPrecInit, libsundials_idas), Cint,
+        (
+            IDAMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype,
+            realtype, IDABBDLocalFn, IDABBDCommFn,
+        ), ida_mem, Nlocal, mudq, mldq, mukeep,
+        mlkeep, dq_rel_yy, Gres, Gcomm
+    )
 end
 
-function IDABBDPrecReInit(ida_mem, mudq::sunindextype, mldq::sunindextype,
-        dq_rel_yy::realtype)
-    ccall((:IDABBDPrecReInit, libsundials_idas), Cint,
-        (IDAMemPtr, sunindextype, sunindextype, realtype), ida_mem, mudq, mldq, dq_rel_yy)
+function IDABBDPrecReInit(
+        ida_mem, mudq::sunindextype, mldq::sunindextype,
+        dq_rel_yy::realtype
+    )
+    return ccall(
+        (:IDABBDPrecReInit, libsundials_idas), Cint,
+        (IDAMemPtr, sunindextype, sunindextype, realtype), ida_mem, mudq, mldq, dq_rel_yy
+    )
 end
 
 function IDABBDPrecGetWorkSpace(ida_mem, lenrwBBDP, leniwBBDP)
-    ccall((:IDABBDPrecGetWorkSpace, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwBBDP, leniwBBDP)
+    return ccall(
+        (:IDABBDPrecGetWorkSpace, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwBBDP, leniwBBDP
+    )
 end
 
 function IDABBDPrecGetNumGfnEvals(ida_mem, ngevalsBBDP)
-    ccall((:IDABBDPrecGetNumGfnEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, ngevalsBBDP)
+    return ccall(
+        (:IDABBDPrecGetNumGfnEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, ngevalsBBDP
+    )
 end
 
 function IDADlsSetLinearSolver(ida_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:IDASetLinearSolver, libsundials_idas), Cint,
-        (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
+    return ccall(
+        (:IDASetLinearSolver, libsundials_idas), Cint,
+        (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A
+    )
 end
 
 function IDADlsSetJacFn(ida_mem, jac::IDADlsJacFn)
-    ccall((:IDADlsSetJacFn, libsundials_idas), Cint, (IDAMemPtr, IDADlsJacFn), ida_mem, jac)
+    return ccall((:IDADlsSetJacFn, libsundials_idas), Cint, (IDAMemPtr, IDADlsJacFn), ida_mem, jac)
 end
 
 function IDADlsGetWorkSpace(ida_mem, lenrwLS, leniwLS)
-    ccall((:IDADlsGetWorkSpace, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:IDADlsGetWorkSpace, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS
+    )
 end
 
 function IDADlsGetNumJacEvals(ida_mem, njevals)
-    ccall(
+    return ccall(
         (:IDADlsGetNumJacEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        njevals)
+        njevals
+    )
 end
 
 function IDADlsGetNumResEvals(ida_mem, nrevalsLS)
-    ccall(
+    return ccall(
         (:IDADlsGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        nrevalsLS)
+        nrevalsLS
+    )
 end
 
 function IDADlsGetLastFlag(ida_mem, flag)
-    ccall((:IDADlsGetLastFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        flag)
+    return ccall(
+        (:IDADlsGetLastFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        flag
+    )
 end
 
 function IDADlsGetReturnFlagName(flag::Clong)
-    ccall((:IDADlsGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
+    return ccall((:IDADlsGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDADlsGetReturnFlagName(flag)
-    IDADlsGetReturnFlagName(convert(Clong, flag))
+    return IDADlsGetReturnFlagName(convert(Clong, flag))
 end
 
 function IDASetLinearSolver(ida_mem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:IDASetLinearSolver, libsundials_idas), Cint,
-        (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A)
+    return ccall(
+        (:IDASetLinearSolver, libsundials_idas), Cint,
+        (IDAMemPtr, SUNLinearSolver, SUNMatrix), ida_mem, LS, A
+    )
 end
 
 function IDASetJacFn(ida_mem, jac::IDALsJacFn)
-    ccall((:IDASetJacFn, libsundials_idas), Cint, (IDAMemPtr, IDALsJacFn), ida_mem, jac)
+    return ccall((:IDASetJacFn, libsundials_idas), Cint, (IDAMemPtr, IDALsJacFn), ida_mem, jac)
 end
 
 function IDASetPreconditioner(ida_mem, pset::IDALsPrecSetupFn, psolve::IDALsPrecSolveFn)
-    ccall((:IDASetPreconditioner, libsundials_idas), Cint,
-        (IDAMemPtr, IDALsPrecSetupFn, IDALsPrecSolveFn), ida_mem, pset, psolve)
+    return ccall(
+        (:IDASetPreconditioner, libsundials_idas), Cint,
+        (IDAMemPtr, IDALsPrecSetupFn, IDALsPrecSolveFn), ida_mem, pset, psolve
+    )
 end
 
 function IDASetJacTimes(ida_mem, jtsetup::IDALsJacTimesSetupFn, jtimes::IDALsJacTimesVecFn)
-    ccall((:IDASetJacTimes, libsundials_idas), Cint,
-        (IDAMemPtr, IDALsJacTimesSetupFn, IDALsJacTimesVecFn), ida_mem, jtsetup, jtimes)
+    return ccall(
+        (:IDASetJacTimes, libsundials_idas), Cint,
+        (IDAMemPtr, IDALsJacTimesSetupFn, IDALsJacTimesVecFn), ida_mem, jtsetup, jtimes
+    )
 end
 
 function IDASetEpsLin(ida_mem, eplifac::realtype)
-    ccall((:IDASetEpsLin, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
+    return ccall((:IDASetEpsLin, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem, eplifac)
 end
 
 function IDASetLinearSolutionScaling(ida_mem, onoff::Cint)
-    ccall((:IDASetLinearSolutionScaling, libsundials_idas), Cint, (IDAMemPtr, Cint),
-        ida_mem, onoff)
+    return ccall(
+        (:IDASetLinearSolutionScaling, libsundials_idas), Cint, (IDAMemPtr, Cint),
+        ida_mem, onoff
+    )
 end
 
 function IDASetLinearSolutionScaling(ida_mem, onoff)
-    IDASetLinearSolutionScaling(ida_mem, convert(Cint, onoff))
+    return IDASetLinearSolutionScaling(ida_mem, convert(Cint, onoff))
 end
 
 function IDASetIncrementFactor(ida_mem, dqincfac::realtype)
-    ccall((:IDASetIncrementFactor, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
-        dqincfac)
+    return ccall(
+        (:IDASetIncrementFactor, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
+        dqincfac
+    )
 end
 
 function IDAGetLinWorkSpace(ida_mem, lenrwLS, leniwLS)
-    ccall((:IDAGetLinWorkSpace, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:IDAGetLinWorkSpace, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS
+    )
 end
 
 function IDAGetNumJacEvals(ida_mem, njevals)
-    ccall((:IDAGetNumJacEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        njevals)
+    return ccall(
+        (:IDAGetNumJacEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        njevals
+    )
 end
 
 function IDAGetNumPrecEvals(ida_mem, npevals)
-    ccall((:IDAGetNumPrecEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        npevals)
+    return ccall(
+        (:IDAGetNumPrecEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        npevals
+    )
 end
 
 function IDAGetNumPrecSolves(ida_mem, npsolves)
-    ccall((:IDAGetNumPrecSolves, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        npsolves)
+    return ccall(
+        (:IDAGetNumPrecSolves, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        npsolves
+    )
 end
 
 function IDAGetNumLinIters(ida_mem, nliters)
-    ccall((:IDAGetNumLinIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        nliters)
+    return ccall(
+        (:IDAGetNumLinIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        nliters
+    )
 end
 
 function IDAGetNumLinConvFails(ida_mem, nlcfails)
-    ccall((:IDAGetNumLinConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nlcfails)
+    return ccall(
+        (:IDAGetNumLinConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nlcfails
+    )
 end
 
 function IDAGetNumJTSetupEvals(ida_mem, njtsetups)
-    ccall((:IDAGetNumJTSetupEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, njtsetups)
+    return ccall(
+        (:IDAGetNumJTSetupEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, njtsetups
+    )
 end
 
 function IDAGetNumJtimesEvals(ida_mem, njvevals)
-    ccall(
+    return ccall(
         (:IDAGetNumJtimesEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        njvevals)
+        njvevals
+    )
 end
 
 function IDAGetNumLinResEvals(ida_mem, nrevalsLS)
-    ccall(
+    return ccall(
         (:IDAGetNumLinResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        nrevalsLS)
+        nrevalsLS
+    )
 end
 
 function IDAGetLastLinFlag(ida_mem, flag)
-    ccall((:IDAGetLastLinFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        flag)
+    return ccall(
+        (:IDAGetLastLinFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        flag
+    )
 end
 
 function IDAGetLinReturnFlagName(flag::Clong)
-    ccall((:IDAGetLinReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
+    return ccall((:IDAGetLinReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDAGetLinReturnFlagName(flag)
-    IDAGetLinReturnFlagName(convert(Clong, flag))
+    return IDAGetLinReturnFlagName(convert(Clong, flag))
 end
 
 function IDASpilsSetLinearSolver(ida_mem, LS::SUNLinearSolver)
-    ccall((:IDASpilsSetLinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNLinearSolver),
-        ida_mem, LS)
+    return ccall(
+        (:IDASpilsSetLinearSolver, libsundials_idas), Cint, (IDAMemPtr, SUNLinearSolver),
+        ida_mem, LS
+    )
 end
 
-function IDASpilsSetPreconditioner(ida_mem, pset::IDASpilsPrecSetupFn,
-        psolve::IDASpilsPrecSolveFn)
-    ccall((:IDASpilsSetPreconditioner, libsundials_idas), Cint,
-        (IDAMemPtr, IDASpilsPrecSetupFn, IDASpilsPrecSolveFn), ida_mem, pset, psolve)
+function IDASpilsSetPreconditioner(
+        ida_mem, pset::IDASpilsPrecSetupFn,
+        psolve::IDASpilsPrecSolveFn
+    )
+    return ccall(
+        (:IDASpilsSetPreconditioner, libsundials_idas), Cint,
+        (IDAMemPtr, IDASpilsPrecSetupFn, IDASpilsPrecSolveFn), ida_mem, pset, psolve
+    )
 end
 
-function IDASpilsSetJacTimes(ida_mem, jtsetup::IDASpilsJacTimesSetupFn,
-        jtimes::IDASpilsJacTimesVecFn)
-    ccall((:IDASpilsSetJacTimes, libsundials_idas), Cint,
+function IDASpilsSetJacTimes(
+        ida_mem, jtsetup::IDASpilsJacTimesSetupFn,
+        jtimes::IDASpilsJacTimesVecFn
+    )
+    return ccall(
+        (:IDASpilsSetJacTimes, libsundials_idas), Cint,
         (IDAMemPtr, IDASpilsJacTimesSetupFn, IDASpilsJacTimesVecFn), ida_mem, jtsetup,
-        jtimes)
+        jtimes
+    )
 end
 
 function IDASpilsSetEpsLin(ida_mem, eplifac::realtype)
-    ccall((:IDASpilsSetEpsLin, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
-        eplifac)
+    return ccall(
+        (:IDASpilsSetEpsLin, libsundials_idas), Cint, (IDAMemPtr, realtype), ida_mem,
+        eplifac
+    )
 end
 
 function IDASpilsSetIncrementFactor(ida_mem, dqincfac::realtype)
-    ccall((:IDASpilsSetIncrementFactor, libsundials_idas), Cint, (IDAMemPtr, realtype),
-        ida_mem, dqincfac)
+    return ccall(
+        (:IDASpilsSetIncrementFactor, libsundials_idas), Cint, (IDAMemPtr, realtype),
+        ida_mem, dqincfac
+    )
 end
 
 function IDASpilsGetWorkSpace(ida_mem, lenrwLS, leniwLS)
-    ccall((:IDASpilsGetWorkSpace, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS)
+    return ccall(
+        (:IDASpilsGetWorkSpace, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, lenrwLS, leniwLS
+    )
 end
 
 function IDASpilsGetNumPrecEvals(ida_mem, npevals)
-    ccall((:IDASpilsGetNumPrecEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, npevals)
+    return ccall(
+        (:IDASpilsGetNumPrecEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, npevals
+    )
 end
 
 function IDASpilsGetNumPrecSolves(ida_mem, npsolves)
-    ccall((:IDASpilsGetNumPrecSolves, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, npsolves)
+    return ccall(
+        (:IDASpilsGetNumPrecSolves, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, npsolves
+    )
 end
 
 function IDASpilsGetNumLinIters(ida_mem, nliters)
-    ccall((:IDASpilsGetNumLinIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nliters)
+    return ccall(
+        (:IDASpilsGetNumLinIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nliters
+    )
 end
 
 function IDASpilsGetNumConvFails(ida_mem, nlcfails)
-    ccall((:IDASpilsGetNumConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nlcfails)
+    return ccall(
+        (:IDASpilsGetNumConvFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nlcfails
+    )
 end
 
 function IDASpilsGetNumJTSetupEvals(ida_mem, njtsetups)
-    ccall((:IDASpilsGetNumJTSetupEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, njtsetups)
+    return ccall(
+        (:IDASpilsGetNumJTSetupEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, njtsetups
+    )
 end
 
 function IDASpilsGetNumJtimesEvals(ida_mem, njvevals)
-    ccall((:IDASpilsGetNumJtimesEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, njvevals)
+    return ccall(
+        (:IDASpilsGetNumJtimesEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, njvevals
+    )
 end
 
 function IDASpilsGetNumResEvals(ida_mem, nrevalsLS)
-    ccall((:IDASpilsGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nrevalsLS)
+    return ccall(
+        (:IDASpilsGetNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nrevalsLS
+    )
 end
 
 function IDASpilsGetLastFlag(ida_mem, flag)
-    ccall((:IDASpilsGetLastFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
-        flag)
+    return ccall(
+        (:IDASpilsGetLastFlag, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}), ida_mem,
+        flag
+    )
 end
 
 function IDASpilsGetReturnFlagName(flag::Clong)
-    ccall((:IDASpilsGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
+    return ccall((:IDASpilsGetReturnFlagName, libsundials_idas), Cstring, (Clong,), flag)
 end
 
 function IDASpilsGetReturnFlagName(flag)
-    IDASpilsGetReturnFlagName(convert(Clong, flag))
+    return IDASpilsGetReturnFlagName(convert(Clong, flag))
 end
 
 function IDAComputeYSens(ida_mem, ycor, yyS)
-    ccall((:IDAComputeYSens, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, ycor, yyS)
+    return ccall(
+        (:IDAComputeYSens, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, ycor, yyS
+    )
 end
 
 function IDAComputeYpSens(ida_mem, ycor, ypS)
-    ccall((:IDAComputeYpSens, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, ycor, ypS)
+    return ccall(
+        (:IDAComputeYpSens, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, ycor, ypS
+    )
 end
 
 function IDAGetCurrentYSens(ida_mem, yS)
-    ccall((:IDAGetCurrentYSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{Ptr{N_Vector}}),
-        ida_mem, yS)
+    return ccall(
+        (:IDAGetCurrentYSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{Ptr{N_Vector}}),
+        ida_mem, yS
+    )
 end
 
 function IDAGetCurrentYpSens(ida_mem, ypS)
-    ccall((:IDAGetCurrentYpSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{Ptr{N_Vector}}),
-        ida_mem, ypS)
+    return ccall(
+        (:IDAGetCurrentYpSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{Ptr{N_Vector}}),
+        ida_mem, ypS
+    )
 end
 
 function IDAQuadInit(ida_mem, rhsQ::IDAQuadRhsFn, yQ0::Union{N_Vector, NVector})
-    ccall((:IDAQuadInit, libsundials_idas), Cint, (IDAMemPtr, IDAQuadRhsFn, N_Vector),
-        ida_mem, rhsQ, yQ0)
+    return ccall(
+        (:IDAQuadInit, libsundials_idas), Cint, (IDAMemPtr, IDAQuadRhsFn, N_Vector),
+        ida_mem, rhsQ, yQ0
+    )
 end
 
 function IDAQuadInit(ida_mem, rhsQ, yQ0, ctx::SUNContext)
     __yQ0 = convert(NVector, yQ0, ctx)
-    IDAQuadInit(ida_mem, rhsQ, __yQ0)
+    return IDAQuadInit(ida_mem, rhsQ, __yQ0)
 end
 
 function IDAQuadReInit(ida_mem, yQ0::Union{N_Vector, NVector})
-    ccall((:IDAQuadReInit, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, yQ0)
+    return ccall((:IDAQuadReInit, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem, yQ0)
 end
 
 function IDAQuadReInit(ida_mem, yQ0, ctx::SUNContext)
     __yQ0 = convert(NVector, yQ0, ctx)
-    IDAQuadReInit(ida_mem, __yQ0)
+    return IDAQuadReInit(ida_mem, __yQ0)
 end
 
 function IDAQuadSStolerances(ida_mem, reltolQ::realtype, abstolQ::realtype)
-    ccall((:IDAQuadSStolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, realtype),
-        ida_mem, reltolQ, abstolQ)
+    return ccall(
+        (:IDAQuadSStolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, realtype),
+        ida_mem, reltolQ, abstolQ
+    )
 end
 
 function IDAQuadSVtolerances(ida_mem, reltolQ::realtype, abstolQ::Union{N_Vector, NVector})
-    ccall((:IDAQuadSVtolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector),
-        ida_mem, reltolQ, abstolQ)
+    return ccall(
+        (:IDAQuadSVtolerances, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector),
+        ida_mem, reltolQ, abstolQ
+    )
 end
 
 function IDAQuadSVtolerances(ida_mem, reltolQ, abstolQ, ctx::SUNContext)
-    IDAQuadSVtolerances(ida_mem, reltolQ, abstolQ, ctx)
+    return IDAQuadSVtolerances(ida_mem, reltolQ, abstolQ, ctx)
 end
 
 function IDASetQuadErrCon(ida_mem, errconQ::Cint)
-    ccall((:IDASetQuadErrCon, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, errconQ)
+    return ccall((:IDASetQuadErrCon, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, errconQ)
 end
 
 function IDASetQuadErrCon(ida_mem, errconQ)
-    IDASetQuadErrCon(ida_mem, convert(Cint, errconQ))
+    return IDASetQuadErrCon(ida_mem, convert(Cint, errconQ))
 end
 
 function IDAGetQuad(ida_mem, t, yQout::Union{N_Vector, NVector})
-    ccall((:IDAGetQuad, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}, N_Vector),
-        ida_mem, t, yQout)
+    return ccall(
+        (:IDAGetQuad, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}, N_Vector),
+        ida_mem, t, yQout
+    )
 end
 
 function IDAGetQuad(ida_mem, t, yQout, ctx::SUNContext)
-    IDAGetQuad(ida_mem, t, yQout, ctx)
+    return IDAGetQuad(ida_mem, t, yQout, ctx)
 end
 
 function IDAGetQuadDky(ida_mem, t::realtype, k::Cint, dky::Union{N_Vector, NVector})
-    ccall((:IDAGetQuadDky, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint, N_Vector),
-        ida_mem, t, k, dky)
+    return ccall(
+        (:IDAGetQuadDky, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint, N_Vector),
+        ida_mem, t, k, dky
+    )
 end
 
 function IDAGetQuadDky(ida_mem, t, k, dky, ctx::SUNContext)
-    IDAGetQuadDky(ida_mem, t, k, dky, ctx)
+    return IDAGetQuadDky(ida_mem, t, k, dky, ctx)
 end
 
 function IDAGetQuadNumRhsEvals(ida_mem, nrhsQevals)
-    ccall((:IDAGetQuadNumRhsEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nrhsQevals)
+    return ccall(
+        (:IDAGetQuadNumRhsEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nrhsQevals
+    )
 end
 
 function IDAGetQuadNumErrTestFails(ida_mem, nQetfails)
-    ccall((:IDAGetQuadNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nQetfails)
+    return ccall(
+        (:IDAGetQuadNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nQetfails
+    )
 end
 
 function IDAGetQuadErrWeights(ida_mem, eQweight::Union{N_Vector, NVector})
-    ccall((:IDAGetQuadErrWeights, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
-        eQweight)
+    return ccall(
+        (:IDAGetQuadErrWeights, libsundials_idas), Cint, (IDAMemPtr, N_Vector), ida_mem,
+        eQweight
+    )
 end
 
 function IDAGetQuadErrWeights(ida_mem, eQweight, ctx::SUNContext)
-    IDAGetQuadErrWeights(ida_mem, eQweight, ctx)
+    return IDAGetQuadErrWeights(ida_mem, eQweight, ctx)
 end
 
 function IDAGetQuadStats(ida_mem, nrhsQevals, nQetfails)
-    ccall((:IDAGetQuadStats, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}),
-        ida_mem, nrhsQevals, nQetfails)
+    return ccall(
+        (:IDAGetQuadStats, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}, Ptr{Clong}),
+        ida_mem, nrhsQevals, nQetfails
+    )
 end
 
 function IDAQuadFree(ida_mem)
-    ccall((:IDAQuadFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
+    return ccall((:IDAQuadFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function IDASensInit(ida_mem, Ns::Cint, ism::Cint, resS::IDASensResFn, yS0, ypS0)
-    ccall((:IDASensInit, libsundials_idas), Cint,
+    return ccall(
+        (:IDASensInit, libsundials_idas), Cint,
         (IDAMemPtr, Cint, Cint, IDASensResFn, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, Ns,
-        ism, resS, yS0, ypS0)
+        ism, resS, yS0, ypS0
+    )
 end
 
 function IDASensInit(ida_mem, Ns, ism, resS, yS0, ypS0)
-    IDASensInit(ida_mem, convert(Cint, Ns), convert(Cint, ism), resS, yS0, ypS0)
+    return IDASensInit(ida_mem, convert(Cint, Ns), convert(Cint, ism), resS, yS0, ypS0)
 end
 
 function IDASensReInit(ida_mem, ism::Cint, yS0, ypS0)
-    ccall((:IDASensReInit, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, ism, yS0, ypS0)
+    return ccall(
+        (:IDASensReInit, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, ism, yS0, ypS0
+    )
 end
 
 function IDASensReInit(ida_mem, ism, yS0, ypS0)
-    IDASensReInit(ida_mem, convert(Cint, ism), yS0, ypS0)
+    return IDASensReInit(ida_mem, convert(Cint, ism), yS0, ypS0)
 end
 
 function IDASensSStolerances(ida_mem, reltolS::realtype, abstolS)
-    ccall((:IDASensSStolerances, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Ptr{realtype}), ida_mem, reltolS, abstolS)
+    return ccall(
+        (:IDASensSStolerances, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Ptr{realtype}), ida_mem, reltolS, abstolS
+    )
 end
 
 function IDASensSVtolerances(ida_mem, reltolS::realtype, abstolS)
-    ccall((:IDASensSVtolerances, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Ptr{N_Vector}), ida_mem, reltolS, abstolS)
+    return ccall(
+        (:IDASensSVtolerances, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Ptr{N_Vector}), ida_mem, reltolS, abstolS
+    )
 end
 
 function IDASensEEtolerances(ida_mem)
-    ccall((:IDASensEEtolerances, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
+    return ccall((:IDASensEEtolerances, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
 function IDAGetSensConsistentIC(ida_mem, yyS0, ypS0)
-    ccall((:IDAGetSensConsistentIC, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, yyS0, ypS0)
+    return ccall(
+        (:IDAGetSensConsistentIC, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{N_Vector}, Ptr{N_Vector}), ida_mem, yyS0, ypS0
+    )
 end
 
 function IDASetSensDQMethod(ida_mem, DQtype::Cint, DQrhomax::realtype)
-    ccall((:IDASetSensDQMethod, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype),
-        ida_mem, DQtype, DQrhomax)
+    return ccall(
+        (:IDASetSensDQMethod, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype),
+        ida_mem, DQtype, DQrhomax
+    )
 end
 
 function IDASetSensDQMethod(ida_mem, DQtype, DQrhomax)
-    IDASetSensDQMethod(ida_mem, convert(Cint, DQtype), DQrhomax)
+    return IDASetSensDQMethod(ida_mem, convert(Cint, DQtype), DQrhomax)
 end
 
 function IDASetSensErrCon(ida_mem, errconS::Cint)
-    ccall((:IDASetSensErrCon, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, errconS)
+    return ccall((:IDASetSensErrCon, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem, errconS)
 end
 
 function IDASetSensErrCon(ida_mem, errconS)
-    IDASetSensErrCon(ida_mem, convert(Cint, errconS))
+    return IDASetSensErrCon(ida_mem, convert(Cint, errconS))
 end
 
 function IDASetSensMaxNonlinIters(ida_mem, maxcorS::Cint)
-    ccall((:IDASetSensMaxNonlinIters, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
-        maxcorS)
+    return ccall(
+        (:IDASetSensMaxNonlinIters, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
+        maxcorS
+    )
 end
 
 function IDASetSensMaxNonlinIters(ida_mem, maxcorS)
-    IDASetSensMaxNonlinIters(ida_mem, convert(Cint, maxcorS))
+    return IDASetSensMaxNonlinIters(ida_mem, convert(Cint, maxcorS))
 end
 
 function IDASetSensParams(ida_mem, p, pbar, plist)
-    ccall((:IDASetSensParams, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{realtype}, Ptr{realtype}, Ptr{Cint}), ida_mem, p, pbar, plist)
+    return ccall(
+        (:IDASetSensParams, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{realtype}, Ptr{realtype}, Ptr{Cint}), ida_mem, p, pbar, plist
+    )
 end
 
 function IDASetNonlinearSolverSensSim(ida_mem, NLS::SUNNonlinearSolver)
-    ccall((:IDASetNonlinearSolverSensSim, libsundials_idas), Cint,
-        (IDAMemPtr, SUNNonlinearSolver), ida_mem, NLS)
+    return ccall(
+        (:IDASetNonlinearSolverSensSim, libsundials_idas), Cint,
+        (IDAMemPtr, SUNNonlinearSolver), ida_mem, NLS
+    )
 end
 
 function IDASetNonlinearSolverSensStg(ida_mem, NLS::SUNNonlinearSolver)
-    ccall((:IDASetNonlinearSolverSensStg, libsundials_idas), Cint,
-        (IDAMemPtr, SUNNonlinearSolver), ida_mem, NLS)
+    return ccall(
+        (:IDASetNonlinearSolverSensStg, libsundials_idas), Cint,
+        (IDAMemPtr, SUNNonlinearSolver), ida_mem, NLS
+    )
 end
 
 function IDASensToggleOff(ida_mem)
-    ccall((:IDASensToggleOff, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
+    return ccall((:IDASensToggleOff, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
 function IDAGetSens(ida_mem, tret, yySout)
-    ccall((:IDAGetSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}, Ptr{N_Vector}),
-        ida_mem, tret, yySout)
+    return ccall(
+        (:IDAGetSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{realtype}, Ptr{N_Vector}),
+        ida_mem, tret, yySout
+    )
 end
 
 function IDAGetSens1(ida_mem, tret, is::Cint, yySret::Union{N_Vector, NVector})
-    ccall((:IDAGetSens1, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{realtype}, Cint, N_Vector), ida_mem, tret, is, yySret)
+    return ccall(
+        (:IDAGetSens1, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{realtype}, Cint, N_Vector), ida_mem, tret, is, yySret
+    )
 end
 
 function IDAGetSens1(ida_mem, tret, is, yySret, ctx::SUNContext)
-    IDAGetSens1(ida_mem, tret, is, yySret, ctx)
+    return IDAGetSens1(ida_mem, tret, is, yySret, ctx)
 end
 
 function IDAGetSensDky(ida_mem, t::realtype, k::Cint, dkyS)
-    ccall((:IDAGetSensDky, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Cint, Ptr{N_Vector}), ida_mem, t, k, dkyS)
+    return ccall(
+        (:IDAGetSensDky, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Cint, Ptr{N_Vector}), ida_mem, t, k, dkyS
+    )
 end
 
 function IDAGetSensDky(ida_mem, t, k, dkyS)
-    IDAGetSensDky(ida_mem, t, convert(Cint, k), dkyS)
+    return IDAGetSensDky(ida_mem, t, convert(Cint, k), dkyS)
 end
 
-function IDAGetSensDky1(ida_mem, t::realtype, k::Cint, is::Cint,
-        dkyS::Union{N_Vector, NVector})
-    ccall((:IDAGetSensDky1, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Cint, Cint, N_Vector), ida_mem, t, k, is, dkyS)
+function IDAGetSensDky1(
+        ida_mem, t::realtype, k::Cint, is::Cint,
+        dkyS::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetSensDky1, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Cint, Cint, N_Vector), ida_mem, t, k, is, dkyS
+    )
 end
 
 function IDAGetSensDky1(ida_mem, t, k, is, dkyS)
     __dkyS = convert(NVector, dkyS)
-    IDAGetSensDky1(ida_mem, t, convert(Cint, k), convert(Cint, is),
-        __dkyS)
+    return IDAGetSensDky1(
+        ida_mem, t, convert(Cint, k), convert(Cint, is),
+        __dkyS
+    )
 end
 
 function IDAGetSensNumResEvals(ida_mem, nresSevals)
-    ccall((:IDAGetSensNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nresSevals)
+    return ccall(
+        (:IDAGetSensNumResEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nresSevals
+    )
 end
 
 function IDAGetNumResEvalsSens(ida_mem, nresevalsS)
-    ccall((:IDAGetNumResEvalsSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nresevalsS)
+    return ccall(
+        (:IDAGetNumResEvalsSens, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nresevalsS
+    )
 end
 
 function IDAGetSensNumErrTestFails(ida_mem, nSetfails)
-    ccall((:IDAGetSensNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nSetfails)
+    return ccall(
+        (:IDAGetSensNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nSetfails
+    )
 end
 
 function IDAGetSensNumLinSolvSetups(ida_mem, nlinsetupsS)
-    ccall((:IDAGetSensNumLinSolvSetups, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nlinsetupsS)
+    return ccall(
+        (:IDAGetSensNumLinSolvSetups, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nlinsetupsS
+    )
 end
 
 function IDAGetSensErrWeights(ida_mem, eSweight::N_Vector_S)
-    ccall(
+    return ccall(
         (:IDAGetSensErrWeights, libsundials_idas), Cint, (IDAMemPtr, N_Vector_S), ida_mem,
-        eSweight)
+        eSweight
+    )
 end
 
 function IDAGetSensStats(ida_mem, nresSevals, nresevalsS, nSetfails, nlinsetupsS)
-    ccall((:IDAGetSensStats, libsundials_idas), Cint,
+    return ccall(
+        (:IDAGetSensStats, libsundials_idas), Cint,
         (IDAMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}), ida_mem, nresSevals,
-        nresevalsS, nSetfails, nlinsetupsS)
+        nresevalsS, nSetfails, nlinsetupsS
+    )
 end
 
 function IDAGetSensNumNonlinSolvIters(ida_mem, nSniters)
-    ccall((:IDAGetSensNumNonlinSolvIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nSniters)
+    return ccall(
+        (:IDAGetSensNumNonlinSolvIters, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nSniters
+    )
 end
 
 function IDAGetSensNumNonlinSolvConvFails(ida_mem, nSncfails)
-    ccall((:IDAGetSensNumNonlinSolvConvFails, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}), ida_mem, nSncfails)
+    return ccall(
+        (:IDAGetSensNumNonlinSolvConvFails, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}), ida_mem, nSncfails
+    )
 end
 
 function IDAGetSensNonlinSolvStats(ida_mem, nSniters, nSncfails)
-    ccall((:IDAGetSensNonlinSolvStats, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nSniters, nSncfails)
+    return ccall(
+        (:IDAGetSensNonlinSolvStats, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nSniters, nSncfails
+    )
 end
 
 function IDASensFree(ida_mem)
-    ccall((:IDASensFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
+    return ccall((:IDASensFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function IDAQuadSensInit(ida_mem, resQS::IDAQuadSensRhsFn, yQS0)
-    ccall((:IDAQuadSensInit, libsundials_idas), Cint,
-        (IDAMemPtr, IDAQuadSensRhsFn, Ptr{N_Vector}), ida_mem, resQS, yQS0)
+    return ccall(
+        (:IDAQuadSensInit, libsundials_idas), Cint,
+        (IDAMemPtr, IDAQuadSensRhsFn, Ptr{N_Vector}), ida_mem, resQS, yQS0
+    )
 end
 
 function IDAQuadSensReInit(ida_mem, yQS0)
-    ccall(
+    return ccall(
         (:IDAQuadSensReInit, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}), ida_mem,
-        yQS0)
+        yQS0
+    )
 end
 
 function IDAQuadSensSStolerances(ida_mem, reltolQS::realtype, abstolQS)
-    ccall((:IDAQuadSensSStolerances, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Ptr{realtype}), ida_mem, reltolQS, abstolQS)
+    return ccall(
+        (:IDAQuadSensSStolerances, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Ptr{realtype}), ida_mem, reltolQS, abstolQS
+    )
 end
 
 function IDAQuadSensSVtolerances(ida_mem, reltolQS::realtype, abstolQS)
-    ccall((:IDAQuadSensSVtolerances, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Ptr{N_Vector}), ida_mem, reltolQS, abstolQS)
+    return ccall(
+        (:IDAQuadSensSVtolerances, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Ptr{N_Vector}), ida_mem, reltolQS, abstolQS
+    )
 end
 
 function IDAQuadSensEEtolerances(ida_mem)
-    ccall((:IDAQuadSensEEtolerances, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
+    return ccall((:IDAQuadSensEEtolerances, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
 function IDASetQuadSensErrCon(ida_mem, errconQS::Cint)
-    ccall((:IDASetQuadSensErrCon, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
-        errconQS)
+    return ccall(
+        (:IDASetQuadSensErrCon, libsundials_idas), Cint, (IDAMemPtr, Cint), ida_mem,
+        errconQS
+    )
 end
 
 function IDASetQuadSensErrCon(ida_mem, errconQS)
-    IDASetQuadSensErrCon(ida_mem, convert(Cint, errconQS))
+    return IDASetQuadSensErrCon(ida_mem, convert(Cint, errconQS))
 end
 
 function IDAGetQuadSens(ida_mem, tret, yyQSout)
-    ccall((:IDAGetQuadSens, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{realtype}, Ptr{N_Vector}), ida_mem, tret, yyQSout)
+    return ccall(
+        (:IDAGetQuadSens, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{realtype}, Ptr{N_Vector}), ida_mem, tret, yyQSout
+    )
 end
 
 function IDAGetQuadSens1(ida_mem, tret, is::Cint, yyQSret::Union{N_Vector, NVector})
-    ccall((:IDAGetQuadSens1, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{realtype}, Cint, N_Vector), ida_mem, tret, is, yyQSret)
+    return ccall(
+        (:IDAGetQuadSens1, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{realtype}, Cint, N_Vector), ida_mem, tret, is, yyQSret
+    )
 end
 
 function IDAGetQuadSens1(ida_mem, tret, is, yyQSret, ctx::SUNContext)
-    IDAGetQuadSens1(ida_mem, tret, is, yyQSret, ctx)
+    return IDAGetQuadSens1(ida_mem, tret, is, yyQSret, ctx)
 end
 
 function IDAGetQuadSensDky(ida_mem, t::realtype, k::Cint, dkyQS)
-    ccall((:IDAGetQuadSensDky, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Cint, Ptr{N_Vector}), ida_mem, t, k, dkyQS)
+    return ccall(
+        (:IDAGetQuadSensDky, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Cint, Ptr{N_Vector}), ida_mem, t, k, dkyQS
+    )
 end
 
 function IDAGetQuadSensDky(ida_mem, t, k, dkyQS)
-    IDAGetQuadSensDky(ida_mem, t, convert(Cint, k), dkyQS)
+    return IDAGetQuadSensDky(ida_mem, t, convert(Cint, k), dkyQS)
 end
 
-function IDAGetQuadSensDky1(ida_mem, t::realtype, k::Cint, is::Cint,
-        dkyQS::Union{N_Vector, NVector})
-    ccall((:IDAGetQuadSensDky1, libsundials_idas), Cint,
-        (IDAMemPtr, realtype, Cint, Cint, N_Vector), ida_mem, t, k, is, dkyQS)
+function IDAGetQuadSensDky1(
+        ida_mem, t::realtype, k::Cint, is::Cint,
+        dkyQS::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetQuadSensDky1, libsundials_idas), Cint,
+        (IDAMemPtr, realtype, Cint, Cint, N_Vector), ida_mem, t, k, is, dkyQS
+    )
 end
 
 function IDAGetQuadSensDky1(ida_mem, t, k, is, dkyQS)
     __dkyQS = convert(NVector, dkyQS)
-    IDAGetQuadSensDky1(ida_mem, t, convert(Cint, k), convert(Cint, is),
-        __dkyQS)
+    return IDAGetQuadSensDky1(
+        ida_mem, t, convert(Cint, k), convert(Cint, is),
+        __dkyQS
+    )
 end
 
 function IDAGetQuadSensNumRhsEvals(ida_mem, nrhsQSevals)
-    ccall((:IDAGetQuadSensNumRhsEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nrhsQSevals)
+    return ccall(
+        (:IDAGetQuadSensNumRhsEvals, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
+        ida_mem, nrhsQSevals
+    )
 end
 
 function IDAGetQuadSensNumErrTestFails(ida_mem, nQSetfails)
-    ccall(
+    return ccall(
         (:IDAGetQuadSensNumErrTestFails, libsundials_idas), Cint, (IDAMemPtr, Ptr{Clong}),
-        ida_mem, nQSetfails)
+        ida_mem, nQSetfails
+    )
 end
 
 function IDAGetQuadSensErrWeights(ida_mem, eQSweight)
-    ccall((:IDAGetQuadSensErrWeights, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}),
-        ida_mem, eQSweight)
+    return ccall(
+        (:IDAGetQuadSensErrWeights, libsundials_idas), Cint, (IDAMemPtr, Ptr{N_Vector}),
+        ida_mem, eQSweight
+    )
 end
 
 function IDAGetQuadSensStats(ida_mem, nrhsQSevals, nQSetfails)
-    ccall((:IDAGetQuadSensStats, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nrhsQSevals, nQSetfails)
+    return ccall(
+        (:IDAGetQuadSensStats, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Clong}, Ptr{Clong}), ida_mem, nrhsQSevals, nQSetfails
+    )
 end
 
 function IDAQuadSensFree(ida_mem)
-    ccall((:IDAQuadSensFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
+    return ccall((:IDAQuadSensFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function IDAAdjInit(ida_mem, steps::Clong, interp::Cint)
-    ccall((:IDAAdjInit, libsundials_idas), Cint, (IDAMemPtr, Clong, Cint), ida_mem, steps,
-        interp)
+    return ccall(
+        (:IDAAdjInit, libsundials_idas), Cint, (IDAMemPtr, Clong, Cint), ida_mem, steps,
+        interp
+    )
 end
 
 function IDAAdjInit(ida_mem, steps, interp)
-    IDAAdjInit(ida_mem, convert(Clong, steps), convert(Cint, interp))
+    return IDAAdjInit(ida_mem, convert(Clong, steps), convert(Cint, interp))
 end
 
 function IDAAdjReInit(ida_mem)
-    ccall((:IDAAdjReInit, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
+    return ccall((:IDAAdjReInit, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
 function IDAAdjFree(ida_mem)
-    ccall((:IDAAdjFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
+    return ccall((:IDAAdjFree, libsundials_idas), Cvoid, (IDAMemPtr,), ida_mem)
 end
 
 function IDACreateB(ida_mem, which)
-    ccall((:IDACreateB, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, which)
+    return ccall((:IDACreateB, libsundials_idas), Cint, (IDAMemPtr, Ptr{Cint}), ida_mem, which)
 end
 
-function IDAInitB(ida_mem, which::Cint, resB::IDAResFnB, tB0::realtype,
+function IDAInitB(
+        ida_mem, which::Cint, resB::IDAResFnB, tB0::realtype,
         yyB0::Union{N_Vector, NVector},
-        ypB0::Union{N_Vector, NVector})
-    ccall((:IDAInitB, libsundials_idas), Cint,
+        ypB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAInitB, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDAResFnB, realtype, N_Vector, N_Vector), ida_mem, which, resB,
-        tB0, yyB0, ypB0)
+        tB0, yyB0, ypB0
+    )
 end
 
 function IDAInitB(ida_mem, which, resB, tB0, yyB0, ypB0)
     __yyB0 = convert(NVector, yyB0)
     __ypB0 = convert(NVector, ypB0)
-    IDAInitB(ida_mem, convert(Cint, which), resB, tB0, __yyB0,
-        __ypB0)
+    return IDAInitB(
+        ida_mem, convert(Cint, which), resB, tB0, __yyB0,
+        __ypB0
+    )
 end
 
-function IDAInitBS(ida_mem, which::Cint, resS::IDAResFnBS, tB0::realtype,
+function IDAInitBS(
+        ida_mem, which::Cint, resS::IDAResFnBS, tB0::realtype,
         yyB0::Union{N_Vector, NVector},
-        ypB0::Union{N_Vector, NVector})
-    ccall((:IDAInitBS, libsundials_idas), Cint,
+        ypB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAInitBS, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDAResFnBS, realtype, N_Vector, N_Vector), ida_mem, which, resS,
-        tB0, yyB0, ypB0)
+        tB0, yyB0, ypB0
+    )
 end
 
 function IDAInitBS(ida_mem, which, resS, tB0, yyB0, ypB0)
     __yyB0 = convert(NVector, yyB0)
     __ypB0 = convert(NVector, ypB0)
-    IDAInitBS(ida_mem, convert(Cint, which), resS, tB0, __yyB0,
-        __ypB0)
+    return IDAInitBS(
+        ida_mem, convert(Cint, which), resS, tB0, __yyB0,
+        __ypB0
+    )
 end
 
-function IDAReInitB(ida_mem, which::Cint, tB0::realtype, yyB0::Union{N_Vector, NVector},
-        ypB0::Union{N_Vector, NVector})
-    ccall((:IDAReInitB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, realtype, N_Vector, N_Vector), ida_mem, which, tB0, yyB0, ypB0)
+function IDAReInitB(
+        ida_mem, which::Cint, tB0::realtype, yyB0::Union{N_Vector, NVector},
+        ypB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAReInitB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, realtype, N_Vector, N_Vector), ida_mem, which, tB0, yyB0, ypB0
+    )
 end
 
 function IDAReInitB(ida_mem, which, tB0, yyB0, ypB0)
     __yyB0 = convert(NVector, yyB0)
     __ypB0 = convert(NVector, ypB0)
-    IDAReInitB(ida_mem, convert(Cint, which), tB0, __yyB0,
-        __ypB0)
+    return IDAReInitB(
+        ida_mem, convert(Cint, which), tB0, __yyB0,
+        __ypB0
+    )
 end
 
 function IDASStolerancesB(ida_mem, which::Cint, relTolB::realtype, absTolB::realtype)
-    ccall((:IDASStolerancesB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, realtype, realtype), ida_mem, which, relTolB, absTolB)
+    return ccall(
+        (:IDASStolerancesB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, realtype, realtype), ida_mem, which, relTolB, absTolB
+    )
 end
 
 function IDASStolerancesB(ida_mem, which, relTolB, absTolB)
-    IDASStolerancesB(ida_mem, convert(Cint, which), relTolB, absTolB)
+    return IDASStolerancesB(ida_mem, convert(Cint, which), relTolB, absTolB)
 end
 
-function IDASVtolerancesB(ida_mem, which::Cint, relTolB::realtype,
-        absTolB::Union{N_Vector, NVector})
-    ccall((:IDASVtolerancesB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, realtype, N_Vector), ida_mem, which, relTolB, absTolB)
+function IDASVtolerancesB(
+        ida_mem, which::Cint, relTolB::realtype,
+        absTolB::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDASVtolerancesB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, realtype, N_Vector), ida_mem, which, relTolB, absTolB
+    )
 end
 
 function IDASVtolerancesB(ida_mem, which, relTolB, absTolB, ctx::SUNContext)
-    IDASVtolerancesB(ida_mem, which, relTolB, absTolB, ctx)
+    return IDASVtolerancesB(ida_mem, which, relTolB, absTolB, ctx)
 end
 
-function IDAQuadInitB(ida_mem, which::Cint, rhsQB::IDAQuadRhsFnB,
-        yQB0::Union{N_Vector, NVector})
-    ccall((:IDAQuadInitB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, IDAQuadRhsFnB, N_Vector), ida_mem, which, rhsQB, yQB0)
+function IDAQuadInitB(
+        ida_mem, which::Cint, rhsQB::IDAQuadRhsFnB,
+        yQB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAQuadInitB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, IDAQuadRhsFnB, N_Vector), ida_mem, which, rhsQB, yQB0
+    )
 end
 
 function IDAQuadInitB(ida_mem, which, rhsQB, yQB0, ctx::SUNContext)
     __yQB0 = convert(NVector, yQB0, ctx)
-    IDAQuadInitB(ida_mem, which, rhsQB, __yQB0)
+    return IDAQuadInitB(ida_mem, which, rhsQB, __yQB0)
 end
 
-function IDAQuadInitBS(ida_mem, which::Cint, rhsQS::IDAQuadRhsFnBS,
-        yQB0::Union{N_Vector, NVector})
-    ccall((:IDAQuadInitBS, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, IDAQuadRhsFnBS, N_Vector), ida_mem, which, rhsQS, yQB0)
+function IDAQuadInitBS(
+        ida_mem, which::Cint, rhsQS::IDAQuadRhsFnBS,
+        yQB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAQuadInitBS, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, IDAQuadRhsFnBS, N_Vector), ida_mem, which, rhsQS, yQB0
+    )
 end
 
 function IDAQuadInitBS(ida_mem, which, rhsQS, yQB0, ctx::SUNContext)
     __yQB0 = convert(NVector, yQB0, ctx)
-    IDAQuadInitBS(ida_mem, which, rhsQS, __yQB0)
+    return IDAQuadInitBS(ida_mem, which, rhsQS, __yQB0)
 end
 
 function IDAQuadReInitB(ida_mem, which::Cint, yQB0::Union{N_Vector, NVector})
-    ccall((:IDAQuadReInitB, libsundials_idas), Cint, (IDAMemPtr, Cint, N_Vector), ida_mem,
-        which, yQB0)
+    return ccall(
+        (:IDAQuadReInitB, libsundials_idas), Cint, (IDAMemPtr, Cint, N_Vector), ida_mem,
+        which, yQB0
+    )
 end
 
 function IDAQuadReInitB(ida_mem, which, yQB0, ctx::SUNContext)
     __yQB0 = convert(NVector, yQB0, ctx)
-    IDAQuadReInitB(ida_mem, which, __yQB0)
+    return IDAQuadReInitB(ida_mem, which, __yQB0)
 end
 
 function IDAQuadSStolerancesB(ida_mem, which::Cint, reltolQB::realtype, abstolQB::realtype)
-    ccall((:IDAQuadSStolerancesB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, realtype, realtype), ida_mem, which, reltolQB, abstolQB)
+    return ccall(
+        (:IDAQuadSStolerancesB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, realtype, realtype), ida_mem, which, reltolQB, abstolQB
+    )
 end
 
 function IDAQuadSStolerancesB(ida_mem, which, reltolQB, abstolQB)
-    IDAQuadSStolerancesB(ida_mem, convert(Cint, which), reltolQB, abstolQB)
+    return IDAQuadSStolerancesB(ida_mem, convert(Cint, which), reltolQB, abstolQB)
 end
 
-function IDAQuadSVtolerancesB(ida_mem, which::Cint, reltolQB::realtype,
-        abstolQB::Union{N_Vector, NVector})
-    ccall((:IDAQuadSVtolerancesB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, realtype, N_Vector), ida_mem, which, reltolQB, abstolQB)
+function IDAQuadSVtolerancesB(
+        ida_mem, which::Cint, reltolQB::realtype,
+        abstolQB::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAQuadSVtolerancesB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, realtype, N_Vector), ida_mem, which, reltolQB, abstolQB
+    )
 end
 
 function IDAQuadSVtolerancesB(ida_mem, which, reltolQB, abstolQB)
     __abstolQB = convert(NVector, abstolQB)
-    IDAQuadSVtolerancesB(ida_mem, convert(Cint, which), reltolQB,
-        __abstolQB)
+    return IDAQuadSVtolerancesB(
+        ida_mem, convert(Cint, which), reltolQB,
+        __abstolQB
+    )
 end
 
-function IDACalcICB(ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector},
-        yp0::Union{N_Vector, NVector})
-    ccall((:IDACalcICB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, realtype, N_Vector, N_Vector), ida_mem, which, tout1, yy0, yp0)
+function IDACalcICB(
+        ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector},
+        yp0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDACalcICB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, realtype, N_Vector, N_Vector), ida_mem, which, tout1, yy0, yp0
+    )
 end
 
 function IDACalcICB(ida_mem, which, tout1, yy0, yp0)
     __yy0 = convert(NVector, yy0)
     __yp0 = convert(NVector, yp0)
-    IDACalcICB(ida_mem, convert(Cint, which), tout1, __yy0,
-        __yp0)
+    return IDACalcICB(
+        ida_mem, convert(Cint, which), tout1, __yy0,
+        __yp0
+    )
 end
 
-function IDACalcICBS(ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector},
+function IDACalcICBS(
+        ida_mem, which::Cint, tout1::realtype, yy0::Union{N_Vector, NVector},
         yp0::Union{N_Vector, NVector},
-        yyS0, ypS0)
-    ccall((:IDACalcICBS, libsundials_idas), Cint,
+        yyS0, ypS0
+    )
+    return ccall(
+        (:IDACalcICBS, libsundials_idas), Cint,
         (IDAMemPtr, Cint, realtype, N_Vector, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}),
-        ida_mem, which, tout1, yy0, yp0, yyS0, ypS0)
+        ida_mem, which, tout1, yy0, yp0, yyS0, ypS0
+    )
 end
 
 function IDACalcICBS(ida_mem, which, tout1, yy0, yp0, yyS0, ypS0)
     __yy0 = convert(NVector, yy0)
     __yp0 = convert(NVector, yp0)
-    IDACalcICBS(ida_mem, convert(Cint, which), tout1, __yy0,
-        __yp0, yyS0, ypS0)
+    return IDACalcICBS(
+        ida_mem, convert(Cint, which), tout1, __yy0,
+        __yp0, yyS0, ypS0
+    )
 end
 
-function IDASolveF(ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector},
+function IDASolveF(
+        ida_mem, tout::realtype, tret, yret::Union{N_Vector, NVector},
         ypret::Union{N_Vector, NVector},
-        itask::Cint, ncheckPtr)
-    ccall((:IDASolveF, libsundials_idas), Cint,
+        itask::Cint, ncheckPtr
+    )
+    return ccall(
+        (:IDASolveF, libsundials_idas), Cint,
         (IDAMemPtr, realtype, Ptr{realtype}, N_Vector, N_Vector, Cint, Ptr{Cint}),
-        ida_mem, tout, tret, yret, ypret, itask, ncheckPtr)
+        ida_mem, tout, tret, yret, ypret, itask, ncheckPtr
+    )
 end
 
 function IDASolveF(ida_mem, tout, tret, yret, ypret, itask, ncheckPtr)
     __yret = convert(NVector, yret)
     __ypret = convert(NVector, ypret)
-    IDASolveF(ida_mem, tout, tret, __yret, __ypret,
-        convert(Cint, itask), ncheckPtr)
+    return IDASolveF(
+        ida_mem, tout, tret, __yret, __ypret,
+        convert(Cint, itask), ncheckPtr
+    )
 end
 
 function IDASolveB(ida_mem, tBout::realtype, itaskB::Cint)
-    ccall(
+    return ccall(
         (:IDASolveB, libsundials_idas), Cint, (IDAMemPtr, realtype, Cint), ida_mem, tBout,
-        itaskB)
+        itaskB
+    )
 end
 
 function IDASolveB(ida_mem, tBout, itaskB)
-    IDASolveB(ida_mem, tBout, convert(Cint, itaskB))
+    return IDASolveB(ida_mem, tBout, convert(Cint, itaskB))
 end
 
 function IDAAdjSetNoSensi(ida_mem)
-    ccall((:IDAAdjSetNoSensi, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
+    return ccall((:IDAAdjSetNoSensi, libsundials_idas), Cint, (IDAMemPtr,), ida_mem)
 end
 
 function IDASetUserDataB(ida_mem, which::Cint, user_dataB)
-    ccall((:IDASetUserDataB, libsundials_idas), Cint, (IDAMemPtr, Cint, Any), ida_mem,
-        which, user_dataB)
+    return ccall(
+        (:IDASetUserDataB, libsundials_idas), Cint, (IDAMemPtr, Cint, Any), ida_mem,
+        which, user_dataB
+    )
 end
 
 function IDASetUserDataB(ida_mem, which, user_dataB)
-    IDASetUserDataB(ida_mem, convert(Cint, which), user_dataB)
+    return IDASetUserDataB(ida_mem, convert(Cint, which), user_dataB)
 end
 
 function IDASetMaxOrdB(ida_mem, which::Cint, maxordB::Cint)
-    ccall(
+    return ccall(
         (:IDASetMaxOrdB, libsundials_idas), Cint, (IDAMemPtr, Cint, Cint), ida_mem, which,
-        maxordB)
+        maxordB
+    )
 end
 
 function IDASetMaxOrdB(ida_mem, which, maxordB)
-    IDASetMaxOrdB(ida_mem, convert(Cint, which), convert(Cint, maxordB))
+    return IDASetMaxOrdB(ida_mem, convert(Cint, which), convert(Cint, maxordB))
 end
 
 function IDASetMaxNumStepsB(ida_mem, which::Cint, mxstepsB::Clong)
-    ccall((:IDASetMaxNumStepsB, libsundials_idas), Cint, (IDAMemPtr, Cint, Clong), ida_mem,
-        which, mxstepsB)
+    return ccall(
+        (:IDASetMaxNumStepsB, libsundials_idas), Cint, (IDAMemPtr, Cint, Clong), ida_mem,
+        which, mxstepsB
+    )
 end
 
 function IDASetMaxNumStepsB(ida_mem, which, mxstepsB)
-    IDASetMaxNumStepsB(ida_mem, convert(Cint, which), convert(Clong, mxstepsB))
+    return IDASetMaxNumStepsB(ida_mem, convert(Cint, which), convert(Clong, mxstepsB))
 end
 
 function IDASetInitStepB(ida_mem, which::Cint, hinB::realtype)
-    ccall((:IDASetInitStepB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem,
-        which, hinB)
+    return ccall(
+        (:IDASetInitStepB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem,
+        which, hinB
+    )
 end
 
 function IDASetInitStepB(ida_mem, which, hinB)
-    IDASetInitStepB(ida_mem, convert(Cint, which), hinB)
+    return IDASetInitStepB(ida_mem, convert(Cint, which), hinB)
 end
 
 function IDASetMaxStepB(ida_mem, which::Cint, hmaxB::realtype)
-    ccall((:IDASetMaxStepB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem,
-        which, hmaxB)
+    return ccall(
+        (:IDASetMaxStepB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem,
+        which, hmaxB
+    )
 end
 
 function IDASetMaxStepB(ida_mem, which, hmaxB)
-    IDASetMaxStepB(ida_mem, convert(Cint, which), hmaxB)
+    return IDASetMaxStepB(ida_mem, convert(Cint, which), hmaxB)
 end
 
 function IDASetSuppressAlgB(ida_mem, which::Cint, suppressalgB::Cint)
-    ccall((:IDASetSuppressAlgB, libsundials_idas), Cint, (IDAMemPtr, Cint, Cint), ida_mem,
-        which, suppressalgB)
+    return ccall(
+        (:IDASetSuppressAlgB, libsundials_idas), Cint, (IDAMemPtr, Cint, Cint), ida_mem,
+        which, suppressalgB
+    )
 end
 
 function IDASetSuppressAlgB(ida_mem, which, suppressalgB)
-    IDASetSuppressAlgB(ida_mem, convert(Cint, which), convert(Cint, suppressalgB))
+    return IDASetSuppressAlgB(ida_mem, convert(Cint, which), convert(Cint, suppressalgB))
 end
 
 function IDASetIdB(ida_mem, which::Cint, idB::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:IDASetIdB, libsundials_idas), Cint, (IDAMemPtr, Cint, N_Vector), ida_mem, which,
-        idB)
+        idB
+    )
 end
 
 function IDASetIdB(ida_mem, which, idB, ctx::SUNContext)
     __idB = convert(NVector, idB, ctx)
-    IDASetIdB(ida_mem, which, __idB)
+    return IDASetIdB(ida_mem, which, __idB)
 end
 
 function IDASetConstraintsB(ida_mem, which::Cint, constraintsB::Union{N_Vector, NVector})
-    ccall((:IDASetConstraintsB, libsundials_idas), Cint, (IDAMemPtr, Cint, N_Vector),
-        ida_mem, which, constraintsB)
+    return ccall(
+        (:IDASetConstraintsB, libsundials_idas), Cint, (IDAMemPtr, Cint, N_Vector),
+        ida_mem, which, constraintsB
+    )
 end
 
 function IDASetConstraintsB(ida_mem, which, constraintsB, ctx::SUNContext)
-    IDASetConstraintsB(ida_mem, which, constraintsB, ctx)
+    return IDASetConstraintsB(ida_mem, which, constraintsB, ctx)
 end
 
 function IDASetQuadErrConB(ida_mem, which::Cint, errconQB::Cint)
-    ccall((:IDASetQuadErrConB, libsundials_idas), Cint, (IDAMemPtr, Cint, Cint), ida_mem,
-        which, errconQB)
+    return ccall(
+        (:IDASetQuadErrConB, libsundials_idas), Cint, (IDAMemPtr, Cint, Cint), ida_mem,
+        which, errconQB
+    )
 end
 
 function IDASetQuadErrConB(ida_mem, which, errconQB)
-    IDASetQuadErrConB(ida_mem, convert(Cint, which), convert(Cint, errconQB))
+    return IDASetQuadErrConB(ida_mem, convert(Cint, which), convert(Cint, errconQB))
 end
 
 function IDASetNonlinearSolverB(ida_mem, which::Cint, NLS::SUNNonlinearSolver)
-    ccall((:IDASetNonlinearSolverB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, SUNNonlinearSolver), ida_mem, which, NLS)
+    return ccall(
+        (:IDASetNonlinearSolverB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, SUNNonlinearSolver), ida_mem, which, NLS
+    )
 end
 
 function IDASetNonlinearSolverB(ida_mem, which, NLS)
-    IDASetNonlinearSolverB(ida_mem, convert(Cint, which), NLS)
+    return IDASetNonlinearSolverB(ida_mem, convert(Cint, which), NLS)
 end
 
-function IDAGetB(ida_mem, which::Cint, tret, yy::Union{N_Vector, NVector},
-        yp::Union{N_Vector, NVector})
-    ccall((:IDAGetB, libsundials_idas), Cint,
+function IDAGetB(
+        ida_mem, which::Cint, tret, yy::Union{N_Vector, NVector},
+        yp::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetB, libsundials_idas), Cint,
         (IDAMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), ida_mem, which, tret, yy,
-        yp)
+        yp
+    )
 end
 
 function IDAGetB(ida_mem, which, tret, yy, yp)
     __yy = convert(NVector, yy)
     __yp = convert(NVector, yp)
-    IDAGetB(ida_mem, convert(Cint, which), tret, __yy,
-        __yp)
+    return IDAGetB(
+        ida_mem, convert(Cint, which), tret, __yy,
+        __yp
+    )
 end
 
 function IDAGetQuadB(ida_mem, which::Cint, tret, qB::Union{N_Vector, NVector})
-    ccall((:IDAGetQuadB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, Ptr{realtype}, N_Vector), ida_mem, which, tret, qB)
+    return ccall(
+        (:IDAGetQuadB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, Ptr{realtype}, N_Vector), ida_mem, which, tret, qB
+    )
 end
 
 function IDAGetQuadB(ida_mem, which, tret, qB, ctx::SUNContext)
-    IDAGetQuadB(ida_mem, which, tret, qB, ctx)
+    return IDAGetQuadB(ida_mem, which, tret, qB, ctx)
 end
 
 function IDAGetAdjIDABmem(ida_mem, which::Cint)
-    ccall((:IDAGetAdjIDABmem, libsundials_idas), Ptr{Cvoid}, (IDAMemPtr, Cint), ida_mem,
-        which)
+    return ccall(
+        (:IDAGetAdjIDABmem, libsundials_idas), Ptr{Cvoid}, (IDAMemPtr, Cint), ida_mem,
+        which
+    )
 end
 
 function IDAGetAdjIDABmem(ida_mem, which)
-    IDAGetAdjIDABmem(ida_mem, convert(Cint, which))
+    return IDAGetAdjIDABmem(ida_mem, convert(Cint, which))
 end
 
-function IDAGetConsistentICB(ida_mem, which::Cint, yyB0::Union{N_Vector, NVector},
-        ypB0::Union{N_Vector, NVector})
-    ccall((:IDAGetConsistentICB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, N_Vector, N_Vector), ida_mem, which, yyB0, ypB0)
+function IDAGetConsistentICB(
+        ida_mem, which::Cint, yyB0::Union{N_Vector, NVector},
+        ypB0::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetConsistentICB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, N_Vector, N_Vector), ida_mem, which, yyB0, ypB0
+    )
 end
 
 function IDAGetConsistentICB(ida_mem, which, yyB0, ypB0)
     __yyB0 = convert(NVector, yyB0)
     __ypB0 = convert(NVector, ypB0)
-    IDAGetConsistentICB(ida_mem, convert(Cint, which), __yyB0,
-        __ypB0)
+    return IDAGetConsistentICB(
+        ida_mem, convert(Cint, which), __yyB0,
+        __ypB0
+    )
 end
 
-function IDAGetAdjY(ida_mem, t::realtype, yy::Union{N_Vector, NVector},
-        yp::Union{N_Vector, NVector})
-    ccall((:IDAGetAdjY, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector),
-        ida_mem, t, yy, yp)
+function IDAGetAdjY(
+        ida_mem, t::realtype, yy::Union{N_Vector, NVector},
+        yp::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetAdjY, libsundials_idas), Cint, (IDAMemPtr, realtype, N_Vector, N_Vector),
+        ida_mem, t, yy, yp
+    )
 end
 
 function IDAGetAdjY(ida_mem, t, yy, yp, ctx::SUNContext)
-    IDAGetAdjY(ida_mem, t, yy, yp)
+    return IDAGetAdjY(ida_mem, t, yy, yp)
 end
 
 function IDAGetAdjCheckPointsInfo(ida_mem, ckpnt)
-    ccall((:IDAGetAdjCheckPointsInfo, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{IDAadjCheckPointRec}), ida_mem, ckpnt)
+    return ccall(
+        (:IDAGetAdjCheckPointsInfo, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{IDAadjCheckPointRec}), ida_mem, ckpnt
+    )
 end
 
-function IDAGetAdjDataPointHermite(ida_mem, which::Cint, t, yy::Union{N_Vector, NVector},
-        yd::Union{N_Vector, NVector})
-    ccall((:IDAGetAdjDataPointHermite, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), ida_mem, which, t, yy, yd)
+function IDAGetAdjDataPointHermite(
+        ida_mem, which::Cint, t, yy::Union{N_Vector, NVector},
+        yd::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetAdjDataPointHermite, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, Ptr{realtype}, N_Vector, N_Vector), ida_mem, which, t, yy, yd
+    )
 end
 
 function IDAGetAdjDataPointHermite(ida_mem, which, t, yy, yd)
     __yy = convert(NVector, yy)
     __yd = convert(NVector, yd)
-    IDAGetAdjDataPointHermite(ida_mem, convert(Cint, which), t, __yy,
-        __yd)
+    return IDAGetAdjDataPointHermite(
+        ida_mem, convert(Cint, which), t, __yy,
+        __yd
+    )
 end
 
-function IDAGetAdjDataPointPolynomial(ida_mem, which::Cint, t, order,
-        y::Union{N_Vector, NVector})
-    ccall((:IDAGetAdjDataPointPolynomial, libsundials_idas), Cint,
+function IDAGetAdjDataPointPolynomial(
+        ida_mem, which::Cint, t, order,
+        y::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:IDAGetAdjDataPointPolynomial, libsundials_idas), Cint,
         (IDAMemPtr, Cint, Ptr{realtype}, Ptr{Cint}, N_Vector), ida_mem, which, t, order,
-        y)
+        y
+    )
 end
 
 function IDAGetAdjDataPointPolynomial(ida_mem, which, t, order, y)
     __y = convert(NVector, y)
-    IDAGetAdjDataPointPolynomial(ida_mem, convert(Cint, which), t, order,
-        __y)
+    return IDAGetAdjDataPointPolynomial(
+        ida_mem, convert(Cint, which), t, order,
+        __y
+    )
 end
 
 function IDAGetAdjCurrentCheckPoint(ida_mem, addr)
-    ccall((:IDAGetAdjCurrentCheckPoint, libsundials_idas), Cint,
-        (IDAMemPtr, Ptr{Ptr{Cvoid}}), ida_mem, addr)
+    return ccall(
+        (:IDAGetAdjCurrentCheckPoint, libsundials_idas), Cint,
+        (IDAMemPtr, Ptr{Ptr{Cvoid}}), ida_mem, addr
+    )
 end
 
-function IDABBDPrecInitB(ida_mem, which::Cint, NlocalB::sunindextype, mudqB::sunindextype,
+function IDABBDPrecInitB(
+        ida_mem, which::Cint, NlocalB::sunindextype, mudqB::sunindextype,
         mldqB::sunindextype, mukeepB::sunindextype, mlkeepB::sunindextype,
-        dq_rel_yyB::realtype, GresB::IDABBDLocalFnB, GcommB::IDABBDCommFnB)
-    ccall((:IDABBDPrecInitB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, sunindextype, sunindextype, sunindextype, sunindextype,
-            sunindextype, realtype, IDABBDLocalFnB, IDABBDCommFnB), ida_mem, which, NlocalB,
-        mudqB, mldqB, mukeepB, mlkeepB, dq_rel_yyB, GresB, GcommB)
+        dq_rel_yyB::realtype, GresB::IDABBDLocalFnB, GcommB::IDABBDCommFnB
+    )
+    return ccall(
+        (:IDABBDPrecInitB, libsundials_idas), Cint,
+        (
+            IDAMemPtr, Cint, sunindextype, sunindextype, sunindextype, sunindextype,
+            sunindextype, realtype, IDABBDLocalFnB, IDABBDCommFnB,
+        ), ida_mem, which, NlocalB,
+        mudqB, mldqB, mukeepB, mlkeepB, dq_rel_yyB, GresB, GcommB
+    )
 end
 
-function IDABBDPrecInitB(ida_mem, which, NlocalB, mudqB, mldqB, mukeepB, mlkeepB,
-        dq_rel_yyB, GresB, GcommB)
-    IDABBDPrecInitB(ida_mem, convert(Cint, which), NlocalB, mudqB, mldqB, mukeepB, mlkeepB,
-        dq_rel_yyB, GresB, GcommB)
+function IDABBDPrecInitB(
+        ida_mem, which, NlocalB, mudqB, mldqB, mukeepB, mlkeepB,
+        dq_rel_yyB, GresB, GcommB
+    )
+    return IDABBDPrecInitB(
+        ida_mem, convert(Cint, which), NlocalB, mudqB, mldqB, mukeepB, mlkeepB,
+        dq_rel_yyB, GresB, GcommB
+    )
 end
 
-function IDABBDPrecReInitB(ida_mem, which::Cint, mudqB::sunindextype, mldqB::sunindextype,
-        dq_rel_yyB::realtype)
-    ccall((:IDABBDPrecReInitB, libsundials_idas), Cint,
+function IDABBDPrecReInitB(
+        ida_mem, which::Cint, mudqB::sunindextype, mldqB::sunindextype,
+        dq_rel_yyB::realtype
+    )
+    return ccall(
+        (:IDABBDPrecReInitB, libsundials_idas), Cint,
         (IDAMemPtr, Cint, sunindextype, sunindextype, realtype), ida_mem, which, mudqB,
-        mldqB, dq_rel_yyB)
+        mldqB, dq_rel_yyB
+    )
 end
 
 function IDABBDPrecReInitB(ida_mem, which, mudqB, mldqB, dq_rel_yyB)
-    IDABBDPrecReInitB(ida_mem, convert(Cint, which), mudqB, mldqB, dq_rel_yyB)
+    return IDABBDPrecReInitB(ida_mem, convert(Cint, which), mudqB, mldqB, dq_rel_yyB)
 end
 
 function IDADlsSetLinearSolverB(ida_mem, which::Cint, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:IDASetLinearSolverB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, SUNLinearSolver, SUNMatrix), ida_mem, which, LS, A)
+    return ccall(
+        (:IDASetLinearSolverB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, SUNLinearSolver, SUNMatrix), ida_mem, which, LS, A
+    )
 end
 
 function IDADlsSetLinearSolverB(ida_mem, which, LS, A)
-    IDADlsSetLinearSolverB(ida_mem, convert(Cint, which), LS, A)
+    return IDADlsSetLinearSolverB(ida_mem, convert(Cint, which), LS, A)
 end
 
 function IDADlsSetJacFnB(ida_mem, which::Cint, jacB::IDADlsJacFnB)
-    ccall((:IDADlsSetJacFnB, libsundials_idas), Cint, (IDAMemPtr, Cint, IDADlsJacFnB),
-        ida_mem, which, jacB)
+    return ccall(
+        (:IDADlsSetJacFnB, libsundials_idas), Cint, (IDAMemPtr, Cint, IDADlsJacFnB),
+        ida_mem, which, jacB
+    )
 end
 
 function IDADlsSetJacFnB(ida_mem, which, jacB)
-    IDADlsSetJacFnB(ida_mem, convert(Cint, which), jacB)
+    return IDADlsSetJacFnB(ida_mem, convert(Cint, which), jacB)
 end
 
 function IDADlsSetJacFnBS(ida_mem, which::Cint, jacBS::IDADlsJacFnBS)
-    ccall((:IDADlsSetJacFnBS, libsundials_idas), Cint, (IDAMemPtr, Cint, IDADlsJacFnBS),
-        ida_mem, which, jacBS)
+    return ccall(
+        (:IDADlsSetJacFnBS, libsundials_idas), Cint, (IDAMemPtr, Cint, IDADlsJacFnBS),
+        ida_mem, which, jacBS
+    )
 end
 
 function IDADlsSetJacFnBS(ida_mem, which, jacBS)
-    IDADlsSetJacFnBS(ida_mem, convert(Cint, which), jacBS)
+    return IDADlsSetJacFnBS(ida_mem, convert(Cint, which), jacBS)
 end
 
 function IDASetLinearSolverB(ida_mem, which::Cint, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:IDASetLinearSolverB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, SUNLinearSolver, SUNMatrix), ida_mem, which, LS, A)
+    return ccall(
+        (:IDASetLinearSolverB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, SUNLinearSolver, SUNMatrix), ida_mem, which, LS, A
+    )
 end
 
 function IDASetLinearSolverB(ida_mem, which, LS, A)
-    IDASetLinearSolverB(ida_mem, convert(Cint, which), LS, A)
+    return IDASetLinearSolverB(ida_mem, convert(Cint, which), LS, A)
 end
 
 function IDASetJacFnB(ida_mem, which::Cint, jacB::IDALsJacFnB)
-    ccall((:IDASetJacFnB, libsundials_idas), Cint, (IDAMemPtr, Cint, IDALsJacFnB), ida_mem,
-        which, jacB)
+    return ccall(
+        (:IDASetJacFnB, libsundials_idas), Cint, (IDAMemPtr, Cint, IDALsJacFnB), ida_mem,
+        which, jacB
+    )
 end
 
 function IDASetJacFnB(ida_mem, which, jacB)
-    IDASetJacFnB(ida_mem, convert(Cint, which), jacB)
+    return IDASetJacFnB(ida_mem, convert(Cint, which), jacB)
 end
 
 function IDASetJacFnBS(ida_mem, which::Cint, jacBS::IDALsJacFnBS)
-    ccall((:IDASetJacFnBS, libsundials_idas), Cint, (IDAMemPtr, Cint, IDALsJacFnBS),
-        ida_mem, which, jacBS)
+    return ccall(
+        (:IDASetJacFnBS, libsundials_idas), Cint, (IDAMemPtr, Cint, IDALsJacFnBS),
+        ida_mem, which, jacBS
+    )
 end
 
 function IDASetJacFnBS(ida_mem, which, jacBS)
-    IDASetJacFnBS(ida_mem, convert(Cint, which), jacBS)
+    return IDASetJacFnBS(ida_mem, convert(Cint, which), jacBS)
 end
 
 function IDASetEpsLinB(ida_mem, which::Cint, eplifacB::realtype)
-    ccall((:IDASetEpsLinB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem,
-        which, eplifacB)
+    return ccall(
+        (:IDASetEpsLinB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype), ida_mem,
+        which, eplifacB
+    )
 end
 
 function IDASetEpsLinB(ida_mem, which, eplifacB)
-    IDASetEpsLinB(ida_mem, convert(Cint, which), eplifacB)
+    return IDASetEpsLinB(ida_mem, convert(Cint, which), eplifacB)
 end
 
 function IDASetLinearSolutionScalingB(ida_mem, which::Cint, onoffB::Cint)
-    ccall((:IDASetLinearSolutionScalingB, libsundials_idas), Cint, (IDAMemPtr, Cint, Cint),
-        ida_mem, which, onoffB)
+    return ccall(
+        (:IDASetLinearSolutionScalingB, libsundials_idas), Cint, (IDAMemPtr, Cint, Cint),
+        ida_mem, which, onoffB
+    )
 end
 
 function IDASetLinearSolutionScalingB(ida_mem, which, onoffB)
-    IDASetLinearSolutionScalingB(ida_mem, convert(Cint, which), convert(Cint, onoffB))
+    return IDASetLinearSolutionScalingB(ida_mem, convert(Cint, which), convert(Cint, onoffB))
 end
 
 function IDASetIncrementFactorB(ida_mem, which::Cint, dqincfacB::realtype)
-    ccall((:IDASetIncrementFactorB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype),
-        ida_mem, which, dqincfacB)
+    return ccall(
+        (:IDASetIncrementFactorB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype),
+        ida_mem, which, dqincfacB
+    )
 end
 
 function IDASetIncrementFactorB(ida_mem, which, dqincfacB)
-    IDASetIncrementFactorB(ida_mem, convert(Cint, which), dqincfacB)
+    return IDASetIncrementFactorB(ida_mem, convert(Cint, which), dqincfacB)
 end
 
-function IDASetPreconditionerB(ida_mem, which::Cint, psetB::IDALsPrecSetupFnB,
-        psolveB::IDALsPrecSolveFnB)
-    ccall((:IDASetPreconditionerB, libsundials_idas), Cint,
+function IDASetPreconditionerB(
+        ida_mem, which::Cint, psetB::IDALsPrecSetupFnB,
+        psolveB::IDALsPrecSolveFnB
+    )
+    return ccall(
+        (:IDASetPreconditionerB, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDALsPrecSetupFnB, IDALsPrecSolveFnB), ida_mem, which, psetB,
-        psolveB)
+        psolveB
+    )
 end
 
 function IDASetPreconditionerB(ida_mem, which, psetB, psolveB)
-    IDASetPreconditionerB(ida_mem, convert(Cint, which), psetB, psolveB)
+    return IDASetPreconditionerB(ida_mem, convert(Cint, which), psetB, psolveB)
 end
 
-function IDASetPreconditionerBS(ida_mem, which::Cint, psetBS::IDALsPrecSetupFnBS,
-        psolveBS::IDALsPrecSolveFnBS)
-    ccall((:IDASetPreconditionerBS, libsundials_idas), Cint,
+function IDASetPreconditionerBS(
+        ida_mem, which::Cint, psetBS::IDALsPrecSetupFnBS,
+        psolveBS::IDALsPrecSolveFnBS
+    )
+    return ccall(
+        (:IDASetPreconditionerBS, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDALsPrecSetupFnBS, IDALsPrecSolveFnBS), ida_mem, which, psetBS,
-        psolveBS)
+        psolveBS
+    )
 end
 
 function IDASetPreconditionerBS(ida_mem, which, psetBS, psolveBS)
-    IDASetPreconditionerBS(ida_mem, convert(Cint, which), psetBS, psolveBS)
+    return IDASetPreconditionerBS(ida_mem, convert(Cint, which), psetBS, psolveBS)
 end
 
-function IDASetJacTimesB(ida_mem, which::Cint, jtsetupB::IDALsJacTimesSetupFnB,
-        jtimesB::IDALsJacTimesVecFnB)
-    ccall((:IDASetJacTimesB, libsundials_idas), Cint,
+function IDASetJacTimesB(
+        ida_mem, which::Cint, jtsetupB::IDALsJacTimesSetupFnB,
+        jtimesB::IDALsJacTimesVecFnB
+    )
+    return ccall(
+        (:IDASetJacTimesB, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDALsJacTimesSetupFnB, IDALsJacTimesVecFnB), ida_mem, which,
-        jtsetupB, jtimesB)
+        jtsetupB, jtimesB
+    )
 end
 
 function IDASetJacTimesB(ida_mem, which, jtsetupB, jtimesB)
-    IDASetJacTimesB(ida_mem, convert(Cint, which), jtsetupB, jtimesB)
+    return IDASetJacTimesB(ida_mem, convert(Cint, which), jtsetupB, jtimesB)
 end
 
-function IDASetJacTimesBS(ida_mem, which::Cint, jtsetupBS::IDALsJacTimesSetupFnBS,
-        jtimesBS::IDALsJacTimesVecFnBS)
-    ccall((:IDASetJacTimesBS, libsundials_idas), Cint,
+function IDASetJacTimesBS(
+        ida_mem, which::Cint, jtsetupBS::IDALsJacTimesSetupFnBS,
+        jtimesBS::IDALsJacTimesVecFnBS
+    )
+    return ccall(
+        (:IDASetJacTimesBS, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDALsJacTimesSetupFnBS, IDALsJacTimesVecFnBS), ida_mem, which,
-        jtsetupBS, jtimesBS)
+        jtsetupBS, jtimesBS
+    )
 end
 
 function IDASetJacTimesBS(ida_mem, which, jtsetupBS, jtimesBS)
-    IDASetJacTimesBS(ida_mem, convert(Cint, which), jtsetupBS, jtimesBS)
+    return IDASetJacTimesBS(ida_mem, convert(Cint, which), jtsetupBS, jtimesBS)
 end
 
 function IDASpilsSetLinearSolverB(ida_mem, which::Cint, LS::SUNLinearSolver)
-    ccall((:IDASpilsSetLinearSolverB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, SUNLinearSolver), ida_mem, which, LS)
+    return ccall(
+        (:IDASpilsSetLinearSolverB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, SUNLinearSolver), ida_mem, which, LS
+    )
 end
 
 function IDASpilsSetLinearSolverB(ida_mem, which, LS)
-    IDASpilsSetLinearSolverB(ida_mem, convert(Cint, which), LS)
+    return IDASpilsSetLinearSolverB(ida_mem, convert(Cint, which), LS)
 end
 
 function IDASpilsSetEpsLinB(ida_mem, which::Cint, eplifacB::realtype)
-    ccall((:IDASpilsSetEpsLinB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype),
-        ida_mem, which, eplifacB)
+    return ccall(
+        (:IDASpilsSetEpsLinB, libsundials_idas), Cint, (IDAMemPtr, Cint, realtype),
+        ida_mem, which, eplifacB
+    )
 end
 
 function IDASpilsSetEpsLinB(ida_mem, which, eplifacB)
-    IDASpilsSetEpsLinB(ida_mem, convert(Cint, which), eplifacB)
+    return IDASpilsSetEpsLinB(ida_mem, convert(Cint, which), eplifacB)
 end
 
 function IDASpilsSetIncrementFactorB(ida_mem, which::Cint, dqincfacB::realtype)
-    ccall((:IDASpilsSetIncrementFactorB, libsundials_idas), Cint,
-        (IDAMemPtr, Cint, realtype), ida_mem, which, dqincfacB)
+    return ccall(
+        (:IDASpilsSetIncrementFactorB, libsundials_idas), Cint,
+        (IDAMemPtr, Cint, realtype), ida_mem, which, dqincfacB
+    )
 end
 
 function IDASpilsSetIncrementFactorB(ida_mem, which, dqincfacB)
-    IDASpilsSetIncrementFactorB(ida_mem, convert(Cint, which), dqincfacB)
+    return IDASpilsSetIncrementFactorB(ida_mem, convert(Cint, which), dqincfacB)
 end
 
-function IDASpilsSetPreconditionerB(ida_mem, which::Cint, psetB::IDASpilsPrecSetupFnB,
-        psolveB::IDASpilsPrecSolveFnB)
-    ccall((:IDASpilsSetPreconditionerB, libsundials_idas), Cint,
+function IDASpilsSetPreconditionerB(
+        ida_mem, which::Cint, psetB::IDASpilsPrecSetupFnB,
+        psolveB::IDASpilsPrecSolveFnB
+    )
+    return ccall(
+        (:IDASpilsSetPreconditionerB, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDASpilsPrecSetupFnB, IDASpilsPrecSolveFnB), ida_mem, which,
-        psetB, psolveB)
+        psetB, psolveB
+    )
 end
 
 function IDASpilsSetPreconditionerB(ida_mem, which, psetB, psolveB)
-    IDASpilsSetPreconditionerB(ida_mem, convert(Cint, which), psetB, psolveB)
+    return IDASpilsSetPreconditionerB(ida_mem, convert(Cint, which), psetB, psolveB)
 end
 
-function IDASpilsSetPreconditionerBS(ida_mem, which::Cint, psetBS::IDASpilsPrecSetupFnBS,
-        psolveBS::IDASpilsPrecSolveFnBS)
-    ccall((:IDASpilsSetPreconditionerBS, libsundials_idas), Cint,
+function IDASpilsSetPreconditionerBS(
+        ida_mem, which::Cint, psetBS::IDASpilsPrecSetupFnBS,
+        psolveBS::IDASpilsPrecSolveFnBS
+    )
+    return ccall(
+        (:IDASpilsSetPreconditionerBS, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDASpilsPrecSetupFnBS, IDASpilsPrecSolveFnBS), ida_mem, which,
-        psetBS, psolveBS)
+        psetBS, psolveBS
+    )
 end
 
 function IDASpilsSetPreconditionerBS(ida_mem, which, psetBS, psolveBS)
-    IDASpilsSetPreconditionerBS(ida_mem, convert(Cint, which), psetBS, psolveBS)
+    return IDASpilsSetPreconditionerBS(ida_mem, convert(Cint, which), psetBS, psolveBS)
 end
 
-function IDASpilsSetJacTimesB(ida_mem, which::Cint, jtsetupB::IDASpilsJacTimesSetupFnB,
-        jtimesB::IDASpilsJacTimesVecFnB)
-    ccall((:IDASpilsSetJacTimesB, libsundials_idas), Cint,
+function IDASpilsSetJacTimesB(
+        ida_mem, which::Cint, jtsetupB::IDASpilsJacTimesSetupFnB,
+        jtimesB::IDASpilsJacTimesVecFnB
+    )
+    return ccall(
+        (:IDASpilsSetJacTimesB, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDASpilsJacTimesSetupFnB, IDASpilsJacTimesVecFnB), ida_mem,
-        which, jtsetupB, jtimesB)
+        which, jtsetupB, jtimesB
+    )
 end
 
 function IDASpilsSetJacTimesB(ida_mem, which, jtsetupB, jtimesB)
-    IDASpilsSetJacTimesB(ida_mem, convert(Cint, which), jtsetupB, jtimesB)
+    return IDASpilsSetJacTimesB(ida_mem, convert(Cint, which), jtsetupB, jtimesB)
 end
 
-function IDASpilsSetJacTimesBS(ida_mem, which::Cint, jtsetupBS::IDASpilsJacTimesSetupFnBS,
-        jtimesBS::IDASpilsJacTimesVecFnBS)
-    ccall((:IDASpilsSetJacTimesBS, libsundials_idas), Cint,
+function IDASpilsSetJacTimesBS(
+        ida_mem, which::Cint, jtsetupBS::IDASpilsJacTimesSetupFnBS,
+        jtimesBS::IDASpilsJacTimesVecFnBS
+    )
+    return ccall(
+        (:IDASpilsSetJacTimesBS, libsundials_idas), Cint,
         (IDAMemPtr, Cint, IDASpilsJacTimesSetupFnBS, IDASpilsJacTimesVecFnBS), ida_mem,
-        which, jtsetupBS, jtimesBS)
+        which, jtsetupBS, jtimesBS
+    )
 end
 
 function IDASpilsSetJacTimesBS(ida_mem, which, jtsetupBS, jtimesBS)
-    IDASpilsSetJacTimesBS(ida_mem, convert(Cint, which), jtsetupBS, jtimesBS)
+    return IDASpilsSetJacTimesBS(ida_mem, convert(Cint, which), jtsetupBS, jtimesBS)
 end
 
 function KINCreate(sunctx::SUNContext)
-    ccall((:KINCreate, libsundials_kinsol), KINMemPtr, (SUNContext,), sunctx)
+    return ccall((:KINCreate, libsundials_kinsol), KINMemPtr, (SUNContext,), sunctx)
 end
 
 function KINInit(kinmem, func::KINSysFn, tmpl::Union{N_Vector, NVector})
-    ccall((:KINInit, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn, N_Vector), kinmem,
-        func, tmpl)
+    return ccall(
+        (:KINInit, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn, N_Vector), kinmem,
+        func, tmpl
+    )
 end
 
 function KINInit(kinmem, func::KINSysFn, tmpl, ctx::SUNContext)
-    KINInit(kinmem, func, tmpl, ctx)
+    return KINInit(kinmem, func, tmpl, ctx)
 end
 
-function KINSol(kinmem, uu::Union{N_Vector, NVector}, strategy::Cint,
-        u_scale::Union{N_Vector, NVector}, f_scale::Union{N_Vector, NVector})
-    ccall((:KINSol, libsundials_kinsol), Cint,
+function KINSol(
+        kinmem, uu::Union{N_Vector, NVector}, strategy::Cint,
+        u_scale::Union{N_Vector, NVector}, f_scale::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:KINSol, libsundials_kinsol), Cint,
         (KINMemPtr, N_Vector, Cint, N_Vector, N_Vector), kinmem, uu, strategy, u_scale,
-        f_scale)
+        f_scale
+    )
 end
 
 function KINSol(kinmem, uu, strategy, u_scale, f_scale)
     __uu = convert(NVector, uu)
     __u_scale = convert(NVector, u_scale)
     __f_scale = convert(NVector, f_scale)
-    KINSol(kinmem, __uu, convert(Cint, strategy),
-        __u_scale, __f_scale)
+    return KINSol(
+        kinmem, __uu, convert(Cint, strategy),
+        __u_scale, __f_scale
+    )
 end
 
 function KINSetErrHandlerFn(kinmem, ehfun::KINErrHandlerFn, eh_data)
-    ccall((:KINSetErrHandlerFn, libsundials_kinsol), Cint,
-        (KINMemPtr, KINErrHandlerFn, Ptr{Cvoid}), kinmem, ehfun, eh_data)
+    return ccall(
+        (:KINSetErrHandlerFn, libsundials_kinsol), Cint,
+        (KINMemPtr, KINErrHandlerFn, Ptr{Cvoid}), kinmem, ehfun, eh_data
+    )
 end
 
 function KINSetErrFile(kinmem, errfp)
-    ccall((:KINSetErrFile, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Libc.FILE}), kinmem,
-        errfp)
+    return ccall(
+        (:KINSetErrFile, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Libc.FILE}), kinmem,
+        errfp
+    )
 end
 
 function KINSetInfoHandlerFn(kinmem, ihfun::KINInfoHandlerFn, ih_data)
-    ccall((:KINSetInfoHandlerFn, libsundials_kinsol), Cint,
-        (KINMemPtr, KINInfoHandlerFn, Ptr{Cvoid}), kinmem, ihfun, ih_data)
+    return ccall(
+        (:KINSetInfoHandlerFn, libsundials_kinsol), Cint,
+        (KINMemPtr, KINInfoHandlerFn, Ptr{Cvoid}), kinmem, ihfun, ih_data
+    )
 end
 
 function KINSetInfoFile(kinmem, infofp)
-    ccall((:KINSetInfoFile, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Libc.FILE}), kinmem,
-        infofp)
+    return ccall(
+        (:KINSetInfoFile, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Libc.FILE}), kinmem,
+        infofp
+    )
 end
 
 function KINSetUserData(kinmem, user_data)
-    ccall((:KINSetUserData, libsundials_kinsol), Cint, (KINMemPtr, Any), kinmem, user_data)
+    return ccall((:KINSetUserData, libsundials_kinsol), Cint, (KINMemPtr, Any), kinmem, user_data)
 end
 
 function KINSetPrintLevel(kinmemm, printfl::Cint)
-    ccall((:KINSetPrintLevel, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmemm,
-        printfl)
+    return ccall(
+        (:KINSetPrintLevel, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmemm,
+        printfl
+    )
 end
 
 function KINSetPrintLevel(kinmemm, printfl)
-    KINSetPrintLevel(kinmemm, convert(Cint, printfl))
+    return KINSetPrintLevel(kinmemm, convert(Cint, printfl))
 end
 
 function KINSetMAA(kinmem, maa::Clong)
-    ccall((:KINSetMAA, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem, maa)
+    return ccall((:KINSetMAA, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem, maa)
 end
 
 function KINSetMAA(kinmem, maa)
-    KINSetMAA(kinmem, convert(Clong, maa))
+    return KINSetMAA(kinmem, convert(Clong, maa))
 end
 
 function KINSetDampingAA(kinmem, beta::realtype)
-    ccall((:KINSetDampingAA, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem, beta)
+    return ccall((:KINSetDampingAA, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem, beta)
 end
 
 function KINSetNumMaxIters(kinmem, mxiter::Clong)
-    ccall((:KINSetNumMaxIters, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
-        mxiter)
+    return ccall(
+        (:KINSetNumMaxIters, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
+        mxiter
+    )
 end
 
 function KINSetNumMaxIters(kinmem, mxiter)
-    KINSetNumMaxIters(kinmem, convert(Clong, mxiter))
+    return KINSetNumMaxIters(kinmem, convert(Clong, mxiter))
 end
 
 function KINSetNoInitSetup(kinmem, noInitSetup::Cint)
-    ccall((:KINSetNoInitSetup, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem,
-        noInitSetup)
+    return ccall(
+        (:KINSetNoInitSetup, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem,
+        noInitSetup
+    )
 end
 
 function KINSetNoInitSetup(kinmem, noInitSetup)
-    KINSetNoInitSetup(kinmem, convert(Cint, noInitSetup))
+    return KINSetNoInitSetup(kinmem, convert(Cint, noInitSetup))
 end
 
 function KINSetNoResMon(kinmem, noNNIResMon::Cint)
-    ccall((:KINSetNoResMon, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem,
-        noNNIResMon)
+    return ccall(
+        (:KINSetNoResMon, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem,
+        noNNIResMon
+    )
 end
 
 function KINSetNoResMon(kinmem, noNNIResMon)
-    KINSetNoResMon(kinmem, convert(Cint, noNNIResMon))
+    return KINSetNoResMon(kinmem, convert(Cint, noNNIResMon))
 end
 
 function KINSetMaxSetupCalls(kinmem, msbset::Clong)
-    ccall((:KINSetMaxSetupCalls, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
-        msbset)
+    return ccall(
+        (:KINSetMaxSetupCalls, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
+        msbset
+    )
 end
 
 function KINSetMaxSetupCalls(kinmem, msbset)
-    KINSetMaxSetupCalls(kinmem, convert(Clong, msbset))
+    return KINSetMaxSetupCalls(kinmem, convert(Clong, msbset))
 end
 
 function KINSetMaxSubSetupCalls(kinmem, msbsetsub::Clong)
-    ccall((:KINSetMaxSubSetupCalls, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
-        msbsetsub)
+    return ccall(
+        (:KINSetMaxSubSetupCalls, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
+        msbsetsub
+    )
 end
 
 function KINSetMaxSubSetupCalls(kinmem, msbsetsub)
-    KINSetMaxSubSetupCalls(kinmem, convert(Clong, msbsetsub))
+    return KINSetMaxSubSetupCalls(kinmem, convert(Clong, msbsetsub))
 end
 
 function KINSetEtaForm(kinmem, etachoice::Cint)
-    ccall((:KINSetEtaForm, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, etachoice)
+    return ccall((:KINSetEtaForm, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, etachoice)
 end
 
 function KINSetEtaForm(kinmem, etachoice)
-    KINSetEtaForm(kinmem, convert(Cint, etachoice))
+    return KINSetEtaForm(kinmem, convert(Cint, etachoice))
 end
 
 function KINSetEtaConstValue(kinmem, eta::realtype)
-    ccall((:KINSetEtaConstValue, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
-        eta)
+    return ccall(
+        (:KINSetEtaConstValue, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
+        eta
+    )
 end
 
 function KINSetEtaParams(kinmem, egamma::realtype, ealpha::realtype)
-    ccall((:KINSetEtaParams, libsundials_kinsol), Cint, (KINMemPtr, realtype, realtype),
-        kinmem, egamma, ealpha)
+    return ccall(
+        (:KINSetEtaParams, libsundials_kinsol), Cint, (KINMemPtr, realtype, realtype),
+        kinmem, egamma, ealpha
+    )
 end
 
 function KINSetResMonParams(kinmem, omegamin::realtype, omegamax::realtype)
-    ccall((:KINSetResMonParams, libsundials_kinsol), Cint, (KINMemPtr, realtype, realtype),
-        kinmem, omegamin, omegamax)
+    return ccall(
+        (:KINSetResMonParams, libsundials_kinsol), Cint, (KINMemPtr, realtype, realtype),
+        kinmem, omegamin, omegamax
+    )
 end
 
 function KINSetResMonConstValue(kinmem, omegaconst::realtype)
-    ccall((:KINSetResMonConstValue, libsundials_kinsol), Cint, (KINMemPtr, realtype),
-        kinmem, omegaconst)
+    return ccall(
+        (:KINSetResMonConstValue, libsundials_kinsol), Cint, (KINMemPtr, realtype),
+        kinmem, omegaconst
+    )
 end
 
 function KINSetNoMinEps(kinmem, noMinEps::Cint)
-    ccall((:KINSetNoMinEps, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, noMinEps)
+    return ccall((:KINSetNoMinEps, libsundials_kinsol), Cint, (KINMemPtr, Cint), kinmem, noMinEps)
 end
 
 function KINSetNoMinEps(kinmem, noMinEps)
-    KINSetNoMinEps(kinmem, convert(Cint, noMinEps))
+    return KINSetNoMinEps(kinmem, convert(Cint, noMinEps))
 end
 
 function KINSetMaxNewtonStep(kinmem, mxnewtstep::realtype)
-    ccall((:KINSetMaxNewtonStep, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
-        mxnewtstep)
+    return ccall(
+        (:KINSetMaxNewtonStep, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
+        mxnewtstep
+    )
 end
 
 function KINSetMaxBetaFails(kinmem, mxnbcf::Clong)
-    ccall((:KINSetMaxBetaFails, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
-        mxnbcf)
+    return ccall(
+        (:KINSetMaxBetaFails, libsundials_kinsol), Cint, (KINMemPtr, Clong), kinmem,
+        mxnbcf
+    )
 end
 
 function KINSetMaxBetaFails(kinmem, mxnbcf)
-    KINSetMaxBetaFails(kinmem, convert(Clong, mxnbcf))
+    return KINSetMaxBetaFails(kinmem, convert(Clong, mxnbcf))
 end
 
 function KINSetRelErrFunc(kinmem, relfunc::realtype)
-    ccall((:KINSetRelErrFunc, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
-        relfunc)
+    return ccall(
+        (:KINSetRelErrFunc, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
+        relfunc
+    )
 end
 
 function KINSetFuncNormTol(kinmem, fnormtol::realtype)
-    ccall((:KINSetFuncNormTol, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
-        fnormtol)
+    return ccall(
+        (:KINSetFuncNormTol, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
+        fnormtol
+    )
 end
 
 function KINSetScaledStepTol(kinmem, scsteptol::realtype)
-    ccall((:KINSetScaledStepTol, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
-        scsteptol)
+    return ccall(
+        (:KINSetScaledStepTol, libsundials_kinsol), Cint, (KINMemPtr, realtype), kinmem,
+        scsteptol
+    )
 end
 
 function KINSetConstraints(kinmem, constraints::Union{N_Vector, NVector})
-    ccall((:KINSetConstraints, libsundials_kinsol), Cint, (KINMemPtr, N_Vector), kinmem,
-        constraints)
+    return ccall(
+        (:KINSetConstraints, libsundials_kinsol), Cint, (KINMemPtr, N_Vector), kinmem,
+        constraints
+    )
 end
 
 function KINSetConstraints(kinmem, constraints, ctx::SUNContext)
-    KINSetConstraints(kinmem, constraints, ctx)
+    return KINSetConstraints(kinmem, constraints, ctx)
 end
 
 function KINSetSysFunc(kinmem, func::KINSysFn)
-    ccall((:KINSetSysFunc, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn), kinmem, func)
+    return ccall((:KINSetSysFunc, libsundials_kinsol), Cint, (KINMemPtr, KINSysFn), kinmem, func)
 end
 
 function KINGetWorkSpace(kinmem, lenrw, leniw)
-    ccall(
+    return ccall(
         (:KINGetWorkSpace, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}, Ptr{Clong}),
-        kinmem, lenrw, leniw)
+        kinmem, lenrw, leniw
+    )
 end
 
 function KINGetNumNonlinSolvIters(kinmem, nniters)
-    ccall((:KINGetNumNonlinSolvIters, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nniters)
+    return ccall(
+        (:KINGetNumNonlinSolvIters, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nniters
+    )
 end
 
 function KINGetNumFuncEvals(kinmem, nfevals)
-    ccall((:KINGetNumFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        nfevals)
+    return ccall(
+        (:KINGetNumFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
+        nfevals
+    )
 end
 
 function KINGetNumBetaCondFails(kinmem, nbcfails)
-    ccall((:KINGetNumBetaCondFails, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nbcfails)
+    return ccall(
+        (:KINGetNumBetaCondFails, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nbcfails
+    )
 end
 
 function KINGetNumBacktrackOps(kinmem, nbacktr)
-    ccall((:KINGetNumBacktrackOps, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nbacktr)
+    return ccall(
+        (:KINGetNumBacktrackOps, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nbacktr
+    )
 end
 
 function KINGetFuncNorm(kinmem, fnorm)
-    ccall((:KINGetFuncNorm, libsundials_kinsol), Cint, (KINMemPtr, Ptr{realtype}), kinmem,
-        fnorm)
+    return ccall(
+        (:KINGetFuncNorm, libsundials_kinsol), Cint, (KINMemPtr, Ptr{realtype}), kinmem,
+        fnorm
+    )
 end
 
 function KINGetStepLength(kinmem, steplength)
-    ccall(
+    return ccall(
         (:KINGetStepLength, libsundials_kinsol), Cint, (KINMemPtr, Ptr{realtype}), kinmem,
-        steplength)
+        steplength
+    )
 end
 
 function KINGetReturnFlagName(flag::Clong)
-    ccall((:KINGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
+    return ccall((:KINGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
 function KINGetReturnFlagName(flag)
-    KINGetReturnFlagName(convert(Clong, flag))
+    return KINGetReturnFlagName(convert(Clong, flag))
 end
 
 function KINFree(kinmem)
-    ccall((:KINFree, libsundials_kinsol), Cvoid, (Ref{KINMemPtr},), kinmem)
+    return ccall((:KINFree, libsundials_kinsol), Cvoid, (Ref{KINMemPtr},), kinmem)
 end
 
-function KINBBDPrecInit(kinmem, Nlocal::sunindextype, mudq::sunindextype,
+function KINBBDPrecInit(
+        kinmem, Nlocal::sunindextype, mudq::sunindextype,
         mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype,
-        dq_rel_uu::realtype, gloc::KINBBDLocalFn, gcomm::KINBBDCommFn)
-    ccall((:KINBBDPrecInit, libsundials_kinsol), Cint,
-        (KINMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype,
-            realtype, KINBBDLocalFn, KINBBDCommFn), kinmem, Nlocal, mudq, mldq, mukeep,
-        mlkeep, dq_rel_uu, gloc, gcomm)
+        dq_rel_uu::realtype, gloc::KINBBDLocalFn, gcomm::KINBBDCommFn
+    )
+    return ccall(
+        (:KINBBDPrecInit, libsundials_kinsol), Cint,
+        (
+            KINMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype,
+            realtype, KINBBDLocalFn, KINBBDCommFn,
+        ), kinmem, Nlocal, mudq, mldq, mukeep,
+        mlkeep, dq_rel_uu, gloc, gcomm
+    )
 end
 
 function KINBBDPrecGetWorkSpace(kinmem, lenrwBBDP, leniwBBDP)
-    ccall((:KINBBDPrecGetWorkSpace, libsundials_kinsol), Cint,
-        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrwBBDP, leniwBBDP)
+    return ccall(
+        (:KINBBDPrecGetWorkSpace, libsundials_kinsol), Cint,
+        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrwBBDP, leniwBBDP
+    )
 end
 
 function KINBBDPrecGetNumGfnEvals(kinmem, ngevalsBBDP)
-    ccall((:KINBBDPrecGetNumGfnEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, ngevalsBBDP)
+    return ccall(
+        (:KINBBDPrecGetNumGfnEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, ngevalsBBDP
+    )
 end
 
 function KINDlsSetLinearSolver(kinmem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:KINSetLinearSolver, libsundials_kinsol), Cint,
-        (KINMemPtr, SUNLinearSolver, SUNMatrix), kinmem, LS, A)
+    return ccall(
+        (:KINSetLinearSolver, libsundials_kinsol), Cint,
+        (KINMemPtr, SUNLinearSolver, SUNMatrix), kinmem, LS, A
+    )
 end
 
 function KINDlsSetJacFn(kinmem, jac::KINDlsJacFn)
-    ccall((:KINDlsSetJacFn, libsundials_kinsol), Cint, (KINMemPtr, KINDlsJacFn), kinmem,
-        jac)
+    return ccall(
+        (:KINDlsSetJacFn, libsundials_kinsol), Cint, (KINMemPtr, KINDlsJacFn), kinmem,
+        jac
+    )
 end
 
 function KINDlsGetWorkSpace(kinmem, lenrw, leniw)
-    ccall((:KINDlsGetWorkSpace, libsundials_kinsol), Cint,
-        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrw, leniw)
+    return ccall(
+        (:KINDlsGetWorkSpace, libsundials_kinsol), Cint,
+        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrw, leniw
+    )
 end
 
 function KINDlsGetNumJacEvals(kinmem, njevals)
-    ccall((:KINDlsGetNumJacEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, njevals)
+    return ccall(
+        (:KINDlsGetNumJacEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, njevals
+    )
 end
 
 function KINDlsGetNumFuncEvals(kinmem, nfevals)
-    ccall((:KINDlsGetNumFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nfevals)
+    return ccall(
+        (:KINDlsGetNumFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nfevals
+    )
 end
 
 function KINDlsGetLastFlag(kinmem, flag)
-    ccall((:KINDlsGetLastFlag, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        flag)
+    return ccall(
+        (:KINDlsGetLastFlag, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
+        flag
+    )
 end
 
 function KINDlsGetReturnFlagName(flag::Clong)
-    ccall((:KINDlsGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
+    return ccall((:KINDlsGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
 function KINDlsGetReturnFlagName(flag)
-    KINDlsGetReturnFlagName(convert(Clong, flag))
+    return KINDlsGetReturnFlagName(convert(Clong, flag))
 end
 
 function KINSetLinearSolver(kinmem, LS::SUNLinearSolver, A::SUNMatrix)
-    ccall((:KINSetLinearSolver, libsundials_kinsol), Cint,
-        (KINMemPtr, SUNLinearSolver, SUNMatrix), kinmem, LS, A)
+    return ccall(
+        (:KINSetLinearSolver, libsundials_kinsol), Cint,
+        (KINMemPtr, SUNLinearSolver, SUNMatrix), kinmem, LS, A
+    )
 end
 
 function KINSetJacFn(kinmem, jac::KINLsJacFn)
-    ccall((:KINSetJacFn, libsundials_kinsol), Cint, (KINMemPtr, KINLsJacFn), kinmem, jac)
+    return ccall((:KINSetJacFn, libsundials_kinsol), Cint, (KINMemPtr, KINLsJacFn), kinmem, jac)
 end
 
 function KINSetPreconditioner(kinmem, psetup::KINLsPrecSetupFn, psolve::KINLsPrecSolveFn)
-    ccall((:KINSetPreconditioner, libsundials_kinsol), Cint,
-        (KINMemPtr, KINLsPrecSetupFn, KINLsPrecSolveFn), kinmem, psetup, psolve)
+    return ccall(
+        (:KINSetPreconditioner, libsundials_kinsol), Cint,
+        (KINMemPtr, KINLsPrecSetupFn, KINLsPrecSolveFn), kinmem, psetup, psolve
+    )
 end
 
 function KINSetJacTimesVecFn(kinmem, jtv::KINLsJacTimesVecFn)
-    ccall(
+    return ccall(
         (:KINSetJacTimesVecFn, libsundials_kinsol), Cint, (KINMemPtr, KINLsJacTimesVecFn),
-        kinmem, jtv)
+        kinmem, jtv
+    )
 end
 
 function KINGetLinWorkSpace(kinmem, lenrwLS, leniwLS)
-    ccall((:KINGetLinWorkSpace, libsundials_kinsol), Cint,
-        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrwLS, leniwLS)
+    return ccall(
+        (:KINGetLinWorkSpace, libsundials_kinsol), Cint,
+        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrwLS, leniwLS
+    )
 end
 
 function KINGetNumJacEvals(kinmem, njevals)
-    ccall((:KINGetNumJacEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        njevals)
+    return ccall(
+        (:KINGetNumJacEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
+        njevals
+    )
 end
 
 function KINGetNumLinFuncEvals(kinmem, nfevals)
-    ccall((:KINGetNumLinFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nfevals)
+    return ccall(
+        (:KINGetNumLinFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nfevals
+    )
 end
 
 function KINGetNumPrecEvals(kinmem, npevals)
-    ccall((:KINGetNumPrecEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        npevals)
+    return ccall(
+        (:KINGetNumPrecEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
+        npevals
+    )
 end
 
 function KINGetNumPrecSolves(kinmem, npsolves)
-    ccall(
+    return ccall(
         (:KINGetNumPrecSolves, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        npsolves)
+        npsolves
+    )
 end
 
 function KINGetNumLinIters(kinmem, nliters)
-    ccall((:KINGetNumLinIters, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        nliters)
+    return ccall(
+        (:KINGetNumLinIters, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
+        nliters
+    )
 end
 
 function KINGetNumLinConvFails(kinmem, nlcfails)
-    ccall((:KINGetNumLinConvFails, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nlcfails)
+    return ccall(
+        (:KINGetNumLinConvFails, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nlcfails
+    )
 end
 
 function KINGetNumJtimesEvals(kinmem, njvevals)
-    ccall((:KINGetNumJtimesEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, njvevals)
+    return ccall(
+        (:KINGetNumJtimesEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, njvevals
+    )
 end
 
 function KINGetLastLinFlag(kinmem, flag)
-    ccall((:KINGetLastLinFlag, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        flag)
+    return ccall(
+        (:KINGetLastLinFlag, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
+        flag
+    )
 end
 
 function KINGetLinReturnFlagName(flag::Clong)
-    ccall((:KINGetLinReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
+    return ccall((:KINGetLinReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
 function KINGetLinReturnFlagName(flag)
-    KINGetLinReturnFlagName(convert(Clong, flag))
+    return KINGetLinReturnFlagName(convert(Clong, flag))
 end
 
 function KINSpilsSetLinearSolver(kinmem, LS::SUNLinearSolver)
-    ccall((:KINSpilsSetLinearSolver, libsundials_kinsol), Cint,
-        (KINMemPtr, SUNLinearSolver), kinmem, LS)
+    return ccall(
+        (:KINSpilsSetLinearSolver, libsundials_kinsol), Cint,
+        (KINMemPtr, SUNLinearSolver), kinmem, LS
+    )
 end
 
-function KINSpilsSetPreconditioner(kinmem, psetup::KINSpilsPrecSetupFn,
-        psolve::KINSpilsPrecSolveFn)
-    ccall((:KINSpilsSetPreconditioner, libsundials_kinsol), Cint,
-        (KINMemPtr, KINSpilsPrecSetupFn, KINSpilsPrecSolveFn), kinmem, psetup, psolve)
+function KINSpilsSetPreconditioner(
+        kinmem, psetup::KINSpilsPrecSetupFn,
+        psolve::KINSpilsPrecSolveFn
+    )
+    return ccall(
+        (:KINSpilsSetPreconditioner, libsundials_kinsol), Cint,
+        (KINMemPtr, KINSpilsPrecSetupFn, KINSpilsPrecSolveFn), kinmem, psetup, psolve
+    )
 end
 
 function KINSpilsSetJacTimesVecFn(kinmem, jtv::KINSpilsJacTimesVecFn)
-    ccall((:KINSpilsSetJacTimesVecFn, libsundials_kinsol), Cint,
-        (KINMemPtr, KINSpilsJacTimesVecFn), kinmem, jtv)
+    return ccall(
+        (:KINSpilsSetJacTimesVecFn, libsundials_kinsol), Cint,
+        (KINMemPtr, KINSpilsJacTimesVecFn), kinmem, jtv
+    )
 end
 
 function KINSpilsGetWorkSpace(kinmem, lenrwLS, leniwLS)
-    ccall((:KINSpilsGetWorkSpace, libsundials_kinsol), Cint,
-        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrwLS, leniwLS)
+    return ccall(
+        (:KINSpilsGetWorkSpace, libsundials_kinsol), Cint,
+        (KINMemPtr, Ptr{Clong}, Ptr{Clong}), kinmem, lenrwLS, leniwLS
+    )
 end
 
 function KINSpilsGetNumPrecEvals(kinmem, npevals)
-    ccall((:KINSpilsGetNumPrecEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, npevals)
+    return ccall(
+        (:KINSpilsGetNumPrecEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, npevals
+    )
 end
 
 function KINSpilsGetNumPrecSolves(kinmem, npsolves)
-    ccall((:KINSpilsGetNumPrecSolves, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, npsolves)
+    return ccall(
+        (:KINSpilsGetNumPrecSolves, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, npsolves
+    )
 end
 
 function KINSpilsGetNumLinIters(kinmem, nliters)
-    ccall((:KINSpilsGetNumLinIters, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nliters)
+    return ccall(
+        (:KINSpilsGetNumLinIters, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nliters
+    )
 end
 
 function KINSpilsGetNumConvFails(kinmem, nlcfails)
-    ccall((:KINSpilsGetNumConvFails, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nlcfails)
+    return ccall(
+        (:KINSpilsGetNumConvFails, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nlcfails
+    )
 end
 
 function KINSpilsGetNumJtimesEvals(kinmem, njvevals)
-    ccall((:KINSpilsGetNumJtimesEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, njvevals)
+    return ccall(
+        (:KINSpilsGetNumJtimesEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, njvevals
+    )
 end
 
 function KINSpilsGetNumFuncEvals(kinmem, nfevals)
-    ccall((:KINSpilsGetNumFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
-        kinmem, nfevals)
+    return ccall(
+        (:KINSpilsGetNumFuncEvals, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}),
+        kinmem, nfevals
+    )
 end
 
 function KINSpilsGetLastFlag(kinmem, flag)
-    ccall(
+    return ccall(
         (:KINSpilsGetLastFlag, libsundials_kinsol), Cint, (KINMemPtr, Ptr{Clong}), kinmem,
-        flag)
+        flag
+    )
 end
 
 function KINSpilsGetReturnFlagName(flag::Clong)
-    ccall((:KINSpilsGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
+    return ccall((:KINSpilsGetReturnFlagName, libsundials_kinsol), Cstring, (Clong,), flag)
 end
 
 function KINSpilsGetReturnFlagName(flag)
-    KINSpilsGetReturnFlagName(convert(Clong, flag))
+    return KINSpilsGetReturnFlagName(convert(Clong, flag))
 end
 
 function N_VNew_ManyVector(num_subvectors::sunindextype, vec_array)
-    ccall((:N_VNew_ManyVector, libsundials_nvecserial), N_Vector,
-        (sunindextype, Ptr{N_Vector}), num_subvectors, vec_array)
+    return ccall(
+        (:N_VNew_ManyVector, libsundials_nvecserial), N_Vector,
+        (sunindextype, Ptr{N_Vector}), num_subvectors, vec_array
+    )
 end
 
 function N_VGetSubvector_ManyVector(v::Union{N_Vector, NVector}, vec_num::sunindextype)
-    ccall((:N_VGetSubvector_ManyVector, libsundials_nvecserial), N_Vector,
-        (N_Vector, sunindextype), v, vec_num)
+    return ccall(
+        (:N_VGetSubvector_ManyVector, libsundials_nvecserial), N_Vector,
+        (N_Vector, sunindextype), v, vec_num
+    )
 end
 
 function N_VGetSubvector_ManyVector(v, vec_num)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VGetSubvectorArrayPointer_ManyVector(v::Union{N_Vector, NVector},
-        vec_num::sunindextype)
-    ccall((:N_VGetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Ptr{realtype},
-        (N_Vector, sunindextype), v, vec_num)
+function N_VGetSubvectorArrayPointer_ManyVector(
+        v::Union{N_Vector, NVector},
+        vec_num::sunindextype
+    )
+    return ccall(
+        (:N_VGetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Ptr{realtype},
+        (N_Vector, sunindextype), v, vec_num
+    )
 end
 
 function N_VGetSubvectorArrayPointer_ManyVector(v, vec_num)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VSetSubvectorArrayPointer_ManyVector(v_data, v::Union{N_Vector, NVector},
-        vec_num::sunindextype)
-    ccall((:N_VSetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Cint,
-        (Ptr{realtype}, N_Vector, sunindextype), v_data, v, vec_num)
+function N_VSetSubvectorArrayPointer_ManyVector(
+        v_data, v::Union{N_Vector, NVector},
+        vec_num::sunindextype
+    )
+    return ccall(
+        (:N_VSetSubvectorArrayPointer_ManyVector, libsundials_nvecserial), Cint,
+        (Ptr{realtype}, N_Vector, sunindextype), v_data, v, vec_num
+    )
 end
 
 function N_VSetSubvectorArrayPointer_ManyVector(v_data, v, vec_num)
@@ -5387,8 +7017,10 @@ function N_VSetSubvectorArrayPointer_ManyVector(v_data, v, vec_num)
 end
 
 function N_VGetNumSubvectors_ManyVector(v::Union{N_Vector, NVector})
-    ccall((:N_VGetNumSubvectors_ManyVector, libsundials_nvecserial), sunindextype,
-        (N_Vector,), v)
+    return ccall(
+        (:N_VGetNumSubvectors_ManyVector, libsundials_nvecserial), sunindextype,
+        (N_Vector,), v
+    )
 end
 
 function N_VGetNumSubvectors_ManyVector(v)
@@ -5396,7 +7028,7 @@ function N_VGetNumSubvectors_ManyVector(v)
 end
 
 function N_VGetVectorID_ManyVector(v::Union{N_Vector, NVector})
-    ccall((:N_VGetVectorID_ManyVector, libsundials_nvecserial), N_Vector_ID, (N_Vector,), v)
+    return ccall((:N_VGetVectorID_ManyVector, libsundials_nvecserial), N_Vector_ID, (N_Vector,), v)
 end
 
 function N_VGetVectorID_ManyVector(v)
@@ -5404,25 +7036,25 @@ function N_VGetVectorID_ManyVector(v)
 end
 
 function N_VCloneEmpty_ManyVector(w::Union{N_Vector, NVector})
-    ccall((:N_VCloneEmpty_ManyVector, libsundials_nvecserial), N_Vector, (N_Vector,), w)
+    return ccall((:N_VCloneEmpty_ManyVector, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
 function N_VCloneEmpty_ManyVector(w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VCloneEmpty_ManyVector(__w)
+    return N_VCloneEmpty_ManyVector(__w)
 end
 
 function N_VClone_ManyVector(w::Union{N_Vector, NVector})
-    ccall((:N_VClone_ManyVector, libsundials_nvecserial), N_Vector, (N_Vector,), w)
+    return ccall((:N_VClone_ManyVector, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
 function N_VClone_ManyVector(w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VClone_ManyVector(__w)
+    return N_VClone_ManyVector(__w)
 end
 
 function N_VDestroy_ManyVector(v::Union{N_Vector, NVector})
-    ccall((:N_VDestroy_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector,), v)
+    return ccall((:N_VDestroy_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector,), v)
 end
 
 function N_VDestroy_ManyVector(v)
@@ -5430,152 +7062,189 @@ function N_VDestroy_ManyVector(v)
 end
 
 function N_VSpace_ManyVector(v::Union{N_Vector, NVector}, lrw, liw)
-    ccall((:N_VSpace_ManyVector, libsundials_nvecserial), Cvoid,
-        (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
+    return ccall(
+        (:N_VSpace_ManyVector, libsundials_nvecserial), Cvoid,
+        (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw
+    )
 end
 
 function N_VSpace_ManyVector(v, lrw, liw, ctx::SUNContext)
     __lrw = convert(NVector, lrw, ctx)
     __liw = convert(NVector, liw, ctx)
-    N_VSpace_ManyVector(v, __lrw, __liw)
+    return N_VSpace_ManyVector(v, __lrw, __liw)
 end
 
 function N_VGetLength_ManyVector(v::Union{N_Vector, NVector})
-    ccall((:N_VGetLength_ManyVector, libsundials_nvecserial), sunindextype, (N_Vector,), v)
+    return ccall((:N_VGetLength_ManyVector, libsundials_nvecserial), sunindextype, (N_Vector,), v)
 end
 
 function N_VGetLength_ManyVector(v)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VLinearSum_ManyVector(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
+function N_VLinearSum_ManyVector(
+        a::realtype, x::Union{N_Vector, NVector}, b::realtype,
         y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VLinearSum_ManyVector, libsundials_nvecserial), Cvoid,
-        (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VLinearSum_ManyVector, libsundials_nvecserial), Cvoid,
+        (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z
+    )
 end
 
 function N_VLinearSum_ManyVector(a, x, b, y, z, ctx::SUNContext)
-    N_VLinearSum_ManyVector(a, x, b, y, z)
+    return N_VLinearSum_ManyVector(a, x, b, y, z)
 end
 
 function N_VConst_ManyVector(c::realtype, z::Union{N_Vector, NVector})
-    ccall((:N_VConst_ManyVector, libsundials_nvecserial), Cvoid, (realtype, N_Vector), c, z)
+    return ccall((:N_VConst_ManyVector, libsundials_nvecserial), Cvoid, (realtype, N_Vector), c, z)
 end
 
 function N_VConst_ManyVector(c, z)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VProd_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VProd_ManyVector, libsundials_nvecserial), Cvoid,
-        (N_Vector, N_Vector, N_Vector), x, y, z)
+function N_VProd_ManyVector(
+        x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VProd_ManyVector, libsundials_nvecserial), Cvoid,
+        (N_Vector, N_Vector, N_Vector), x, y, z
+    )
 end
 
 function N_VProd_ManyVector(x, y, z, ctx::SUNContext)
-    N_VProd_ManyVector(x, y, z)
+    return N_VProd_ManyVector(x, y, z)
 end
 
-function N_VDiv_ManyVector(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VDiv_ManyVector, libsundials_nvecserial), Cvoid,
-        (N_Vector, N_Vector, N_Vector), x, y, z)
+function N_VDiv_ManyVector(
+        x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VDiv_ManyVector, libsundials_nvecserial), Cvoid,
+        (N_Vector, N_Vector, N_Vector), x, y, z
+    )
 end
 
 function N_VDiv_ManyVector(x, y, z, ctx::SUNContext)
-    N_VDiv_ManyVector(x, y, z)
+    return N_VDiv_ManyVector(x, y, z)
 end
 
-function N_VScale_ManyVector(c::realtype, x::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VScale_ManyVector, libsundials_nvecserial), Cvoid,
-        (realtype, N_Vector, N_Vector), c, x, z)
+function N_VScale_ManyVector(
+        c::realtype, x::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VScale_ManyVector, libsundials_nvecserial), Cvoid,
+        (realtype, N_Vector, N_Vector), c, x, z
+    )
 end
 
 function N_VScale_ManyVector(c, x, z, ctx::SUNContext)
-    N_VScale_ManyVector(c, x, z)
+    return N_VScale_ManyVector(c, x, z)
 end
 
 function N_VAbs_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VAbs_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VAbs_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VAbs_ManyVector(x, z, ctx::SUNContext)
-    N_VAbs_ManyVector(x, z)
+    return N_VAbs_ManyVector(x, z)
 end
 
 function N_VInv_ManyVector(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VInv_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VInv_ManyVector, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInv_ManyVector(x, z, ctx::SUNContext)
-    N_VInv_ManyVector(x, z)
+    return N_VInv_ManyVector(x, z)
 end
 
-function N_VAddConst_ManyVector(x::Union{N_Vector, NVector}, b::realtype,
-        z::Union{N_Vector, NVector})
-    ccall((:N_VAddConst_ManyVector, libsundials_nvecserial), Cvoid,
-        (N_Vector, realtype, N_Vector), x, b, z)
+function N_VAddConst_ManyVector(
+        x::Union{N_Vector, NVector}, b::realtype,
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VAddConst_ManyVector, libsundials_nvecserial), Cvoid,
+        (N_Vector, realtype, N_Vector), x, b, z
+    )
 end
 
 function N_VAddConst_ManyVector(x, b, z, ctx::SUNContext)
-    N_VAddConst_ManyVector(x, b, z)
+    return N_VAddConst_ManyVector(x, b, z)
 end
 
 function N_VWrmsNorm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:N_VWrmsNorm_ManyVector, libsundials_nvecserial), realtype, (N_Vector, N_Vector),
-        x, w)
+        x, w
+    )
 end
 
 function N_VWrmsNorm_ManyVector(x, w, ctx::SUNContext)
-    N_VWrmsNorm_ManyVector(x, w)
+    return N_VWrmsNorm_ManyVector(x, w)
 end
 
-function N_VWrmsNormMask_ManyVector(x::Union{N_Vector, NVector},
+function N_VWrmsNormMask_ManyVector(
+        x::Union{N_Vector, NVector},
         w::Union{N_Vector, NVector},
-        id::Union{N_Vector, NVector})
-    ccall((:N_VWrmsNormMask_ManyVector, libsundials_nvecserial), realtype,
-        (N_Vector, N_Vector, N_Vector), x, w, id)
+        id::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VWrmsNormMask_ManyVector, libsundials_nvecserial), realtype,
+        (N_Vector, N_Vector, N_Vector), x, w, id
+    )
 end
 
 function N_VWrmsNormMask_ManyVector(x, w, id, ctx::SUNContext)
-    N_VWrmsNormMask_ManyVector(x, w, id)
+    return N_VWrmsNormMask_ManyVector(x, w, id)
 end
 
 function N_VWL2Norm_ManyVector(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall((:N_VWL2Norm_ManyVector, libsundials_nvecserial), realtype, (N_Vector, N_Vector),
-        x, w)
+    return ccall(
+        (:N_VWL2Norm_ManyVector, libsundials_nvecserial), realtype, (N_Vector, N_Vector),
+        x, w
+    )
 end
 
 function N_VWL2Norm_ManyVector(x, w, ctx::SUNContext)
-    N_VWL2Norm_ManyVector(x, w)
+    return N_VWL2Norm_ManyVector(x, w)
 end
 
-function N_VCompare_ManyVector(c::realtype, x::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VCompare_ManyVector, libsundials_nvecserial), Cvoid,
-        (realtype, N_Vector, N_Vector), c, x, z)
+function N_VCompare_ManyVector(
+        c::realtype, x::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VCompare_ManyVector, libsundials_nvecserial), Cvoid,
+        (realtype, N_Vector, N_Vector), c, x, z
+    )
 end
 
 function N_VCompare_ManyVector(c, x, z, ctx::SUNContext)
-    N_VCompare_ManyVector(c, x, z)
+    return N_VCompare_ManyVector(c, x, z)
 end
 
 function N_VLinearCombination_ManyVector(nvec::Cint, c, V, z::Union{N_Vector, NVector})
-    ccall((:N_VLinearCombination_ManyVector, libsundials_nvecserial), Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, V, z)
+    return ccall(
+        (:N_VLinearCombination_ManyVector, libsundials_nvecserial), Cint,
+        (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, V, z
+    )
 end
 
 function N_VLinearCombination_ManyVector(nvec, c, V, z, ctx::SUNContext)
     __V = convert(NVector, V, ctx)
-    N_VLinearCombination_ManyVector(nvec, c, __V, z)
+    return N_VLinearCombination_ManyVector(nvec, c, __V, z)
 end
 
 function N_VScaleAddMulti_ManyVector(nvec::Cint, a, x::Union{N_Vector, NVector}, Y, Z)
-    ccall((:N_VScaleAddMulti_ManyVector, libsundials_nvecserial), Cint,
-        (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z)
+    return ccall(
+        (:N_VScaleAddMulti_ManyVector, libsundials_nvecserial), Cint,
+        (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z
+    )
 end
 
 function N_VScaleAddMulti_ManyVector(nvec, a, x, Y, Z)
@@ -5583,8 +7252,10 @@ function N_VScaleAddMulti_ManyVector(nvec, a, x, Y, Z)
 end
 
 function N_VDotProdMulti_ManyVector(nvec::Cint, x::Union{N_Vector, NVector}, Y, dotprods)
-    ccall((:N_VDotProdMulti_ManyVector, libsundials_nvecserial), Cint,
-        (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods)
+    return ccall(
+        (:N_VDotProdMulti_ManyVector, libsundials_nvecserial), Cint,
+        (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods
+    )
 end
 
 function N_VDotProdMulti_ManyVector(nvec, x, Y, dotprods)
@@ -5592,67 +7263,85 @@ function N_VDotProdMulti_ManyVector(nvec, x, Y, dotprods)
 end
 
 function N_VLinearSumVectorArray_ManyVector(nvec::Cint, a::realtype, X, b::realtype, Y, Z)
-    ccall((:N_VLinearSumVectorArray_ManyVector, libsundials_nvecserial), Cint,
+    return ccall(
+        (:N_VLinearSumVectorArray_ManyVector, libsundials_nvecserial), Cint,
         (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a,
-        X, b, Y, Z)
+        X, b, Y, Z
+    )
 end
 
 function N_VLinearSumVectorArray_ManyVector(nvec, a, X, b, Y, Z)
-    N_VLinearSumVectorArray_ManyVector(convert(Cint, nvec), a, X, b, Y, Z)
+    return N_VLinearSumVectorArray_ManyVector(convert(Cint, nvec), a, X, b, Y, Z)
 end
 
 function N_VScaleVectorArray_ManyVector(nvec::Cint, c, X, Z)
-    ccall((:N_VScaleVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z)
+    return ccall(
+        (:N_VScaleVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z
+    )
 end
 
 function N_VScaleVectorArray_ManyVector(nvec, c, X, Z)
-    N_VScaleVectorArray_ManyVector(convert(Cint, nvec), c, X, Z)
+    return N_VScaleVectorArray_ManyVector(convert(Cint, nvec), c, X, Z)
 end
 
 function N_VConstVectorArray_ManyVector(nvecs::Cint, c::realtype, Z)
-    ccall((:N_VConstVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (Cint, realtype, Ptr{N_Vector}), nvecs, c, Z)
+    return ccall(
+        (:N_VConstVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (Cint, realtype, Ptr{N_Vector}), nvecs, c, Z
+    )
 end
 
 function N_VConstVectorArray_ManyVector(nvecs, c, Z)
-    N_VConstVectorArray_ManyVector(convert(Cint, nvecs), c, Z)
+    return N_VConstVectorArray_ManyVector(convert(Cint, nvecs), c, Z)
 end
 
 function N_VWrmsNormVectorArray_ManyVector(nvecs::Cint, X, W, nrm)
-    ccall((:N_VWrmsNormVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvecs, X, W, nrm)
+    return ccall(
+        (:N_VWrmsNormVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvecs, X, W, nrm
+    )
 end
 
 function N_VWrmsNormVectorArray_ManyVector(nvecs, X, W, nrm)
-    N_VWrmsNormVectorArray_ManyVector(convert(Cint, nvecs), X, W, nrm)
+    return N_VWrmsNormVectorArray_ManyVector(convert(Cint, nvecs), X, W, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray_ManyVector(nvec::Cint, X, W,
-        id::Union{N_Vector, NVector}, nrm)
-    ccall((:N_VWrmsNormMaskVectorArray_ManyVector, libsundials_nvecserial), Cint,
+function N_VWrmsNormMaskVectorArray_ManyVector(
+        nvec::Cint, X, W,
+        id::Union{N_Vector, NVector}, nrm
+    )
+    return ccall(
+        (:N_VWrmsNormMaskVectorArray_ManyVector, libsundials_nvecserial), Cint,
         (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvec, X, W, id,
-        nrm)
+        nrm
+    )
 end
 
 function N_VWrmsNormMaskVectorArray_ManyVector(nvec, X, W, id, nrm)
     __id = convert(NVector, id)
-    N_VWrmsNormMaskVectorArray_ManyVector(convert(Cint, nvec), X, W,
-        __id, nrm)
+    return N_VWrmsNormMaskVectorArray_ManyVector(
+        convert(Cint, nvec), X, W,
+        __id, nrm
+    )
 end
 
-function N_VDotProdLocal_ManyVector(x::Union{N_Vector, NVector},
-        y::Union{N_Vector, NVector})
-    ccall((:N_VDotProdLocal_ManyVector, libsundials_nvecserial), realtype,
-        (N_Vector, N_Vector), x, y)
+function N_VDotProdLocal_ManyVector(
+        x::Union{N_Vector, NVector},
+        y::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VDotProdLocal_ManyVector, libsundials_nvecserial), realtype,
+        (N_Vector, N_Vector), x, y
+    )
 end
 
 function N_VDotProdLocal_ManyVector(x, y, ctx::SUNContext)
-    N_VDotProdLocal_ManyVector(x, y)
+    return N_VDotProdLocal_ManyVector(x, y)
 end
 
 function N_VMaxNormLocal_ManyVector(x::Union{N_Vector, NVector})
-    ccall((:N_VMaxNormLocal_ManyVector, libsundials_nvecserial), realtype, (N_Vector,), x)
+    return ccall((:N_VMaxNormLocal_ManyVector, libsundials_nvecserial), realtype, (N_Vector,), x)
 end
 
 function N_VMaxNormLocal_ManyVector(x)
@@ -5660,7 +7349,7 @@ function N_VMaxNormLocal_ManyVector(x)
 end
 
 function N_VMinLocal_ManyVector(x::Union{N_Vector, NVector})
-    ccall((:N_VMinLocal_ManyVector, libsundials_nvecserial), realtype, (N_Vector,), x)
+    return ccall((:N_VMinLocal_ManyVector, libsundials_nvecserial), realtype, (N_Vector,), x)
 end
 
 function N_VMinLocal_ManyVector(x)
@@ -5668,69 +7357,90 @@ function N_VMinLocal_ManyVector(x)
 end
 
 function N_VL1NormLocal_ManyVector(x::Union{N_Vector, NVector})
-    ccall((:N_VL1NormLocal_ManyVector, libsundials_nvecserial), realtype, (N_Vector,), x)
+    return ccall((:N_VL1NormLocal_ManyVector, libsundials_nvecserial), realtype, (N_Vector,), x)
 end
 
 function N_VL1NormLocal_ManyVector(x)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VWSqrSumLocal_ManyVector(x::Union{N_Vector, NVector},
-        w::Union{N_Vector, NVector})
-    ccall((:N_VWSqrSumLocal_ManyVector, libsundials_nvecserial), realtype,
-        (N_Vector, N_Vector), x, w)
+function N_VWSqrSumLocal_ManyVector(
+        x::Union{N_Vector, NVector},
+        w::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VWSqrSumLocal_ManyVector, libsundials_nvecserial), realtype,
+        (N_Vector, N_Vector), x, w
+    )
 end
 
 function N_VWSqrSumLocal_ManyVector(x, w, ctx::SUNContext)
-    N_VWSqrSumLocal_ManyVector(x, w)
+    return N_VWSqrSumLocal_ManyVector(x, w)
 end
 
-function N_VWSqrSumMaskLocal_ManyVector(x::Union{N_Vector, NVector},
+function N_VWSqrSumMaskLocal_ManyVector(
+        x::Union{N_Vector, NVector},
         w::Union{N_Vector, NVector},
-        id::Union{N_Vector, NVector})
-    ccall((:N_VWSqrSumMaskLocal_ManyVector, libsundials_nvecserial), realtype,
-        (N_Vector, N_Vector, N_Vector), x, w, id)
+        id::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VWSqrSumMaskLocal_ManyVector, libsundials_nvecserial), realtype,
+        (N_Vector, N_Vector, N_Vector), x, w, id
+    )
 end
 
 function N_VWSqrSumMaskLocal_ManyVector(x, w, id, ctx::SUNContext)
-    N_VWSqrSumMaskLocal_ManyVector(x, w, id)
+    return N_VWSqrSumMaskLocal_ManyVector(x, w, id)
 end
 
-function N_VInvTestLocal_ManyVector(x::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall(
+function N_VInvTestLocal_ManyVector(
+        x::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
         (:N_VInvTestLocal_ManyVector, libsundials_nvecserial), Cint, (N_Vector, N_Vector),
-        x, z)
+        x, z
+    )
 end
 
 function N_VInvTestLocal_ManyVector(x, z, ctx::SUNContext)
-    N_VInvTestLocal_ManyVector(x, z)
+    return N_VInvTestLocal_ManyVector(x, z)
 end
 
-function N_VConstrMaskLocal_ManyVector(c::Union{N_Vector, NVector},
+function N_VConstrMaskLocal_ManyVector(
+        c::Union{N_Vector, NVector},
         x::Union{N_Vector, NVector},
-        m::Union{N_Vector, NVector})
-    ccall((:N_VConstrMaskLocal_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, N_Vector, N_Vector), c, x, m)
+        m::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VConstrMaskLocal_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, N_Vector, N_Vector), c, x, m
+    )
 end
 
 function N_VConstrMaskLocal_ManyVector(c, x, m, ctx::SUNContext)
-    N_VConstrMaskLocal_ManyVector(c, x, m)
+    return N_VConstrMaskLocal_ManyVector(c, x, m)
 end
 
-function N_VMinQuotientLocal_ManyVector(num::Union{N_Vector, NVector},
-        denom::Union{N_Vector, NVector})
-    ccall((:N_VMinQuotientLocal_ManyVector, libsundials_nvecserial), realtype,
-        (N_Vector, N_Vector), num, denom)
+function N_VMinQuotientLocal_ManyVector(
+        num::Union{N_Vector, NVector},
+        denom::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VMinQuotientLocal_ManyVector, libsundials_nvecserial), realtype,
+        (N_Vector, N_Vector), num, denom
+    )
 end
 
 function N_VMinQuotientLocal_ManyVector(num, denom, ctx::SUNContext)
-    N_VMinQuotientLocal_ManyVector(num, denom)
+    return N_VMinQuotientLocal_ManyVector(num, denom)
 end
 
 function N_VEnableFusedOps_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableFusedOps_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint),
-        v, tf)
+    return ccall(
+        (:N_VEnableFusedOps_ManyVector, libsundials_nvecserial), Cint, (N_Vector, Cint),
+        v, tf
+    )
 end
 
 function N_VEnableFusedOps_ManyVector(v, tf)
@@ -5738,8 +7448,10 @@ function N_VEnableFusedOps_ManyVector(v, tf)
 end
 
 function N_VEnableLinearCombination_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableLinearCombination_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableLinearCombination_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableLinearCombination_ManyVector(v, tf)
@@ -5747,8 +7459,10 @@ function N_VEnableLinearCombination_ManyVector(v, tf)
 end
 
 function N_VEnableScaleAddMulti_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableScaleAddMulti_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableScaleAddMulti_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableScaleAddMulti_ManyVector(v, tf)
@@ -5756,8 +7470,10 @@ function N_VEnableScaleAddMulti_ManyVector(v, tf)
 end
 
 function N_VEnableDotProdMulti_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableDotProdMulti_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableDotProdMulti_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableDotProdMulti_ManyVector(v, tf)
@@ -5765,8 +7481,10 @@ function N_VEnableDotProdMulti_ManyVector(v, tf)
 end
 
 function N_VEnableLinearSumVectorArray_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableLinearSumVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableLinearSumVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableLinearSumVectorArray_ManyVector(v, tf)
@@ -5774,8 +7492,10 @@ function N_VEnableLinearSumVectorArray_ManyVector(v, tf)
 end
 
 function N_VEnableScaleVectorArray_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableScaleVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableScaleVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableScaleVectorArray_ManyVector(v, tf)
@@ -5783,8 +7503,10 @@ function N_VEnableScaleVectorArray_ManyVector(v, tf)
 end
 
 function N_VEnableConstVectorArray_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableConstVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableConstVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableConstVectorArray_ManyVector(v, tf)
@@ -5792,8 +7514,10 @@ function N_VEnableConstVectorArray_ManyVector(v, tf)
 end
 
 function N_VEnableWrmsNormVectorArray_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableWrmsNormVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableWrmsNormVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableWrmsNormVectorArray_ManyVector(v, tf)
@@ -5801,8 +7525,10 @@ function N_VEnableWrmsNormVectorArray_ManyVector(v, tf)
 end
 
 function N_VEnableWrmsNormMaskVectorArray_ManyVector(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableWrmsNormMaskVectorArray_ManyVector, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableWrmsNormMaskVectorArray_ManyVector, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableWrmsNormMaskVectorArray_ManyVector(v, tf)
@@ -5810,52 +7536,63 @@ function N_VEnableWrmsNormMaskVectorArray_ManyVector(v, tf)
 end
 
 function N_VNew_Serial(vec_length::sunindextype, sunctx::SUNContext)
-    ccall((:N_VNew_Serial, libsundials_nvecserial), N_Vector,
-        (sunindextype, SUNContext), vec_length, sunctx)
+    return ccall(
+        (:N_VNew_Serial, libsundials_nvecserial), N_Vector,
+        (sunindextype, SUNContext), vec_length, sunctx
+    )
 end
 
 function N_VNewEmpty_Serial(vec_length::sunindextype, sunctx::SUNContext)
-    ccall(
+    return ccall(
         (:N_VNewEmpty_Serial, libsundials_nvecserial), N_Vector, (sunindextype, SUNContext),
-        vec_length, sunctx)
+        vec_length, sunctx
+    )
 end
 
 function N_VMake_Serial(vec_length::sunindextype, v_data, sunctx::SUNContext)
-    ccall((:N_VMake_Serial, libsundials_nvecserial), N_Vector,
-        (sunindextype, Ptr{realtype}, SUNContext), vec_length, v_data, sunctx)
+    return ccall(
+        (:N_VMake_Serial, libsundials_nvecserial), N_Vector,
+        (sunindextype, Ptr{realtype}, SUNContext), vec_length, v_data, sunctx
+    )
 end
 
 function N_VCloneVectorArray_Serial(count::Cint, w::Union{N_Vector, NVector})
-    ccall((:N_VCloneVectorArray_Serial, libsundials_nvecserial), Ptr{N_Vector},
-        (Cint, N_Vector), count, w)
+    return ccall(
+        (:N_VCloneVectorArray_Serial, libsundials_nvecserial), Ptr{N_Vector},
+        (Cint, N_Vector), count, w
+    )
 end
 
 function N_VCloneVectorArray_Serial(count, w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VCloneVectorArray_Serial(count, __w)
+    return N_VCloneVectorArray_Serial(count, __w)
 end
 
 function N_VCloneVectorArrayEmpty_Serial(count::Cint, w::Union{N_Vector, NVector})
-    ccall((:N_VCloneVectorArrayEmpty_Serial, libsundials_nvecserial), Ptr{N_Vector},
-        (Cint, N_Vector), count, w)
+    return ccall(
+        (:N_VCloneVectorArrayEmpty_Serial, libsundials_nvecserial), Ptr{N_Vector},
+        (Cint, N_Vector), count, w
+    )
 end
 
 function N_VCloneVectorArrayEmpty_Serial(count, w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VCloneVectorArrayEmpty_Serial(count, __w)
+    return N_VCloneVectorArrayEmpty_Serial(count, __w)
 end
 
 function N_VDestroyVectorArray_Serial(vs, count::Cint)
-    ccall((:N_VDestroyVectorArray_Serial, libsundials_nvecserial), Cvoid,
-        (Ptr{N_Vector}, Cint), vs, count)
+    return ccall(
+        (:N_VDestroyVectorArray_Serial, libsundials_nvecserial), Cvoid,
+        (Ptr{N_Vector}, Cint), vs, count
+    )
 end
 
 function N_VDestroyVectorArray_Serial(vs, count)
-    N_VDestroyVectorArray_Serial(vs, convert(Cint, count))
+    return N_VDestroyVectorArray_Serial(vs, convert(Cint, count))
 end
 
 function N_VGetLength_Serial(v::Union{N_Vector, NVector})
-    ccall((:N_VGetLength_Serial, libsundials_nvecserial), sunindextype, (N_Vector,), v)
+    return ccall((:N_VGetLength_Serial, libsundials_nvecserial), sunindextype, (N_Vector,), v)
 end
 
 function N_VGetLength_Serial(v)
@@ -5863,7 +7600,7 @@ function N_VGetLength_Serial(v)
 end
 
 function N_VPrint_Serial(v::Union{N_Vector, NVector})
-    ccall((:N_VPrint_Serial, libsundials_nvecserial), Cvoid, (N_Vector,), v)
+    return ccall((:N_VPrint_Serial, libsundials_nvecserial), Cvoid, (N_Vector,), v)
 end
 
 function N_VPrint_Serial(v)
@@ -5871,9 +7608,10 @@ function N_VPrint_Serial(v)
 end
 
 function N_VPrintFile_Serial(v::Union{N_Vector, NVector}, outfile)
-    ccall(
+    return ccall(
         (:N_VPrintFile_Serial, libsundials_nvecserial), Cvoid, (N_Vector, Ptr{Libc.FILE}),
-        v, outfile)
+        v, outfile
+    )
 end
 
 function N_VPrintFile_Serial(v, outfile)
@@ -5881,7 +7619,7 @@ function N_VPrintFile_Serial(v, outfile)
 end
 
 function N_VGetVectorID_Serial(v::Union{N_Vector, NVector})
-    ccall((:N_VGetVectorID_Serial, libsundials_nvecserial), N_Vector_ID, (N_Vector,), v)
+    return ccall((:N_VGetVectorID_Serial, libsundials_nvecserial), N_Vector_ID, (N_Vector,), v)
 end
 
 function N_VGetVectorID_Serial(v)
@@ -5889,25 +7627,25 @@ function N_VGetVectorID_Serial(v)
 end
 
 function N_VCloneEmpty_Serial(w::Union{N_Vector, NVector})
-    ccall((:N_VCloneEmpty_Serial, libsundials_nvecserial), N_Vector, (N_Vector,), w)
+    return ccall((:N_VCloneEmpty_Serial, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
 function N_VCloneEmpty_Serial(w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VCloneEmpty_Serial(__w)
+    return N_VCloneEmpty_Serial(__w)
 end
 
 function N_VClone_Serial(w::Union{N_Vector, NVector})
-    ccall((:N_VClone_Serial, libsundials_nvecserial), N_Vector, (N_Vector,), w)
+    return ccall((:N_VClone_Serial, libsundials_nvecserial), N_Vector, (N_Vector,), w)
 end
 
 function N_VClone_Serial(w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VClone_Serial(__w)
+    return N_VClone_Serial(__w)
 end
 
 function N_VDestroy_Serial(v::Union{N_Vector, NVector})
-    ccall((:N_VDestroy_Serial, libsundials_nvecserial), Cvoid, (N_Vector,), v)
+    return ccall((:N_VDestroy_Serial, libsundials_nvecserial), Cvoid, (N_Vector,), v)
 end
 
 function N_VDestroy_Serial(v)
@@ -5915,19 +7653,23 @@ function N_VDestroy_Serial(v)
 end
 
 function N_VSpace_Serial(v::Union{N_Vector, NVector}, lrw, liw)
-    ccall((:N_VSpace_Serial, libsundials_nvecserial), Cvoid,
-        (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
+    return ccall(
+        (:N_VSpace_Serial, libsundials_nvecserial), Cvoid,
+        (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw
+    )
 end
 
 function N_VSpace_Serial(v, lrw, liw, ctx::SUNContext)
     __lrw = convert(NVector, lrw, ctx)
     __liw = convert(NVector, liw, ctx)
-    N_VSpace_Serial(v, __lrw, __liw)
+    return N_VSpace_Serial(v, __lrw, __liw)
 end
 
 function N_VGetArrayPointer_Serial(v::Union{N_Vector, NVector})
-    ccall((:N_VGetArrayPointer_Serial, libsundials_nvecserial), Ptr{realtype}, (N_Vector,),
-        v)
+    return ccall(
+        (:N_VGetArrayPointer_Serial, libsundials_nvecserial), Ptr{realtype}, (N_Vector,),
+        v
+    )
 end
 
 function N_VGetArrayPointer_Serial(v)
@@ -5935,101 +7677,124 @@ function N_VGetArrayPointer_Serial(v)
 end
 
 function N_VSetArrayPointer_Serial(v_data, v::Union{N_Vector, NVector})
-    ccall((:N_VSetArrayPointer_Serial, libsundials_nvecserial), Cvoid,
-        (Ptr{realtype}, N_Vector), v_data, v)
+    return ccall(
+        (:N_VSetArrayPointer_Serial, libsundials_nvecserial), Cvoid,
+        (Ptr{realtype}, N_Vector), v_data, v
+    )
 end
 
 function N_VSetArrayPointer_Serial(v_data, v)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VLinearSum_Serial(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
+function N_VLinearSum_Serial(
+        a::realtype, x::Union{N_Vector, NVector}, b::realtype,
         y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VLinearSum_Serial, libsundials_nvecserial), Cvoid,
-        (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VLinearSum_Serial, libsundials_nvecserial), Cvoid,
+        (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z
+    )
 end
 
 function N_VLinearSum_Serial(a, x, b, y, z, ctx::SUNContext)
-    N_VLinearSum_Serial(a, x, b, y, z)
+    return N_VLinearSum_Serial(a, x, b, y, z)
 end
 
 function N_VConst_Serial(c::realtype, z::Union{N_Vector, NVector})
-    ccall((:N_VConst_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector), c, z)
+    return ccall((:N_VConst_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector), c, z)
 end
 
 function N_VConst_Serial(c, z)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VProd_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector),
-        x, y, z)
+function N_VProd_Serial(
+        x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VProd_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector),
+        x, y, z
+    )
 end
 
 function N_VProd_Serial(x, y, z, ctx::SUNContext)
-    N_VProd_Serial(x, y, z)
+    return N_VProd_Serial(x, y, z)
 end
 
-function N_VDiv_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VDiv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector),
-        x, y, z)
+function N_VDiv_Serial(
+        x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VDiv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector, N_Vector),
+        x, y, z
+    )
 end
 
 function N_VDiv_Serial(x, y, z, ctx::SUNContext)
-    N_VDiv_Serial(x, y, z)
+    return N_VDiv_Serial(x, y, z)
 end
 
-function N_VScale_Serial(c::realtype, x::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall(
+function N_VScale_Serial(
+        c::realtype, x::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
         (:N_VScale_Serial, libsundials_nvecserial), Cvoid, (realtype, N_Vector, N_Vector),
-        c, x, z)
+        c, x, z
+    )
 end
 
 function N_VScale_Serial(c, x, z, ctx::SUNContext)
-    N_VScale_Serial(c, x, z)
+    return N_VScale_Serial(c, x, z)
 end
 
 function N_VAbs_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VAbs_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VAbs_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VAbs_Serial(x, z, ctx::SUNContext)
-    N_VAbs_Serial(x, z)
+    return N_VAbs_Serial(x, z)
 end
 
 function N_VInv_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VInv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VInv_Serial, libsundials_nvecserial), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInv_Serial(x, z, ctx::SUNContext)
-    N_VInv_Serial(x, z)
+    return N_VInv_Serial(x, z)
 end
 
-function N_VAddConst_Serial(x::Union{N_Vector, NVector}, b::realtype,
-        z::Union{N_Vector, NVector})
-    ccall((:N_VAddConst_Serial, libsundials_nvecserial), Cvoid,
-        (N_Vector, realtype, N_Vector), x, b, z)
+function N_VAddConst_Serial(
+        x::Union{N_Vector, NVector}, b::realtype,
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VAddConst_Serial, libsundials_nvecserial), Cvoid,
+        (N_Vector, realtype, N_Vector), x, b, z
+    )
 end
 
 function N_VAddConst_Serial(x, b, z, ctx::SUNContext)
-    N_VAddConst_Serial(x, b, z)
+    return N_VAddConst_Serial(x, b, z)
 end
 
 function N_VDotProd_Serial(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
-    ccall((:N_VDotProd_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector), x,
-        y)
+    return ccall(
+        (:N_VDotProd_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector), x,
+        y
+    )
 end
 
 function N_VDotProd_Serial(x, y, ctx::SUNContext)
-    N_VDotProd_Serial(x, y)
+    return N_VDotProd_Serial(x, y)
 end
 
 function N_VMaxNorm_Serial(x::Union{N_Vector, NVector})
-    ccall((:N_VMaxNorm_Serial, libsundials_nvecserial), realtype, (N_Vector,), x)
+    return ccall((:N_VMaxNorm_Serial, libsundials_nvecserial), realtype, (N_Vector,), x)
 end
 
 function N_VMaxNorm_Serial(x)
@@ -6037,26 +7802,32 @@ function N_VMaxNorm_Serial(x)
 end
 
 function N_VWrmsNorm_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall((:N_VWrmsNorm_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector), x,
-        w)
+    return ccall(
+        (:N_VWrmsNorm_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector), x,
+        w
+    )
 end
 
 function N_VWrmsNorm_Serial(x, w, ctx::SUNContext)
-    N_VWrmsNorm_Serial(x, w)
+    return N_VWrmsNorm_Serial(x, w)
 end
 
-function N_VWrmsNormMask_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
-        id::Union{N_Vector, NVector})
-    ccall((:N_VWrmsNormMask_Serial, libsundials_nvecserial), realtype,
-        (N_Vector, N_Vector, N_Vector), x, w, id)
+function N_VWrmsNormMask_Serial(
+        x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
+        id::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VWrmsNormMask_Serial, libsundials_nvecserial), realtype,
+        (N_Vector, N_Vector, N_Vector), x, w, id
+    )
 end
 
 function N_VWrmsNormMask_Serial(x, w, id, ctx::SUNContext)
-    N_VWrmsNormMask_Serial(x, w, id)
+    return N_VWrmsNormMask_Serial(x, w, id)
 end
 
 function N_VMin_Serial(x::Union{N_Vector, NVector})
-    ccall((:N_VMin_Serial, libsundials_nvecserial), realtype, (N_Vector,), x)
+    return ccall((:N_VMin_Serial, libsundials_nvecserial), realtype, (N_Vector,), x)
 end
 
 function N_VMin_Serial(x)
@@ -6064,73 +7835,91 @@ function N_VMin_Serial(x)
 end
 
 function N_VWL2Norm_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall((:N_VWL2Norm_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector), x,
-        w)
+    return ccall(
+        (:N_VWL2Norm_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector), x,
+        w
+    )
 end
 
 function N_VWL2Norm_Serial(x, w, ctx::SUNContext)
-    N_VWL2Norm_Serial(x, w)
+    return N_VWL2Norm_Serial(x, w)
 end
 
 function N_VL1Norm_Serial(x::Union{N_Vector, NVector})
-    ccall((:N_VL1Norm_Serial, libsundials_nvecserial), realtype, (N_Vector,), x)
+    return ccall((:N_VL1Norm_Serial, libsundials_nvecserial), realtype, (N_Vector,), x)
 end
 
 function N_VL1Norm_Serial(x)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VCompare_Serial(c::realtype, x::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VCompare_Serial, libsundials_nvecserial), Cvoid,
-        (realtype, N_Vector, N_Vector), c, x, z)
+function N_VCompare_Serial(
+        c::realtype, x::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VCompare_Serial, libsundials_nvecserial), Cvoid,
+        (realtype, N_Vector, N_Vector), c, x, z
+    )
 end
 
 function N_VCompare_Serial(c, x, z, ctx::SUNContext)
-    N_VCompare_Serial(c, x, z)
+    return N_VCompare_Serial(c, x, z)
 end
 
 function N_VInvTest_Serial(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VInvTest_Serial, libsundials_nvecserial), Cint, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VInvTest_Serial, libsundials_nvecserial), Cint, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInvTest_Serial(x, z, ctx::SUNContext)
-    N_VInvTest_Serial(x, z)
+    return N_VInvTest_Serial(x, z)
 end
 
-function N_VConstrMask_Serial(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
-        m::Union{N_Vector, NVector})
-    ccall((:N_VConstrMask_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, N_Vector, N_Vector), c, x, m)
+function N_VConstrMask_Serial(
+        c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
+        m::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VConstrMask_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, N_Vector, N_Vector), c, x, m
+    )
 end
 
 function N_VConstrMask_Serial(c, x, m, ctx::SUNContext)
-    N_VConstrMask_Serial(c, x, m)
+    return N_VConstrMask_Serial(c, x, m)
 end
 
-function N_VMinQuotient_Serial(num::Union{N_Vector, NVector},
-        denom::Union{N_Vector, NVector})
-    ccall((:N_VMinQuotient_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector),
-        num, denom)
+function N_VMinQuotient_Serial(
+        num::Union{N_Vector, NVector},
+        denom::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VMinQuotient_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector),
+        num, denom
+    )
 end
 
 function N_VMinQuotient_Serial(num, denom, ctx::SUNContext)
-    N_VMinQuotient_Serial(num, denom)
+    return N_VMinQuotient_Serial(num, denom)
 end
 
 function N_VLinearCombination_Serial(nvec::Cint, c, V, z::Union{N_Vector, NVector})
-    ccall((:N_VLinearCombination_Serial, libsundials_nvecserial), Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, V, z)
+    return ccall(
+        (:N_VLinearCombination_Serial, libsundials_nvecserial), Cint,
+        (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, V, z
+    )
 end
 
 function N_VLinearCombination_Serial(nvec, c, V, z, ctx::SUNContext)
     __V = convert(NVector, V, ctx)
-    N_VLinearCombination_Serial(nvec, c, __V, z)
+    return N_VLinearCombination_Serial(nvec, c, __V, z)
 end
 
 function N_VScaleAddMulti_Serial(nvec::Cint, a, x::Union{N_Vector, NVector}, Y, Z)
-    ccall((:N_VScaleAddMulti_Serial, libsundials_nvecserial), Cint,
-        (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z)
+    return ccall(
+        (:N_VScaleAddMulti_Serial, libsundials_nvecserial), Cint,
+        (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z
+    )
 end
 
 function N_VScaleAddMulti_Serial(nvec, a, x, Y, Z)
@@ -6138,8 +7927,10 @@ function N_VScaleAddMulti_Serial(nvec, a, x, Y, Z)
 end
 
 function N_VDotProdMulti_Serial(nvec::Cint, x::Union{N_Vector, NVector}, Y, dotprods)
-    ccall((:N_VDotProdMulti_Serial, libsundials_nvecserial), Cint,
-        (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods)
+    return ccall(
+        (:N_VDotProdMulti_Serial, libsundials_nvecserial), Cint,
+        (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods
+    )
 end
 
 function N_VDotProdMulti_Serial(nvec, x, Y, dotprods)
@@ -6147,100 +7938,129 @@ function N_VDotProdMulti_Serial(nvec, x, Y, dotprods)
 end
 
 function N_VLinearSumVectorArray_Serial(nvec::Cint, a::realtype, X, b::realtype, Y, Z)
-    ccall((:N_VLinearSumVectorArray_Serial, libsundials_nvecserial), Cint,
+    return ccall(
+        (:N_VLinearSumVectorArray_Serial, libsundials_nvecserial), Cint,
         (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a,
-        X, b, Y, Z)
+        X, b, Y, Z
+    )
 end
 
 function N_VLinearSumVectorArray_Serial(nvec, a, X, b, Y, Z)
-    N_VLinearSumVectorArray_Serial(convert(Cint, nvec), a, X, b, Y, Z)
+    return N_VLinearSumVectorArray_Serial(convert(Cint, nvec), a, X, b, Y, Z)
 end
 
 function N_VScaleVectorArray_Serial(nvec::Cint, c, X, Z)
-    ccall((:N_VScaleVectorArray_Serial, libsundials_nvecserial), Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z)
+    return ccall(
+        (:N_VScaleVectorArray_Serial, libsundials_nvecserial), Cint,
+        (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z
+    )
 end
 
 function N_VScaleVectorArray_Serial(nvec, c, X, Z)
-    N_VScaleVectorArray_Serial(convert(Cint, nvec), c, X, Z)
+    return N_VScaleVectorArray_Serial(convert(Cint, nvec), c, X, Z)
 end
 
 function N_VConstVectorArray_Serial(nvecs::Cint, c::realtype, Z)
-    ccall((:N_VConstVectorArray_Serial, libsundials_nvecserial), Cint,
-        (Cint, realtype, Ptr{N_Vector}), nvecs, c, Z)
+    return ccall(
+        (:N_VConstVectorArray_Serial, libsundials_nvecserial), Cint,
+        (Cint, realtype, Ptr{N_Vector}), nvecs, c, Z
+    )
 end
 
 function N_VConstVectorArray_Serial(nvecs, c, Z)
-    N_VConstVectorArray_Serial(convert(Cint, nvecs), c, Z)
+    return N_VConstVectorArray_Serial(convert(Cint, nvecs), c, Z)
 end
 
 function N_VWrmsNormVectorArray_Serial(nvecs::Cint, X, W, nrm)
-    ccall((:N_VWrmsNormVectorArray_Serial, libsundials_nvecserial), Cint,
-        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvecs, X, W, nrm)
+    return ccall(
+        (:N_VWrmsNormVectorArray_Serial, libsundials_nvecserial), Cint,
+        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvecs, X, W, nrm
+    )
 end
 
 function N_VWrmsNormVectorArray_Serial(nvecs, X, W, nrm)
-    N_VWrmsNormVectorArray_Serial(convert(Cint, nvecs), X, W, nrm)
+    return N_VWrmsNormVectorArray_Serial(convert(Cint, nvecs), X, W, nrm)
 end
 
-function N_VWrmsNormMaskVectorArray_Serial(nvecs::Cint, X, W, id::Union{N_Vector, NVector},
-        nrm)
-    ccall((:N_VWrmsNormMaskVectorArray_Serial, libsundials_nvecserial), Cint,
+function N_VWrmsNormMaskVectorArray_Serial(
+        nvecs::Cint, X, W, id::Union{N_Vector, NVector},
+        nrm
+    )
+    return ccall(
+        (:N_VWrmsNormMaskVectorArray_Serial, libsundials_nvecserial), Cint,
         (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvecs, X, W, id,
-        nrm)
+        nrm
+    )
 end
 
 function N_VWrmsNormMaskVectorArray_Serial(nvecs, X, W, id, nrm)
     __id = convert(NVector, id)
-    N_VWrmsNormMaskVectorArray_Serial(convert(Cint, nvecs), X, W, __id,
-        nrm)
+    return N_VWrmsNormMaskVectorArray_Serial(
+        convert(Cint, nvecs), X, W, __id,
+        nrm
+    )
 end
 
 function N_VScaleAddMultiVectorArray_Serial(nvec::Cint, nsum::Cint, a, X, Y, Z)
-    ccall((:N_VScaleAddMultiVectorArray_Serial, libsundials_nvecserial), Cint,
-        (Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}},
-            Ptr{Ptr{N_Vector}}), nvec, nsum, a, X, Y, Z)
+    return ccall(
+        (:N_VScaleAddMultiVectorArray_Serial, libsundials_nvecserial), Cint,
+        (
+            Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}},
+            Ptr{Ptr{N_Vector}},
+        ), nvec, nsum, a, X, Y, Z
+    )
 end
 
 function N_VScaleAddMultiVectorArray_Serial(nvec, nsum, a, X, Y, Z)
-    N_VScaleAddMultiVectorArray_Serial(convert(Cint, nvec), convert(Cint, nsum), a, X, Y, Z)
+    return N_VScaleAddMultiVectorArray_Serial(convert(Cint, nvec), convert(Cint, nsum), a, X, Y, Z)
 end
 
 function N_VLinearCombinationVectorArray_Serial(nvec::Cint, nsum::Cint, c, X, Z)
-    ccall((:N_VLinearCombinationVectorArray_Serial, libsundials_nvecserial), Cint,
+    return ccall(
+        (:N_VLinearCombinationVectorArray_Serial, libsundials_nvecserial), Cint,
         (Cint, Cint, Ptr{realtype}, Ptr{Ptr{N_Vector}}, Ptr{N_Vector}), nvec, nsum, c, X,
-        Z)
+        Z
+    )
 end
 
 function N_VLinearCombinationVectorArray_Serial(nvec, nsum, c, X, Z)
-    N_VLinearCombinationVectorArray_Serial(convert(Cint, nvec), convert(Cint, nsum), c, X,
-        Z)
+    return N_VLinearCombinationVectorArray_Serial(
+        convert(Cint, nvec), convert(Cint, nsum), c, X,
+        Z
+    )
 end
 
 function N_VWSqrSumLocal_Serial(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:N_VWSqrSumLocal_Serial, libsundials_nvecserial), realtype, (N_Vector, N_Vector),
-        x, w)
+        x, w
+    )
 end
 
 function N_VWSqrSumLocal_Serial(x, w, ctx::SUNContext)
-    N_VWSqrSumLocal_Serial(x, w)
+    return N_VWSqrSumLocal_Serial(x, w)
 end
 
-function N_VWSqrSumMaskLocal_Serial(x::Union{N_Vector, NVector},
+function N_VWSqrSumMaskLocal_Serial(
+        x::Union{N_Vector, NVector},
         w::Union{N_Vector, NVector},
-        id::Union{N_Vector, NVector})
-    ccall((:N_VWSqrSumMaskLocal_Serial, libsundials_nvecserial), realtype,
-        (N_Vector, N_Vector, N_Vector), x, w, id)
+        id::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VWSqrSumMaskLocal_Serial, libsundials_nvecserial), realtype,
+        (N_Vector, N_Vector, N_Vector), x, w, id
+    )
 end
 
 function N_VWSqrSumMaskLocal_Serial(x, w, id, ctx::SUNContext)
-    N_VWSqrSumMaskLocal_Serial(x, w, id)
+    return N_VWSqrSumMaskLocal_Serial(x, w, id)
 end
 
 function N_VEnableFusedOps_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableFusedOps_Serial, libsundials_nvecserial), Cint, (N_Vector, Cint), v,
-        tf)
+    return ccall(
+        (:N_VEnableFusedOps_Serial, libsundials_nvecserial), Cint, (N_Vector, Cint), v,
+        tf
+    )
 end
 
 function N_VEnableFusedOps_Serial(v, tf)
@@ -6248,8 +8068,10 @@ function N_VEnableFusedOps_Serial(v, tf)
 end
 
 function N_VEnableLinearCombination_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableLinearCombination_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableLinearCombination_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableLinearCombination_Serial(v, tf)
@@ -6257,8 +8079,10 @@ function N_VEnableLinearCombination_Serial(v, tf)
 end
 
 function N_VEnableScaleAddMulti_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableScaleAddMulti_Serial, libsundials_nvecserial), Cint, (N_Vector, Cint),
-        v, tf)
+    return ccall(
+        (:N_VEnableScaleAddMulti_Serial, libsundials_nvecserial), Cint, (N_Vector, Cint),
+        v, tf
+    )
 end
 
 function N_VEnableScaleAddMulti_Serial(v, tf)
@@ -6266,8 +8090,10 @@ function N_VEnableScaleAddMulti_Serial(v, tf)
 end
 
 function N_VEnableDotProdMulti_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableDotProdMulti_Serial, libsundials_nvecserial), Cint, (N_Vector, Cint),
-        v, tf)
+    return ccall(
+        (:N_VEnableDotProdMulti_Serial, libsundials_nvecserial), Cint, (N_Vector, Cint),
+        v, tf
+    )
 end
 
 function N_VEnableDotProdMulti_Serial(v, tf)
@@ -6275,8 +8101,10 @@ function N_VEnableDotProdMulti_Serial(v, tf)
 end
 
 function N_VEnableLinearSumVectorArray_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableLinearSumVectorArray_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableLinearSumVectorArray_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableLinearSumVectorArray_Serial(v, tf)
@@ -6284,8 +8112,10 @@ function N_VEnableLinearSumVectorArray_Serial(v, tf)
 end
 
 function N_VEnableScaleVectorArray_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableScaleVectorArray_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableScaleVectorArray_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableScaleVectorArray_Serial(v, tf)
@@ -6293,8 +8123,10 @@ function N_VEnableScaleVectorArray_Serial(v, tf)
 end
 
 function N_VEnableConstVectorArray_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableConstVectorArray_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableConstVectorArray_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableConstVectorArray_Serial(v, tf)
@@ -6302,8 +8134,10 @@ function N_VEnableConstVectorArray_Serial(v, tf)
 end
 
 function N_VEnableWrmsNormVectorArray_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableWrmsNormVectorArray_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableWrmsNormVectorArray_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableWrmsNormVectorArray_Serial(v, tf)
@@ -6311,8 +8145,10 @@ function N_VEnableWrmsNormVectorArray_Serial(v, tf)
 end
 
 function N_VEnableWrmsNormMaskVectorArray_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableWrmsNormMaskVectorArray_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableWrmsNormMaskVectorArray_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableWrmsNormMaskVectorArray_Serial(v, tf)
@@ -6320,8 +8156,10 @@ function N_VEnableWrmsNormMaskVectorArray_Serial(v, tf)
 end
 
 function N_VEnableScaleAddMultiVectorArray_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableScaleAddMultiVectorArray_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableScaleAddMultiVectorArray_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableScaleAddMultiVectorArray_Serial(v, tf)
@@ -6329,8 +8167,10 @@ function N_VEnableScaleAddMultiVectorArray_Serial(v, tf)
 end
 
 function N_VEnableLinearCombinationVectorArray_Serial(v::Union{N_Vector, NVector}, tf::Cint)
-    ccall((:N_VEnableLinearCombinationVectorArray_Serial, libsundials_nvecserial), Cint,
-        (N_Vector, Cint), v, tf)
+    return ccall(
+        (:N_VEnableLinearCombinationVectorArray_Serial, libsundials_nvecserial), Cint,
+        (N_Vector, Cint), v, tf
+    )
 end
 
 function N_VEnableLinearCombinationVectorArray_Serial(v, tf)
@@ -6338,719 +8178,966 @@ function N_VEnableLinearCombinationVectorArray_Serial(v, tf)
 end
 
 function BandGBTRF(A::DlsMat, p)
-    ccall((:BandGBTRF, libsundials_core), sunindextype, (DlsMat, Ptr{sunindextype}), A,
-        p)
+    return ccall(
+        (:BandGBTRF, libsundials_core), sunindextype, (DlsMat, Ptr{sunindextype}), A,
+        p
+    )
 end
 
-function bandGBTRF(a, n::sunindextype, mu::sunindextype, ml::sunindextype,
-        smu::sunindextype, p)
-    ccall((:bandGBTRF, libsundials_core), sunindextype,
-        (Ptr{Ptr{realtype}}, sunindextype, sunindextype, sunindextype, sunindextype,
-            Ptr{sunindextype}), a, n, mu, ml, smu, p)
+function bandGBTRF(
+        a, n::sunindextype, mu::sunindextype, ml::sunindextype,
+        smu::sunindextype, p
+    )
+    return ccall(
+        (:bandGBTRF, libsundials_core), sunindextype,
+        (
+            Ptr{Ptr{realtype}}, sunindextype, sunindextype, sunindextype, sunindextype,
+            Ptr{sunindextype},
+        ), a, n, mu, ml, smu, p
+    )
 end
 
 function BandGBTRS(A::DlsMat, p, b)
-    ccall((:BandGBTRS, libsundials_core), Cvoid,
-        (DlsMat, Ptr{sunindextype}, Ptr{realtype}), A, p, b)
+    return ccall(
+        (:BandGBTRS, libsundials_core), Cvoid,
+        (DlsMat, Ptr{sunindextype}, Ptr{realtype}), A, p, b
+    )
 end
 
 function bandGBTRS(a, n::sunindextype, smu::sunindextype, ml::sunindextype, p, b)
-    ccall((:bandGBTRS, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, sunindextype, sunindextype, sunindextype, Ptr{sunindextype},
-            Ptr{realtype}), a, n, smu, ml, p, b)
+    return ccall(
+        (:bandGBTRS, libsundials_core), Cvoid,
+        (
+            Ptr{Ptr{realtype}}, sunindextype, sunindextype, sunindextype, Ptr{sunindextype},
+            Ptr{realtype},
+        ), a, n, smu, ml, p, b
+    )
 end
 
 function BandCopy(A::DlsMat, B::DlsMat, copymu::sunindextype, copyml::sunindextype)
-    ccall((:BandCopy, libsundials_core), Cvoid,
-        (DlsMat, DlsMat, sunindextype, sunindextype), A, B, copymu, copyml)
+    return ccall(
+        (:BandCopy, libsundials_core), Cvoid,
+        (DlsMat, DlsMat, sunindextype, sunindextype), A, B, copymu, copyml
+    )
 end
 
-function bandCopy(a, b, n::sunindextype, a_smu::sunindextype, b_smu::sunindextype,
-        copymu::sunindextype, copyml::sunindextype)
-    ccall((:bandCopy, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, Ptr{Ptr{realtype}},
+function bandCopy(
+        a, b, n::sunindextype, a_smu::sunindextype, b_smu::sunindextype,
+        copymu::sunindextype, copyml::sunindextype
+    )
+    return ccall(
+        (:bandCopy, libsundials_core), Cvoid,
+        (
+            Ptr{Ptr{realtype}}, Ptr{Ptr{realtype}},
             sunindextype, sunindextype, sunindextype,
-            sunindextype, sunindextype), a, b, n, a_smu, b_smu, copymu, copyml)
+            sunindextype, sunindextype,
+        ), a, b, n, a_smu, b_smu, copymu, copyml
+    )
 end
 
 function BandScale(c::realtype, A::DlsMat)
-    ccall((:BandScale, libsundials_core), Cvoid, (realtype, DlsMat), c, A)
+    return ccall((:BandScale, libsundials_core), Cvoid, (realtype, DlsMat), c, A)
 end
 
-function bandScale(c::realtype, a, n::sunindextype, mu::sunindextype, ml::sunindextype,
-        smu::sunindextype)
-    ccall((:bandScale, libsundials_core), Cvoid,
-        (realtype, Ptr{Ptr{realtype}}, sunindextype, sunindextype, sunindextype,
-            sunindextype), c, a, n, mu, ml, smu)
+function bandScale(
+        c::realtype, a, n::sunindextype, mu::sunindextype, ml::sunindextype,
+        smu::sunindextype
+    )
+    return ccall(
+        (:bandScale, libsundials_core), Cvoid,
+        (
+            realtype, Ptr{Ptr{realtype}}, sunindextype, sunindextype, sunindextype,
+            sunindextype,
+        ), c, a, n, mu, ml, smu
+    )
 end
 
 function bandAddIdentity(a, n::sunindextype, smu::sunindextype)
-    ccall((:bandAddIdentity, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, sunindextype, sunindextype), a, n, smu)
+    return ccall(
+        (:bandAddIdentity, libsundials_core), Cvoid,
+        (Ptr{Ptr{realtype}}, sunindextype, sunindextype), a, n, smu
+    )
 end
 
 function BandMatvec(A::DlsMat, x, y)
-    ccall((:BandMatvec, libsundials_core), Cvoid,
-        (DlsMat, Ptr{realtype}, Ptr{realtype}), A, x, y)
+    return ccall(
+        (:BandMatvec, libsundials_core), Cvoid,
+        (DlsMat, Ptr{realtype}, Ptr{realtype}), A, x, y
+    )
 end
 
-function bandMatvec(a, x, y, n::sunindextype, mu::sunindextype, ml::sunindextype,
-        smu::sunindextype)
-    ccall((:bandMatvec, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, Ptr{realtype}, Ptr{realtype}, sunindextype, sunindextype,
-            sunindextype, sunindextype), a, x, y, n, mu, ml, smu)
+function bandMatvec(
+        a, x, y, n::sunindextype, mu::sunindextype, ml::sunindextype,
+        smu::sunindextype
+    )
+    return ccall(
+        (:bandMatvec, libsundials_core), Cvoid,
+        (
+            Ptr{Ptr{realtype}}, Ptr{realtype}, Ptr{realtype}, sunindextype, sunindextype,
+            sunindextype, sunindextype,
+        ), a, x, y, n, mu, ml, smu
+    )
 end
 
 function DenseGETRF(A::DlsMat, p)
-    ccall(
+    return ccall(
         (:DenseGETRF, libsundials_core), sunindextype, (DlsMat, Ptr{sunindextype}), A,
-        p)
+        p
+    )
 end
 
 function DenseGETRS(A::DlsMat, p, b)
-    ccall((:DenseGETRS, libsundials_core), Cvoid,
-        (DlsMat, Ptr{sunindextype}, Ptr{realtype}), A, p, b)
+    return ccall(
+        (:DenseGETRS, libsundials_core), Cvoid,
+        (DlsMat, Ptr{sunindextype}, Ptr{realtype}), A, p, b
+    )
 end
 
 function denseGETRF(a, m::sunindextype, n::sunindextype, p)
-    ccall((:denseGETRF, libsundials_core), sunindextype,
-        (Ptr{Ptr{realtype}}, sunindextype, sunindextype, Ptr{sunindextype}), a, m, n, p)
+    return ccall(
+        (:denseGETRF, libsundials_core), sunindextype,
+        (Ptr{Ptr{realtype}}, sunindextype, sunindextype, Ptr{sunindextype}), a, m, n, p
+    )
 end
 
 function denseGETRS(a, n::sunindextype, p, b)
-    ccall((:denseGETRS, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, sunindextype, Ptr{sunindextype}, Ptr{realtype}), a, n, p, b)
+    return ccall(
+        (:denseGETRS, libsundials_core), Cvoid,
+        (Ptr{Ptr{realtype}}, sunindextype, Ptr{sunindextype}, Ptr{realtype}), a, n, p, b
+    )
 end
 
 function DensePOTRF(A::DlsMat)
-    ccall((:DensePOTRF, libsundials_core), sunindextype, (DlsMat,), A)
+    return ccall((:DensePOTRF, libsundials_core), sunindextype, (DlsMat,), A)
 end
 
 function DensePOTRS(A::DlsMat, b)
-    ccall((:DensePOTRS, libsundials_core), Cvoid, (DlsMat, Ptr{realtype}), A, b)
+    return ccall((:DensePOTRS, libsundials_core), Cvoid, (DlsMat, Ptr{realtype}), A, b)
 end
 
 function densePOTRF(a, m::sunindextype)
-    ccall((:densePOTRF, libsundials_core), sunindextype,
-        (Ptr{Ptr{realtype}}, sunindextype), a, m)
+    return ccall(
+        (:densePOTRF, libsundials_core), sunindextype,
+        (Ptr{Ptr{realtype}}, sunindextype), a, m
+    )
 end
 
 function densePOTRS(a, m::sunindextype, b)
-    ccall((:densePOTRS, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, sunindextype, Ptr{realtype}), a, m, b)
+    return ccall(
+        (:densePOTRS, libsundials_core), Cvoid,
+        (Ptr{Ptr{realtype}}, sunindextype, Ptr{realtype}), a, m, b
+    )
 end
 
 function DenseGEQRF(A::DlsMat, beta, wrk)
-    ccall(
+    return ccall(
         (:DenseGEQRF, libsundials_core), Cint, (DlsMat, Ptr{realtype}, Ptr{realtype}),
-        A, beta, wrk)
+        A, beta, wrk
+    )
 end
 
 function DenseORMQR(A::DlsMat, beta, vn, vm, wrk)
-    ccall((:DenseORMQR, libsundials_core), Cint,
+    return ccall(
+        (:DenseORMQR, libsundials_core), Cint,
         (DlsMat, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}, Ptr{realtype}), A, beta, vn,
-        vm, wrk)
+        vm, wrk
+    )
 end
 
 function denseGEQRF(a, m::sunindextype, n::sunindextype, beta, wrk)
-    ccall((:denseGEQRF, libsundials_core), Cint,
+    return ccall(
+        (:denseGEQRF, libsundials_core), Cint,
         (Ptr{Ptr{realtype}}, sunindextype, sunindextype, Ptr{realtype}, Ptr{realtype}), a,
-        m, n, beta, wrk)
+        m, n, beta, wrk
+    )
 end
 
 function denseORMQR(a, m::sunindextype, n::sunindextype, beta, v, w, wrk)
-    ccall((:denseORMQR, libsundials_core), Cint,
-        (Ptr{Ptr{realtype}}, sunindextype, sunindextype, Ptr{realtype}, Ptr{realtype},
-            Ptr{realtype}, Ptr{realtype}), a, m, n, beta, v, w, wrk)
+    return ccall(
+        (:denseORMQR, libsundials_core), Cint,
+        (
+            Ptr{Ptr{realtype}}, sunindextype, sunindextype, Ptr{realtype}, Ptr{realtype},
+            Ptr{realtype}, Ptr{realtype},
+        ), a, m, n, beta, v, w, wrk
+    )
 end
 
 function DenseCopy(A::DlsMat, B::DlsMat)
-    ccall((:DenseCopy, libsundials_core), Cvoid, (DlsMat, DlsMat), A, B)
+    return ccall((:DenseCopy, libsundials_core), Cvoid, (DlsMat, DlsMat), A, B)
 end
 
 function denseCopy(a, b, m::sunindextype, n::sunindextype)
-    ccall((:denseCopy, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, Ptr{Ptr{realtype}}, sunindextype, sunindextype), a, b, m, n)
+    return ccall(
+        (:denseCopy, libsundials_core), Cvoid,
+        (Ptr{Ptr{realtype}}, Ptr{Ptr{realtype}}, sunindextype, sunindextype), a, b, m, n
+    )
 end
 
 function DenseScale(c::realtype, A::DlsMat)
-    ccall((:DenseScale, libsundials_core), Cvoid, (realtype, DlsMat), c, A)
+    return ccall((:DenseScale, libsundials_core), Cvoid, (realtype, DlsMat), c, A)
 end
 
 function denseScale(c::realtype, a, m::sunindextype, n::sunindextype)
-    ccall((:denseScale, libsundials_core), Cvoid,
-        (realtype, Ptr{Ptr{realtype}}, sunindextype, sunindextype), c, a, m, n)
+    return ccall(
+        (:denseScale, libsundials_core), Cvoid,
+        (realtype, Ptr{Ptr{realtype}}, sunindextype, sunindextype), c, a, m, n
+    )
 end
 
 function denseAddIdentity(a, n::sunindextype)
-    ccall((:denseAddIdentity, libsundials_core), Cvoid,
-        (Ptr{Ptr{realtype}}, sunindextype), a, n)
+    return ccall(
+        (:denseAddIdentity, libsundials_core), Cvoid,
+        (Ptr{Ptr{realtype}}, sunindextype), a, n
+    )
 end
 
 function DenseMatvec(A::DlsMat, x, y)
-    ccall((:DenseMatvec, libsundials_core), Cvoid,
-        (DlsMat, Ptr{realtype}, Ptr{realtype}), A, x, y)
+    return ccall(
+        (:DenseMatvec, libsundials_core), Cvoid,
+        (DlsMat, Ptr{realtype}, Ptr{realtype}), A, x, y
+    )
 end
 
 function denseMatvec(a, x, y, m::sunindextype, n::sunindextype)
-    ccall((:denseMatvec, libsundials_core), Cvoid,
+    return ccall(
+        (:denseMatvec, libsundials_core), Cvoid,
         (Ptr{Ptr{realtype}}, Ptr{realtype}, Ptr{realtype}, sunindextype, sunindextype), a,
-        x, y, m, n)
+        x, y, m, n
+    )
 end
 
 function NewDenseMat(M::sunindextype, N::sunindextype)
-    ccall((:NewDenseMat, libsundials_core), DlsMat, (sunindextype, sunindextype), M, N)
+    return ccall((:NewDenseMat, libsundials_core), DlsMat, (sunindextype, sunindextype), M, N)
 end
 
 function NewBandMat(N::sunindextype, mu::sunindextype, ml::sunindextype, smu::sunindextype)
-    ccall((:NewBandMat, libsundials_core), DlsMat,
-        (sunindextype, sunindextype, sunindextype, sunindextype), N, mu, ml, smu)
+    return ccall(
+        (:NewBandMat, libsundials_core), DlsMat,
+        (sunindextype, sunindextype, sunindextype, sunindextype), N, mu, ml, smu
+    )
 end
 
 function DestroyMat(A::DlsMat)
-    ccall((:DestroyMat, libsundials_core), Cvoid, (DlsMat,), A)
+    return ccall((:DestroyMat, libsundials_core), Cvoid, (DlsMat,), A)
 end
 
 function NewIntArray(N::Cint)
-    ccall((:NewIntArray, libsundials_core), Ptr{Cint}, (Cint,), N)
+    return ccall((:NewIntArray, libsundials_core), Ptr{Cint}, (Cint,), N)
 end
 
 function NewIndexArray(N::sunindextype)
-    ccall((:NewIndexArray, libsundials_core), Ptr{sunindextype}, (sunindextype,), N)
+    return ccall((:NewIndexArray, libsundials_core), Ptr{sunindextype}, (sunindextype,), N)
 end
 
 function NewRealArray(N::sunindextype)
-    ccall((:NewRealArray, libsundials_core), Ptr{realtype}, (sunindextype,), N)
+    return ccall((:NewRealArray, libsundials_core), Ptr{realtype}, (sunindextype,), N)
 end
 
 function DestroyArray(p)
-    ccall((:DestroyArray, libsundials_core), Cvoid, (Ptr{Cvoid},), p)
+    return ccall((:DestroyArray, libsundials_core), Cvoid, (Ptr{Cvoid},), p)
 end
 
 function AddIdentity(A::DlsMat)
-    ccall((:AddIdentity, libsundials_core), Cvoid, (DlsMat,), A)
+    return ccall((:AddIdentity, libsundials_core), Cvoid, (DlsMat,), A)
 end
 
 function SetToZero(A::DlsMat)
-    ccall((:SetToZero, libsundials_core), Cvoid, (DlsMat,), A)
+    return ccall((:SetToZero, libsundials_core), Cvoid, (DlsMat,), A)
 end
 
 function PrintMat(A::DlsMat, outfile)
-    ccall((:PrintMat, libsundials_core), Cvoid, (DlsMat, Ptr{Libc.FILE}), A, outfile)
+    return ccall((:PrintMat, libsundials_core), Cvoid, (DlsMat, Ptr{Libc.FILE}), A, outfile)
 end
 
 function newDenseMat(m::sunindextype, n::sunindextype)
-    ccall((:newDenseMat, libsundials_core), Ptr{Ptr{realtype}},
-        (sunindextype, sunindextype), m, n)
+    return ccall(
+        (:newDenseMat, libsundials_core), Ptr{Ptr{realtype}},
+        (sunindextype, sunindextype), m, n
+    )
 end
 
 function newBandMat(n::sunindextype, smu::sunindextype, ml::sunindextype)
-    ccall((:newBandMat, libsundials_core), Ptr{Ptr{realtype}},
-        (sunindextype, sunindextype, sunindextype), n, smu, ml)
+    return ccall(
+        (:newBandMat, libsundials_core), Ptr{Ptr{realtype}},
+        (sunindextype, sunindextype, sunindextype), n, smu, ml
+    )
 end
 
 function destroyMat(a)
-    ccall((:destroyMat, libsundials_core), Cvoid, (Ptr{Ptr{realtype}},), a)
+    return ccall((:destroyMat, libsundials_core), Cvoid, (Ptr{Ptr{realtype}},), a)
 end
 
 function newIntArray(n::Cint)
-    ccall((:newIntArray, libsundials_core), Ptr{Cint}, (Cint,), n)
+    return ccall((:newIntArray, libsundials_core), Ptr{Cint}, (Cint,), n)
 end
 
 function newIndexArray(n::sunindextype)
-    ccall((:newIndexArray, libsundials_core), Ptr{sunindextype}, (sunindextype,), n)
+    return ccall((:newIndexArray, libsundials_core), Ptr{sunindextype}, (sunindextype,), n)
 end
 
 function newRealArray(m::sunindextype)
-    ccall((:newRealArray, libsundials_core), Ptr{realtype}, (sunindextype,), m)
+    return ccall((:newRealArray, libsundials_core), Ptr{realtype}, (sunindextype,), m)
 end
 
 function destroyArray(v)
-    ccall((:destroyArray, libsundials_core), Cvoid, (Ptr{Cvoid},), v)
+    return ccall((:destroyArray, libsundials_core), Cvoid, (Ptr{Cvoid},), v)
 end
 
 function SUNDIALSFileOpen(filename, modes)
-    ccall((:SUNDIALSFileOpen, libsundials_core), Ptr{Libc.FILE}, (Cstring, Cstring),
-        filename, modes)
+    return ccall(
+        (:SUNDIALSFileOpen, libsundials_core), Ptr{Libc.FILE}, (Cstring, Cstring),
+        filename, modes
+    )
 end
 
 function SUNDIALSFileClose(fp)
-    ccall((:SUNDIALSFileClose, libsundials_core), Cvoid, (Ptr{Libc.FILE},), fp)
+    return ccall((:SUNDIALSFileClose, libsundials_core), Cvoid, (Ptr{Libc.FILE},), fp)
 end
 
 function ModifiedGS(v, h, k::Cint, p::Cint, new_vk_norm)
-    ccall((:ModifiedGS, libsundials_core), Cint,
+    return ccall(
+        (:ModifiedGS, libsundials_core), Cint,
         (Ptr{N_Vector}, Ptr{Ptr{realtype}}, Cint, Cint, Ptr{realtype}), v, h, k, p,
-        new_vk_norm)
+        new_vk_norm
+    )
 end
 
 function ClassicalGS(v, h, k::Cint, p::Cint, new_vk_norm, stemp, vtemp)
-    ccall((:ClassicalGS, libsundials_core), Cint,
-        (Ptr{N_Vector}, Ptr{Ptr{realtype}}, Cint, Cint, Ptr{realtype}, Ptr{realtype},
-            Ptr{N_Vector}), v, h, k, p, new_vk_norm, stemp, vtemp)
+    return ccall(
+        (:ClassicalGS, libsundials_core), Cint,
+        (
+            Ptr{N_Vector}, Ptr{Ptr{realtype}}, Cint, Cint, Ptr{realtype}, Ptr{realtype},
+            Ptr{N_Vector},
+        ), v, h, k, p, new_vk_norm, stemp, vtemp
+    )
 end
 
 function QRfact(n::Cint, h, q, job::Cint)
-    ccall((:QRfact, libsundials_core), Cint,
-        (Cint, Ptr{Ptr{realtype}}, Ptr{realtype}, Cint), n, h, q, job)
+    return ccall(
+        (:QRfact, libsundials_core), Cint,
+        (Cint, Ptr{Ptr{realtype}}, Ptr{realtype}, Cint), n, h, q, job
+    )
 end
 
 function QRsol(n::Cint, h, q, b)
-    ccall((:QRsol, libsundials_core), Cint,
-        (Cint, Ptr{Ptr{realtype}}, Ptr{realtype}, Ptr{realtype}), n, h, q, b)
+    return ccall(
+        (:QRsol, libsundials_core), Cint,
+        (Cint, Ptr{Ptr{realtype}}, Ptr{realtype}, Ptr{realtype}), n, h, q, b
+    )
 end
 
 function dcopy_64_(n, x, inc_x, y, inc_y)
-    ccall((:dcopy_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{Cdouble},
-            Ptr{sunindextype}), n, x, inc_x, y, inc_y)
+    return ccall(
+        (:dcopy_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{Cdouble},
+            Ptr{sunindextype},
+        ), n, x, inc_x, y, inc_y
+    )
 end
 
 function dscal_64_(n, alpha, x, inc_x)
-    ccall((:dscal_64_, libsundials_core), Cvoid,
+    return ccall(
+        (:dscal_64_, libsundials_core), Cvoid,
         (Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{sunindextype}), n, alpha, x,
-        inc_x)
+        inc_x
+    )
 end
 
 function scopy_64_(n, x, inc_x, y, inc_y)
-    ccall((:scopy_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{Cfloat},
-            Ptr{sunindextype}), n, x, inc_x, y, inc_y)
+    return ccall(
+        (:scopy_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{Cfloat},
+            Ptr{sunindextype},
+        ), n, x, inc_x, y, inc_y
+    )
 end
 
 function sscal_64_(n, alpha, x, inc_x)
-    ccall((:sscal_64_, libsundials_core), Cvoid,
+    return ccall(
+        (:sscal_64_, libsundials_core), Cvoid,
         (Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{sunindextype}), n, alpha, x,
-        inc_x)
+        inc_x
+    )
 end
 
 function dgemv_64_(trans, m, n, alpha, a, lda, x, inc_x, beta, y, inc_y)
-    ccall((:dgemv_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble},
+    return ccall(
+        (:dgemv_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble},
             Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble},
-            Ptr{sunindextype}), trans, m, n, alpha, a, lda, x, inc_x, beta, y, inc_y)
+            Ptr{sunindextype},
+        ), trans, m, n, alpha, a, lda, x, inc_x, beta, y, inc_y
+    )
 end
 
 function dtrsv_64_(uplo, trans, diag, n, a, lda, x, inc_x)
-    ccall((:dtrsv_64_, libsundials_core), Cvoid,
-        (Cstring, Cstring, Cstring, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
-            Ptr{Cdouble}, Ptr{sunindextype}), uplo, trans, diag, n, a, lda, x, inc_x)
+    return ccall(
+        (:dtrsv_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Cstring, Cstring, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
+            Ptr{Cdouble}, Ptr{sunindextype},
+        ), uplo, trans, diag, n, a, lda, x, inc_x
+    )
 end
 
 function sgemv_64_(trans, m, n, alpha, a, lda, x, inc_x, beta, y, inc_y)
-    ccall((:sgemv_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat},
+    return ccall(
+        (:sgemv_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat},
             Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat},
-            Ptr{sunindextype}), trans, m, n, alpha, a, lda, x, inc_x, beta, y, inc_y)
+            Ptr{sunindextype},
+        ), trans, m, n, alpha, a, lda, x, inc_x, beta, y, inc_y
+    )
 end
 
 function strsv_64_(uplo, trans, diag, n, a, lda, x, inc_x)
-    ccall((:strsv_64_, libsundials_core), Cvoid,
-        (Cstring, Cstring, Cstring, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
-            Ptr{Cfloat}, Ptr{sunindextype}), uplo, trans, diag, n, a, lda, x, inc_x)
+    return ccall(
+        (:strsv_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Cstring, Cstring, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
+            Ptr{Cfloat}, Ptr{sunindextype},
+        ), uplo, trans, diag, n, a, lda, x, inc_x
+    )
 end
 
 function dsyrk_64_(uplo, trans, n, k, alpha, a, lda, beta, c, ldc)
-    ccall((:dsyrk_64_, libsundials_core), Cvoid,
-        (Cstring, Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble},
-            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{sunindextype}),
-        uplo, trans, n, k, alpha, a, lda, beta, c, ldc)
+    return ccall(
+        (:dsyrk_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble},
+            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{sunindextype},
+        ),
+        uplo, trans, n, k, alpha, a, lda, beta, c, ldc
+    )
 end
 
 function ssyrk_64_(uplo, trans, n, k, alpha, a, lda, beta, c, ldc)
-    ccall((:ssyrk_64_, libsundials_core), Cvoid,
-        (Cstring, Cstring, Ptr{sunindextype},
+    return ccall(
+        (:ssyrk_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Cstring, Ptr{sunindextype},
             Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat},
-            Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{sunindextype}), uplo, trans, n,
-        k, alpha, a, lda, beta, c, ldc)
+            Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{sunindextype},
+        ), uplo, trans, n,
+        k, alpha, a, lda, beta, c, ldc
+    )
 end
 
 function dgbtrf_64_(m, n, kl, ku, ab, ldab, ipiv, info)
-    ccall((:dgbtrf_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
-            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype}), m, n, kl,
-        ku, ab, ldab, ipiv, info)
+    return ccall(
+        (:dgbtrf_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), m, n, kl,
+        ku, ab, ldab, ipiv, info
+    )
 end
 
 function dgbtrs_64_(trans, n, kl, ku, nrhs, ab, ldab, ipiv, b, ldb, info)
-    ccall((:dgbtrs_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+    return ccall(
+        (:dgbtrs_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
             Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype},
-            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}), trans, n, kl, ku, nrhs, ab,
-        ldab, ipiv, b, ldb, info)
+            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), trans, n, kl, ku, nrhs, ab,
+        ldab, ipiv, b, ldb, info
+    )
 end
 
 function dgeqp3_64_(m, n, a, lda, jpvt, tau, work, lwork, info)
-    ccall((:dgeqp3_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
+    return ccall(
+        (:dgeqp3_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
             Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{sunindextype},
-            Ptr{sunindextype}), m, n, a, lda, jpvt, tau, work, lwork, info)
+            Ptr{sunindextype},
+        ), m, n, a, lda, jpvt, tau, work, lwork, info
+    )
 end
 
 function dgeqrf_64_(m, n, a, lda, tau, work, lwork, info)
-    ccall((:dgeqrf_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
-            Ptr{Cdouble}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}), m, n, a, lda,
-        tau, work, lwork, info)
+    return ccall(
+        (:dgeqrf_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
+            Ptr{Cdouble}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), m, n, a, lda,
+        tau, work, lwork, info
+    )
 end
 
 function dgetrf_64_(m, n, a, lda, ipiv, info)
-    ccall((:dgetrf_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
-            Ptr{sunindextype}, Ptr{sunindextype}), m, n, a, lda, ipiv, info)
+    return ccall(
+        (:dgetrf_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
+            Ptr{sunindextype}, Ptr{sunindextype},
+        ), m, n, a, lda, ipiv, info
+    )
 end
 
 function dgetrs_64_(trans, n, nrhs, a, lda, ipiv, b, ldb, info)
-    ccall((:dgetrs_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
-            Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}), trans, n,
-        nrhs, a, lda, ipiv, b, ldb, info)
+    return ccall(
+        (:dgetrs_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
+            Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), trans, n,
+        nrhs, a, lda, ipiv, b, ldb, info
+    )
 end
 
 function dormqr_64_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
-    ccall((:dormqr_64_, libsundials_core), Cvoid,
-        (Cstring, Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+    return ccall(
+        (:dormqr_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
             Ptr{Cdouble}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{sunindextype},
-            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}), side, trans, m, n, k, a,
-        lda, tau, c, ldc, work, lwork, info)
+            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), side, trans, m, n, k, a,
+        lda, tau, c, ldc, work, lwork, info
+    )
 end
 
 function dpotrf_64_(uplo, n, a, lda, info)
-    ccall((:dpotrf_64_, libsundials_core), Cvoid,
+    return ccall(
+        (:dpotrf_64_, libsundials_core), Cvoid,
         (Cstring, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}),
-        uplo, n, a, lda, info)
+        uplo, n, a, lda, info
+    )
 end
 
 function dpotrs_64_(uplo, n, nrhs, a, lda, b, ldb, info)
-    ccall((:dpotrs_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
-            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype}), uplo, n, nrhs, a, lda, b,
-        ldb, info)
+    return ccall(
+        (:dpotrs_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cdouble}, Ptr{sunindextype},
+            Ptr{Cdouble}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), uplo, n, nrhs, a, lda, b,
+        ldb, info
+    )
 end
 
 function sgbtrf_64_(m, n, kl, ku, ab, ldab, ipiv, info)
-    ccall((:sgbtrf_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
-            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype}), m, n, kl,
-        ku, ab, ldab, ipiv, info)
+    return ccall(
+        (:sgbtrf_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), m, n, kl,
+        ku, ab, ldab, ipiv, info
+    )
 end
 
 function sgbtrs_64_(trans, n, kl, ku, nrhs, ab, ldab, ipiv, b, ldb, info)
-    ccall((:sgbtrs_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+    return ccall(
+        (:sgbtrs_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
             Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype},
-            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}), trans, n, kl, ku, nrhs, ab,
-        ldab, ipiv, b, ldb, info)
+            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), trans, n, kl, ku, nrhs, ab,
+        ldab, ipiv, b, ldb, info
+    )
 end
 
 function sgeqp3_64_(m, n, a, lda, jpvt, tau, work, lwork, info)
-    ccall((:sgeqp3_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
+    return ccall(
+        (:sgeqp3_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
             Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{sunindextype},
-            Ptr{sunindextype}), m, n, a, lda, jpvt, tau, work, lwork, info)
+            Ptr{sunindextype},
+        ), m, n, a, lda, jpvt, tau, work, lwork, info
+    )
 end
 
 function sgeqrf_64_(m, n, a, lda, tau, work, lwork, info)
-    ccall((:sgeqrf_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
-            Ptr{Cfloat}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}), m, n, a, lda,
-        tau, work, lwork, info)
+    return ccall(
+        (:sgeqrf_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
+            Ptr{Cfloat}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), m, n, a, lda,
+        tau, work, lwork, info
+    )
 end
 
 function sgetrf_64_(m, n, a, lda, ipiv, info)
-    ccall((:sgetrf_64_, libsundials_core), Cvoid,
-        (Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
-            Ptr{sunindextype}, Ptr{sunindextype}), m, n, a, lda, ipiv, info)
+    return ccall(
+        (:sgetrf_64_, libsundials_core), Cvoid,
+        (
+            Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
+            Ptr{sunindextype}, Ptr{sunindextype},
+        ), m, n, a, lda, ipiv, info
+    )
 end
 
 function sgetrs_64_(trans, n, nrhs, a, lda, ipiv, b, ldb, info)
-    ccall((:sgetrs_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
-            Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}), trans, n,
-        nrhs, a, lda, ipiv, b, ldb, info)
+    return ccall(
+        (:sgetrs_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
+            Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), trans, n,
+        nrhs, a, lda, ipiv, b, ldb, info
+    )
 end
 
 function sormqr_64_(side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info)
-    ccall((:sormqr_64_, libsundials_core), Cvoid,
-        (Cstring, Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
+    return ccall(
+        (:sormqr_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{sunindextype},
             Ptr{Cfloat}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{Cfloat}, Ptr{sunindextype},
-            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}), side, trans, m, n, k, a, lda,
-        tau, c, ldc, work, lwork, info)
+            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), side, trans, m, n, k, a, lda,
+        tau, c, ldc, work, lwork, info
+    )
 end
 
 function spotrf_64_(uplo, n, a, lda, info)
-    ccall((:spotrf_64_, libsundials_core), Cvoid,
+    return ccall(
+        (:spotrf_64_, libsundials_core), Cvoid,
         (Cstring, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}),
-        uplo, n, a, lda, info)
+        uplo, n, a, lda, info
+    )
 end
 
 function spotrs_64_(uplo, n, nrhs, a, lda, b, ldb, info)
-    ccall((:spotrs_64_, libsundials_core), Cvoid,
-        (Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
-            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype}), uplo, n, nrhs, a, lda, b,
-        ldb, info)
+    return ccall(
+        (:spotrs_64_, libsundials_core), Cvoid,
+        (
+            Cstring, Ptr{sunindextype}, Ptr{sunindextype}, Ptr{Cfloat}, Ptr{sunindextype},
+            Ptr{Cfloat}, Ptr{sunindextype}, Ptr{sunindextype},
+        ), uplo, n, nrhs, a, lda, b,
+        ldb, info
+    )
 end
 
 # no prototype is found for this function at sundials_linearsolver.h:137:33, please use with caution
 function SUNLinSolNewEmpty()
-    ccall((:SUNLinSolNewEmpty, libsundials_core), SUNLinearSolver, ())
+    return ccall((:SUNLinSolNewEmpty, libsundials_core), SUNLinearSolver, ())
 end
 
 function SUNLinSolFreeEmpty(S::SUNLinearSolver)
-    ccall((:SUNLinSolFreeEmpty, libsundials_core), Cvoid, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFreeEmpty, libsundials_core), Cvoid, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolGetType(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType, libsundials_core), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType, libsundials_core), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID, libsundials_core), SUNLinearSolver_ID, (SUNLinearSolver,),
-        S)
+    return ccall(
+        (:SUNLinSolGetID, libsundials_core), SUNLinearSolver_ID, (SUNLinearSolver,),
+        S
+    )
 end
 
 function SUNLinSolSetATimes(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes, libsundials_core), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
+    return ccall(
+        (:SUNLinSolSetATimes, libsundials_core), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes
+    )
 end
 
-function SUNLinSolSetPreconditioner(S::SUNLinearSolver, P_data, Pset::PSetupFn,
-        Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner, libsundials_core), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+function SUNLinSolSetPreconditioner(
+        S::SUNLinearSolver, P_data, Pset::PSetupFn,
+        Psol::PSolveFn
+    )
+    return ccall(
+        (:SUNLinSolSetPreconditioner, libsundials_core), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol
+    )
 end
 
-function SUNLinSolSetScalingVectors(S::SUNLinearSolver, s1::Union{N_Vector, NVector},
-        s2::Union{N_Vector, NVector})
-    ccall((:SUNLinSolSetScalingVectors, libsundials_core), Cint,
-        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+function SUNLinSolSetScalingVectors(
+        S::SUNLinearSolver, s1::Union{N_Vector, NVector},
+        s2::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNLinSolSetScalingVectors, libsundials_core), Cint,
+        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2
+    )
 end
 
 function SUNLinSolSetScalingVectors(S, s1, s2, ctx::SUNContext)
-    SUNLinSolSetScalingVectors(S, s1, s2)
+    return SUNLinSolSetScalingVectors(S, s1, s2)
 end
 
 function SUNLinSolInitialize(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize, libsundials_core), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolInitialize, libsundials_core), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSetup(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup, libsundials_core), Cint, (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall((:SUNLinSolSetup, libsundials_core), Cint, (SUNLinearSolver, SUNMatrix), S, A)
 end
 
-function SUNLinSolSolve(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+function SUNLinSolSolve(
+        S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
         b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve, libsundials_core), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve, libsundials_core), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve(S, A, x, b, tol)
+    return SUNLinSolSolve(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters, libsundials_core), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolNumIters, libsundials_core), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolResNorm(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm, libsundials_core), realtype, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolResNorm, libsundials_core), realtype, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolResid(S::SUNLinearSolver)
-    ccall((:SUNLinSolResid, libsundials_core), N_Vector, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolResid, libsundials_core), N_Vector, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolLastFlag(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag, libsundials_core), sunindextype, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolLastFlag, libsundials_core), sunindextype, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSpace(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace, libsundials_core), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace, libsundials_core), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree, libsundials_core), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree, libsundials_core), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNRpowerI(base::realtype, exponent::Cint)
-    ccall((:SUNRpowerI, libsundials_core), realtype, (realtype, Cint), base, exponent)
+    return ccall((:SUNRpowerI, libsundials_core), realtype, (realtype, Cint), base, exponent)
 end
 
 function SUNRpowerI(base, exponent)
-    SUNRpowerI(base, convert(Cint, exponent))
+    return SUNRpowerI(base, convert(Cint, exponent))
 end
 
 function SUNRpowerR(base::realtype, exponent::realtype)
-    ccall((:SUNRpowerR, libsundials_core), realtype, (realtype, realtype), base,
-        exponent)
+    return ccall(
+        (:SUNRpowerR, libsundials_core), realtype, (realtype, realtype), base,
+        exponent
+    )
 end
 
 # no prototype is found for this function at sundials_matrix.h:106:27, please use with caution
 function SUNMatNewEmpty()
-    ccall((:SUNMatNewEmpty, libsundials_core), SUNMatrix, ())
+    return ccall((:SUNMatNewEmpty, libsundials_core), SUNMatrix, ())
 end
 
 function SUNMatFreeEmpty(A::SUNMatrix)
-    ccall((:SUNMatFreeEmpty, libsundials_core), Cvoid, (SUNMatrix,), A)
+    return ccall((:SUNMatFreeEmpty, libsundials_core), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatCopyOps(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopyOps, libsundials_core), Cint, (SUNMatrix, SUNMatrix), A, B)
+    return ccall((:SUNMatCopyOps, libsundials_core), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatGetID(A::SUNMatrix)
-    ccall((:SUNMatGetID, libsundials_core), SUNMatrix_ID, (SUNMatrix,), A)
+    return ccall((:SUNMatGetID, libsundials_core), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone(A::SUNMatrix)
-    ccall((:SUNMatClone, libsundials_core), SUNMatrix, (SUNMatrix,), A)
+    return ccall((:SUNMatClone, libsundials_core), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy(A::SUNMatrix)
-    ccall((:SUNMatDestroy, libsundials_core), Cvoid, (SUNMatrix,), A)
+    return ccall((:SUNMatDestroy, libsundials_core), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero(A::SUNMatrix)
-    ccall((:SUNMatZero, libsundials_core), Cint, (SUNMatrix,), A)
+    return ccall((:SUNMatZero, libsundials_core), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy, libsundials_core), Cint, (SUNMatrix, SUNMatrix), A, B)
+    return ccall((:SUNMatCopy, libsundials_core), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatScaleAdd(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd, libsundials_core), Cint, (realtype, SUNMatrix, SUNMatrix),
-        c, A, B)
+    return ccall(
+        (:SUNMatScaleAdd, libsundials_core), Cint, (realtype, SUNMatrix, SUNMatrix),
+        c, A, B
+    )
 end
 
 function SUNMatScaleAddI(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI, libsundials_core), Cint, (realtype, SUNMatrix), c, A)
+    return ccall((:SUNMatScaleAddI, libsundials_core), Cint, (realtype, SUNMatrix), c, A)
 end
 
 function SUNMatMatvecSetup(A::SUNMatrix)
-    ccall((:SUNMatMatvecSetup, libsundials_core), Cint, (SUNMatrix,), A)
+    return ccall((:SUNMatMatvecSetup, libsundials_core), Cint, (SUNMatrix,), A)
 end
 
-function SUNMatMatvec(A::SUNMatrix, x::Union{N_Vector, NVector},
-        y::Union{N_Vector, NVector})
-    ccall((:SUNMatMatvec, libsundials_core), Cint, (SUNMatrix, N_Vector, N_Vector), A,
-        x, y)
+function SUNMatMatvec(
+        A::SUNMatrix, x::Union{N_Vector, NVector},
+        y::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNMatMatvec, libsundials_core), Cint, (SUNMatrix, N_Vector, N_Vector), A,
+        x, y
+    )
 end
 
 function SUNMatMatvec(A, x, y, ctx::SUNContext)
-    SUNMatMatvec(A, x, y)
+    return SUNMatMatvec(A, x, y)
 end
 
 function SUNMatSpace(A::SUNMatrix, lenrw, leniw)
-    ccall((:SUNMatSpace, libsundials_core), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}),
-        A, lenrw, leniw)
+    return ccall(
+        (:SUNMatSpace, libsundials_core), Cint, (SUNMatrix, Ptr{Clong}, Ptr{Clong}),
+        A, lenrw, leniw
+    )
 end
 
 # no prototype is found for this function at sundials_nonlinearsolver.h:131:36, please use with caution
 function SUNNonlinSolNewEmpty()
-    ccall((:SUNNonlinSolNewEmpty, libsundials_core), SUNNonlinearSolver, ())
+    return ccall((:SUNNonlinSolNewEmpty, libsundials_core), SUNNonlinearSolver, ())
 end
 
 function SUNNonlinSolFreeEmpty(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolFreeEmpty, libsundials_core), Cvoid, (SUNNonlinearSolver,), NLS)
+    return ccall((:SUNNonlinSolFreeEmpty, libsundials_core), Cvoid, (SUNNonlinearSolver,), NLS)
 end
 
 function SUNNonlinSolGetType(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolGetType, libsundials_core), SUNNonlinearSolver_Type,
-        (SUNNonlinearSolver,), NLS)
+    return ccall(
+        (:SUNNonlinSolGetType, libsundials_core), SUNNonlinearSolver_Type,
+        (SUNNonlinearSolver,), NLS
+    )
 end
 
 function SUNNonlinSolInitialize(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolInitialize, libsundials_core), Cint, (SUNNonlinearSolver,), NLS)
+    return ccall((:SUNNonlinSolInitialize, libsundials_core), Cint, (SUNNonlinearSolver,), NLS)
 end
 
 function SUNNonlinSolSetup(NLS::SUNNonlinearSolver, y::Union{N_Vector, NVector}, mem)
-    ccall((:SUNNonlinSolSetup, libsundials_core), Cint,
-        (SUNNonlinearSolver, N_Vector, Ptr{Cvoid}), NLS, y, mem)
+    return ccall(
+        (:SUNNonlinSolSetup, libsundials_core), Cint,
+        (SUNNonlinearSolver, N_Vector, Ptr{Cvoid}), NLS, y, mem
+    )
 end
 
 function SUNNonlinSolSetup(NLS, y, mem, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNNonlinSolSetup(NLS, __y, mem)
+    return SUNNonlinSolSetup(NLS, __y, mem)
 end
 
-function SUNNonlinSolSolve(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
+function SUNNonlinSolSolve(
+        NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
         y::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
-        tol::realtype, callLSetup::Cint, mem)
-    ccall((:SUNNonlinSolSolve, libsundials_core), Cint,
+        tol::realtype, callLSetup::Cint, mem
+    )
+    return ccall(
+        (:SUNNonlinSolSolve, libsundials_core), Cint,
         (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}),
-        NLS, y0, y, w, tol, callLSetup, mem)
+        NLS, y0, y, w, tol, callLSetup, mem
+    )
 end
 
 function SUNNonlinSolSolve(NLS, y0, y, w, tol, callLSetup, mem)
     __y0 = convert(NVector, y0)
     __y = convert(NVector, y)
     __w = convert(NVector, w)
-    SUNNonlinSolSolve(NLS, __y0, __y,
-        __w, tol, convert(Cint, callLSetup), mem)
+    return SUNNonlinSolSolve(
+        NLS, __y0, __y,
+        __w, tol, convert(Cint, callLSetup), mem
+    )
 end
 
 function SUNNonlinSolFree(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolFree, libsundials_core), Cint, (SUNNonlinearSolver,), NLS)
+    return ccall((:SUNNonlinSolFree, libsundials_core), Cint, (SUNNonlinearSolver,), NLS)
 end
 
 function SUNNonlinSolSetSysFn(NLS::SUNNonlinearSolver, SysFn::SUNNonlinSolSysFn)
-    ccall((:SUNNonlinSolSetSysFn, libsundials_core), Cint,
-        (SUNNonlinearSolver, SUNNonlinSolSysFn), NLS, SysFn)
+    return ccall(
+        (:SUNNonlinSolSetSysFn, libsundials_core), Cint,
+        (SUNNonlinearSolver, SUNNonlinSolSysFn), NLS, SysFn
+    )
 end
 
 function SUNNonlinSolSetLSetupFn(NLS::SUNNonlinearSolver, SetupFn::SUNNonlinSolLSetupFn)
-    ccall((:SUNNonlinSolSetLSetupFn, libsundials_core), Cint,
-        (SUNNonlinearSolver, SUNNonlinSolLSetupFn), NLS, SetupFn)
+    return ccall(
+        (:SUNNonlinSolSetLSetupFn, libsundials_core), Cint,
+        (SUNNonlinearSolver, SUNNonlinSolLSetupFn), NLS, SetupFn
+    )
 end
 
 function SUNNonlinSolSetLSolveFn(NLS::SUNNonlinearSolver, SolveFn::SUNNonlinSolLSolveFn)
-    ccall((:SUNNonlinSolSetLSolveFn, libsundials_core), Cint,
-        (SUNNonlinearSolver, SUNNonlinSolLSolveFn), NLS, SolveFn)
+    return ccall(
+        (:SUNNonlinSolSetLSolveFn, libsundials_core), Cint,
+        (SUNNonlinearSolver, SUNNonlinSolLSolveFn), NLS, SolveFn
+    )
 end
 
 function SUNNonlinSolSetConvTestFn(
         NLS::SUNNonlinearSolver, CTestFn::SUNNonlinSolConvTestFn,
-        ctest_data)
-    ccall((:SUNNonlinSolSetConvTestFn, libsundials_core), Cint,
+        ctest_data
+    )
+    return ccall(
+        (:SUNNonlinSolSetConvTestFn, libsundials_core), Cint,
         (SUNNonlinearSolver, SUNNonlinSolConvTestFn, Ptr{Cvoid}), NLS, CTestFn,
-        ctest_data)
+        ctest_data
+    )
 end
 
 function SUNNonlinSolSetMaxIters(NLS::SUNNonlinearSolver, maxiters::Cint)
-    ccall((:SUNNonlinSolSetMaxIters, libsundials_core), Cint,
-        (SUNNonlinearSolver, Cint), NLS, maxiters)
+    return ccall(
+        (:SUNNonlinSolSetMaxIters, libsundials_core), Cint,
+        (SUNNonlinearSolver, Cint), NLS, maxiters
+    )
 end
 
 function SUNNonlinSolSetMaxIters(NLS, maxiters)
-    SUNNonlinSolSetMaxIters(NLS, convert(Cint, maxiters))
+    return SUNNonlinSolSetMaxIters(NLS, convert(Cint, maxiters))
 end
 
 function SUNNonlinSolGetNumIters(NLS::SUNNonlinearSolver, niters)
-    ccall((:SUNNonlinSolGetNumIters, libsundials_core), Cint,
-        (SUNNonlinearSolver, Ptr{Clong}), NLS, niters)
+    return ccall(
+        (:SUNNonlinSolGetNumIters, libsundials_core), Cint,
+        (SUNNonlinearSolver, Ptr{Clong}), NLS, niters
+    )
 end
 
 function SUNNonlinSolGetCurIter(NLS::SUNNonlinearSolver, iter)
-    ccall((:SUNNonlinSolGetCurIter, libsundials_core), Cint,
-        (SUNNonlinearSolver, Ptr{Cint}), NLS, iter)
+    return ccall(
+        (:SUNNonlinSolGetCurIter, libsundials_core), Cint,
+        (SUNNonlinearSolver, Ptr{Cint}), NLS, iter
+    )
 end
 
 function SUNNonlinSolGetNumConvFails(NLS::SUNNonlinearSolver, nconvfails)
-    ccall((:SUNNonlinSolGetNumConvFails, libsundials_core), Cint,
-        (SUNNonlinearSolver, Ptr{Clong}), NLS, nconvfails)
+    return ccall(
+        (:SUNNonlinSolGetNumConvFails, libsundials_core), Cint,
+        (SUNNonlinearSolver, Ptr{Clong}), NLS, nconvfails
+    )
 end
 
 # no prototype is found for this function at sundials_nvector.h:163:26, please use with caution
 function N_VNewEmpty()
-    ccall((:N_VNewEmpty, libsundials_core), N_Vector, ())
+    return ccall((:N_VNewEmpty, libsundials_core), N_Vector, ())
 end
 
 function N_VFreeEmpty(v::Union{N_Vector, NVector})
-    ccall((:N_VFreeEmpty, libsundials_core), Cvoid, (N_Vector,), v)
+    return ccall((:N_VFreeEmpty, libsundials_core), Cvoid, (N_Vector,), v)
 end
 
 function N_VFreeEmpty(v)
@@ -7058,42 +9145,42 @@ function N_VFreeEmpty(v)
 end
 
 function N_VCopyOps(w::Union{N_Vector, NVector}, v::Union{N_Vector, NVector})
-    ccall((:N_VCopyOps, libsundials_core), Cint, (N_Vector, N_Vector), w, v)
+    return ccall((:N_VCopyOps, libsundials_core), Cint, (N_Vector, N_Vector), w, v)
 end
 
 function N_VCopyOps(w, v, ctx::SUNContext)
-    N_VCopyOps(w, v)
+    return N_VCopyOps(w, v)
 end
 
 function N_VGetVectorID(w::Union{N_Vector, NVector})
-    ccall((:N_VGetVectorID, libsundials_core), N_Vector_ID, (N_Vector,), w)
+    return ccall((:N_VGetVectorID, libsundials_core), N_Vector_ID, (N_Vector,), w)
 end
 
 function N_VGetVectorID(w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VGetVectorID(__w)
+    return N_VGetVectorID(__w)
 end
 
 function N_VClone(w::Union{N_Vector, NVector})
-    ccall((:N_VClone, libsundials_core), N_Vector, (N_Vector,), w)
+    return ccall((:N_VClone, libsundials_core), N_Vector, (N_Vector,), w)
 end
 
 function N_VClone(w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VClone(__w)
+    return N_VClone(__w)
 end
 
 function N_VCloneEmpty(w::Union{N_Vector, NVector})
-    ccall((:N_VCloneEmpty, libsundials_core), N_Vector, (N_Vector,), w)
+    return ccall((:N_VCloneEmpty, libsundials_core), N_Vector, (N_Vector,), w)
 end
 
 function N_VCloneEmpty(w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VCloneEmpty(__w)
+    return N_VCloneEmpty(__w)
 end
 
 function N_VDestroy(v::Union{N_Vector, NVector})
-    ccall((:N_VDestroy, libsundials_core), Cvoid, (N_Vector,), v)
+    return ccall((:N_VDestroy, libsundials_core), Cvoid, (N_Vector,), v)
 end
 
 function N_VDestroy(v)
@@ -7101,18 +9188,20 @@ function N_VDestroy(v)
 end
 
 function N_VSpace(v::Union{N_Vector, NVector}, lrw, liw)
-    ccall((:N_VSpace, libsundials_core), Cvoid,
-        (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw)
+    return ccall(
+        (:N_VSpace, libsundials_core), Cvoid,
+        (N_Vector, Ptr{sunindextype}, Ptr{sunindextype}), v, lrw, liw
+    )
 end
 
 function N_VSpace(v, lrw, liw, ctx::SUNContext)
     __lrw = convert(NVector, lrw, ctx)
     __liw = convert(NVector, liw, ctx)
-    N_VSpace(v, __lrw, __liw)
+    return N_VSpace(v, __lrw, __liw)
 end
 
 function N_VGetArrayPointer(v::Union{N_Vector, NVector})
-    ccall((:N_VGetArrayPointer, libsundials_core), Ptr{realtype}, (N_Vector,), v)
+    return ccall((:N_VGetArrayPointer, libsundials_core), Ptr{realtype}, (N_Vector,), v)
 end
 
 function N_VGetArrayPointer(v)
@@ -7120,8 +9209,10 @@ function N_VGetArrayPointer(v)
 end
 
 function N_VSetArrayPointer(v_data, v::Union{N_Vector, NVector})
-    ccall((:N_VSetArrayPointer, libsundials_core), Cvoid, (Ptr{realtype}, N_Vector),
-        v_data, v)
+    return ccall(
+        (:N_VSetArrayPointer, libsundials_core), Cvoid, (Ptr{realtype}, N_Vector),
+        v_data, v
+    )
 end
 
 function N_VSetArrayPointer(v_data, v)
@@ -7129,7 +9220,7 @@ function N_VSetArrayPointer(v_data, v)
 end
 
 function N_VGetCommunicator(v::Union{N_Vector, NVector})
-    ccall((:N_VGetCommunicator, libsundials_core), Ptr{Cvoid}, (N_Vector,), v)
+    return ccall((:N_VGetCommunicator, libsundials_core), Ptr{Cvoid}, (N_Vector,), v)
 end
 
 function N_VGetCommunicator(v)
@@ -7137,93 +9228,102 @@ function N_VGetCommunicator(v)
 end
 
 function N_VGetLength(v::Union{N_Vector, NVector})
-    ccall((:N_VGetLength, libsundials_core), sunindextype, (N_Vector,), v)
+    return ccall((:N_VGetLength, libsundials_core), sunindextype, (N_Vector,), v)
 end
 
 function N_VGetLength(v)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VLinearSum(a::realtype, x::Union{N_Vector, NVector}, b::realtype,
-        y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VLinearSum, libsundials_core), Cvoid,
-        (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z)
+function N_VLinearSum(
+        a::realtype, x::Union{N_Vector, NVector}, b::realtype,
+        y::Union{N_Vector, NVector}, z::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VLinearSum, libsundials_core), Cvoid,
+        (realtype, N_Vector, realtype, N_Vector, N_Vector), a, x, b, y, z
+    )
 end
 
 function N_VLinearSum(a, x, b, y, z, ctx::SUNContext)
-    N_VLinearSum(a, x, b, y, z)
+    return N_VLinearSum(a, x, b, y, z)
 end
 
 function N_VConst(c::realtype, z::Union{N_Vector, NVector})
-    ccall((:N_VConst, libsundials_core), Cvoid, (realtype, N_Vector), c, z)
+    return ccall((:N_VConst, libsundials_core), Cvoid, (realtype, N_Vector), c, z)
 end
 
 function N_VConst(c, z)
     error("Cannot auto-convert to NVector without context. Pass an NVector created with NVector(value, ctx) instead.")
 end
 
-function N_VProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VProd, libsundials_core), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
+function N_VProd(
+        x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall((:N_VProd, libsundials_core), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
 function N_VProd(x, y, z, ctx::SUNContext)
-    N_VProd(x, y, z)
+    return N_VProd(x, y, z)
 end
 
-function N_VDiv(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
-        z::Union{N_Vector, NVector})
-    ccall((:N_VDiv, libsundials_core), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
+function N_VDiv(
+        x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector},
+        z::Union{N_Vector, NVector}
+    )
+    return ccall((:N_VDiv, libsundials_core), Cvoid, (N_Vector, N_Vector, N_Vector), x, y, z)
 end
 
 function N_VDiv(x, y, z, ctx::SUNContext)
-    N_VDiv(x, y, z)
+    return N_VDiv(x, y, z)
 end
 
 function N_VScale(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VScale, libsundials_core), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
+    return ccall((:N_VScale, libsundials_core), Cvoid, (realtype, N_Vector, N_Vector), c, x, z)
 end
 
 function N_VScale(c, x, z, ctx::SUNContext)
-    N_VScale(c, x, z)
+    return N_VScale(c, x, z)
 end
 
 function N_VAbs(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VAbs, libsundials_core), Cvoid, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VAbs, libsundials_core), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VAbs(x, z, ctx::SUNContext)
-    N_VAbs(x, z)
+    return N_VAbs(x, z)
 end
 
 function N_VInv(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VInv, libsundials_core), Cvoid, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VInv, libsundials_core), Cvoid, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInv(x, z, ctx::SUNContext)
-    N_VInv(x, z)
+    return N_VInv(x, z)
 end
 
 function N_VAddConst(x::Union{N_Vector, NVector}, b::realtype, z::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:N_VAddConst, libsundials_core), Cvoid, (N_Vector, realtype, N_Vector), x, b,
-        z)
+        z
+    )
 end
 
 function N_VAddConst(x, b, z, ctx::SUNContext)
-    N_VAddConst(x, b, z)
+    return N_VAddConst(x, b, z)
 end
 
 function N_VDotProd(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
-    ccall((:N_VDotProd, libsundials_core), realtype, (N_Vector, N_Vector), x, y)
+    return ccall((:N_VDotProd, libsundials_core), realtype, (N_Vector, N_Vector), x, y)
 end
 
 function N_VDotProd(x, y, ctx::SUNContext)
-    N_VDotProd(x, y)
+    return N_VDotProd(x, y)
 end
 
 function N_VMaxNorm(x::Union{N_Vector, NVector})
-    ccall((:N_VMaxNorm, libsundials_core), realtype, (N_Vector,), x)
+    return ccall((:N_VMaxNorm, libsundials_core), realtype, (N_Vector,), x)
 end
 
 function N_VMaxNorm(x)
@@ -7231,25 +9331,29 @@ function N_VMaxNorm(x)
 end
 
 function N_VWrmsNorm(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall((:N_VWrmsNorm, libsundials_core), realtype, (N_Vector, N_Vector), x, w)
+    return ccall((:N_VWrmsNorm, libsundials_core), realtype, (N_Vector, N_Vector), x, w)
 end
 
 function N_VWrmsNorm(x, w, ctx::SUNContext)
-    N_VWrmsNorm(x, w)
+    return N_VWrmsNorm(x, w)
 end
 
-function N_VWrmsNormMask(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
-        id::Union{N_Vector, NVector})
-    ccall((:N_VWrmsNormMask, libsundials_core), realtype,
-        (N_Vector, N_Vector, N_Vector), x, w, id)
+function N_VWrmsNormMask(
+        x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
+        id::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VWrmsNormMask, libsundials_core), realtype,
+        (N_Vector, N_Vector, N_Vector), x, w, id
+    )
 end
 
 function N_VWrmsNormMask(x, w, id, ctx::SUNContext)
-    N_VWrmsNormMask(x, w, id)
+    return N_VWrmsNormMask(x, w, id)
 end
 
 function N_VMin(x::Union{N_Vector, NVector})
-    ccall((:N_VMin, libsundials_core), realtype, (N_Vector,), x)
+    return ccall((:N_VMin, libsundials_core), realtype, (N_Vector,), x)
 end
 
 function N_VMin(x)
@@ -7257,15 +9361,15 @@ function N_VMin(x)
 end
 
 function N_VWL2Norm(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall((:N_VWL2Norm, libsundials_core), realtype, (N_Vector, N_Vector), x, w)
+    return ccall((:N_VWL2Norm, libsundials_core), realtype, (N_Vector, N_Vector), x, w)
 end
 
 function N_VWL2Norm(x, w, ctx::SUNContext)
-    N_VWL2Norm(x, w)
+    return N_VWL2Norm(x, w)
 end
 
 function N_VL1Norm(x::Union{N_Vector, NVector})
-    ccall((:N_VL1Norm, libsundials_core), realtype, (N_Vector,), x)
+    return ccall((:N_VL1Norm, libsundials_core), realtype, (N_Vector,), x)
 end
 
 function N_VL1Norm(x)
@@ -7273,44 +9377,54 @@ function N_VL1Norm(x)
 end
 
 function N_VCompare(c::realtype, x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VCompare, libsundials_core), Cvoid, (realtype, N_Vector, N_Vector), c, x,
-        z)
+    return ccall(
+        (:N_VCompare, libsundials_core), Cvoid, (realtype, N_Vector, N_Vector), c, x,
+        z
+    )
 end
 
 function N_VCompare(c, x, z, ctx::SUNContext)
-    N_VCompare(c, x, z)
+    return N_VCompare(c, x, z)
 end
 
 function N_VInvTest(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VInvTest, libsundials_core), Cint, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VInvTest, libsundials_core), Cint, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInvTest(x, z, ctx::SUNContext)
-    N_VInvTest(x, z)
+    return N_VInvTest(x, z)
 end
 
-function N_VConstrMask(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
-        m::Union{N_Vector, NVector})
-    ccall((:N_VConstrMask, libsundials_core), Cint, (N_Vector, N_Vector, N_Vector), c,
-        x, m)
+function N_VConstrMask(
+        c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
+        m::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VConstrMask, libsundials_core), Cint, (N_Vector, N_Vector, N_Vector), c,
+        x, m
+    )
 end
 
 function N_VConstrMask(c, x, m, ctx::SUNContext)
-    N_VConstrMask(c, x, m)
+    return N_VConstrMask(c, x, m)
 end
 
 function N_VMinQuotient(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
-    ccall((:N_VMinQuotient, libsundials_core), realtype, (N_Vector, N_Vector), num,
-        denom)
+    return ccall(
+        (:N_VMinQuotient, libsundials_core), realtype, (N_Vector, N_Vector), num,
+        denom
+    )
 end
 
 function N_VMinQuotient(num, denom, ctx::SUNContext)
-    N_VMinQuotient(num, denom)
+    return N_VMinQuotient(num, denom)
 end
 
 function N_VLinearCombination(nvec::Cint, c, X, z::Union{N_Vector, NVector})
-    ccall((:N_VLinearCombination, libsundials_core), Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, X, z)
+    return ccall(
+        (:N_VLinearCombination, libsundials_core), Cint,
+        (Cint, Ptr{realtype}, Ptr{N_Vector}, N_Vector), nvec, c, X, z
+    )
 end
 
 function N_VLinearCombination(nvec, c, X, z)
@@ -7318,8 +9432,10 @@ function N_VLinearCombination(nvec, c, X, z)
 end
 
 function N_VScaleAddMulti(nvec::Cint, a, x::Union{N_Vector, NVector}, Y, Z)
-    ccall((:N_VScaleAddMulti, libsundials_core), Cint,
-        (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z)
+    return ccall(
+        (:N_VScaleAddMulti, libsundials_core), Cint,
+        (Cint, Ptr{realtype}, N_Vector, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a, x, Y, Z
+    )
 end
 
 function N_VScaleAddMulti(nvec, a, x, Y, Z)
@@ -7327,8 +9443,10 @@ function N_VScaleAddMulti(nvec, a, x, Y, Z)
 end
 
 function N_VDotProdMulti(nvec::Cint, x::Union{N_Vector, NVector}, Y, dotprods)
-    ccall((:N_VDotProdMulti, libsundials_core), Cint,
-        (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods)
+    return ccall(
+        (:N_VDotProdMulti, libsundials_core), Cint,
+        (Cint, N_Vector, Ptr{N_Vector}, Ptr{realtype}), nvec, x, Y, dotprods
+    )
 end
 
 function N_VDotProdMulti(nvec, x, Y, dotprods)
@@ -7336,83 +9454,99 @@ function N_VDotProdMulti(nvec, x, Y, dotprods)
 end
 
 function N_VLinearSumVectorArray(nvec::Cint, a::realtype, X, b::realtype, Y, Z)
-    ccall((:N_VLinearSumVectorArray, libsundials_core), Cint,
+    return ccall(
+        (:N_VLinearSumVectorArray, libsundials_core), Cint,
         (Cint, realtype, Ptr{N_Vector}, realtype, Ptr{N_Vector}, Ptr{N_Vector}), nvec, a,
-        X, b, Y, Z)
+        X, b, Y, Z
+    )
 end
 
 function N_VLinearSumVectorArray(nvec, a, X, b, Y, Z)
-    N_VLinearSumVectorArray(convert(Cint, nvec), a, X, b, Y, Z)
+    return N_VLinearSumVectorArray(convert(Cint, nvec), a, X, b, Y, Z)
 end
 
 function N_VScaleVectorArray(nvec::Cint, c, X, Z)
-    ccall((:N_VScaleVectorArray, libsundials_core), Cint,
-        (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z)
+    return ccall(
+        (:N_VScaleVectorArray, libsundials_core), Cint,
+        (Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{N_Vector}), nvec, c, X, Z
+    )
 end
 
 function N_VScaleVectorArray(nvec, c, X, Z)
-    N_VScaleVectorArray(convert(Cint, nvec), c, X, Z)
+    return N_VScaleVectorArray(convert(Cint, nvec), c, X, Z)
 end
 
 function N_VConstVectorArray(nvec::Cint, c::realtype, Z)
-    ccall((:N_VConstVectorArray, libsundials_core), Cint,
-        (Cint, realtype, Ptr{N_Vector}), nvec, c, Z)
+    return ccall(
+        (:N_VConstVectorArray, libsundials_core), Cint,
+        (Cint, realtype, Ptr{N_Vector}), nvec, c, Z
+    )
 end
 
 function N_VConstVectorArray(nvec, c, Z)
-    N_VConstVectorArray(convert(Cint, nvec), c, Z)
+    return N_VConstVectorArray(convert(Cint, nvec), c, Z)
 end
 
 function N_VWrmsNormVectorArray(nvec::Cint, X, W, nrm)
-    ccall((:N_VWrmsNormVectorArray, libsundials_core), Cint,
-        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvec, X, W, nrm)
+    return ccall(
+        (:N_VWrmsNormVectorArray, libsundials_core), Cint,
+        (Cint, Ptr{N_Vector}, Ptr{N_Vector}, Ptr{realtype}), nvec, X, W, nrm
+    )
 end
 
 function N_VWrmsNormVectorArray(nvec, X, W, nrm)
-    N_VWrmsNormVectorArray(convert(Cint, nvec), X, W, nrm)
+    return N_VWrmsNormVectorArray(convert(Cint, nvec), X, W, nrm)
 end
 
 function N_VWrmsNormMaskVectorArray(nvec::Cint, X, W, id::Union{N_Vector, NVector}, nrm)
-    ccall((:N_VWrmsNormMaskVectorArray, libsundials_core), Cint,
+    return ccall(
+        (:N_VWrmsNormMaskVectorArray, libsundials_core), Cint,
         (Cint, Ptr{N_Vector}, Ptr{N_Vector}, N_Vector, Ptr{realtype}), nvec, X, W, id,
-        nrm)
+        nrm
+    )
 end
 
 function N_VWrmsNormMaskVectorArray(nvec, X, W, id, nrm, ctx::SUNContext)
     __id = convert(NVector, id, ctx)
-    N_VWrmsNormMaskVectorArray(nvec, X, W, __id, nrm)
+    return N_VWrmsNormMaskVectorArray(nvec, X, W, __id, nrm)
 end
 
 function N_VScaleAddMultiVectorArray(nvec::Cint, nsum::Cint, a, X, Y, Z)
-    ccall((:N_VScaleAddMultiVectorArray, libsundials_core), Cint,
-        (Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}},
-            Ptr{Ptr{N_Vector}}), nvec, nsum, a, X, Y, Z)
+    return ccall(
+        (:N_VScaleAddMultiVectorArray, libsundials_core), Cint,
+        (
+            Cint, Cint, Ptr{realtype}, Ptr{N_Vector}, Ptr{Ptr{N_Vector}},
+            Ptr{Ptr{N_Vector}},
+        ), nvec, nsum, a, X, Y, Z
+    )
 end
 
 function N_VScaleAddMultiVectorArray(nvec, nsum, a, X, Y, Z)
-    N_VScaleAddMultiVectorArray(convert(Cint, nvec), convert(Cint, nsum), a, X, Y, Z)
+    return N_VScaleAddMultiVectorArray(convert(Cint, nvec), convert(Cint, nsum), a, X, Y, Z)
 end
 
 function N_VLinearCombinationVectorArray(nvec::Cint, nsum::Cint, c, X, Z)
-    ccall((:N_VLinearCombinationVectorArray, libsundials_core), Cint,
+    return ccall(
+        (:N_VLinearCombinationVectorArray, libsundials_core), Cint,
         (Cint, Cint, Ptr{realtype}, Ptr{Ptr{N_Vector}}, Ptr{N_Vector}), nvec, nsum, c, X,
-        Z)
+        Z
+    )
 end
 
 function N_VLinearCombinationVectorArray(nvec, nsum, c, X, Z)
-    N_VLinearCombinationVectorArray(convert(Cint, nvec), convert(Cint, nsum), c, X, Z)
+    return N_VLinearCombinationVectorArray(convert(Cint, nvec), convert(Cint, nsum), c, X, Z)
 end
 
 function N_VDotProdLocal(x::Union{N_Vector, NVector}, y::Union{N_Vector, NVector})
-    ccall((:N_VDotProdLocal, libsundials_core), realtype, (N_Vector, N_Vector), x, y)
+    return ccall((:N_VDotProdLocal, libsundials_core), realtype, (N_Vector, N_Vector), x, y)
 end
 
 function N_VDotProdLocal(x, y, ctx::SUNContext)
-    N_VDotProdLocal(x, y)
+    return N_VDotProdLocal(x, y)
 end
 
 function N_VMaxNormLocal(x::Union{N_Vector, NVector})
-    ccall((:N_VMaxNormLocal, libsundials_core), realtype, (N_Vector,), x)
+    return ccall((:N_VMaxNormLocal, libsundials_core), realtype, (N_Vector,), x)
 end
 
 function N_VMaxNormLocal(x)
@@ -7420,7 +9554,7 @@ function N_VMaxNormLocal(x)
 end
 
 function N_VMinLocal(x::Union{N_Vector, NVector})
-    ccall((:N_VMinLocal, libsundials_core), realtype, (N_Vector,), x)
+    return ccall((:N_VMinLocal, libsundials_core), realtype, (N_Vector,), x)
 end
 
 function N_VMinLocal(x)
@@ -7428,7 +9562,7 @@ function N_VMinLocal(x)
 end
 
 function N_VL1NormLocal(x::Union{N_Vector, NVector})
-    ccall((:N_VL1NormLocal, libsundials_core), realtype, (N_Vector,), x)
+    return ccall((:N_VL1NormLocal, libsundials_core), realtype, (N_Vector,), x)
 end
 
 function N_VL1NormLocal(x)
@@ -7436,1760 +9570,2277 @@ function N_VL1NormLocal(x)
 end
 
 function N_VWSqrSumLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector})
-    ccall((:N_VWSqrSumLocal, libsundials_core), realtype, (N_Vector, N_Vector), x, w)
+    return ccall((:N_VWSqrSumLocal, libsundials_core), realtype, (N_Vector, N_Vector), x, w)
 end
 
 function N_VWSqrSumLocal(x, w, ctx::SUNContext)
-    N_VWSqrSumLocal(x, w)
+    return N_VWSqrSumLocal(x, w)
 end
 
-function N_VWSqrSumMaskLocal(x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
-        id::Union{N_Vector, NVector})
-    ccall((:N_VWSqrSumMaskLocal, libsundials_core), realtype,
-        (N_Vector, N_Vector, N_Vector), x, w, id)
+function N_VWSqrSumMaskLocal(
+        x::Union{N_Vector, NVector}, w::Union{N_Vector, NVector},
+        id::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:N_VWSqrSumMaskLocal, libsundials_core), realtype,
+        (N_Vector, N_Vector, N_Vector), x, w, id
+    )
 end
 
 function N_VWSqrSumMaskLocal(x, w, id, ctx::SUNContext)
-    N_VWSqrSumMaskLocal(x, w, id)
+    return N_VWSqrSumMaskLocal(x, w, id)
 end
 
 function N_VInvTestLocal(x::Union{N_Vector, NVector}, z::Union{N_Vector, NVector})
-    ccall((:N_VInvTestLocal, libsundials_core), Cint, (N_Vector, N_Vector), x, z)
+    return ccall((:N_VInvTestLocal, libsundials_core), Cint, (N_Vector, N_Vector), x, z)
 end
 
 function N_VInvTestLocal(x, z, ctx::SUNContext)
-    N_VInvTestLocal(x, z)
+    return N_VInvTestLocal(x, z)
 end
 
-function N_VConstrMaskLocal(c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
-        m::Union{N_Vector, NVector})
-    ccall(
+function N_VConstrMaskLocal(
+        c::Union{N_Vector, NVector}, x::Union{N_Vector, NVector},
+        m::Union{N_Vector, NVector}
+    )
+    return ccall(
         (:N_VConstrMaskLocal, libsundials_core), Cint, (N_Vector, N_Vector, N_Vector),
-        c, x, m)
+        c, x, m
+    )
 end
 
 function N_VConstrMaskLocal(c, x, m, ctx::SUNContext)
-    N_VConstrMaskLocal(c, x, m)
+    return N_VConstrMaskLocal(c, x, m)
 end
 
 function N_VMinQuotientLocal(num::Union{N_Vector, NVector}, denom::Union{N_Vector, NVector})
-    ccall(
+    return ccall(
         (:N_VMinQuotientLocal, libsundials_core), realtype, (N_Vector, N_Vector), num,
-        denom)
+        denom
+    )
 end
 
 function N_VMinQuotientLocal(num, denom, ctx::SUNContext)
-    N_VMinQuotientLocal(num, denom)
+    return N_VMinQuotientLocal(num, denom)
 end
 
 function N_VNewVectorArray(count::Cint)
-    ccall((:N_VNewVectorArray, libsundials_core), Ptr{N_Vector}, (Cint,), count)
+    return ccall((:N_VNewVectorArray, libsundials_core), Ptr{N_Vector}, (Cint,), count)
 end
 
 function N_VNewVectorArray(count)
-    N_VNewVectorArray(convert(Cint, count))
+    return N_VNewVectorArray(convert(Cint, count))
 end
 
 function N_VCloneEmptyVectorArray(count::Cint, w::Union{N_Vector, NVector})
-    ccall((:N_VCloneEmptyVectorArray, libsundials_core), Ptr{N_Vector},
-        (Cint, N_Vector), count, w)
+    return ccall(
+        (:N_VCloneEmptyVectorArray, libsundials_core), Ptr{N_Vector},
+        (Cint, N_Vector), count, w
+    )
 end
 
 function N_VCloneEmptyVectorArray(count, w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VCloneEmptyVectorArray(count, __w)
+    return N_VCloneEmptyVectorArray(count, __w)
 end
 
 function N_VCloneVectorArray(count::Cint, w::Union{N_Vector, NVector})
-    ccall((:N_VCloneVectorArray, libsundials_core), Ptr{N_Vector}, (Cint, N_Vector),
-        count, w)
+    return ccall(
+        (:N_VCloneVectorArray, libsundials_core), Ptr{N_Vector}, (Cint, N_Vector),
+        count, w
+    )
 end
 
 function N_VCloneVectorArray(count, w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VCloneVectorArray(count, __w)
+    return N_VCloneVectorArray(count, __w)
 end
 
 function N_VDestroyVectorArray(vs, count::Cint)
-    ccall((:N_VDestroyVectorArray, libsundials_core), Cvoid, (Ptr{N_Vector}, Cint), vs,
-        count)
+    return ccall(
+        (:N_VDestroyVectorArray, libsundials_core), Cvoid, (Ptr{N_Vector}, Cint), vs,
+        count
+    )
 end
 
 function N_VDestroyVectorArray(vs, count)
-    N_VDestroyVectorArray(vs, convert(Cint, count))
+    return N_VDestroyVectorArray(vs, convert(Cint, count))
 end
 
 function N_VGetVecAtIndexVectorArray(vs, index::Cint)
-    ccall((:N_VGetVecAtIndexVectorArray, libsundials_core), N_Vector,
-        (Ptr{N_Vector}, Cint), vs, index)
+    return ccall(
+        (:N_VGetVecAtIndexVectorArray, libsundials_core), N_Vector,
+        (Ptr{N_Vector}, Cint), vs, index
+    )
 end
 
 function N_VGetVecAtIndexVectorArray(vs, index)
-    N_VGetVecAtIndexVectorArray(vs, convert(Cint, index))
+    return N_VGetVecAtIndexVectorArray(vs, convert(Cint, index))
 end
 
 function N_VSetVecAtIndexVectorArray(vs, index::Cint, w::Union{N_Vector, NVector})
-    ccall((:N_VSetVecAtIndexVectorArray, libsundials_core), Cvoid,
-        (Ptr{N_Vector}, Cint, N_Vector), vs, index, w)
+    return ccall(
+        (:N_VSetVecAtIndexVectorArray, libsundials_core), Cvoid,
+        (Ptr{N_Vector}, Cint, N_Vector), vs, index, w
+    )
 end
 
 function N_VSetVecAtIndexVectorArray(vs, index, w, ctx::SUNContext)
     __w = convert(NVector, w, ctx)
-    N_VSetVecAtIndexVectorArray(vs, index, __w)
+    return N_VSetVecAtIndexVectorArray(vs, index, __w)
 end
 
 function SUNDIALSGetVersion(version, len::Cint)
-    ccall((:SUNDIALSGetVersion, libsundials_core), Cint, (Cstring, Cint), version, len)
+    return ccall((:SUNDIALSGetVersion, libsundials_core), Cint, (Cstring, Cint), version, len)
 end
 
 function SUNDIALSGetVersion(version, len)
-    SUNDIALSGetVersion(version, convert(Cint, len))
+    return SUNDIALSGetVersion(version, convert(Cint, len))
 end
 
 function SUNDIALSGetVersionNumber(major, minor, patch, label, len::Cint)
-    ccall((:SUNDIALSGetVersionNumber, libsundials_core), Cint,
-        (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cstring, Cint), major, minor, patch, label, len)
+    return ccall(
+        (:SUNDIALSGetVersionNumber, libsundials_core), Cint,
+        (Ptr{Cint}, Ptr{Cint}, Ptr{Cint}, Cstring, Cint), major, minor, patch, label, len
+    )
 end
 
 function SUNDIALSGetVersionNumber(major, minor, patch, label, len)
-    SUNDIALSGetVersionNumber(major, minor, patch, label, convert(Cint, len))
+    return SUNDIALSGetVersionNumber(major, minor, patch, label, convert(Cint, len))
 end
 
 function SUNLinSol_Band(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_Band, libsundials_sunlinsolband), SUNLinearSolver,
-        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    return ccall(
+        (:SUNLinSol_Band, libsundials_sunlinsolband), SUNLinearSolver,
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx
+    )
 end
 
 function SUNLinSol_Band(y, A, sunctx)
     __y = convert(NVector, y, sunctx)
-    SUNLinSol_Band(__y, A, sunctx)
+    return SUNLinSol_Band(__y, A, sunctx)
 end
 
 function SUNBandLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    ccall((:SUNBandLinearSolver, libsundials_sunlinsolband), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+    return ccall(
+        (:SUNBandLinearSolver, libsundials_sunlinsolband), SUNLinearSolver,
+        (N_Vector, SUNMatrix), y, A
+    )
 end
 
 function SUNBandLinearSolver(y, A, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNBandLinearSolver(__y, A)
+    return SUNBandLinearSolver(__y, A)
 end
 
 function SUNLinSolGetType_Band(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_Band, libsundials_sunlinsolband), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_Band, libsundials_sunlinsolband), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_Band(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_Band, libsundials_sunlinsolband), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_Band, libsundials_sunlinsolband), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_Band(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_Band, libsundials_sunlinsolband), Cint, (SUNLinearSolver,),
-        S)
+    return ccall(
+        (:SUNLinSolInitialize_Band, libsundials_sunlinsolband), Cint, (SUNLinearSolver,),
+        S
+    )
 end
 
 function SUNLinSolSetup_Band(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_Band, libsundials_sunlinsolband), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_Band, libsundials_sunlinsolband), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
-function SUNLinSolSolve_Band(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+function SUNLinSolSolve_Band(
+        S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
         b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_Band, libsundials_sunlinsolband), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_Band, libsundials_sunlinsolband), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_Band(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_Band(S, A, x, b, tol)
+    return SUNLinSolSolve_Band(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_Band(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_Band, libsundials_sunlinsolband), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_Band, libsundials_sunlinsolband), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_Band(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_Band, libsundials_sunlinsolband), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_Band, libsundials_sunlinsolband), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_Band(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_Band, libsundials_sunlinsolband), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree_Band, libsundials_sunlinsolband), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_Dense(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_Dense, libsundials_sunlinsoldense), SUNLinearSolver,
-        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    return ccall(
+        (:SUNLinSol_Dense, libsundials_sunlinsoldense), SUNLinearSolver,
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx
+    )
 end
 
 function SUNLinSol_Dense(y, A, sunctx)
     __y = convert(NVector, y, sunctx)
-    SUNLinSol_Dense(__y, A, sunctx)
+    return SUNLinSol_Dense(__y, A, sunctx)
 end
 
 function SUNDenseLinearSolver(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    ccall((:SUNDenseLinearSolver, libsundials_sunlinsoldense), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+    return ccall(
+        (:SUNDenseLinearSolver, libsundials_sunlinsoldense), SUNLinearSolver,
+        (N_Vector, SUNMatrix), y, A
+    )
 end
 
 function SUNDenseLinearSolver(y, A, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNDenseLinearSolver(__y, A)
+    return SUNDenseLinearSolver(__y, A)
 end
 
 function SUNLinSolGetType_Dense(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_Dense, libsundials_sunlinsoldense), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_Dense, libsundials_sunlinsoldense), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_Dense(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_Dense, libsundials_sunlinsoldense), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_Dense, libsundials_sunlinsoldense), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_Dense(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_Dense, libsundials_sunlinsoldense), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolInitialize_Dense, libsundials_sunlinsoldense), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSetup_Dense(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_Dense, libsundials_sunlinsoldense), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_Dense, libsundials_sunlinsoldense), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
 function SUNLinSolSolve_Dense(
         S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
         b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_Dense, libsundials_sunlinsoldense), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_Dense, libsundials_sunlinsoldense), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_Dense(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_Dense(S, A, x, b, tol)
+    return SUNLinSolSolve_Dense(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_Dense(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_Dense, libsundials_sunlinsoldense), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_Dense, libsundials_sunlinsoldense), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_Dense(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_Dense, libsundials_sunlinsoldense), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_Dense, libsundials_sunlinsoldense), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_Dense(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_Dense, libsundials_sunlinsoldense), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree_Dense, libsundials_sunlinsoldense), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_KLU(y::Union{N_Vector, NVector}, A::SUNMatrix, ctx::SUNContext)
-    ccall((:SUNLinSol_KLU, libsundials_sunlinsolklu), SUNLinearSolver,
-        (N_Vector, SUNMatrix, SUNContext), y, A, ctx)
+    return ccall(
+        (:SUNLinSol_KLU, libsundials_sunlinsolklu), SUNLinearSolver,
+        (N_Vector, SUNMatrix, SUNContext), y, A, ctx
+    )
 end
 
 function SUNLinSol_KLU(y, A, ctx::SUNContext)
-    SUNLinSol_KLU(y, A, ctx)
+    return SUNLinSol_KLU(y, A, ctx)
 end
 
-function SUNLinSol_KLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
-        reinit_type::Cint)
-    ccall((:SUNLinSol_KLUReInit, libsundials_sunlinsolklu), Cint,
-        (SUNLinearSolver, SUNMatrix, sunindextype, Cint), S, A, nnz, reinit_type)
+function SUNLinSol_KLUReInit(
+        S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
+        reinit_type::Cint
+    )
+    return ccall(
+        (:SUNLinSol_KLUReInit, libsundials_sunlinsolklu), Cint,
+        (SUNLinearSolver, SUNMatrix, sunindextype, Cint), S, A, nnz, reinit_type
+    )
 end
 
 function SUNLinSol_KLUReInit(S, A, nnz, reinit_type)
-    SUNLinSol_KLUReInit(S, A, nnz, convert(Cint, reinit_type))
+    return SUNLinSol_KLUReInit(S, A, nnz, convert(Cint, reinit_type))
 end
 
 function SUNLinSol_KLUSetOrdering(S::SUNLinearSolver, ordering_choice::Cint)
-    ccall((:SUNLinSol_KLUSetOrdering, libsundials_sunlinsolklu), Cint,
-        (SUNLinearSolver, Cint), S, ordering_choice)
+    return ccall(
+        (:SUNLinSol_KLUSetOrdering, libsundials_sunlinsolklu), Cint,
+        (SUNLinearSolver, Cint), S, ordering_choice
+    )
 end
 
 function SUNLinSol_KLUSetOrdering(S, ordering_choice)
-    SUNLinSol_KLUSetOrdering(S, convert(Cint, ordering_choice))
+    return SUNLinSol_KLUSetOrdering(S, convert(Cint, ordering_choice))
 end
 
 function SUNKLU(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    ccall((:SUNKLU, libsundials_sunlinsolklu), SUNLinearSolver, (N_Vector, SUNMatrix), y, A)
+    return ccall((:SUNKLU, libsundials_sunlinsolklu), SUNLinearSolver, (N_Vector, SUNMatrix), y, A)
 end
 
 function SUNKLU(y, A, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNKLU(__y, A)
+    return SUNKLU(__y, A)
 end
 
-function SUNKLUReInit(S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
-        reinit_type::Cint)
-    ccall((:SUNKLUReInit, libsundials_sunlinsolklu), Cint,
-        (SUNLinearSolver, SUNMatrix, sunindextype, Cint), S, A, nnz, reinit_type)
+function SUNKLUReInit(
+        S::SUNLinearSolver, A::SUNMatrix, nnz::sunindextype,
+        reinit_type::Cint
+    )
+    return ccall(
+        (:SUNKLUReInit, libsundials_sunlinsolklu), Cint,
+        (SUNLinearSolver, SUNMatrix, sunindextype, Cint), S, A, nnz, reinit_type
+    )
 end
 
 function SUNKLUReInit(S, A, nnz, reinit_type)
-    SUNKLUReInit(S, A, nnz, convert(Cint, reinit_type))
+    return SUNKLUReInit(S, A, nnz, convert(Cint, reinit_type))
 end
 
 function SUNKLUSetOrdering(S::SUNLinearSolver, ordering_choice::Cint)
-    ccall((:SUNKLUSetOrdering, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, Cint), S,
-        ordering_choice)
+    return ccall(
+        (:SUNKLUSetOrdering, libsundials_sunlinsolklu), Cint, (SUNLinearSolver, Cint), S,
+        ordering_choice
+    )
 end
 
 function SUNKLUSetOrdering(S, ordering_choice)
-    SUNKLUSetOrdering(S, convert(Cint, ordering_choice))
+    return SUNKLUSetOrdering(S, convert(Cint, ordering_choice))
 end
 
 function SUNLinSol_KLUGetSymbolic(S::SUNLinearSolver)
-    ccall((:SUNLinSol_KLUGetSymbolic, libsundials_sunlinsolklu), Ptr{klu_l_symbolic},
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSol_KLUGetSymbolic, libsundials_sunlinsolklu), Ptr{klu_l_symbolic},
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSol_KLUGetNumeric(S::SUNLinearSolver)
-    ccall((:SUNLinSol_KLUGetNumeric, libsundials_sunlinsolklu), Ptr{klu_l_numeric},
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSol_KLUGetNumeric, libsundials_sunlinsolklu), Ptr{klu_l_numeric},
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSol_KLUGetCommon(S::SUNLinearSolver)
-    ccall((:SUNLinSol_KLUGetCommon, libsundials_sunlinsolklu), Ptr{klu_l_common},
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSol_KLUGetCommon, libsundials_sunlinsolklu), Ptr{klu_l_common},
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetType_KLU(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_KLU, libsundials_sunlinsolklu), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_KLU, libsundials_sunlinsolklu), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_KLU(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_KLU, libsundials_sunlinsolklu), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_KLU, libsundials_sunlinsolklu), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_KLU(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolInitialize_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSetup_KLU(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_KLU, libsundials_sunlinsolklu), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_KLU, libsundials_sunlinsolklu), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
-function SUNLinSolSolve_KLU(S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
+function SUNLinSolSolve_KLU(
+        S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
         b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_KLU, libsundials_sunlinsolklu), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_KLU, libsundials_sunlinsolklu), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_KLU(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_KLU(S, A, x, b, tol)
+    return SUNLinSolSolve_KLU(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_KLU(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_KLU, libsundials_sunlinsolklu), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_KLU, libsundials_sunlinsolklu), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_KLU(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_KLU, libsundials_sunlinsolklu), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_KLU, libsundials_sunlinsolklu), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_KLU(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree_KLU, libsundials_sunlinsolklu), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_LapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
-        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    return ccall(
+        (:SUNLinSol_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx
+    )
 end
 
 function SUNLinSol_LapackBand(y, A, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
-    SUNLinSol_LapackBand(__y, A, sunctx)
+    return SUNLinSol_LapackBand(__y, A, sunctx)
 end
 
 function SUNLapackBand(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    ccall((:SUNLapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+    return ccall(
+        (:SUNLapackBand, libsundials_sunlinsollapackband), SUNLinearSolver,
+        (N_Vector, SUNMatrix), y, A
+    )
 end
 
 function SUNLapackBand(y, A, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLapackBand(__y, A)
+    return SUNLapackBand(__y, A)
 end
 
 function SUNLinSolGetType_LapackBand(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_LapackBand, libsundials_sunlinsollapackband),
-        SUNLinearSolver_Type, (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_LapackBand, libsundials_sunlinsollapackband),
+        SUNLinearSolver_Type, (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_LapackBand(S::SUNLinearSolver)
-    ccall(
+    return ccall(
         (:SUNLinSolGetID_LapackBand, libsundials_sunlinsollapackband), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_LapackBand(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_LapackBand, libsundials_sunlinsollapackband), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolInitialize_LapackBand, libsundials_sunlinsollapackband), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSetup_LapackBand(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_LapackBand, libsundials_sunlinsollapackband), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_LapackBand, libsundials_sunlinsollapackband), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
-function SUNLinSolSolve_LapackBand(S::SUNLinearSolver, A::SUNMatrix,
+function SUNLinSolSolve_LapackBand(
+        S::SUNLinearSolver, A::SUNMatrix,
         x::Union{N_Vector, NVector},
-        b::Union{N_Vector, NVector}, tol::realtype)
-    ccall((:SUNLinSolSolve_LapackBand, libsundials_sunlinsollapackband), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        b::Union{N_Vector, NVector}, tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_LapackBand, libsundials_sunlinsollapackband), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_LapackBand(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_LapackBand(S, A, x, b, tol)
+    return SUNLinSolSolve_LapackBand(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_LapackBand(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_LapackBand, libsundials_sunlinsollapackband), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_LapackBand, libsundials_sunlinsollapackband), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_LapackBand(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_LapackBand, libsundials_sunlinsollapackband), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_LapackBand, libsundials_sunlinsollapackband), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_LapackBand(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_LapackBand, libsundials_sunlinsollapackband), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolFree_LapackBand, libsundials_sunlinsollapackband), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSol_LapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix, sunctx::SUNContext)
-    ccall((:SUNLinSol_LapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
-        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx)
+    return ccall(
+        (:SUNLinSol_LapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
+        (N_Vector, SUNMatrix, SUNContext), y, A, sunctx
+    )
 end
 
 function SUNLinSol_LapackDense(y, A, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
-    SUNLinSol_LapackDense(__y, A, sunctx)
+    return SUNLinSol_LapackDense(__y, A, sunctx)
 end
 
 function SUNLapackDense(y::Union{N_Vector, NVector}, A::SUNMatrix)
-    ccall((:SUNLapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
-        (N_Vector, SUNMatrix), y, A)
+    return ccall(
+        (:SUNLapackDense, libsundials_sunlinsollapackdense), SUNLinearSolver,
+        (N_Vector, SUNMatrix), y, A
+    )
 end
 
 function SUNLapackDense(y, A, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLapackDense(__y, A)
+    return SUNLapackDense(__y, A)
 end
 
 function SUNLinSolGetType_LapackDense(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_LapackDense, libsundials_sunlinsollapackdense),
-        SUNLinearSolver_Type, (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_LapackDense, libsundials_sunlinsollapackdense),
+        SUNLinearSolver_Type, (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_LapackDense(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_LapackDense, libsundials_sunlinsollapackdense),
-        SUNLinearSolver_ID, (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_LapackDense, libsundials_sunlinsollapackdense),
+        SUNLinearSolver_ID, (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_LapackDense(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_LapackDense, libsundials_sunlinsollapackdense), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolInitialize_LapackDense, libsundials_sunlinsollapackdense), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSetup_LapackDense(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_LapackDense, libsundials_sunlinsollapackdense), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_LapackDense, libsundials_sunlinsollapackdense), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
-function SUNLinSolSolve_LapackDense(S::SUNLinearSolver, A::SUNMatrix,
+function SUNLinSolSolve_LapackDense(
+        S::SUNLinearSolver, A::SUNMatrix,
         x::Union{N_Vector, NVector},
-        b::Union{N_Vector, NVector}, tol::realtype)
-    ccall((:SUNLinSolSolve_LapackDense, libsundials_sunlinsollapackdense), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        b::Union{N_Vector, NVector}, tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_LapackDense, libsundials_sunlinsollapackdense), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_LapackDense(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_LapackDense(S, A, x, b, tol)
+    return SUNLinSolSolve_LapackDense(S, A, x, b, tol)
 end
 
 function SUNLinSolLastFlag_LapackDense(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_LapackDense, libsundials_sunlinsollapackdense), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_LapackDense, libsundials_sunlinsollapackdense), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_LapackDense(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_LapackDense, libsundials_sunlinsollapackdense), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_LapackDense, libsundials_sunlinsollapackdense), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_LapackDense(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_LapackDense, libsundials_sunlinsollapackdense), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolFree_LapackDense, libsundials_sunlinsollapackdense), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSol_PCG(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
-    ccall((:SUNLinSol_PCG, libsundials_sunlinsolpcg), SUNLinearSolver,
-        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
+    return ccall(
+        (:SUNLinSol_PCG, libsundials_sunlinsolpcg), SUNLinearSolver,
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx
+    )
 end
 
 function SUNLinSol_PCG(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_PCG(__y, pretype, maxl, ctx)
+    return SUNLinSol_PCG(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_PCGSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_PCGSetPrecType, libsundials_sunlinsolpcg), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNLinSol_PCGSetPrecType, libsundials_sunlinsolpcg), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNLinSol_PCGSetPrecType(S, pretype)
-    SUNLinSol_PCGSetPrecType(S, convert(Cint, pretype))
+    return SUNLinSol_PCGSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNLinSol_PCGSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNLinSol_PCGSetMaxl, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint),
-        S, maxl)
+    return ccall(
+        (:SUNLinSol_PCGSetMaxl, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint),
+        S, maxl
+    )
 end
 
 function SUNLinSol_PCGSetMaxl(S, maxl)
-    SUNLinSol_PCGSetMaxl(S, convert(Cint, maxl))
+    return SUNLinSol_PCGSetMaxl(S, convert(Cint, maxl))
 end
 
 function SUNPCG(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
-    ccall((:SUNPCG, libsundials_sunlinsolpcg), SUNLinearSolver, (N_Vector, Cint, Cint), y,
-        pretype, maxl)
+    return ccall(
+        (:SUNPCG, libsundials_sunlinsolpcg), SUNLinearSolver, (N_Vector, Cint, Cint), y,
+        pretype, maxl
+    )
 end
 
 function SUNPCG(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNPCG(__y, pretype, maxl)
+    return SUNPCG(__y, pretype, maxl)
 end
 
 function SUNPCGSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNPCGSetPrecType, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint), S,
-        pretype)
+    return ccall(
+        (:SUNPCGSetPrecType, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint), S,
+        pretype
+    )
 end
 
 function SUNPCGSetPrecType(S, pretype)
-    SUNPCGSetPrecType(S, convert(Cint, pretype))
+    return SUNPCGSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNPCGSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNPCGSetMaxl, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint), S,
-        maxl)
+    return ccall(
+        (:SUNPCGSetMaxl, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver, Cint), S,
+        maxl
+    )
 end
 
 function SUNPCGSetMaxl(S, maxl)
-    SUNPCGSetMaxl(S, convert(Cint, maxl))
+    return SUNPCGSetMaxl(S, convert(Cint, maxl))
 end
 
 function SUNLinSolGetType_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_PCG, libsundials_sunlinsolpcg), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_PCG, libsundials_sunlinsolpcg), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_PCG, libsundials_sunlinsolpcg), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_PCG, libsundials_sunlinsolpcg), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolInitialize_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolSetATimes_PCG(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes_PCG, libsundials_sunlinsolpcg), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
+    return ccall(
+        (:SUNLinSolSetATimes_PCG, libsundials_sunlinsolpcg), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes
+    )
 end
 
-function SUNLinSolSetPreconditioner_PCG(S::SUNLinearSolver, P_data, Pset::PSetupFn,
-        Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner_PCG, libsundials_sunlinsolpcg), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+function SUNLinSolSetPreconditioner_PCG(
+        S::SUNLinearSolver, P_data, Pset::PSetupFn,
+        Psol::PSolveFn
+    )
+    return ccall(
+        (:SUNLinSolSetPreconditioner_PCG, libsundials_sunlinsolpcg), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol
+    )
 end
 
-function SUNLinSolSetScalingVectors_PCG(S::SUNLinearSolver, s::Union{N_Vector, NVector},
-        nul::Union{N_Vector, NVector})
-    ccall((:SUNLinSolSetScalingVectors_PCG, libsundials_sunlinsolpcg), Cint,
-        (SUNLinearSolver, N_Vector, N_Vector), S, s, nul)
+function SUNLinSolSetScalingVectors_PCG(
+        S::SUNLinearSolver, s::Union{N_Vector, NVector},
+        nul::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNLinSolSetScalingVectors_PCG, libsundials_sunlinsolpcg), Cint,
+        (SUNLinearSolver, N_Vector, N_Vector), S, s, nul
+    )
 end
 
 function SUNLinSolSetScalingVectors_PCG(S, s, nul, ctx::SUNContext)
-    SUNLinSolSetScalingVectors_PCG(S, s, nul)
+    return SUNLinSolSetScalingVectors_PCG(S, s, nul)
 end
 
 function SUNLinSolSetup_PCG(S::SUNLinearSolver, nul::SUNMatrix)
-    ccall((:SUNLinSolSetup_PCG, libsundials_sunlinsolpcg), Cint,
-        (SUNLinearSolver, SUNMatrix), S, nul)
+    return ccall(
+        (:SUNLinSolSetup_PCG, libsundials_sunlinsolpcg), Cint,
+        (SUNLinearSolver, SUNMatrix), S, nul
+    )
 end
 
 function SUNLinSolSolve_PCG(
         S::SUNLinearSolver, nul::SUNMatrix, x::Union{N_Vector, NVector},
         b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_PCG, libsundials_sunlinsolpcg), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, nul, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_PCG, libsundials_sunlinsolpcg), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, nul, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_PCG(S, nul, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_PCG(S, nul, x, b, tol)
+    return SUNLinSolSolve_PCG(S, nul, x, b, tol)
 end
 
 function SUNLinSolNumIters_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolNumIters_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolResNorm_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm_PCG, libsundials_sunlinsolpcg), realtype, (SUNLinearSolver,),
-        S)
+    return ccall(
+        (:SUNLinSolResNorm_PCG, libsundials_sunlinsolpcg), realtype, (SUNLinearSolver,),
+        S
+    )
 end
 
 function SUNLinSolResid_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolResid_PCG, libsundials_sunlinsolpcg), N_Vector, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolResid_PCG, libsundials_sunlinsolpcg), N_Vector, (SUNLinearSolver,), S)
 end
 
 function SUNLinSolLastFlag_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_PCG, libsundials_sunlinsolpcg), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_PCG, libsundials_sunlinsolpcg), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_PCG(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_PCG, libsundials_sunlinsolpcg), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_PCG, libsundials_sunlinsolpcg), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_PCG(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree_PCG, libsundials_sunlinsolpcg), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_SPBCGS(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
-    ccall((:SUNLinSol_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver,
-        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
+    return ccall(
+        (:SUNLinSol_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver,
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx
+    )
 end
 
 function SUNLinSol_SPBCGS(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPBCGS(__y, pretype, maxl, ctx)
+    return SUNLinSol_SPBCGS(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPBCGSSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPBCGSSetPrecType, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNLinSol_SPBCGSSetPrecType, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNLinSol_SPBCGSSetPrecType(S, pretype)
-    SUNLinSol_SPBCGSSetPrecType(S, convert(Cint, pretype))
+    return SUNLinSol_SPBCGSSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNLinSol_SPBCGSSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNLinSol_SPBCGSSetMaxl, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, Cint), S, maxl)
+    return ccall(
+        (:SUNLinSol_SPBCGSSetMaxl, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, Cint), S, maxl
+    )
 end
 
 function SUNLinSol_SPBCGSSetMaxl(S, maxl)
-    SUNLinSol_SPBCGSSetMaxl(S, convert(Cint, maxl))
+    return SUNLinSol_SPBCGSSetMaxl(S, convert(Cint, maxl))
 end
 
 function SUNSPBCGS(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
-    ccall((:SUNSPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+    return ccall(
+        (:SUNSPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver,
+        (N_Vector, Cint, Cint), y, pretype, maxl
+    )
 end
 
 function SUNSPBCGS(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNSPBCGS(__y, pretype, maxl)
+    return SUNSPBCGS(__y, pretype, maxl)
 end
 
 function SUNSPBCGSSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNSPBCGSSetPrecType, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNSPBCGSSetPrecType, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNSPBCGSSetPrecType(S, pretype)
-    SUNSPBCGSSetPrecType(S, convert(Cint, pretype))
+    return SUNSPBCGSSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNSPBCGSSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNSPBCGSSetMaxl, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Cint),
-        S, maxl)
+    return ccall(
+        (:SUNSPBCGSSetMaxl, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver, Cint),
+        S, maxl
+    )
 end
 
 function SUNSPBCGSSetMaxl(S, maxl)
-    SUNSPBCGSSetMaxl(S, convert(Cint, maxl))
+    return SUNSPBCGSSetMaxl(S, convert(Cint, maxl))
 end
 
 function SUNLinSolGetType_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_SPBCGS, libsundials_sunlinsolspbcgs), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolInitialize_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSetATimes_SPBCGS(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
+    return ccall(
+        (:SUNLinSolSetATimes_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes
+    )
 end
 
-function SUNLinSolSetPreconditioner_SPBCGS(S::SUNLinearSolver, P_data, Pset::PSetupFn,
-        Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+function SUNLinSolSetPreconditioner_SPBCGS(
+        S::SUNLinearSolver, P_data, Pset::PSetupFn,
+        Psol::PSolveFn
+    )
+    return ccall(
+        (:SUNLinSolSetPreconditioner_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol
+    )
 end
 
 function SUNLinSolSetScalingVectors_SPBCGS(
         S::SUNLinearSolver, s1::Union{N_Vector, NVector},
-        s2::Union{N_Vector, NVector})
-    ccall((:SUNLinSolSetScalingVectors_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+        s2::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNLinSolSetScalingVectors_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2
+    )
 end
 
 function SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2, ctx::SUNContext)
-    SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2)
+    return SUNLinSolSetScalingVectors_SPBCGS(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPBCGS(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
-function SUNLinSolSolve_SPBCGS(S::SUNLinearSolver, A::SUNMatrix,
+function SUNLinSolSolve_SPBCGS(
+        S::SUNLinearSolver, A::SUNMatrix,
         x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_SPBCGS(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_SPBCGS(S, A, x, b, tol)
+    return SUNLinSolSolve_SPBCGS(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolNumIters_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolResNorm_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm_SPBCGS, libsundials_sunlinsolspbcgs), realtype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolResNorm_SPBCGS, libsundials_sunlinsolspbcgs), realtype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolResid_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolResid_SPBCGS, libsundials_sunlinsolspbcgs), N_Vector,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolResid_SPBCGS, libsundials_sunlinsolspbcgs), N_Vector,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolLastFlag_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_SPBCGS, libsundials_sunlinsolspbcgs), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_SPBCGS, libsundials_sunlinsolspbcgs), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_SPBCGS(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_SPBCGS, libsundials_sunlinsolspbcgs), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_SPBCGS(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree_SPBCGS, libsundials_sunlinsolspbcgs), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_SPFGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
-    ccall((:SUNLinSol_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
+    return ccall(
+        (:SUNLinSol_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver,
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx
+    )
 end
 
 function SUNLinSol_SPFGMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPFGMR(__y, pretype, maxl, ctx)
+    return SUNLinSol_SPFGMR(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPFGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPFGMRSetPrecType, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNLinSol_SPFGMRSetPrecType, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNLinSol_SPFGMRSetPrecType(S, pretype)
-    SUNLinSol_SPFGMRSetPrecType(S, convert(Cint, pretype))
+    return SUNLinSol_SPFGMRSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNLinSol_SPFGMRSetGSType(S::SUNLinearSolver, gstype::Cint)
-    ccall((:SUNLinSol_SPFGMRSetGSType, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Cint), S, gstype)
+    return ccall(
+        (:SUNLinSol_SPFGMRSetGSType, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Cint), S, gstype
+    )
 end
 
 function SUNLinSol_SPFGMRSetGSType(S, gstype)
-    SUNLinSol_SPFGMRSetGSType(S, convert(Cint, gstype))
+    return SUNLinSol_SPFGMRSetGSType(S, convert(Cint, gstype))
 end
 
 function SUNLinSol_SPFGMRSetMaxRestarts(S::SUNLinearSolver, maxrs::Cint)
-    ccall((:SUNLinSol_SPFGMRSetMaxRestarts, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Cint), S, maxrs)
+    return ccall(
+        (:SUNLinSol_SPFGMRSetMaxRestarts, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Cint), S, maxrs
+    )
 end
 
 function SUNLinSol_SPFGMRSetMaxRestarts(S, maxrs)
-    SUNLinSol_SPFGMRSetMaxRestarts(S, convert(Cint, maxrs))
+    return SUNLinSol_SPFGMRSetMaxRestarts(S, convert(Cint, maxrs))
 end
 
 function SUNSPFGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
-    ccall((:SUNSPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+    return ccall(
+        (:SUNSPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver,
+        (N_Vector, Cint, Cint), y, pretype, maxl
+    )
 end
 
 function SUNSPFGMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNSPFGMR(__y, pretype, maxl)
+    return SUNSPFGMR(__y, pretype, maxl)
 end
 
 function SUNSPFGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNSPFGMRSetPrecType, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNSPFGMRSetPrecType, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNSPFGMRSetPrecType(S, pretype)
-    SUNSPFGMRSetPrecType(S, convert(Cint, pretype))
+    return SUNSPFGMRSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNSPFGMRSetGSType(S::SUNLinearSolver, gstype::Cint)
-    ccall(
+    return ccall(
         (:SUNSPFGMRSetGSType, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver, Cint),
-        S, gstype)
+        S, gstype
+    )
 end
 
 function SUNSPFGMRSetGSType(S, gstype)
-    SUNSPFGMRSetGSType(S, convert(Cint, gstype))
+    return SUNSPFGMRSetGSType(S, convert(Cint, gstype))
 end
 
 function SUNSPFGMRSetMaxRestarts(S::SUNLinearSolver, maxrs::Cint)
-    ccall((:SUNSPFGMRSetMaxRestarts, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Cint), S, maxrs)
+    return ccall(
+        (:SUNSPFGMRSetMaxRestarts, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Cint), S, maxrs
+    )
 end
 
 function SUNSPFGMRSetMaxRestarts(S, maxrs)
-    SUNSPFGMRSetMaxRestarts(S, convert(Cint, maxrs))
+    return SUNSPFGMRSetMaxRestarts(S, convert(Cint, maxrs))
 end
 
 function SUNLinSolGetType_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_SPFGMR, libsundials_sunlinsolspfgmr), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolInitialize_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSetATimes_SPFGMR(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
+    return ccall(
+        (:SUNLinSolSetATimes_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes
+    )
 end
 
-function SUNLinSolSetPreconditioner_SPFGMR(S::SUNLinearSolver, P_data, Pset::PSetupFn,
-        Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+function SUNLinSolSetPreconditioner_SPFGMR(
+        S::SUNLinearSolver, P_data, Pset::PSetupFn,
+        Psol::PSolveFn
+    )
+    return ccall(
+        (:SUNLinSolSetPreconditioner_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol
+    )
 end
 
 function SUNLinSolSetScalingVectors_SPFGMR(
         S::SUNLinearSolver, s1::Union{N_Vector, NVector},
-        s2::Union{N_Vector, NVector})
-    ccall((:SUNLinSolSetScalingVectors_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+        s2::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNLinSolSetScalingVectors_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2
+    )
 end
 
 function SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2, ctx::SUNContext)
-    SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2)
+    return SUNLinSolSetScalingVectors_SPFGMR(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPFGMR(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
-function SUNLinSolSolve_SPFGMR(S::SUNLinearSolver, A::SUNMatrix,
+function SUNLinSolSolve_SPFGMR(
+        S::SUNLinearSolver, A::SUNMatrix,
         x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_SPFGMR(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_SPFGMR(S, A, x, b, tol)
+    return SUNLinSolSolve_SPFGMR(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolNumIters_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolResNorm_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm_SPFGMR, libsundials_sunlinsolspfgmr), realtype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolResNorm_SPFGMR, libsundials_sunlinsolspfgmr), realtype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolResid_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolResid_SPFGMR, libsundials_sunlinsolspfgmr), N_Vector,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolResid_SPFGMR, libsundials_sunlinsolspfgmr), N_Vector,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolLastFlag_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_SPFGMR, libsundials_sunlinsolspfgmr), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_SPFGMR, libsundials_sunlinsolspfgmr), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_SPFGMR(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_SPFGMR, libsundials_sunlinsolspfgmr), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_SPFGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree_SPFGMR, libsundials_sunlinsolspfgmr), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_SPGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
-    ccall((:SUNLinSol_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
+    return ccall(
+        (:SUNLinSol_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver,
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx
+    )
 end
 
 function SUNLinSol_SPGMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPGMR(__y, pretype, maxl, ctx)
+    return SUNLinSol_SPGMR(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPGMRSetPrecType, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNLinSol_SPGMRSetPrecType, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNLinSol_SPGMRSetPrecType(S, pretype)
-    SUNLinSol_SPGMRSetPrecType(S, convert(Cint, pretype))
+    return SUNLinSol_SPGMRSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNLinSol_SPGMRSetGSType(S::SUNLinearSolver, gstype::Cint)
-    ccall((:SUNLinSol_SPGMRSetGSType, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, Cint), S, gstype)
+    return ccall(
+        (:SUNLinSol_SPGMRSetGSType, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, Cint), S, gstype
+    )
 end
 
 function SUNLinSol_SPGMRSetGSType(S, gstype)
-    SUNLinSol_SPGMRSetGSType(S, convert(Cint, gstype))
+    return SUNLinSol_SPGMRSetGSType(S, convert(Cint, gstype))
 end
 
 function SUNLinSol_SPGMRSetMaxRestarts(S::SUNLinearSolver, maxrs::Cint)
-    ccall((:SUNLinSol_SPGMRSetMaxRestarts, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, Cint), S, maxrs)
+    return ccall(
+        (:SUNLinSol_SPGMRSetMaxRestarts, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, Cint), S, maxrs
+    )
 end
 
 function SUNLinSol_SPGMRSetMaxRestarts(S, maxrs)
-    SUNLinSol_SPGMRSetMaxRestarts(S, convert(Cint, maxrs))
+    return SUNLinSol_SPGMRSetMaxRestarts(S, convert(Cint, maxrs))
 end
 
 function SUNSPGMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
-    ccall((:SUNSPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver, (N_Vector, Cint, Cint),
-        y, pretype, maxl)
+    return ccall(
+        (:SUNSPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver, (N_Vector, Cint, Cint),
+        y, pretype, maxl
+    )
 end
 
 function SUNSPGMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNSPGMR(__y, pretype, maxl)
+    return SUNSPGMR(__y, pretype, maxl)
 end
 
 function SUNSPGMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall(
+    return ccall(
         (:SUNSPGMRSetPrecType, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Cint),
-        S, pretype)
+        S, pretype
+    )
 end
 
 function SUNSPGMRSetPrecType(S, pretype)
-    SUNSPGMRSetPrecType(S, convert(Cint, pretype))
+    return SUNSPGMRSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNSPGMRSetGSType(S::SUNLinearSolver, gstype::Cint)
-    ccall((:SUNSPGMRSetGSType, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Cint),
-        S, gstype)
+    return ccall(
+        (:SUNSPGMRSetGSType, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver, Cint),
+        S, gstype
+    )
 end
 
 function SUNSPGMRSetGSType(S, gstype)
-    SUNSPGMRSetGSType(S, convert(Cint, gstype))
+    return SUNSPGMRSetGSType(S, convert(Cint, gstype))
 end
 
 function SUNSPGMRSetMaxRestarts(S::SUNLinearSolver, maxrs::Cint)
-    ccall((:SUNSPGMRSetMaxRestarts, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, Cint), S, maxrs)
+    return ccall(
+        (:SUNSPGMRSetMaxRestarts, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, Cint), S, maxrs
+    )
 end
 
 function SUNSPGMRSetMaxRestarts(S, maxrs)
-    SUNSPGMRSetMaxRestarts(S, convert(Cint, maxrs))
+    return SUNSPGMRSetMaxRestarts(S, convert(Cint, maxrs))
 end
 
 function SUNLinSolGetType_SPGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_SPGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_SPGMR, libsundials_sunlinsolspgmr), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_SPGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_SPGMR, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolInitialize_SPGMR, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSetATimes_SPGMR(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes_SPGMR, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
+    return ccall(
+        (:SUNLinSolSetATimes_SPGMR, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes
+    )
 end
 
-function SUNLinSolSetPreconditioner_SPGMR(S::SUNLinearSolver, P_data, Pset::PSetupFn,
-        Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner_SPGMR, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+function SUNLinSolSetPreconditioner_SPGMR(
+        S::SUNLinearSolver, P_data, Pset::PSetupFn,
+        Psol::PSolveFn
+    )
+    return ccall(
+        (:SUNLinSolSetPreconditioner_SPGMR, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol
+    )
 end
 
-function SUNLinSolSetScalingVectors_SPGMR(S::SUNLinearSolver, s1::Union{N_Vector, NVector},
-        s2::Union{N_Vector, NVector})
-    ccall((:SUNLinSolSetScalingVectors_SPGMR, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+function SUNLinSolSetScalingVectors_SPGMR(
+        S::SUNLinearSolver, s1::Union{N_Vector, NVector},
+        s2::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNLinSolSetScalingVectors_SPGMR, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2
+    )
 end
 
 function SUNLinSolSetScalingVectors_SPGMR(S, s1, s2, ctx::SUNContext)
-    SUNLinSolSetScalingVectors_SPGMR(S, s1, s2)
+    return SUNLinSolSetScalingVectors_SPGMR(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPGMR(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_SPGMR, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_SPGMR, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
 function SUNLinSolSolve_SPGMR(
         S::SUNLinearSolver, A::SUNMatrix, x::Union{N_Vector, NVector},
         b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_SPGMR, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_SPGMR, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_SPGMR(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_SPGMR(S, A, x, b, tol)
+    return SUNLinSolSolve_SPGMR(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters_SPGMR, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver,),
-        S)
+    return ccall(
+        (:SUNLinSolNumIters_SPGMR, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver,),
+        S
+    )
 end
 
 function SUNLinSolResNorm_SPGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm_SPGMR, libsundials_sunlinsolspgmr), realtype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolResNorm_SPGMR, libsundials_sunlinsolspgmr), realtype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolResid_SPGMR(S::SUNLinearSolver)
-    ccall(
+    return ccall(
         (:SUNLinSolResid_SPGMR, libsundials_sunlinsolspgmr), N_Vector, (SUNLinearSolver,),
-        S)
+        S
+    )
 end
 
 function SUNLinSolLastFlag_SPGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_SPGMR, libsundials_sunlinsolspgmr), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_SPGMR, libsundials_sunlinsolspgmr), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_SPGMR(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_SPGMR, libsundials_sunlinsolspgmr), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_SPGMR, libsundials_sunlinsolspgmr), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_SPGMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_SPGMR, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver,), S)
+    return ccall((:SUNLinSolFree_SPGMR, libsundials_sunlinsolspgmr), Cint, (SUNLinearSolver,), S)
 end
 
 function SUNLinSol_SPTFQMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint, ctx::SUNContext)
-    ccall((:SUNLinSol_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx)
+    return ccall(
+        (:SUNLinSol_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver,
+        (N_Vector, Cint, Cint, SUNContext), y, pretype, maxl, ctx
+    )
 end
 
 function SUNLinSol_SPTFQMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNLinSol_SPTFQMR(__y, pretype, maxl, ctx)
+    return SUNLinSol_SPTFQMR(__y, pretype, maxl, ctx)
 end
 
 function SUNLinSol_SPTFQMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNLinSol_SPTFQMRSetPrecType, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNLinSol_SPTFQMRSetPrecType, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNLinSol_SPTFQMRSetPrecType(S, pretype)
-    SUNLinSol_SPTFQMRSetPrecType(S, convert(Cint, pretype))
+    return SUNLinSol_SPTFQMRSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNLinSol_SPTFQMRSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall((:SUNLinSol_SPTFQMRSetMaxl, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, Cint), S, maxl)
+    return ccall(
+        (:SUNLinSol_SPTFQMRSetMaxl, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, Cint), S, maxl
+    )
 end
 
 function SUNLinSol_SPTFQMRSetMaxl(S, maxl)
-    SUNLinSol_SPTFQMRSetMaxl(S, convert(Cint, maxl))
+    return SUNLinSol_SPTFQMRSetMaxl(S, convert(Cint, maxl))
 end
 
 function SUNSPTFQMR(y::Union{N_Vector, NVector}, pretype::Cint, maxl::Cint)
-    ccall((:SUNSPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver,
-        (N_Vector, Cint, Cint), y, pretype, maxl)
+    return ccall(
+        (:SUNSPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver,
+        (N_Vector, Cint, Cint), y, pretype, maxl
+    )
 end
 
 function SUNSPTFQMR(y, pretype, maxl, ctx::SUNContext)
     __y = convert(NVector, y, ctx)
-    SUNSPTFQMR(__y, pretype, maxl)
+    return SUNSPTFQMR(__y, pretype, maxl)
 end
 
 function SUNSPTFQMRSetPrecType(S::SUNLinearSolver, pretype::Cint)
-    ccall((:SUNSPTFQMRSetPrecType, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, Cint), S, pretype)
+    return ccall(
+        (:SUNSPTFQMRSetPrecType, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, Cint), S, pretype
+    )
 end
 
 function SUNSPTFQMRSetPrecType(S, pretype)
-    SUNSPTFQMRSetPrecType(S, convert(Cint, pretype))
+    return SUNSPTFQMRSetPrecType(S, convert(Cint, pretype))
 end
 
 function SUNSPTFQMRSetMaxl(S::SUNLinearSolver, maxl::Cint)
-    ccall(
+    return ccall(
         (:SUNSPTFQMRSetMaxl, libsundials_sunlinsolsptfqmr), Cint, (SUNLinearSolver, Cint),
-        S, maxl)
+        S, maxl
+    )
 end
 
 function SUNSPTFQMRSetMaxl(S, maxl)
-    SUNSPTFQMRSetMaxl(S, convert(Cint, maxl))
+    return SUNSPTFQMRSetMaxl(S, convert(Cint, maxl))
 end
 
 function SUNLinSolGetType_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetType_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver_Type,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetType_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver_Type,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolGetID_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolGetID_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver_ID,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolGetID_SPTFQMR, libsundials_sunlinsolsptfqmr), SUNLinearSolver_ID,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolInitialize_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolInitialize_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolInitialize_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSetATimes_SPTFQMR(S::SUNLinearSolver, A_data, ATimes::ATimesFn)
-    ccall((:SUNLinSolSetATimes_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes)
+    return ccall(
+        (:SUNLinSolSetATimes_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, ATimesFn), S, A_data, ATimes
+    )
 end
 
-function SUNLinSolSetPreconditioner_SPTFQMR(S::SUNLinearSolver, P_data, Pset::PSetupFn,
-        Psol::PSolveFn)
-    ccall((:SUNLinSolSetPreconditioner_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol)
+function SUNLinSolSetPreconditioner_SPTFQMR(
+        S::SUNLinearSolver, P_data, Pset::PSetupFn,
+        Psol::PSolveFn
+    )
+    return ccall(
+        (:SUNLinSolSetPreconditioner_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, Ptr{Cvoid}, PSetupFn, PSolveFn), S, P_data, Pset, Psol
+    )
 end
 
-function SUNLinSolSetScalingVectors_SPTFQMR(S::SUNLinearSolver,
+function SUNLinSolSetScalingVectors_SPTFQMR(
+        S::SUNLinearSolver,
         s1::Union{N_Vector, NVector},
-        s2::Union{N_Vector, NVector})
-    ccall((:SUNLinSolSetScalingVectors_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2)
+        s2::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNLinSolSetScalingVectors_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, N_Vector, N_Vector), S, s1, s2
+    )
 end
 
 function SUNLinSolSetScalingVectors_SPTFQMR(S, s1, s2, ctx::SUNContext)
-    SUNLinSolSetScalingVectors_SPTFQMR(S, s1, s2)
+    return SUNLinSolSetScalingVectors_SPTFQMR(S, s1, s2)
 end
 
 function SUNLinSolSetup_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix)
-    ccall((:SUNLinSolSetup_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, SUNMatrix), S, A)
+    return ccall(
+        (:SUNLinSolSetup_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, SUNMatrix), S, A
+    )
 end
 
-function SUNLinSolSolve_SPTFQMR(S::SUNLinearSolver, A::SUNMatrix,
+function SUNLinSolSolve_SPTFQMR(
+        S::SUNLinearSolver, A::SUNMatrix,
         x::Union{N_Vector, NVector}, b::Union{N_Vector, NVector},
-        tol::realtype)
-    ccall((:SUNLinSolSolve_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol)
+        tol::realtype
+    )
+    return ccall(
+        (:SUNLinSolSolve_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, SUNMatrix, N_Vector, N_Vector, realtype), S, A, x, b, tol
+    )
 end
 
 function SUNLinSolSolve_SPTFQMR(S, A, x, b, tol, ctx::SUNContext)
-    SUNLinSolSolve_SPTFQMR(S, A, x, b, tol)
+    return SUNLinSolSolve_SPTFQMR(S, A, x, b, tol)
 end
 
 function SUNLinSolNumIters_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolNumIters_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolNumIters_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolResNorm_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolResNorm_SPTFQMR, libsundials_sunlinsolsptfqmr), realtype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolResNorm_SPTFQMR, libsundials_sunlinsolsptfqmr), realtype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolResid_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolResid_SPTFQMR, libsundials_sunlinsolsptfqmr), N_Vector,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolResid_SPTFQMR, libsundials_sunlinsolsptfqmr), N_Vector,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolLastFlag_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolLastFlag_SPTFQMR, libsundials_sunlinsolsptfqmr), sunindextype,
-        (SUNLinearSolver,), S)
+    return ccall(
+        (:SUNLinSolLastFlag_SPTFQMR, libsundials_sunlinsolsptfqmr), sunindextype,
+        (SUNLinearSolver,), S
+    )
 end
 
 function SUNLinSolSpace_SPTFQMR(S::SUNLinearSolver, lenrwLS, leniwLS)
-    ccall((:SUNLinSolSpace_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
-        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS)
+    return ccall(
+        (:SUNLinSolSpace_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint,
+        (SUNLinearSolver, Ptr{Clong}, Ptr{Clong}), S, lenrwLS, leniwLS
+    )
 end
 
 function SUNLinSolFree_SPTFQMR(S::SUNLinearSolver)
-    ccall((:SUNLinSolFree_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint, (SUNLinearSolver,),
-        S)
+    return ccall(
+        (:SUNLinSolFree_SPTFQMR, libsundials_sunlinsolsptfqmr), Cint, (SUNLinearSolver,),
+        S
+    )
 end
 
 function SUNBandMatrix(N::sunindextype, mu::sunindextype, ml::sunindextype, sunctx::SUNContext)
-    ccall((:SUNBandMatrix, libsundials_sunmatrixband), SUNMatrix,
-        (sunindextype, sunindextype, sunindextype, SUNContext), N, mu, ml, sunctx)
+    return ccall(
+        (:SUNBandMatrix, libsundials_sunmatrixband), SUNMatrix,
+        (sunindextype, sunindextype, sunindextype, SUNContext), N, mu, ml, sunctx
+    )
 end
 
-function SUNBandMatrixStorage(N::sunindextype, mu::sunindextype, ml::sunindextype,
-        smu::sunindextype)
-    ccall((:SUNBandMatrixStorage, libsundials_sunmatrixband), SUNMatrix,
-        (sunindextype, sunindextype, sunindextype, sunindextype), N, mu, ml, smu)
+function SUNBandMatrixStorage(
+        N::sunindextype, mu::sunindextype, ml::sunindextype,
+        smu::sunindextype
+    )
+    return ccall(
+        (:SUNBandMatrixStorage, libsundials_sunmatrixband), SUNMatrix,
+        (sunindextype, sunindextype, sunindextype, sunindextype), N, mu, ml, smu
+    )
 end
 
 function SUNBandMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNBandMatrix_Print, libsundials_sunmatrixband), Cvoid,
-        (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
+    return ccall(
+        (:SUNBandMatrix_Print, libsundials_sunmatrixband), Cvoid,
+        (SUNMatrix, Ptr{Libc.FILE}), A, outfile
+    )
 end
 
 function SUNBandMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Rows, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
+    return ccall((:SUNBandMatrix_Rows, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Columns(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Columns, libsundials_sunmatrixband), sunindextype, (SUNMatrix,),
-        A)
+    return ccall(
+        (:SUNBandMatrix_Columns, libsundials_sunmatrixband), sunindextype, (SUNMatrix,),
+        A
+    )
 end
 
 function SUNBandMatrix_LowerBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LowerBandwidth, libsundials_sunmatrixband), sunindextype,
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNBandMatrix_LowerBandwidth, libsundials_sunmatrixband), sunindextype,
+        (SUNMatrix,), A
+    )
 end
 
 function SUNBandMatrix_UpperBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_UpperBandwidth, libsundials_sunmatrixband), sunindextype,
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNBandMatrix_UpperBandwidth, libsundials_sunmatrixband), sunindextype,
+        (SUNMatrix,), A
+    )
 end
 
 function SUNBandMatrix_StoredUpperBandwidth(A::SUNMatrix)
-    ccall((:SUNBandMatrix_StoredUpperBandwidth, libsundials_sunmatrixband), sunindextype,
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNBandMatrix_StoredUpperBandwidth, libsundials_sunmatrixband), sunindextype,
+        (SUNMatrix,), A
+    )
 end
 
 function SUNBandMatrix_LDim(A::SUNMatrix)
-    ccall((:SUNBandMatrix_LDim, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
+    return ccall((:SUNBandMatrix_LDim, libsundials_sunmatrixband), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Data(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Data, libsundials_sunmatrixband), Ptr{realtype}, (SUNMatrix,), A)
+    return ccall((:SUNBandMatrix_Data, libsundials_sunmatrixband), Ptr{realtype}, (SUNMatrix,), A)
 end
 
 function SUNBandMatrix_Cols(A::SUNMatrix)
-    ccall((:SUNBandMatrix_Cols, libsundials_sunmatrixband), Ptr{Ptr{realtype}},
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNBandMatrix_Cols, libsundials_sunmatrixband), Ptr{Ptr{realtype}},
+        (SUNMatrix,), A
+    )
 end
 
 function SUNBandMatrix_Column(A::SUNMatrix, j::sunindextype)
-    ccall((:SUNBandMatrix_Column, libsundials_sunmatrixband), Ptr{realtype},
-        (SUNMatrix, sunindextype), A, j)
+    return ccall(
+        (:SUNBandMatrix_Column, libsundials_sunmatrixband), Ptr{realtype},
+        (SUNMatrix, sunindextype), A, j
+    )
 end
 
 function SUNMatGetID_Band(A::SUNMatrix)
-    ccall((:SUNMatGetID_Band, libsundials_sunmatrixband), SUNMatrix_ID, (SUNMatrix,), A)
+    return ccall((:SUNMatGetID_Band, libsundials_sunmatrixband), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Band(A::SUNMatrix)
-    ccall((:SUNMatClone_Band, libsundials_sunmatrixband), SUNMatrix, (SUNMatrix,), A)
+    return ccall((:SUNMatClone_Band, libsundials_sunmatrixband), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Band(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Band, libsundials_sunmatrixband), Cvoid, (SUNMatrix,), A)
+    return ccall((:SUNMatDestroy_Band, libsundials_sunmatrixband), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Band(A::SUNMatrix)
-    ccall((:SUNMatZero_Band, libsundials_sunmatrixband), Cint, (SUNMatrix,), A)
+    return ccall((:SUNMatZero_Band, libsundials_sunmatrixband), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Band(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Band, libsundials_sunmatrixband), Cint, (SUNMatrix, SUNMatrix), A, B)
+    return ccall((:SUNMatCopy_Band, libsundials_sunmatrixband), Cint, (SUNMatrix, SUNMatrix), A, B)
 end
 
 function SUNMatScaleAdd_Band(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Band, libsundials_sunmatrixband), Cint,
-        (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    return ccall(
+        (:SUNMatScaleAdd_Band, libsundials_sunmatrixband), Cint,
+        (realtype, SUNMatrix, SUNMatrix), c, A, B
+    )
 end
 
 function SUNMatScaleAddI_Band(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI_Band, libsundials_sunmatrixband), Cint, (realtype, SUNMatrix),
-        c, A)
+    return ccall(
+        (:SUNMatScaleAddI_Band, libsundials_sunmatrixband), Cint, (realtype, SUNMatrix),
+        c, A
+    )
 end
 
-function SUNMatMatvec_Band(A::SUNMatrix, x::Union{N_Vector, NVector},
-        y::Union{N_Vector, NVector})
-    ccall((:SUNMatMatvec_Band, libsundials_sunmatrixband), Cint,
-        (SUNMatrix, N_Vector, N_Vector), A, x, y)
+function SUNMatMatvec_Band(
+        A::SUNMatrix, x::Union{N_Vector, NVector},
+        y::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNMatMatvec_Band, libsundials_sunmatrixband), Cint,
+        (SUNMatrix, N_Vector, N_Vector), A, x, y
+    )
 end
 
 function SUNMatMatvec_Band(A, x, y, ctx::SUNContext)
-    SUNMatMatvec_Band(A, x, y)
+    return SUNMatMatvec_Band(A, x, y)
 end
 
 function SUNMatSpace_Band(A::SUNMatrix, lenrw, leniw)
-    ccall((:SUNMatSpace_Band, libsundials_sunmatrixband), Cint,
-        (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
+    return ccall(
+        (:SUNMatSpace_Band, libsundials_sunmatrixband), Cint,
+        (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw
+    )
 end
 
 function SUNDenseMatrix(M::sunindextype, N::sunindextype, sunctx::SUNContext)
-    ccall((:SUNDenseMatrix, libsundials_sunmatrixdense), SUNMatrix,
-        (sunindextype, sunindextype, SUNContext), M, N, sunctx)
+    return ccall(
+        (:SUNDenseMatrix, libsundials_sunmatrixdense), SUNMatrix,
+        (sunindextype, sunindextype, SUNContext), M, N, sunctx
+    )
 end
 
 function SUNDenseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNDenseMatrix_Print, libsundials_sunmatrixdense), Cvoid,
-        (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
+    return ccall(
+        (:SUNDenseMatrix_Print, libsundials_sunmatrixdense), Cvoid,
+        (SUNMatrix, Ptr{Libc.FILE}), A, outfile
+    )
 end
 
 function SUNDenseMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_Rows, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,), A)
+    return ccall((:SUNDenseMatrix_Rows, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNDenseMatrix_Columns(A::SUNMatrix)
-    ccall(
+    return ccall(
         (:SUNDenseMatrix_Columns, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,),
-        A)
+        A
+    )
 end
 
 function SUNDenseMatrix_LData(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_LData, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,),
-        A)
+    return ccall(
+        (:SUNDenseMatrix_LData, libsundials_sunmatrixdense), sunindextype, (SUNMatrix,),
+        A
+    )
 end
 
 function SUNDenseMatrix_Data(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_Data, libsundials_sunmatrixdense), Ptr{realtype}, (SUNMatrix,),
-        A)
+    return ccall(
+        (:SUNDenseMatrix_Data, libsundials_sunmatrixdense), Ptr{realtype}, (SUNMatrix,),
+        A
+    )
 end
 
 function SUNDenseMatrix_Cols(A::SUNMatrix)
-    ccall((:SUNDenseMatrix_Cols, libsundials_sunmatrixdense), Ptr{Ptr{realtype}},
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNDenseMatrix_Cols, libsundials_sunmatrixdense), Ptr{Ptr{realtype}},
+        (SUNMatrix,), A
+    )
 end
 
 function SUNDenseMatrix_Column(A::SUNMatrix, j::sunindextype)
-    ccall((:SUNDenseMatrix_Column, libsundials_sunmatrixdense), Ptr{realtype},
-        (SUNMatrix, sunindextype), A, j)
+    return ccall(
+        (:SUNDenseMatrix_Column, libsundials_sunmatrixdense), Ptr{realtype},
+        (SUNMatrix, sunindextype), A, j
+    )
 end
 
 function SUNMatGetID_Dense(A::SUNMatrix)
-    ccall((:SUNMatGetID_Dense, libsundials_sunmatrixdense), SUNMatrix_ID, (SUNMatrix,), A)
+    return ccall((:SUNMatGetID_Dense, libsundials_sunmatrixdense), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Dense(A::SUNMatrix)
-    ccall((:SUNMatClone_Dense, libsundials_sunmatrixdense), SUNMatrix, (SUNMatrix,), A)
+    return ccall((:SUNMatClone_Dense, libsundials_sunmatrixdense), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Dense(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Dense, libsundials_sunmatrixdense), Cvoid, (SUNMatrix,), A)
+    return ccall((:SUNMatDestroy_Dense, libsundials_sunmatrixdense), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Dense(A::SUNMatrix)
-    ccall((:SUNMatZero_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix,), A)
+    return ccall((:SUNMatZero_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Dense(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix, SUNMatrix), A,
-        B)
+    return ccall(
+        (:SUNMatCopy_Dense, libsundials_sunmatrixdense), Cint, (SUNMatrix, SUNMatrix), A,
+        B
+    )
 end
 
 function SUNMatScaleAdd_Dense(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Dense, libsundials_sunmatrixdense), Cint,
-        (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    return ccall(
+        (:SUNMatScaleAdd_Dense, libsundials_sunmatrixdense), Cint,
+        (realtype, SUNMatrix, SUNMatrix), c, A, B
+    )
 end
 
 function SUNMatScaleAddI_Dense(c::realtype, A::SUNMatrix)
-    ccall(
+    return ccall(
         (:SUNMatScaleAddI_Dense, libsundials_sunmatrixdense), Cint, (realtype, SUNMatrix),
-        c, A)
+        c, A
+    )
 end
 
-function SUNMatMatvec_Dense(A::SUNMatrix, x::Union{N_Vector, NVector},
-        y::Union{N_Vector, NVector})
-    ccall((:SUNMatMatvec_Dense, libsundials_sunmatrixdense), Cint,
-        (SUNMatrix, N_Vector, N_Vector), A, x, y)
+function SUNMatMatvec_Dense(
+        A::SUNMatrix, x::Union{N_Vector, NVector},
+        y::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNMatMatvec_Dense, libsundials_sunmatrixdense), Cint,
+        (SUNMatrix, N_Vector, N_Vector), A, x, y
+    )
 end
 
 function SUNMatMatvec_Dense(A, x, y, ctx::SUNContext)
-    SUNMatMatvec_Dense(A, x, y)
+    return SUNMatMatvec_Dense(A, x, y)
 end
 
 function SUNMatSpace_Dense(A::SUNMatrix, lenrw, leniw)
-    ccall((:SUNMatSpace_Dense, libsundials_sunmatrixdense), Cint,
-        (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
+    return ccall(
+        (:SUNMatSpace_Dense, libsundials_sunmatrixdense), Cint,
+        (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw
+    )
 end
 
-function SUNSparseMatrix(M::sunindextype, N::sunindextype, NNZ::sunindextype,
-        sparsetype::Cint, ctx::SUNContext)
-    ccall((:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix,
-        (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, ctx)
+function SUNSparseMatrix(
+        M::sunindextype, N::sunindextype, NNZ::sunindextype,
+        sparsetype::Cint, ctx::SUNContext
+    )
+    return ccall(
+        (:SUNSparseMatrix, libsundials_sunmatrixsparse), SUNMatrix,
+        (sunindextype, sunindextype, sunindextype, Cint, SUNContext), M, N, NNZ, sparsetype, ctx
+    )
 end
 
 function SUNSparseMatrix(M, N, NNZ, sparsetype, ctx::SUNContext)
-    SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype), ctx)
+    return SUNSparseMatrix(M, N, NNZ, convert(Cint, sparsetype), ctx)
 end
 
 function SUNSparseFromDenseMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
-    ccall((:SUNSparseFromDenseMatrix, libsundials_sunmatrixdense), SUNMatrix,
-        (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
+    return ccall(
+        (:SUNSparseFromDenseMatrix, libsundials_sunmatrixdense), SUNMatrix,
+        (SUNMatrix, realtype, Cint), A, droptol, sparsetype
+    )
 end
 
 function SUNSparseFromDenseMatrix(A, droptol, sparsetype)
-    SUNSparseFromDenseMatrix(A, droptol, convert(Cint, sparsetype))
+    return SUNSparseFromDenseMatrix(A, droptol, convert(Cint, sparsetype))
 end
 
 function SUNSparseFromBandMatrix(A::SUNMatrix, droptol::realtype, sparsetype::Cint)
-    ccall((:SUNSparseFromBandMatrix, libsundials_sunmatrixband), SUNMatrix,
-        (SUNMatrix, realtype, Cint), A, droptol, sparsetype)
+    return ccall(
+        (:SUNSparseFromBandMatrix, libsundials_sunmatrixband), SUNMatrix,
+        (SUNMatrix, realtype, Cint), A, droptol, sparsetype
+    )
 end
 
 function SUNSparseFromBandMatrix(A, droptol, sparsetype)
-    SUNSparseFromBandMatrix(A, droptol, convert(Cint, sparsetype))
+    return SUNSparseFromBandMatrix(A, droptol, convert(Cint, sparsetype))
 end
 
 function SUNSparseMatrix_ToCSR(A::SUNMatrix, Bout)
-    ccall((:SUNSparseMatrix_ToCSR, libsundials_sunmatrixsparse), Cint,
-        (SUNMatrix, Ptr{SUNMatrix}), A, Bout)
+    return ccall(
+        (:SUNSparseMatrix_ToCSR, libsundials_sunmatrixsparse), Cint,
+        (SUNMatrix, Ptr{SUNMatrix}), A, Bout
+    )
 end
 
 function SUNSparseMatrix_ToCSC(A::SUNMatrix, Bout)
-    ccall((:SUNSparseMatrix_ToCSC, libsundials_sunmatrixsparse), Cint,
-        (SUNMatrix, Ptr{SUNMatrix}), A, Bout)
+    return ccall(
+        (:SUNSparseMatrix_ToCSC, libsundials_sunmatrixsparse), Cint,
+        (SUNMatrix, Ptr{SUNMatrix}), A, Bout
+    )
 end
 
 function SUNSparseMatrix_Realloc(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Realloc, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
+    return ccall((:SUNSparseMatrix_Realloc, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Reallocate(A::SUNMatrix, NNZ::sunindextype)
-    ccall((:SUNSparseMatrix_Reallocate, libsundials_sunmatrixsparse), Cint,
-        (SUNMatrix, sunindextype), A, NNZ)
+    return ccall(
+        (:SUNSparseMatrix_Reallocate, libsundials_sunmatrixsparse), Cint,
+        (SUNMatrix, sunindextype), A, NNZ
+    )
 end
 
 function SUNSparseMatrix_Print(A::SUNMatrix, outfile)
-    ccall((:SUNSparseMatrix_Print, libsundials_sunmatrixsparse), Cvoid,
-        (SUNMatrix, Ptr{Libc.FILE}), A, outfile)
+    return ccall(
+        (:SUNSparseMatrix_Print, libsundials_sunmatrixsparse), Cvoid,
+        (SUNMatrix, Ptr{Libc.FILE}), A, outfile
+    )
 end
 
 function SUNSparseMatrix_Rows(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Rows, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,),
-        A)
+    return ccall(
+        (:SUNSparseMatrix_Rows, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,),
+        A
+    )
 end
 
 function SUNSparseMatrix_Columns(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_Columns, libsundials_sunmatrixsparse), sunindextype,
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNSparseMatrix_Columns, libsundials_sunmatrixsparse), sunindextype,
+        (SUNMatrix,), A
+    )
 end
 
 function SUNSparseMatrix_NNZ(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_NNZ, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,),
-        A)
+    return ccall(
+        (:SUNSparseMatrix_NNZ, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,),
+        A
+    )
 end
 
 function SUNSparseMatrix_NP(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_NP, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,), A)
+    return ccall((:SUNSparseMatrix_NP, libsundials_sunmatrixsparse), sunindextype, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_SparseType(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_SparseType, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
+    return ccall((:SUNSparseMatrix_SparseType, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
 end
 
 function SUNSparseMatrix_Data(A::SUNMatrix)
-    ccall(
+    return ccall(
         (:SUNSparseMatrix_Data, libsundials_sunmatrixsparse), Ptr{realtype}, (SUNMatrix,),
-        A)
+        A
+    )
 end
 
 function SUNSparseMatrix_IndexValues(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_IndexValues, libsundials_sunmatrixsparse), Ptr{sunindextype},
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNSparseMatrix_IndexValues, libsundials_sunmatrixsparse), Ptr{sunindextype},
+        (SUNMatrix,), A
+    )
 end
 
 function SUNSparseMatrix_IndexPointers(A::SUNMatrix)
-    ccall((:SUNSparseMatrix_IndexPointers, libsundials_sunmatrixsparse), Ptr{sunindextype},
-        (SUNMatrix,), A)
+    return ccall(
+        (:SUNSparseMatrix_IndexPointers, libsundials_sunmatrixsparse), Ptr{sunindextype},
+        (SUNMatrix,), A
+    )
 end
 
 function SUNMatGetID_Sparse(A::SUNMatrix)
-    ccall((:SUNMatGetID_Sparse, libsundials_sunmatrixsparse), SUNMatrix_ID, (SUNMatrix,), A)
+    return ccall((:SUNMatGetID_Sparse, libsundials_sunmatrixsparse), SUNMatrix_ID, (SUNMatrix,), A)
 end
 
 function SUNMatClone_Sparse(A::SUNMatrix)
-    ccall((:SUNMatClone_Sparse, libsundials_sunmatrixsparse), SUNMatrix, (SUNMatrix,), A)
+    return ccall((:SUNMatClone_Sparse, libsundials_sunmatrixsparse), SUNMatrix, (SUNMatrix,), A)
 end
 
 function SUNMatDestroy_Sparse(A::SUNMatrix)
-    ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix,), A)
+    return ccall((:SUNMatDestroy_Sparse, libsundials_sunmatrixsparse), Cvoid, (SUNMatrix,), A)
 end
 
 function SUNMatZero_Sparse(A::SUNMatrix)
-    ccall((:SUNMatZero_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
+    return ccall((:SUNMatZero_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix,), A)
 end
 
 function SUNMatCopy_Sparse(A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatCopy_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix, SUNMatrix),
-        A, B)
+    return ccall(
+        (:SUNMatCopy_Sparse, libsundials_sunmatrixsparse), Cint, (SUNMatrix, SUNMatrix),
+        A, B
+    )
 end
 
 function SUNMatScaleAdd_Sparse(c::realtype, A::SUNMatrix, B::SUNMatrix)
-    ccall((:SUNMatScaleAdd_Sparse, libsundials_sunmatrixsparse), Cint,
-        (realtype, SUNMatrix, SUNMatrix), c, A, B)
+    return ccall(
+        (:SUNMatScaleAdd_Sparse, libsundials_sunmatrixsparse), Cint,
+        (realtype, SUNMatrix, SUNMatrix), c, A, B
+    )
 end
 
 function SUNMatScaleAddI_Sparse(c::realtype, A::SUNMatrix)
-    ccall((:SUNMatScaleAddI_Sparse, libsundials_sunmatrixsparse), Cint,
-        (realtype, SUNMatrix), c, A)
+    return ccall(
+        (:SUNMatScaleAddI_Sparse, libsundials_sunmatrixsparse), Cint,
+        (realtype, SUNMatrix), c, A
+    )
 end
 
-function SUNMatMatvec_Sparse(A::SUNMatrix, x::Union{N_Vector, NVector},
-        y::Union{N_Vector, NVector})
-    ccall((:SUNMatMatvec_Sparse, libsundials_sunmatrixsparse), Cint,
-        (SUNMatrix, N_Vector, N_Vector), A, x, y)
+function SUNMatMatvec_Sparse(
+        A::SUNMatrix, x::Union{N_Vector, NVector},
+        y::Union{N_Vector, NVector}
+    )
+    return ccall(
+        (:SUNMatMatvec_Sparse, libsundials_sunmatrixsparse), Cint,
+        (SUNMatrix, N_Vector, N_Vector), A, x, y
+    )
 end
 
 function SUNMatMatvec_Sparse(A, x, y, ctx::SUNContext)
-    SUNMatMatvec_Sparse(A, x, y)
+    return SUNMatMatvec_Sparse(A, x, y)
 end
 
 function SUNMatSpace_Sparse(A::SUNMatrix, lenrw, leniw)
-    ccall((:SUNMatSpace_Sparse, libsundials_sunmatrixsparse), Cint,
-        (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw)
+    return ccall(
+        (:SUNMatSpace_Sparse, libsundials_sunmatrixsparse), Cint,
+        (SUNMatrix, Ptr{Clong}, Ptr{Clong}), A, lenrw, leniw
+    )
 end
 
 function SUNNonlinSol_FixedPoint(y::Union{N_Vector, NVector}, m::Cint, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_FixedPoint, libsundials_sunnonlinsolfixedpoint),
-        SUNNonlinearSolver, (N_Vector, Cint, SUNContext), y, m, sunctx)
+    return ccall(
+        (:SUNNonlinSol_FixedPoint, libsundials_sunnonlinsolfixedpoint),
+        SUNNonlinearSolver, (N_Vector, Cint, SUNContext), y, m, sunctx
+    )
 end
 
 function SUNNonlinSol_FixedPoint(y, m, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
-    SUNNonlinSol_FixedPoint(__y, m, sunctx)
+    return SUNNonlinSol_FixedPoint(__y, m, sunctx)
 end
 
 function SUNNonlinSol_FixedPointSens(count::Cint, y::Union{N_Vector, NVector}, m::Cint, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_FixedPointSens, libsundials_sunnonlinsolfixedpoint),
-        SUNNonlinearSolver, (Cint, N_Vector, Cint, SUNContext), count, y, m, sunctx)
+    return ccall(
+        (:SUNNonlinSol_FixedPointSens, libsundials_sunnonlinsolfixedpoint),
+        SUNNonlinearSolver, (Cint, N_Vector, Cint, SUNContext), count, y, m, sunctx
+    )
 end
 
 function SUNNonlinSol_FixedPointSens(count, y, m, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
-    SUNNonlinSol_FixedPointSens(count, __y, m, sunctx)
+    return SUNNonlinSol_FixedPointSens(count, __y, m, sunctx)
 end
 
 function SUNNonlinSolGetType_FixedPoint(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolGetType_FixedPoint, libsundials_sunnonlinsolfixedpoint),
-        SUNNonlinearSolver_Type, (SUNNonlinearSolver,), NLS)
+    return ccall(
+        (:SUNNonlinSolGetType_FixedPoint, libsundials_sunnonlinsolfixedpoint),
+        SUNNonlinearSolver_Type, (SUNNonlinearSolver,), NLS
+    )
 end
 
 function SUNNonlinSolInitialize_FixedPoint(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolInitialize_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver,), NLS)
+    return ccall(
+        (:SUNNonlinSolInitialize_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver,), NLS
+    )
 end
 
 function SUNNonlinSolSolve_FixedPoint(
         NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
         y::Union{N_Vector, NVector},
         w::Union{N_Vector, NVector}, tol::realtype,
-        callSetup::Cint, mem)
-    ccall((:SUNNonlinSolSolve_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        callSetup::Cint, mem
+    )
+    return ccall(
+        (:SUNNonlinSolSolve_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
         (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}),
-        NLS, y0, y, w, tol, callSetup, mem)
+        NLS, y0, y, w, tol, callSetup, mem
+    )
 end
 
 function SUNNonlinSolSolve_FixedPoint(NLS, y0, y, w, tol, callSetup, mem)
     __y0 = convert(NVector, y0)
     __y = convert(NVector, y)
     __w = convert(NVector, w)
-    SUNNonlinSolSolve_FixedPoint(NLS, __y0, __y,
-        __w, tol, convert(Cint, callSetup), mem)
+    return SUNNonlinSolSolve_FixedPoint(
+        NLS, __y0, __y,
+        __w, tol, convert(Cint, callSetup), mem
+    )
 end
 
 function SUNNonlinSolFree_FixedPoint(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolFree_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver,), NLS)
+    return ccall(
+        (:SUNNonlinSolFree_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver,), NLS
+    )
 end
 
 function SUNNonlinSolSetSysFn_FixedPoint(NLS::SUNNonlinearSolver, SysFn::SUNNonlinSolSysFn)
-    ccall((:SUNNonlinSolSetSysFn_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver, SUNNonlinSolSysFn), NLS, SysFn)
+    return ccall(
+        (:SUNNonlinSolSetSysFn_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver, SUNNonlinSolSysFn), NLS, SysFn
+    )
 end
 
-function SUNNonlinSolSetConvTestFn_FixedPoint(NLS::SUNNonlinearSolver,
-        CTestFn::SUNNonlinSolConvTestFn, ctest_data)
-    ccall(
+function SUNNonlinSolSetConvTestFn_FixedPoint(
+        NLS::SUNNonlinearSolver,
+        CTestFn::SUNNonlinSolConvTestFn, ctest_data
+    )
+    return ccall(
         (:SUNNonlinSolSetConvTestFn_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
         (SUNNonlinearSolver, SUNNonlinSolConvTestFn, Ptr{Cvoid}), NLS, CTestFn,
-        ctest_data)
+        ctest_data
+    )
 end
 
 function SUNNonlinSolSetMaxIters_FixedPoint(NLS::SUNNonlinearSolver, maxiters::Cint)
-    ccall((:SUNNonlinSolSetMaxIters_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver, Cint), NLS, maxiters)
+    return ccall(
+        (:SUNNonlinSolSetMaxIters_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver, Cint), NLS, maxiters
+    )
 end
 
 function SUNNonlinSolSetMaxIters_FixedPoint(NLS, maxiters)
-    SUNNonlinSolSetMaxIters_FixedPoint(NLS, convert(Cint, maxiters))
+    return SUNNonlinSolSetMaxIters_FixedPoint(NLS, convert(Cint, maxiters))
 end
 
 function SUNNonlinSolSetDamping_FixedPoint(NLS::SUNNonlinearSolver, beta::realtype)
-    ccall((:SUNNonlinSolSetDamping_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver, realtype), NLS, beta)
+    return ccall(
+        (:SUNNonlinSolSetDamping_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver, realtype), NLS, beta
+    )
 end
 
 function SUNNonlinSolGetNumIters_FixedPoint(NLS::SUNNonlinearSolver, niters)
-    ccall((:SUNNonlinSolGetNumIters_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver, Ptr{Clong}), NLS, niters)
+    return ccall(
+        (:SUNNonlinSolGetNumIters_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver, Ptr{Clong}), NLS, niters
+    )
 end
 
 function SUNNonlinSolGetCurIter_FixedPoint(NLS::SUNNonlinearSolver, iter)
-    ccall((:SUNNonlinSolGetCurIter_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver, Ptr{Cint}), NLS, iter)
+    return ccall(
+        (:SUNNonlinSolGetCurIter_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver, Ptr{Cint}), NLS, iter
+    )
 end
 
 function SUNNonlinSolGetNumConvFails_FixedPoint(NLS::SUNNonlinearSolver, nconvfails)
-    ccall((:SUNNonlinSolGetNumConvFails_FixedPoint, libsundials_sunnonlinsolfixedpoint),
-        Cint, (SUNNonlinearSolver, Ptr{Clong}), NLS, nconvfails)
+    return ccall(
+        (:SUNNonlinSolGetNumConvFails_FixedPoint, libsundials_sunnonlinsolfixedpoint),
+        Cint, (SUNNonlinearSolver, Ptr{Clong}), NLS, nconvfails
+    )
 end
 
 function SUNNonlinSolGetSysFn_FixedPoint(NLS::SUNNonlinearSolver, SysFn)
-    ccall((:SUNNonlinSolGetSysFn_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
-        (SUNNonlinearSolver, Ptr{SUNNonlinSolSysFn}), NLS, SysFn)
+    return ccall(
+        (:SUNNonlinSolGetSysFn_FixedPoint, libsundials_sunnonlinsolfixedpoint), Cint,
+        (SUNNonlinearSolver, Ptr{SUNNonlinSolSysFn}), NLS, SysFn
+    )
 end
 
 function SUNNonlinSol_Newton(y::Union{N_Vector, NVector}, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_Newton, libsundials_sunnonlinsolnewton), SUNNonlinearSolver,
-        (N_Vector, SUNContext), y, sunctx)
+    return ccall(
+        (:SUNNonlinSol_Newton, libsundials_sunnonlinsolnewton), SUNNonlinearSolver,
+        (N_Vector, SUNContext), y, sunctx
+    )
 end
 
 function SUNNonlinSol_Newton(y, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
-    SUNNonlinSol_Newton(__y, sunctx)
+    return SUNNonlinSol_Newton(__y, sunctx)
 end
 
 function SUNNonlinSol_NewtonSens(count::Cint, y::Union{N_Vector, NVector}, sunctx::SUNContext)
-    ccall((:SUNNonlinSol_NewtonSens, libsundials_sunnonlinsolnewton), SUNNonlinearSolver,
-        (Cint, N_Vector, SUNContext), count, y, sunctx)
+    return ccall(
+        (:SUNNonlinSol_NewtonSens, libsundials_sunnonlinsolnewton), SUNNonlinearSolver,
+        (Cint, N_Vector, SUNContext), count, y, sunctx
+    )
 end
 
 function SUNNonlinSol_NewtonSens(count, y, sunctx::SUNContext)
     __y = convert(NVector, y, sunctx)
-    SUNNonlinSol_NewtonSens(count, __y, sunctx)
+    return SUNNonlinSol_NewtonSens(count, __y, sunctx)
 end
 
 function SUNNonlinSolGetType_Newton(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolGetType_Newton, libsundials_sunnonlinsolnewton),
-        SUNNonlinearSolver_Type, (SUNNonlinearSolver,), NLS)
+    return ccall(
+        (:SUNNonlinSolGetType_Newton, libsundials_sunnonlinsolnewton),
+        SUNNonlinearSolver_Type, (SUNNonlinearSolver,), NLS
+    )
 end
 
 function SUNNonlinSolInitialize_Newton(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolInitialize_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver,), NLS)
+    return ccall(
+        (:SUNNonlinSolInitialize_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver,), NLS
+    )
 end
 
-function SUNNonlinSolSolve_Newton(NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
+function SUNNonlinSolSolve_Newton(
+        NLS::SUNNonlinearSolver, y0::Union{N_Vector, NVector},
         y::Union{N_Vector, NVector},
         w::Union{N_Vector, NVector}, tol::realtype,
-        callLSetup::Cint, mem)
-    ccall((:SUNNonlinSolSolve_Newton, libsundials_sunnonlinsolnewton), Cint,
+        callLSetup::Cint, mem
+    )
+    return ccall(
+        (:SUNNonlinSolSolve_Newton, libsundials_sunnonlinsolnewton), Cint,
         (SUNNonlinearSolver, N_Vector, N_Vector, N_Vector, realtype, Cint, Ptr{Cvoid}),
-        NLS, y0, y, w, tol, callLSetup, mem)
+        NLS, y0, y, w, tol, callLSetup, mem
+    )
 end
 
 function SUNNonlinSolSolve_Newton(NLS, y0, y, w, tol, callLSetup, mem)
     __y0 = convert(NVector, y0)
     __y = convert(NVector, y)
     __w = convert(NVector, w)
-    SUNNonlinSolSolve_Newton(NLS, __y0, __y,
-        __w, tol, convert(Cint, callLSetup), mem)
+    return SUNNonlinSolSolve_Newton(
+        NLS, __y0, __y,
+        __w, tol, convert(Cint, callLSetup), mem
+    )
 end
 
 function SUNNonlinSolFree_Newton(NLS::SUNNonlinearSolver)
-    ccall((:SUNNonlinSolFree_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver,), NLS)
+    return ccall(
+        (:SUNNonlinSolFree_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver,), NLS
+    )
 end
 
 function SUNNonlinSolSetSysFn_Newton(NLS::SUNNonlinearSolver, SysFn::SUNNonlinSolSysFn)
-    ccall((:SUNNonlinSolSetSysFn_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, SUNNonlinSolSysFn), NLS, SysFn)
+    return ccall(
+        (:SUNNonlinSolSetSysFn_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, SUNNonlinSolSysFn), NLS, SysFn
+    )
 end
 
-function SUNNonlinSolSetLSetupFn_Newton(NLS::SUNNonlinearSolver,
-        LSetupFn::SUNNonlinSolLSetupFn)
-    ccall((:SUNNonlinSolSetLSetupFn_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, SUNNonlinSolLSetupFn), NLS, LSetupFn)
+function SUNNonlinSolSetLSetupFn_Newton(
+        NLS::SUNNonlinearSolver,
+        LSetupFn::SUNNonlinSolLSetupFn
+    )
+    return ccall(
+        (:SUNNonlinSolSetLSetupFn_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, SUNNonlinSolLSetupFn), NLS, LSetupFn
+    )
 end
 
-function SUNNonlinSolSetLSolveFn_Newton(NLS::SUNNonlinearSolver,
-        LSolveFn::SUNNonlinSolLSolveFn)
-    ccall((:SUNNonlinSolSetLSolveFn_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, SUNNonlinSolLSolveFn), NLS, LSolveFn)
+function SUNNonlinSolSetLSolveFn_Newton(
+        NLS::SUNNonlinearSolver,
+        LSolveFn::SUNNonlinSolLSolveFn
+    )
+    return ccall(
+        (:SUNNonlinSolSetLSolveFn_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, SUNNonlinSolLSolveFn), NLS, LSolveFn
+    )
 end
 
-function SUNNonlinSolSetConvTestFn_Newton(NLS::SUNNonlinearSolver,
-        CTestFn::SUNNonlinSolConvTestFn, ctest_data)
-    ccall((:SUNNonlinSolSetConvTestFn_Newton, libsundials_sunnonlinsolnewton), Cint,
+function SUNNonlinSolSetConvTestFn_Newton(
+        NLS::SUNNonlinearSolver,
+        CTestFn::SUNNonlinSolConvTestFn, ctest_data
+    )
+    return ccall(
+        (:SUNNonlinSolSetConvTestFn_Newton, libsundials_sunnonlinsolnewton), Cint,
         (SUNNonlinearSolver, SUNNonlinSolConvTestFn, Ptr{Cvoid}), NLS, CTestFn,
-        ctest_data)
+        ctest_data
+    )
 end
 
 function SUNNonlinSolSetMaxIters_Newton(NLS::SUNNonlinearSolver, maxiters::Cint)
-    ccall((:SUNNonlinSolSetMaxIters_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, Cint), NLS, maxiters)
+    return ccall(
+        (:SUNNonlinSolSetMaxIters_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, Cint), NLS, maxiters
+    )
 end
 
 function SUNNonlinSolSetMaxIters_Newton(NLS, maxiters)
-    SUNNonlinSolSetMaxIters_Newton(NLS, convert(Cint, maxiters))
+    return SUNNonlinSolSetMaxIters_Newton(NLS, convert(Cint, maxiters))
 end
 
 function SUNNonlinSolGetNumIters_Newton(NLS::SUNNonlinearSolver, niters)
-    ccall((:SUNNonlinSolGetNumIters_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, Ptr{Clong}), NLS, niters)
+    return ccall(
+        (:SUNNonlinSolGetNumIters_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, Ptr{Clong}), NLS, niters
+    )
 end
 
 function SUNNonlinSolGetCurIter_Newton(NLS::SUNNonlinearSolver, iter)
-    ccall((:SUNNonlinSolGetCurIter_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, Ptr{Cint}), NLS, iter)
+    return ccall(
+        (:SUNNonlinSolGetCurIter_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, Ptr{Cint}), NLS, iter
+    )
 end
 
 function SUNNonlinSolGetNumConvFails_Newton(NLS::SUNNonlinearSolver, nconvfails)
-    ccall((:SUNNonlinSolGetNumConvFails_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, Ptr{Clong}), NLS, nconvfails)
+    return ccall(
+        (:SUNNonlinSolGetNumConvFails_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, Ptr{Clong}), NLS, nconvfails
+    )
 end
 
 function SUNNonlinSolGetSysFn_Newton(NLS::SUNNonlinearSolver, SysFn)
-    ccall((:SUNNonlinSolGetSysFn_Newton, libsundials_sunnonlinsolnewton), Cint,
-        (SUNNonlinearSolver, Ptr{SUNNonlinSolSysFn}), NLS, SysFn)
+    return ccall(
+        (:SUNNonlinSolGetSysFn_Newton, libsundials_sunnonlinsolnewton), Cint,
+        (SUNNonlinearSolver, Ptr{SUNNonlinSolSysFn}), NLS, SysFn
+    )
 end

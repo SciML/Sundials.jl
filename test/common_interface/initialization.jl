@@ -5,7 +5,7 @@ using ModelingToolkit: t_nounits as t, D_nounits as D
 @testset "ODE" begin
     @variables x(t) [guess = 1.0] y(t) [guess = 1.0]
     @parameters p = missing [guess = 1.0] q = missing [guess = 1.0]
-    @mtkbuild sys = ODESystem([D(x) ~ p * y + q * t, D(y) ~ 5x + q], t; initialization_eqs = [p ^2 + q^2 ~ 3, x^3 + y^3 ~ 5])
+    @mtkbuild sys = ODESystem([D(x) ~ p * y + q * t, D(y) ~ 5x + q], t; initialization_eqs = [p^2 + q^2 ~ 3, x^3 + y^3 ~ 5])
 
     @testset "IIP: $iip" for iip in [true, false]
         prob = ODEProblem{iip}(sys, [x => 1.0, p => 1.0], (0.0, 1.0))
@@ -29,7 +29,7 @@ end
 @testset "DAE" begin
     @variables x(t) [guess = 1.0] y(t) [guess = 1.0]
     @parameters p = missing [guess = 1.0] q = missing [guess = 1.0]
-    @mtkbuild sys = ODESystem([D(x) ~ p * y + q * t, x^3 + y^3 ~ 5], t; initialization_eqs = [p ^2 + q^2 ~ 3])
+    @mtkbuild sys = ODESystem([D(x) ~ p * y + q * t, x^3 + y^3 ~ 5], t; initialization_eqs = [p^2 + q^2 ~ 3])
 
     @testset "DAEProblem{$iip}" for iip in [true, false]
         prob = DAEProblem(sys, [D(x) => cbrt(4), D(y) => -1 / cbrt(4), p => 1.0], (0.0, 0.4))
@@ -53,16 +53,22 @@ end
             # Create a new problem with correct initial values
             # D(x) = p*y = 1*cbrt(4) = cbrt(4)
             # D(y) = -x²/y²*D(x) = -1/cbrt(4)²*cbrt(4) = -1/cbrt(4)
-            prob_correct = DAEProblem(sys,
+            prob_correct = DAEProblem(
+                sys,
                 [D(x) => cbrt(4), D(y) => -1 / cbrt(4), p => 1.0, x => 1.0, y => cbrt(4), q => sqrt(2)],
-                (0.0, 0.4))
+                (0.0, 0.4)
+            )
             # Need to convert to IIP/OOP after creation to get proper numeric arrays
             if iip
-                prob_correct_typed = DAEProblem{true}(prob_correct.f, prob_correct.du0, prob_correct.u0,
-                                                       prob_correct.tspan, prob_correct.p)
+                prob_correct_typed = DAEProblem{true}(
+                    prob_correct.f, prob_correct.du0, prob_correct.u0,
+                    prob_correct.tspan, prob_correct.p
+                )
             else
-                prob_correct_typed = DAEProblem{false}(prob_correct.f, prob_correct.du0, prob_correct.u0,
-                                                        prob_correct.tspan, prob_correct.p)
+                prob_correct_typed = DAEProblem{false}(
+                    prob_correct.f, prob_correct.du0, prob_correct.u0,
+                    prob_correct.tspan, prob_correct.p
+                )
             end
             @test_nowarn init(prob_correct_typed, IDA(); initializealg = SciMLBase.CheckInit())
 
