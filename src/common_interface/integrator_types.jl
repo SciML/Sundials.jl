@@ -153,11 +153,12 @@ function (
         integrator::ARKODEIntegrator{
             N, pType, solType, algType, fType, UFType, JType, oType,
             LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA,
-        }
-    )(
+        },
+    )
+    (
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing
+        idxs = nothing,
     ) where {
         N, pType, solType, algType, fType, UFType, JType, oType,
         LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
@@ -173,11 +174,12 @@ function (
         integrator::ARKODEIntegrator{
             N, pType, solType, algType, fType, UFType, JType, oType,
             LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA,
-        }
-    )(
+        },
+    )
+    (
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing
+        idxs = nothing,
     ) where {
         N, pType, solType, algType, fType, UFType, JType, oType,
         LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
@@ -193,12 +195,13 @@ function (
         integrator::ARKODEIntegrator{
             N, pType, solType, algType, fType, UFType, JType, oType,
             LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA,
-        }
-    )(
+        },
+    )
+    (
         out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing
+        idxs = nothing,
     ) where {
         N, pType, solType, algType, fType, UFType, JType, oType,
         LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
@@ -213,12 +216,13 @@ function (
         integrator::ARKODEIntegrator{
             N, pType, solType, algType, fType, UFType, JType, oType,
             LStype, Atype, MLStype, Mtype, CallbackCacheType, ERKStepMem, IA,
-        }
-    )(
+        },
+    )
+    (
         out,
         t::Number,
         deriv::Type{Val{T}} = Val{0};
-        idxs = nothing
+        idxs = nothing,
     ) where {
         N, pType, solType, algType, fType, UFType, JType, oType,
         LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
