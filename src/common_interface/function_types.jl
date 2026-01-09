@@ -14,12 +14,17 @@ mutable struct FunJac{
     u::Array{Float64, N}
     du::Array{Float64, N}
     resid::TResid
+    # Cached pointers for allocation-free array wrapping
+    cached_u_ptr::Ptr{Float64}
+    cached_du_ptr::Ptr{Float64}
+    cached_resid_ptr::Ptr{Float64}
 end
 function FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du)
     return FunJac(
         fun, nothing, jac, p, m,
         jac_prototype, prec,
-        psetup, u, du, nothing
+        psetup, u, du, nothing,
+        Ptr{Float64}(0), Ptr{Float64}(0), Ptr{Float64}(0)
     )
 end
 function FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du, resid)
@@ -28,31 +33,50 @@ function FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du, resid)
         jac, p, m,
         jac_prototype,
         prec, psetup, u,
-        du, resid
+        du, resid,
+        Ptr{Float64}(0), Ptr{Float64}(0), Ptr{Float64}(0)
+    )
+end
+function FunJac(fun, fun2, jac, p, m, jac_prototype, prec, psetup, u, du, resid)
+    return FunJac(
+        fun, fun2,
+        jac, p, m,
+        jac_prototype,
+        prec, psetup, u,
+        du, resid,
+        Ptr{Float64}(0), Ptr{Float64}(0), Ptr{Float64}(0)
     )
 end
 
 function cvodefunjac(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) where {N}
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
-    )
-    _du = funjac.du
-    _u = funjac.u
-    funjac.fun(_du, _u, funjac.p, t)
+    u_ptr = N_VGetArrayPointer_Serial(u)
+    du_ptr = N_VGetArrayPointer_Serial(du)
+    # Only create new wrapper if pointer changed (avoids allocation on cache hit)
+    if u_ptr != funjac.cached_u_ptr
+        funjac.cached_u_ptr = u_ptr
+        funjac.u = unsafe_wrap(Array{Float64, N}, u_ptr, size(funjac.u))
+    end
+    if du_ptr != funjac.cached_du_ptr
+        funjac.cached_du_ptr = du_ptr
+        funjac.du = unsafe_wrap(Array{Float64, N}, du_ptr, size(funjac.du))
+    end
+    funjac.fun(funjac.du, funjac.u, funjac.p, t)
     return CV_SUCCESS
 end
 
 function cvodefunjac2(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) where {N}
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
-    )
-    _du = funjac.du
-    _u = funjac.u
-    funjac.fun2(_du, _u, funjac.p, t)
+    u_ptr = N_VGetArrayPointer_Serial(u)
+    du_ptr = N_VGetArrayPointer_Serial(du)
+    # Only create new wrapper if pointer changed (avoids allocation on cache hit)
+    if u_ptr != funjac.cached_u_ptr
+        funjac.cached_u_ptr = u_ptr
+        funjac.u = unsafe_wrap(Array{Float64, N}, u_ptr, size(funjac.u))
+    end
+    if du_ptr != funjac.cached_du_ptr
+        funjac.cached_du_ptr = du_ptr
+        funjac.du = unsafe_wrap(Array{Float64, N}, du_ptr, size(funjac.du))
+    end
+    funjac.fun2(funjac.du, funjac.u, funjac.p, t)
     return CV_SUCCESS
 end
 
@@ -98,19 +122,23 @@ function idasolfun(
         t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector,
         funjac::FunJac{N}
     ) where {N}
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    _u = funjac.u
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
-    )
-    _du = funjac.du
-    funjac.resid = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(resid),
-        size(funjac.resid)
-    )
-    _resid = funjac.resid
-    funjac.fun(_resid, _du, _u, funjac.p, t)
+    u_ptr = N_VGetArrayPointer_Serial(u)
+    du_ptr = N_VGetArrayPointer_Serial(du)
+    resid_ptr = N_VGetArrayPointer_Serial(resid)
+    # Only create new wrapper if pointer changed (avoids allocation on cache hit)
+    if u_ptr != funjac.cached_u_ptr
+        funjac.cached_u_ptr = u_ptr
+        funjac.u = unsafe_wrap(Array{Float64, N}, u_ptr, size(funjac.u))
+    end
+    if du_ptr != funjac.cached_du_ptr
+        funjac.cached_du_ptr = du_ptr
+        funjac.du = unsafe_wrap(Array{Float64, N}, du_ptr, size(funjac.du))
+    end
+    if resid_ptr != funjac.cached_resid_ptr
+        funjac.cached_resid_ptr = resid_ptr
+        funjac.resid = unsafe_wrap(Array{Float64, N}, resid_ptr, size(funjac.resid))
+    end
+    funjac.fun(funjac.resid, funjac.du, funjac.u, funjac.p, t)
     return IDA_SUCCESS
 end
 
