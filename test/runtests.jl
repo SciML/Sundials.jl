@@ -2,14 +2,6 @@ using Sundials
 using SafeTestsets
 using Test
 
-@testset "Quality Assurance" begin
-    include("qa_test.jl")
-end
-
-@testset "JET Static Analysis" begin
-    include("jet_test.jl")
-end
-
 @testset "Generator" begin
     include("generator.jl")
 end

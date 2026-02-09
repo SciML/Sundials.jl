@@ -149,6 +149,8 @@ mutable struct ARKODEIntegrator{
     ctx_handle::ContextHandle
 end
 
+# runic: off
+# Runic reformats callable struct syntax in a way that is incompatible with Julia < 1.13
 function (integrator::ARKODEIntegrator{
         N, pType, solType, algType, fType, UFType, JType, oType,
         LStype, Atype, MLStype, Mtype, CallbackCacheType, ARKStepMem, IA,
@@ -220,6 +222,7 @@ function (integrator::ARKODEIntegrator{
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
+# runic: on
 
 mutable struct IDAIntegrator{
         N,
