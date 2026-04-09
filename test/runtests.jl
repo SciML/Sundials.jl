@@ -90,6 +90,9 @@ end
     @safetestset "Initialization" begin
         include("common_interface/initialization.jl")
     end
+    @safetestset "Verbosity" begin
+        include("common_interface/verbosity.jl")
+    end
 end
 
 @testset "Interpolation" begin
