@@ -37,11 +37,13 @@ sol = solve(prob, ARKODE(), verbose = false)
 
 # IDA
 function robertson(out, du, u, _, _)
-    out[1] = -0.04u[1] + 1e4 * u[2] * u[3] - du[1]
-    out[2] = +0.04u[1] - 3e7 * u[2]^2 - 1e4 * u[2] * u[3] - du[2]
-    out[3] = u[1] + u[2] + u[3] - 1.0
+    out[1] = -0.04u[1] + 1.0e4 * u[2] * u[3] - du[1]
+    out[2] = +0.04u[1] - 3.0e7 * u[2]^2 - 1.0e4 * u[2] * u[3] - du[2]
+    return out[3] = u[1] + u[2] + u[3] - 1.0
 end
-dae_prob = DAEProblem(robertson, [-0.04, 0.04, 0.0], [1.0, 0.0, 0.0], (0.0, 1e5),
-    differential_vars = [true, true, false])
+dae_prob = DAEProblem(
+    robertson, [-0.04, 0.04, 0.0], [1.0, 0.0, 0.0], (0.0, 1.0e5),
+    differential_vars = [true, true, false]
+)
 sol = solve(dae_prob, IDA(), verbose = false)
 @test sol.retcode == ReturnCode.Success

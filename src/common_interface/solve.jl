@@ -158,8 +158,10 @@ function DiffEqBase.__init(
     if !isempty(kwargs)
         warned = DiffEqBase.check_keywords(alg, kwargs, warnlist)
         if warned
-            @SciMLMessage("Unrecognized keyword arguments passed to Sundials solver.",
-                verbose, :warn_compat)
+            @SciMLMessage(
+                "Unrecognized keyword arguments passed to Sundials solver.",
+                verbose, :warn_compat
+            )
         end
     end
 
@@ -576,8 +578,10 @@ function DiffEqBase.__init(
     if !isempty(kwargs)
         warned = DiffEqBase.check_keywords(alg, kwargs, warnlist)
         if warned
-            @SciMLMessage("Unrecognized keyword arguments passed to Sundials solver.",
-                verbose, :warn_compat)
+            @SciMLMessage(
+                "Unrecognized keyword arguments passed to Sundials solver.",
+                verbose, :warn_compat
+            )
         end
     end
 
@@ -1188,8 +1192,10 @@ function DiffEqBase.__init(
     if !isempty(kwargs)
         warned = DiffEqBase.check_keywords(alg, kwargs, warnida)
         if warned
-            @SciMLMessage("Unrecognized keyword arguments passed to Sundials solver.",
-                verbose, :warn_compat)
+            @SciMLMessage(
+                "Unrecognized keyword arguments passed to Sundials solver.",
+                verbose, :warn_compat
+            )
         end
     end
 
