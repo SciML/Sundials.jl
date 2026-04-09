@@ -11,14 +11,15 @@
 macro checkflag(ex, throw_error = false, verbose = nothing)
     @assert Base.Meta.isexpr(ex, :call)
     fname = ex.args[1]
+    fname_str = string(fname)
+    msg_expr = :($fname_str * " failed with error code = " * string(flag))
     return quote
         flag = $(esc(ex))
         if flag < 0
             if $(esc(throw_error))
                 @error($(string(fname, " failed with error code = ")), flag)
             elseif $(esc(verbose)) !== nothing
-                @SciMLMessage(lazy"$($(string(fname))) failed with error code = $(flag)",
-                    $(esc(verbose)), :checkflag)
+                @SciMLMessage(() -> $msg_expr, $(esc(verbose)), :checkflag)
             end
         end
         flag
