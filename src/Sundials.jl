@@ -11,7 +11,8 @@ using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
     reeval_internals_due_to_modification!, reinit!, savevalues!,
     set_proposed_dt!, solve, solve!, step!, terminate!, u_modified!,
     update_coefficients!, warn_compat, DefaultInit, BrownFullBasicInit,
-    ShampineCollocationInit
+    ShampineCollocationInit, DEVerbosity
+using SciMLLogging: SciMLLogging, Standard, @SciMLMessage
 using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
     SciMLBase, SplitODEProblem, VectorContinuousCallback
 import Accessors: @reset

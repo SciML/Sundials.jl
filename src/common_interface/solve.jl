@@ -115,7 +115,7 @@ function DiffEqBase.__init(
         timeseries = [],
         ts = [],
         ks = [];
-        verbose = true,
+        verbose = Standard(),
         callback = nothing,
         abstol = 1 / 10^6,
         reltol = 1 / 10^3,
@@ -153,10 +153,14 @@ function DiffEqBase.__init(
         uType, tupType, isinplace, Method, LinearSolver,
     }
     tType = eltype(tupType)
+    verbose = _process_verbose_param(verbose)
 
-    if verbose
-        warned = !isempty(kwargs) && DiffEqBase.check_keywords(alg, kwargs, warnlist)
-        warned && DiffEqBase.warn_compat()
+    if !isempty(kwargs)
+        warned = DiffEqBase.check_keywords(alg, kwargs, warnlist)
+        if warned
+            @SciMLMessage("Unrecognized keyword arguments passed to Sundials solver.",
+                verbose, :warn_compat)
+        end
     end
 
     if prob.f.mass_matrix != LinearAlgebra.I
@@ -527,7 +531,7 @@ function DiffEqBase.__init(
         timeseries = [],
         ts = [],
         ks = [];
-        verbose = true,
+        verbose = Standard(),
         callback = nothing,
         abstol = 1 / 10^6,
         reltol = 1 / 10^3,
@@ -567,10 +571,14 @@ function DiffEqBase.__init(
         MassLinearSolver,
     }
     tType = eltype(tupType)
+    verbose = _process_verbose_param(verbose)
 
-    if verbose
-        warned = !isempty(kwargs) && DiffEqBase.check_keywords(alg, kwargs, warnlist)
-        warned && DiffEqBase.warn_compat()
+    if !isempty(kwargs)
+        warned = DiffEqBase.check_keywords(alg, kwargs, warnlist)
+        if warned
+            @SciMLMessage("Unrecognized keyword arguments passed to Sundials solver.",
+                verbose, :warn_compat)
+        end
     end
 
     if reltol isa AbstractArray
@@ -1143,7 +1151,7 @@ function DiffEqBase.__init(
         timeseries = [],
         ts = [],
         ks = [];
-        verbose = true,
+        verbose = Standard(),
         dt = nothing,
         dtmax = 0.0,
         save_on = true,
@@ -1175,10 +1183,14 @@ function DiffEqBase.__init(
         uType, duType, tupType, isinplace, LinearSolver,
     }
     tType = eltype(tupType)
+    verbose = _process_verbose_param(verbose)
 
-    if verbose
-        warned = !isempty(kwargs) && DiffEqBase.check_keywords(alg, kwargs, warnida)
-        warned && DiffEqBase.warn_compat()
+    if !isempty(kwargs)
+        warned = DiffEqBase.check_keywords(alg, kwargs, warnida)
+        if warned
+            @SciMLMessage("Unrecognized keyword arguments passed to Sundials solver.",
+                verbose, :warn_compat)
+        end
     end
 
     if reltol isa AbstractArray

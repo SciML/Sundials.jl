@@ -8,7 +8,7 @@
     Insert a check that the given function call returns 0,
     throw an error otherwise. Only apply directly to function calls.
 """
-macro checkflag(ex, throw_error = false)
+macro checkflag(ex, throw_error = false, verbose = nothing)
     @assert Base.Meta.isexpr(ex, :call)
     fname = ex.args[1]
     return quote
@@ -16,8 +16,9 @@ macro checkflag(ex, throw_error = false)
         if flag < 0
             if $(esc(throw_error))
                 @error($(string(fname, " failed with error code = ")), flag)
-            else
-                @warn($(string(fname, " failed with error code = ")), flag)
+            elseif $(esc(verbose)) !== nothing
+                @SciMLMessage(lazy"$($(string(fname))) failed with error code = $(flag)",
+                    $(esc(verbose)), :checkflag)
             end
         end
         flag
