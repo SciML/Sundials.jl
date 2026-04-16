@@ -1,6 +1,6 @@
 name = "Sundials"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
-version = "5.1.0"
+version = "5.2.0"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
@@ -44,7 +44,7 @@ ODEProblemLibrary = "1"
 PrecompileTools = "1"
 Reexport = "1.0"
 SafeTestsets = "0.1"
-SciMLBase = "2.119.0"
+SciMLBase = "2.119.0, 3"
 SparseArrays = "1"
 SparseConnectivityTracer = "1"
 Sundials_jll = "7.4.1"
