@@ -9,7 +9,7 @@ using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
     check_keywords, get_du, get_du!, get_tmp_cache, get_tstops,
     get_tstops_array, initialize!, isinplace,
     reeval_internals_due_to_modification!, reinit!, savevalues!,
-    set_proposed_dt!, solve, solve!, step!, terminate!, u_modified!,
+    set_proposed_dt!, solve, solve!, step!, terminate!,
     update_coefficients!, warn_compat, DefaultInit, BrownFullBasicInit,
     ShampineCollocationInit
 using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
