@@ -160,7 +160,7 @@ function DiffEqBase.__init(
         if warned
             @SciMLMessage(
                 "Unrecognized keyword arguments passed to Sundials solver.",
-                verbose, :warn_compat
+                verbose, :inconsistent_input
             )
         end
     end
@@ -580,7 +580,7 @@ function DiffEqBase.__init(
         if warned
             @SciMLMessage(
                 "Unrecognized keyword arguments passed to Sundials solver.",
-                verbose, :warn_compat
+                verbose, :inconsistent_input
             )
         end
     end
@@ -1194,7 +1194,7 @@ function DiffEqBase.__init(
         if warned
             @SciMLMessage(
                 "Unrecognized keyword arguments passed to Sundials solver.",
-                verbose, :warn_compat
+                verbose, :inconsistent_input
             )
         end
     end

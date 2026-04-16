@@ -1,5 +1,4 @@
 using Sundials, SciMLLogging, Test
-using DiffEqBase: DEVerbosity
 import ODEProblemLibrary: prob_ode_linear
 
 prob = prob_ode_linear
@@ -22,14 +21,6 @@ sol = solve(prob, CVODE_BDF(), verbose = true)
 
 # Bool false — maps to DEVerbosity(None)
 sol = solve(prob, CVODE_BDF(), verbose = false)
-@test sol.retcode == ReturnCode.Success
-
-# DEVerbosity with individual toggle
-sol = solve(prob, CVODE_BDF(), verbose = DEVerbosity(checkflag = SciMLLogging.WarnLevel()))
-@test sol.retcode == ReturnCode.Success
-
-# DEVerbosity with sundials_specific group
-sol = solve(prob, CVODE_BDF(), verbose = DEVerbosity(sundials_specific = SciMLLogging.WarnLevel()))
 @test sol.retcode == ReturnCode.Success
 
 # ARKODE

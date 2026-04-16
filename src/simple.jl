@@ -19,7 +19,7 @@ macro checkflag(ex, throw_error = false, verbose = nothing)
             if $(esc(throw_error))
                 @error($(string(fname, " failed with error code = ")), flag)
             elseif $(esc(verbose)) !== nothing
-                @SciMLMessage(() -> $msg_expr, $(esc(verbose)), :checkflag)
+                @SciMLMessage(() -> $msg_expr, $(esc(verbose)), :instability)
             end
         end
         flag
