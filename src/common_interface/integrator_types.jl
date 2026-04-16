@@ -18,7 +18,7 @@ mutable struct DEOptions{
     callback::CType
     abstol::abstolType
     reltol::reltolType
-    verbose::Bool
+    verbose::DEVerbosity
     advance_to_tstop::Bool
     stop_at_next_tstop::Bool
     progress::Bool
@@ -82,7 +82,7 @@ function (integrator::CVODEIntegrator)(
     ) where {T}
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : out[idxs]
 end
@@ -94,7 +94,7 @@ function (integrator::CVODEIntegrator)(
         idxs = nothing
     ) where {T}
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag CVodeGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
@@ -164,7 +164,7 @@ function (integrator::ARKODEIntegrator{
     }
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : out[idxs]
 end
@@ -182,7 +182,7 @@ function (integrator::ARKODEIntegrator{
     }
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : out[idxs]
 end
@@ -200,7 +200,7 @@ function (integrator::ARKODEIntegrator{
         LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
     }
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag ARKStepGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
@@ -218,7 +218,7 @@ function (integrator::ARKODEIntegrator{
         LStype, Atype, MLStype, Mtype, CallbackCacheType, IA, T,
     }
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag ERKStepGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
@@ -278,7 +278,7 @@ function (integrator::IDAIntegrator)(
     ) where {T}
     out = similar(integrator.u)
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : out[idxs]
 end
@@ -290,7 +290,7 @@ function (integrator::IDAIntegrator)(
         idxs = nothing
     ) where {T}
     out_nvec = NVector(vec(out), integrator.ctx_handle.ctx)
-    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec)
+    integrator.flag = @checkflag IDAGetDky(integrator.mem, t, Cint(T), out_nvec) false integrator.opts.verbose
     copyto!(out, out_nvec.v)
     return idxs === nothing ? out : @view out[idxs]
 end
