@@ -1,4 +1,5 @@
 using Sundials, SciMLLogging, Test
+using DiffEqBase: DEVerbosity
 import ODEProblemLibrary: prob_ode_linear
 
 prob = prob_ode_linear
