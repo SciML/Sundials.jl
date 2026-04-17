@@ -1,6 +1,6 @@
 name = "Sundials"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
-version = "5.3.0"
+version = "5.2.0"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
