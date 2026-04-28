@@ -212,8 +212,14 @@ end
 
 DiffEqBase.get_tmp_cache(integrator::AbstractSundialsIntegrator) = (integrator.tmp,)
 
-@inline function DiffEqBase.u_modified!(integrator::AbstractSundialsIntegrator, bool::Bool)
-    return integrator.u_modified = bool
+if isdefined(SciMLBase, :derivative_discontinuity!)
+    @inline function SciMLBase.derivative_discontinuity!(integrator::AbstractSundialsIntegrator, bool::Bool)
+        return integrator.u_modified = bool
+    end
+else
+    @inline function DiffEqBase.u_modified!(integrator::AbstractSundialsIntegrator, bool::Bool)
+        return integrator.u_modified = bool
+    end
 end
 
 function DiffEqBase.terminate!(
