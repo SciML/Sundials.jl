@@ -29,14 +29,18 @@ condition = function (out, u, t, integrator)
     return out[1] = u[1]
 end
 
-affect! = nothing
-affect_neg! = function (integrator, idx)
-    return if idx == 1
+# DiffEqBase v7 changed the VectorContinuousCallback dispatch: `affect_neg!` is no
+# longer invoked. `affect!` now receives the full `simultaneous_events::Vector{Int8}`
+# (entries `+1` upcrossing, `-1` downcrossing, `0` no event); a non-`nothing`
+# `affect_neg!` is only used to gate downcrossing *detection*.
+# Tracked upstream: https://github.com/SciML/OrdinaryDiffEq.jl/issues/3613
+affect! = function (integrator, sims)
+    return if sims[1] != 0
         integrator.u[2] = -integrator.u[2]
     end
 end
 
-callback = VectorContinuousCallback(condition, affect!, affect_neg!, 1)
+callback = VectorContinuousCallback(condition, affect!, 1)
 sol = solve(prob, CVODE_Adams(); callback = callback)
 @test sol(4.0)[1] > 0
 sol = solve(prob, CVODE_BDF(); callback = callback)
