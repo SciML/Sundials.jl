@@ -262,9 +262,6 @@ end
     elseif sym == :ps
         return ParameterIndexingProxy(integrator)
     elseif sym == :derivative_discontinuity
-        # SciMLBase v3 / DiffEqBase v7 renamed `u_modified` to `derivative_discontinuity`
-        # in the integrator interface; keep the internal field name `u_modified` and
-        # forward the new name so callers from either era work.
         return getfield(integrator, :u_modified)
     else
         return getfield(integrator, sym)
