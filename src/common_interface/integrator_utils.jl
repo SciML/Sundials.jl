@@ -261,9 +261,18 @@ end
         return integrator.t - integrator.tprev
     elseif sym == :ps
         return ParameterIndexingProxy(integrator)
+    elseif sym == :derivative_discontinuity
+        return getfield(integrator, :u_modified)
     else
         return getfield(integrator, sym)
     end
+end
+
+@inline function Base.setproperty!(integrator::AbstractSundialsIntegrator, sym::Symbol, val)
+    if sym == :derivative_discontinuity
+        sym = :u_modified
+    end
+    return setfield!(integrator, sym, convert(fieldtype(typeof(integrator), sym), val))
 end
 
 function DiffEqBase.reeval_internals_due_to_modification!(
