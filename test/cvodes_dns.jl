@@ -118,7 +118,7 @@ end
 ## cvodes wrapper
 
 "Given the sensitivity problem, return (y,ys) where
-y[i,t] is the solutions i-th componnent for timestep t and
+y[i,t] is the solutions i-th component for timestep t and
 ys[i,j,t] is the sensitivity of the i-th component wrt to the j-th parameter, where
 the last parameter indices correspond to the initial conditions components."
 function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)

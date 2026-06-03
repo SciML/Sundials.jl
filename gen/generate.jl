@@ -157,7 +157,7 @@ function wrap_sundials_api(expr::Expr)
             end
             # generate a higher-level wrapper that converts 1st arg to XXXMemPtr
             # and all other args from Julia objects to low-level C wrappers (e.g. NVector to N_Vector)
-            # create wrapers for all arguments that need wrapping
+            # create wrappers for all arguments that need wrapping
             args_wrap_exprs = map(Base.Iterators.drop(expr.args[1].args, 1)) do expr
                 # process each argument
                 # return a tuple:
