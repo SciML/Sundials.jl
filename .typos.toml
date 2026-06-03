@@ -75,3 +75,5 @@ SDE = "SDE"
 # Sundials-specific terms
 yout = "yout"  # y output (legitimate variable name in Sundials API)
 ypout = "ypout"  # y-prime output (derivative output)
+wrk = "wrk"  # work-array argument name in generated C bindings (lib/libsundials_api.jl)
+BCK = "BCK"  # Sundials C constant suffix, e.g. CV_NO_BCK / IDA_NO_BCK (lib/libsundials_common.jl)
