@@ -16,10 +16,14 @@ const QUALIFIED_VIA_OWNERS_IGNORE = (
     :solution_new_retcode,
 )
 
-# Non-public names that Sundials accesses qualified.
+# Non-public names that Sundials accesses qualified. These resolve through
+# DiffEqBase's re-export of SciMLBase, and the public-API check evaluates publicness
+# in the import-site module (DiffEqBase), which has not declared them public even
+# where SciMLBase 3.24.0 now does -- so they stay flagged until DiffEqBase re-exports
+# the public-ness.
 const QUALIFIED_PUBLIC_IGNORE = (
     # Base
-    Symbol("@pure"), :cconvert, :unsafe_convert,
+    Symbol("@pure"),
     # DataStructures
     :FasterForward,
     # DiffEqBase
@@ -35,9 +39,6 @@ const QUALIFIED_PUBLIC_IGNORE = (
     # SciMLBase
     :AbstractNonlinearAlgorithm, :DEStats, :NoInit, :OverrideInit, :alg_order,
     :get_initial_values,
-    # SciMLBase.ReturnCode
-    :ConvergenceFailure, :Default, :Failure, :InitialFailure, :MaxIters, :Success,
-    :Terminated, :Unstable,
 )
 
 # Aqua + ExplicitImports via the SciMLTesting v1.6 harness. JET is handled by the
