@@ -16,32 +16,21 @@ const QUALIFIED_VIA_OWNERS_IGNORE = (
     :solution_new_retcode,
 )
 
-# Non-public names that Sundials accesses qualified. These resolve through
-# DiffEqBase's re-export of SciMLBase, and the public-API check evaluates publicness
-# in the import-site module (DiffEqBase), which has not declared them public even
-# where SciMLBase 3.24.0 now does -- so they stay flagged until DiffEqBase re-exports
-# the public-ness.
+# Names accessed qualified that are not (yet) declared public in their import-site
+# module. `@pure` is a Base internal; `FasterForward` is non-public in DataStructures.
+# The remainder are SciMLBase-owned solver-extension hooks that SciMLBase 3.27 has not
+# yet marked public (accessed via DiffEqBase's re-export, except solution_new_retcode
+# which is also accessed directly as SciMLBase.solution_new_retcode). They drop out of
+# this list once SciMLBase declares them public.
 const QUALIFIED_PUBLIC_IGNORE = (
-    # Base
     Symbol("@pure"),
-    # DataStructures
     :FasterForward,
-    # DiffEqBase
-    :AbstractDAEAlgorithm, :AbstractDAEProblem, :AbstractNonlinearProblem,
-    :AbstractODEAlgorithm, :AbstractODEIntegrator, :AbstractODEProblem,
-    :AbstractSteadyStateProblem, :CallbackCache, :HermiteInterpolation,
-    :LinearInterpolation, :ODE_DEFAULT_PROG_MESSAGE, :__init, :__solve,
-    :apply_callback!, :apply_discrete_callback!, :build_solution,
-    :calculate_solution_errors!, :check_error!, :find_first_continuous_callback,
-    :get_tstops, :get_tstops_array, :get_tstops_max, :has_analytic, :has_jac,
-    :has_reinit, :initialize_dae!, :max_vector_callback_length, :postamble!,
-    :solution_new_retcode,
-    # SciMLBase
-    :AbstractNonlinearAlgorithm, :DEStats, :NoInit, :OverrideInit, :alg_order,
-    :get_initial_values,
+    :AbstractODEIntegrator, :AbstractSteadyStateProblem, :HermiteInterpolation,
+    :LinearInterpolation, :__init, :__solve, :calculate_solution_errors!,
+    :has_analytic, :has_reinit, :initialize_dae!, :postamble!, :solution_new_retcode,
 )
 
-# Aqua + ExplicitImports via the SciMLTesting v1.6 harness. JET is handled by the
+# Aqua + ExplicitImports via the SciMLTesting v1.7 harness. JET is handled by the
 # dedicated constructor testset below (`jet = false` here): run_qa's default JET runs
 # `report_package` over the whole module, which on JET 0.11 (Julia >= 1.11) reports
 # conditionally-assigned locals in the solver-init paths (e.g. the SUNMatrix/
@@ -60,10 +49,9 @@ run_qa(
         all_explicit_imports_via_owners = (; ignore = (:AbstractSciMLOperator,)),
         all_qualified_accesses_via_owners = (; ignore = QUALIFIED_VIA_OWNERS_IGNORE),
         all_qualified_accesses_are_public = (; ignore = QUALIFIED_PUBLIC_IGNORE),
-        # AbstractSciMLOperator (SciMLBase), get_tstops/get_tstops_array (DiffEqBase).
-        all_explicit_imports_are_public = (;
-            ignore = (:AbstractSciMLOperator, :get_tstops, :get_tstops_array),
-        ),
+        # AbstractSciMLOperator: owner SciMLOperators, imported via SciMLBase re-export;
+        # not yet declared public in SciMLBase.
+        all_explicit_imports_are_public = (; ignore = (:AbstractSciMLOperator,)),
     ),
 )
 

@@ -2,8 +2,8 @@
 
 function DiffEqBase.__solve(
         prob::Union{
-            DiffEqBase.AbstractODEProblem,
-            DiffEqBase.AbstractDAEProblem,
+            SciMLBase.AbstractODEProblem,
+            SciMLBase.AbstractDAEProblem,
         },
         alg::algType,
         timeseries = [],
@@ -32,7 +32,7 @@ function DiffEqBase.__solve(
                 uType,
                 isinplace,
             },
-            DiffEqBase.AbstractNonlinearProblem{
+            SciMLBase.AbstractNonlinearProblem{
                 uType,
                 isinplace,
             },
@@ -103,14 +103,14 @@ function DiffEqBase.__solve(
     f!(resid, u)
     retcode = interpret_sundials_retcode(flag)
     return if prob.u0 isa Number
-        DiffEqBase.build_solution(prob, alg, u[1], resid[1]; retcode = retcode)
+        SciMLBase.build_solution(prob, alg, u[1], resid[1]; retcode = retcode)
     else
-        DiffEqBase.build_solution(prob, alg, u, resid; retcode = retcode)
+        SciMLBase.build_solution(prob, alg, u, resid; retcode = retcode)
     end
 end
 
 function DiffEqBase.__init(
-        prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
+        prob::SciMLBase.AbstractODEProblem{uType, tupType, isinplace},
         alg::SundialsODEAlgorithm{Method, LinearSolver},
         timeseries = [],
         ts = [],
@@ -359,7 +359,7 @@ function DiffEqBase.__init(
         CVodeSetNonlinearSolver(mem, NLS)
     end
 
-    if DiffEqBase.has_jac(prob.f) && Method == :Newton
+    if SciMLBase.has_jac(prob.f) && Method == :Newton
         function getcfunjac(::T) where {T}
             return @cfunction(
                 cvodejac,
@@ -453,7 +453,7 @@ function DiffEqBase.__init(
         dures = Vector{uType}()
     end
 
-    sol = DiffEqBase.build_solution(
+    sol = SciMLBase.build_solution(
         prob,
         alg,
         ts,
@@ -528,7 +528,7 @@ function DiffEqBase.__init(
 end # function solve
 
 function DiffEqBase.__init(
-        prob::DiffEqBase.AbstractODEProblem{uType, tupType, isinplace},
+        prob::SciMLBase.AbstractODEProblem{uType, tupType, isinplace},
         alg::ARKODE{Method, LinearSolver, MassLinearSolver},
         timeseries = [],
         ts = [],
@@ -957,7 +957,7 @@ function DiffEqBase.__init(
         _MLS = nothing
     end
 
-    if DiffEqBase.has_jac(prob.f) && alg.stiffness !== Explicit()
+    if SciMLBase.has_jac(prob.f) && alg.stiffness !== Explicit()
         function getfunjac(::T) where {T}
             return @cfunction(
                 cvodejac,
@@ -1038,7 +1038,7 @@ function DiffEqBase.__init(
         dures = Vector{uType}()
     end
 
-    sol = DiffEqBase.build_solution(
+    sol = SciMLBase.build_solution(
         prob,
         alg,
         ts,
@@ -1147,7 +1147,7 @@ end
 ## Solve for DAEs uses IDA
 
 function DiffEqBase.__init(
-        prob::DiffEqBase.AbstractDAEProblem{
+        prob::SciMLBase.AbstractDAEProblem{
             uType, duType, tupType,
             isinplace,
         },
@@ -1412,7 +1412,7 @@ function DiffEqBase.__init(
         IDASetPreconditioner(mem, psetupfun, precfun)
     end
 
-    if DiffEqBase.has_jac(prob.f)
+    if SciMLBase.has_jac(prob.f)
         function getcfunjacc(::T) where {T}
             return @cfunction(
                 idajac,
@@ -1449,7 +1449,7 @@ function DiffEqBase.__init(
     tmp = isnothing(callbacks_internal) ? u0 : similar(u0)
     uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     retcode = flag >= 0 ? ReturnCode.Default : ReturnCode.InitialFailure
-    sol = DiffEqBase.build_solution(
+    sol = SciMLBase.build_solution(
         prob,
         alg,
         ts,

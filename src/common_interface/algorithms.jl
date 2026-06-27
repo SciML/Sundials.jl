@@ -1,8 +1,8 @@
 # Sundials.jl algorithms
 
 # Abstract Types
-abstract type SundialsODEAlgorithm{Method, LinearSolver} <: DiffEqBase.AbstractODEAlgorithm end
-abstract type SundialsDAEAlgorithm{LinearSolver} <: DiffEqBase.AbstractDAEAlgorithm end
+abstract type SundialsODEAlgorithm{Method, LinearSolver} <: SciMLBase.AbstractODEAlgorithm end
+abstract type SundialsDAEAlgorithm{LinearSolver} <: SciMLBase.AbstractDAEAlgorithm end
 abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} <:
 SciMLBase.AbstractNonlinearAlgorithm end
 
