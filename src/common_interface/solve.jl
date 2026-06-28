@@ -28,7 +28,7 @@ end
 
 function DiffEqBase.__solve(
         prob::Union{
-            DiffEqBase.AbstractSteadyStateProblem{
+            SciMLBase.AbstractSteadyStateProblem{
                 uType,
                 isinplace,
             },
@@ -460,11 +460,11 @@ function DiffEqBase.__init(
         ures;
         dense = dense,
         interp = dense ?
-            DiffEqBase.HermiteInterpolation(
+            SciMLBase.HermiteInterpolation(
                 ts, ures,
                 dures
             ) :
-            DiffEqBase.LinearInterpolation(ts, ures),
+            SciMLBase.LinearInterpolation(ts, ures),
         timeseries_errors = timeseries_errors,
         stats = SciMLBase.DEStats(0),
         calculate_error = false
@@ -521,7 +521,7 @@ function DiffEqBase.__init(
         initializealg,
         ctx_handle
     )
-    DiffEqBase.initialize_dae!(integrator, initializealg)
+    SciMLBase.initialize_dae!(integrator, initializealg)
     integrator.u_modified && CVodeReInit(integrator.mem, integrator.t, integrator.u_nvec)
     initialize_callbacks!(integrator)
     return integrator
@@ -1045,11 +1045,11 @@ function DiffEqBase.__init(
         ures;
         dense = dense,
         interp = dense ?
-            DiffEqBase.HermiteInterpolation(
+            SciMLBase.HermiteInterpolation(
                 ts, ures,
                 dures
             ) :
-            DiffEqBase.LinearInterpolation(ts, ures),
+            SciMLBase.LinearInterpolation(ts, ures),
         timeseries_errors = timeseries_errors,
         stats = SciMLBase.DEStats(0),
         calculate_error = false
@@ -1109,7 +1109,7 @@ function DiffEqBase.__init(
         cfj1, cfj2,
         ctx_handle
     )
-    DiffEqBase.initialize_dae!(integrator, initializealg)
+    SciMLBase.initialize_dae!(integrator, initializealg)
     integrator.u_modified &&  ARKStepReInit(
         integrator.mem, integrator.cfj2, integrator.cfj1,
         integrator.t, integrator.u_nvec
@@ -1530,7 +1530,7 @@ function DiffEqBase.__init(
     # Context will be freed when integrator is garbage collected
     # through the Handle mechanism
 
-    DiffEqBase.initialize_dae!(integrator, initializealg)
+    SciMLBase.initialize_dae!(integrator, initializealg)
     integrator.u_modified && IDAReinit!(integrator)
 
     if save_start
@@ -1802,8 +1802,8 @@ function DiffEqBase.solve!(
         integrator.LS !== nothing && empty!(integrator.LS)
     end
 
-    if DiffEqBase.has_analytic(integrator.sol.prob.f) && calculate_error
-        DiffEqBase.calculate_solution_errors!(
+    if SciMLBase.has_analytic(integrator.sol.prob.f) && calculate_error
+        SciMLBase.calculate_solution_errors!(
             integrator.sol;
             timeseries_errors = integrator.opts.timeseries_errors,
             dense_errors = integrator.opts.dense_errors

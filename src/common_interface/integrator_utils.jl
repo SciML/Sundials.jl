@@ -195,7 +195,7 @@ function handle_callback_modifiers!(integrator::IDAIntegrator, callback_initiali
     # Implicitly does IDAReinit!
     # Use callback's initialization algorithm if provided, otherwise use integrator's
     initializealg = isnothing(callback_initializealg) ? integrator.initializealg : callback_initializealg
-    return DiffEqBase.initialize_dae!(integrator, initializealg)
+    return SciMLBase.initialize_dae!(integrator, initializealg)
 end
 
 function DiffEqBase.add_tstop!(integrator::AbstractSundialsIntegrator, t)
@@ -293,7 +293,7 @@ end
 # Required for callbacks
 DiffEqBase.set_proposed_dt!(i::AbstractSundialsIntegrator, dt) = nothing
 
-DiffEqBase.has_reinit(integrator::AbstractSundialsIntegrator) = true
+SciMLBase.has_reinit(integrator::AbstractSundialsIntegrator) = true
 function DiffEqBase.reinit!(
         integrator::AbstractSundialsIntegrator,
         u0 = integrator.sol.prob.u0;

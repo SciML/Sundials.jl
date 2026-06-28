@@ -3,31 +3,29 @@ using JET
 
 # ExplicitImports ignore-lists below are all names owned by / non-public in OTHER
 # packages that Sundials legitimately uses; they will stop being flagged once those
-# upstream packages mark them public. DiffEqBase re-exports SciMLBase, so SciMLBase-
-# owned names accessed/imported via DiffEqBase trip the via-owners checks.
+# upstream packages mark them public.
 
-# SciMLBase-owned names that Sundials accesses qualified via DiffEqBase (re-export).
+# SciMLBase-owned names that Sundials accesses qualified via DiffEqBase's re-export
+# rather than via their owner SciMLBase. `__init`/`__solve` are pending make-public in
+# SciMLBase (#1411); `postamble!` and `solution_new_retcode` are non-public SciMLBase
+# solver/integrator internals that have no make-public planned.
 const QUALIFIED_VIA_OWNERS_IGNORE = (
-    :AbstractDAEAlgorithm, :AbstractDAEProblem, :AbstractNonlinearProblem,
-    :AbstractODEAlgorithm, :AbstractODEIntegrator, :AbstractODEProblem,
-    :AbstractSteadyStateProblem, :HermiteInterpolation, :LinearInterpolation,
-    :__init, :__solve, :build_solution, :calculate_solution_errors!, :check_error!,
-    :has_analytic, :has_jac, :has_reinit, :initialize_dae!, :postamble!,
-    :solution_new_retcode,
+    :__init, :__solve, :postamble!, :solution_new_retcode,
 )
 
-# Names accessed qualified that are not (yet) declared public in their import-site
-# module. `@pure` is a Base internal; `FasterForward` is non-public in DataStructures.
-# The remainder are SciMLBase-owned solver-extension hooks that SciMLBase 3.27 has not
-# yet marked public (accessed via DiffEqBase's re-export, except solution_new_retcode
-# which is also accessed directly as SciMLBase.solution_new_retcode). They drop out of
-# this list once SciMLBase declares them public.
+# Names accessed qualified that are not (yet) declared public in their owning module.
+# `@pure` is a Base internal; `FasterForward` is non-public in DataStructures. The
+# remainder are SciMLBase-owned solver-extension hooks not yet marked public:
+# interpolation/problem types and the dae/error/init/retcode helpers (now accessed via
+# their owner SciMLBase, except `__init`/`__solve`/`postamble!`/`solution_new_retcode`
+# which are still routed through DiffEqBase's re-export). They drop once SciMLBase
+# declares them public.
 const QUALIFIED_PUBLIC_IGNORE = (
     Symbol("@pure"),
     :FasterForward,
-    :AbstractODEIntegrator, :AbstractSteadyStateProblem, :HermiteInterpolation,
-    :LinearInterpolation, :__init, :__solve, :calculate_solution_errors!,
-    :has_analytic, :has_reinit, :initialize_dae!, :postamble!, :solution_new_retcode,
+    :AbstractSteadyStateProblem, :HermiteInterpolation, :LinearInterpolation,
+    :__init, :__solve, :calculate_solution_errors!, :initialize_dae!,
+    :postamble!, :solution_new_retcode,
 )
 
 # Aqua + ExplicitImports via the SciMLTesting v1.7 harness. JET is handled by the

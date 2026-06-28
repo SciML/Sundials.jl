@@ -30,7 +30,7 @@ mutable struct DEOptions{
 end
 
 abstract type AbstractSundialsIntegrator{algType} <:
-DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
+SciMLBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
 
 mutable struct CVODEIntegrator{
         N,
