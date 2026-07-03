@@ -32,11 +32,11 @@ jobs:
         with:
           version: ${{ matrix.version }}
       - uses: julia-actions/cache@v3
-      - name: "Instantiate test/jet"
+      - name: "Instantiate test/qa"
         run: |
-          julia --project=test/jet -e '
+          julia --project=test/qa -e '
             using Pkg
             Pkg.develop(path=".")
             Pkg.instantiate()'
       - name: "Run QA tests"
-        run: julia --project=test/jet test/jet/runtests.jl
+        run: julia --project=test/qa test/qa/qa.jl

@@ -1,17 +1,17 @@
 # DefaultInit for all Sundials integrators - handles ModelingToolkit parameter initialization
-function DiffEqBase.initialize_dae!(
+function SciMLBase.initialize_dae!(
         integrator::AbstractSundialsIntegrator,
         initializealg::DefaultInit
     )
     prob = integrator.sol.prob
     return if prob.f.initialization_data !== nothing
-        DiffEqBase.initialize_dae!(integrator, SciMLBase.OverrideInit())
+        SciMLBase.initialize_dae!(integrator, SciMLBase.OverrideInit())
     else
-        DiffEqBase.initialize_dae!(integrator, SciMLBase.CheckInit())
+        SciMLBase.initialize_dae!(integrator, SciMLBase.CheckInit())
     end
 end
 
-function DiffEqBase.initialize_dae!(
+function SciMLBase.initialize_dae!(
         integrator::IDAIntegrator,
         initializealg::BrownFullBasicInit
     )
@@ -48,7 +48,7 @@ function DiffEqBase.initialize_dae!(
     end
 end
 
-function DiffEqBase.initialize_dae!(
+function SciMLBase.initialize_dae!(
         integrator::IDAIntegrator,
         initializealg::ShampineCollocationInit
     )
@@ -82,16 +82,16 @@ function DiffEqBase.initialize_dae!(
     end
 end
 
-function DiffEqBase.initialize_dae!(
+function SciMLBase.initialize_dae!(
         integrator::AbstractSundialsIntegrator,
         initializealg::SciMLBase.CheckInit
     )
     # Not allowed to be a DAE, so no-op
 end
 
-function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator, initalg::SciMLBase.NoInit) end
+function SciMLBase.initialize_dae!(integrator::AbstractSundialsIntegrator, initalg::SciMLBase.NoInit) end
 
-function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator, initalg::SciMLBase.OverrideInit)
+function SciMLBase.initialize_dae!(integrator::AbstractSundialsIntegrator, initalg::SciMLBase.OverrideInit)
     prob = integrator.sol.prob
     nlsolve_alg = KINSOL()
     u0, p, success = SciMLBase.get_initial_values(prob, integrator, prob.f, initalg, Val(isinplace(prob)); nlsolve_alg, abstol = integrator.opts.abstol, reltol = integrator.opts.reltol)
@@ -120,7 +120,7 @@ function DiffEqBase.initialize_dae!(integrator::AbstractSundialsIntegrator, init
 end
 
 # Implementation of CheckInit for IDAIntegrator
-function DiffEqBase.initialize_dae!(
+function SciMLBase.initialize_dae!(
         integrator::IDAIntegrator,
         initializealg::SciMLBase.CheckInit
     )

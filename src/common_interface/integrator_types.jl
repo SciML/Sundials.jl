@@ -30,7 +30,7 @@ mutable struct DEOptions{
 end
 
 abstract type AbstractSundialsIntegrator{algType} <:
-DiffEqBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
+SciMLBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
 
 mutable struct CVODEIntegrator{
         N,
@@ -327,9 +327,9 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
             end
             solver_step(integrator, tstop)
             integrator.t = first(integrator.tout)
-            DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
+            SciMLBase.check_error!(integrator) != ReturnCode.Success && return
             handle_callbacks!(integrator)
-            DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
+            SciMLBase.check_error!(integrator) != ReturnCode.Success && return
         end
     else
         integrator.tprev = integrator.t
@@ -344,9 +344,9 @@ DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
             solver_step(integrator, 1.0) # fake tstop
         end
         integrator.t = first(integrator.tout)
-        DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
+        SciMLBase.check_error!(integrator) != ReturnCode.Success && return
         handle_callbacks!(integrator)
-        DiffEqBase.check_error!(integrator) != ReturnCode.Success && return
+        SciMLBase.check_error!(integrator) != ReturnCode.Success && return
     end
     handle_tstop!(integrator)
     return nothing

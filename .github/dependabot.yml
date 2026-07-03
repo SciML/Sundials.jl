@@ -9,7 +9,7 @@ updates:
     directories:
       - "/"
       - "/gen"
-      - "/test/jet"
+      - "/test/qa"
     schedule:
       interval: "daily"
     groups:
