@@ -16,6 +16,9 @@ end
     @safetestset "CVODES Direct" begin
         include("cvodes_dns.jl")
     end
+    @safetestset "CVODES Adjoint" begin
+        include("cvodes_adjoint.jl")
+    end
 end
 
 @testset "IDA" begin
