@@ -76,7 +76,7 @@ end
 
 ## data structure dealing with the sundials callbacks
 
-struct CVSData
+mutable struct CVSData
     f::Any  # f(t,y,dy)
     fs::Any # fs()
     p::Any
@@ -128,9 +128,10 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     tret = [t0]
     yret = similar(y0)
     ysret = similar(yS0)
+    y0n = Sundials.NVector(y0, ctx)
+    yretn = Sundials.NVector(yret, ctx)
     yS0n = [Sundials.NVector(yS0[:, j], ctx) for j in 1:Ns]
-    yS0nv = [N_Vector(n) for n in yS0n]
-    pyS0 = pointer(yS0nv)
+    yS0nv = Sundials.NVectorArray(yS0n)
     crhs = Sundials.@cfunction(
         cvrhsfn,
         Cint,
@@ -157,23 +158,31 @@ function cvodes(f, fS, t0, y0, yS0, p, reltol, abstol, pbar, t::AbstractVector)
     mem_ptr = Sundials.CVodeCreate(Sundials.CV_ADAMS, ctx)
     #mem_ptr = Sundials.CVodeCreate(Sundials.CV_BDF, ctx)
     cvode_mem = Sundials.Handle(mem_ptr)
-    Sundials.CVodeInit(cvode_mem, crhs, t0, convert(NVector, y0))
+    Sundials.CVodeInit(cvode_mem, crhs, t0, y0n)
+    nls = Sundials.SUNNonlinSol_FixedPoint(yretn, Cint(0), ctx)
+    nls_handle = Sundials.NonLinSolHandle(nls, Sundials.FixedPoint())
+    Sundials.CVodeSetNonlinearSolver(cvode_mem, nls)
     Sundials.CVodeSStolerances(cvode_mem, reltol, abstol)
-    Sundials.CVodeSetUserData(cvode_mem, CVSData(f, fS, p, size(yS0)...))
+    data = CVSData(f, fS, p, size(yS0)...)
+    Sundials.CVodeSetUserData(cvode_mem, data)
 
-    Sundials.CVodeSensInit(cvode_mem, Ns, Sundials.CV_STAGGERED, csensrhs, pyS0)
+    Sundials.CVodeSensInit(cvode_mem, Ns, Sundials.CV_STAGGERED, csensrhs, yS0nv)
+    nlsS = Sundials.SUNNonlinSol_FixedPointSens(Cint(Ns), yretn, Cint(0), ctx)
+    nlsS_handle = Sundials.NonLinSolHandle(nlsS, Sundials.FixedPoint())
+    Sundials.CVodeSetNonlinearSolverSensStg(cvode_mem, nlsS)
     Sundials.CVodeSetSensParams(cvode_mem, C_NULL, pbar, C_NULL)
     Sundials.CVodeSensEEtolerances(cvode_mem)
-    for i in 1:length(t)
-        @info "here1"
-        Sundials.CVode(cvode_mem, t[i], yret, tret, Sundials.CV_NORMAL)
-        @info "here2"
-        Sundials.CVodeGetSens(cvode_mem, tret, pyS0)
-        @info "here3"
-        mycopy!(pyS0, ysret)
-        y[:, i] = yret
-        ys[:, :, i] = ysret
+    GC.@preserve data y0n yretn yS0n yS0nv pbar nls_handle nlsS_handle begin
+        for i in 1:length(t)
+            Sundials.CVode(cvode_mem, t[i], yretn, tret, Sundials.CV_NORMAL)
+            Sundials.CVodeGetSens(cvode_mem, tret, yS0nv)
+            mycopy!(pointer(yS0nv), ysret)
+            y[:, i] = yret
+            ys[:, :, i] = ysret
+        end
     end
+    empty!(nlsS_handle)
+    empty!(nls_handle)
     empty!(cvode_mem)
     return y, ys
 end
@@ -183,8 +192,8 @@ t = [1.0, 2.0]
 y0 = [1.0, 2.0]
 p = [3.0, 4.0]
 y, ys = sens(f!, t0, y0, p, t)
-@test_broken isapprox(y[1, 1], 20.0856; rtol = 1.0e-3)
-@test_broken isapprox(ys[2, 2, 2], 11924.3; rtol = 1.0e-3) # todo: check if these are indeed the right results
+@test isapprox(y[1, 1], 20.0856; rtol = 1.0e-3)
+@test isapprox(ys[2, 2, 2], 11924.3; rtol = 1.0e-3)
 
 # Clean up context
 Sundials.SUNContext_Free(ctx)

@@ -86,6 +86,32 @@ Conversion happens in two steps within ccall:
 Base.cconvert(::Type{N_Vector}, nv::NVector) = nv
 Base.unsafe_convert(::Type{N_Vector}, nv::NVector) = nv.n_v
 
+"""
+    NVectorArray(nvectors)
+
+Keep a vector of `NVector`s and the corresponding `N_Vector*` pointer array
+alive together for SUNDIALS APIs that take arrays of `N_Vector`.
+"""
+struct NVectorArray <: AbstractVector{N_Vector}
+    nvectors::Vector{NVector}
+    ptrs::Vector{N_Vector}
+end
+
+function NVectorArray(nvectors::AbstractVector{<:NVector})
+    owned_nvectors = collect(nvectors)
+    return NVectorArray(
+        owned_nvectors,
+        N_Vector[Base.unsafe_convert(N_Vector, nv) for nv in owned_nvectors],
+    )
+end
+
+Base.size(nva::NVectorArray) = size(nva.ptrs)
+Base.IndexStyle(::Type{<:NVectorArray}) = IndexLinear()
+Base.getindex(nva::NVectorArray, i::Int) = getindex(nva.ptrs, i)
+Base.pointer(nva::NVectorArray) = pointer(nva.ptrs)
+Base.cconvert(::Type{Ptr{N_Vector}}, nva::NVectorArray) = nva
+Base.unsafe_convert(::Type{Ptr{N_Vector}}, nva::NVectorArray) = pointer(nva)
+
 Base.similar(nv::NVector) = NVector(similar(nv.v), nv.ctx)
 
 nvlength(x::N_Vector) = unsafe_load(unsafe_load(convert(Ptr{Ptr{Clong}}, x)))
