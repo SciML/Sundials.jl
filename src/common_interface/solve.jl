@@ -459,12 +459,7 @@ function DiffEqBase.__init(
         ts,
         ures;
         dense = dense,
-        interp = dense ?
-            SciMLBase.HermiteInterpolation(
-                ts, ures,
-                dures
-            ) :
-            SciMLBase.LinearInterpolation(ts, ures),
+        interp = SciMLBase.BasicInterpolation(ts, ures, dures, dense),
         timeseries_errors = timeseries_errors,
         stats = SciMLBase.DEStats(0),
         calculate_error = false
@@ -1044,12 +1039,7 @@ function DiffEqBase.__init(
         ts,
         ures;
         dense = dense,
-        interp = dense ?
-            SciMLBase.HermiteInterpolation(
-                ts, ures,
-                dures
-            ) :
-            SciMLBase.LinearInterpolation(ts, ures),
+        interp = SciMLBase.BasicInterpolation(ts, ures, dures, dense),
         timeseries_errors = timeseries_errors,
         stats = SciMLBase.DEStats(0),
         calculate_error = false
@@ -1453,8 +1443,9 @@ function DiffEqBase.__init(
         prob,
         alg,
         ts,
-        ures, dense ? dures : nothing;
+        ures, dures;
         dense = dense,
+        interp = SciMLBase.BasicInterpolation(ts, ures, dures, dense),
         calculate_error = false,
         timeseries_errors = timeseries_errors,
         retcode = retcode,
