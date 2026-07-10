@@ -31,6 +31,12 @@ end
     @safetestset "Heat IDA Direct" begin
         include("ida_Heat2D.jl")
     end
+    @safetestset "IDAS Forward" begin
+        include("idas_forward.jl")
+    end
+    @safetestset "IDAS Adjoint" begin
+        include("idas_adjoint.jl")
+    end
     # Commented out because still uses the syntax from Grid which is a deprecated package
     #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
 end
