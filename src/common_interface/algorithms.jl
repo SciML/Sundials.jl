@@ -1,8 +1,47 @@
 # Sundials.jl algorithms
 
 # Abstract Types
+"""
+    SundialsODEAlgorithm{Method, LinearSolver}
+
+Abstract supertype for Sundials-backed ODE algorithm values.
+
+# Arguments
+- `Method`: Sundials nonlinear iteration choice encoded in the algorithm type, such as
+  `:Newton` or `:Functional`.
+- `LinearSolver`: Sundials linear solver choice encoded in the algorithm type, such as
+  `:Dense`, `:Band`, `:GMRES`, or `:KLU`.
+
+# Returns
+Concrete subtypes, such as [`CVODE_BDF`](@ref), [`CVODE_Adams`](@ref), and
+[`ARKODE`](@ref), are algorithm objects passed to `solve`.
+
+# Interface Notes
+This type is part of the SciML common solve interface. Downstream extensions should dispatch
+on concrete algorithm types when they need solver-specific options, and on
+`SundialsODEAlgorithm` only for behavior shared by all Sundials ODE algorithms.
+"""
 abstract type SundialsODEAlgorithm{Method, LinearSolver} <: SciMLBase.AbstractODEAlgorithm end
+
+"""
+    SundialsDAEAlgorithm{LinearSolver}
+
+Abstract supertype for Sundials-backed DAE algorithm values.
+
+# Arguments
+- `LinearSolver`: Sundials linear solver choice encoded in the algorithm type, such as
+  `:Dense`, `:Band`, `:GMRES`, or `:KLU`.
+
+# Returns
+Concrete subtypes, such as [`IDA`](@ref), are algorithm objects passed to `solve`.
+
+# Interface Notes
+This type is part of the SciML common solve interface. Downstream extensions should dispatch
+on concrete algorithm types when they need solver-specific options, and on
+`SundialsDAEAlgorithm` only for behavior shared by all Sundials DAE algorithms.
+"""
 abstract type SundialsDAEAlgorithm{LinearSolver} <: SciMLBase.AbstractDAEAlgorithm end
+
 abstract type SundialsNonlinearSolveAlgorithm{LinearSolver} <:
 SciMLBase.AbstractNonlinearAlgorithm end
 
