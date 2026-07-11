@@ -1,8 +1,6 @@
 using SciMLTesting, Sundials, Test
 using JET
 
-include("public_api_docs.jl")
-
 # ExplicitImports ignore-lists below are all names owned by / non-public in OTHER
 # packages that Sundials legitimately uses; they will stop being flagged once those
 # upstream packages mark them public.
