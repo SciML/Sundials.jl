@@ -1,6 +1,6 @@
 name = "Sundials"
 uuid = "c3572dad-4567-51f8-b174-8c6c989267f4"
-version = "6.4.0"
+version = "6.4.1"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
@@ -37,7 +37,7 @@ ForwardDiff = "0.10"
 IncompleteLU = "0.2"
 Libdl = "1"
 LinearAlgebra = "1"
-LinearSolve = "3.40.0"
+LinearSolve = "3.40.0, 4, 5"
 Logging = "1"
 ModelingToolkit = "11"
 NonlinearSolveBase = "1.16, 2"
