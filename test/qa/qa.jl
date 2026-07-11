@@ -1,8 +1,6 @@
 using SciMLTesting, Sundials, Test
 using JET
 
-include("public_api_docs.jl")
-
 # ExplicitImports ignore-lists below are all names owned by / non-public in OTHER
 # packages that Sundials legitimately uses; they will stop being flagged once those
 # upstream packages mark them public.
@@ -30,7 +28,13 @@ const QUALIFIED_PUBLIC_IGNORE = (
     :postamble!, :solution_new_retcode,
 )
 
-# Aqua + ExplicitImports via the SciMLTesting v1.7 harness. JET is handled by the
+const REEXPORTED_API = Tuple(
+    name for name in names(Sundials; all = false) if name !== :Sundials &&
+        isdefined(Sundials, name) &&
+        parentmodule(getfield(Sundials, name)) !== Sundials
+)
+
+# Aqua + ExplicitImports via the SciMLTesting QA harness. JET is handled by the
 # dedicated constructor testset below (`jet = false` here): run_qa's default JET runs
 # `report_package` over the whole module, which on JET 0.11 (Julia >= 1.11) reports
 # conditionally-assigned locals in the solver-init paths (e.g. the SUNMatrix/
@@ -42,6 +46,11 @@ const QUALIFIED_PUBLIC_IGNORE = (
 run_qa(
     Sundials;
     explicit_imports = true,
+    api_docs_kwargs = (;
+        rendered = true,
+        ignore = REEXPORTED_API,
+        rendered_ignore = REEXPORTED_API,
+    ),
     jet = false,
     aqua_kwargs = (; piracies = (; treat_as_own = [Sundials.NVector])),
     ei_kwargs = (;

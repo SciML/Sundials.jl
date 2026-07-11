@@ -2,9 +2,6 @@
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Sundials = "c3572dad-4567-51f8-b174-8c6c989267f4"
 
-[sources]
-Sundials = { path = ".." }
-
 [compat]
 Documenter = "1"
 Sundials = "6"
