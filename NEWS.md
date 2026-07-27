@@ -1,5 +1,52 @@
 # Sundials.jl NEWS
 
+## v6.6.0
+
+### The SciMLBase reexports are now explicit
+
+Sundials previously reexported *all* of `SciMLBase` via `Reexport.@reexport`, which put 420
+names into scope on `using Sundials` — including problem, function, and solution types for
+equation classes Sundials cannot solve (SDEs, BVPs, DDEs, optimization, quadrature) and
+SciMLBase's internal trait predicates and function wrappers.
+
+It now reexports an explicit list covering the interface a Sundials user actually works
+with. The integrator functions are exactly the ones Sundials implements methods for:
+
+  - Problems: `ODEProblem`, `SplitODEProblem`, `DAEProblem`, `SteadyStateProblem`,
+    `NonlinearProblem`, `EnsembleProblem`
+  - Functions: `ODEFunction`, `SplitFunction`, `DAEFunction`, `NonlinearFunction`
+  - Solutions: `ODESolution`, `DAESolution`, `NonlinearSolution`, `SteadyStateSolution`,
+    `EnsembleSolution`, `EnsembleSummary`
+  - Ensemble algorithms: `EnsembleSerial`, `EnsembleThreads`, `EnsembleDistributed`,
+    `EnsembleSplitThreads`, and the `EnsembleAnalysis` module
+  - Solving: `solve`, `solve!`, `init`, `step!`, `remake`
+  - Integrator interface: `reinit!`, `u_modified!`, `add_tstop!`, `add_saveat!`,
+    `set_proposed_dt!`, `get_du`, `get_du!`, `get_tmp_cache`, `savevalues!`,
+    `change_t_via_interpolation!`, `reeval_internals_due_to_modification!`, `check_error`,
+    `check_error!`, `terminate!`
+  - Return status: `ReturnCode`, `successful_retcode`
+  - Callbacks: `ContinuousCallback`, `DiscreteCallback`, `VectorContinuousCallback`,
+    `CallbackSet`
+  - Initialization algorithms: `DefaultInit`, `BrownFullBasicInit`,
+    `ShampineCollocationInit`, `NoInit`, `CheckInit`, `OverrideInit`
+  - `NullParameters`
+
+This is not expected to break working code, since what was dropped is either unusable with
+a Sundials algorithm or was never part of any package's public API. Code that reached
+through Sundials for something outside the list — most plausibly SciMLBase's `Abstract*`
+dispatch types in downstream library code — should import it from its owner:
+
+```julia
+using SciMLBase: AbstractODESolution
+using Sundials
+```
+
+### Other Changes
+
+The algorithm constructors (`CVODE_BDF`, `CVODE_Adams`, `ARKODE`, `IDA`, `KINSOL`) are no
+longer declared `Base.@pure`. They validate their arguments and can `error`, so the purity
+annotation was unsound.
+
 ## v5.0.0
 
 ### Breaking Changes

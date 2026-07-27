@@ -2,20 +2,29 @@
 
 module Sundials
 
-import Reexport
-Reexport.@reexport using SciMLBase
-using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
-    add_tstop!, change_t_via_interpolation!, check_error,
-    check_keywords, get_du, get_du!, get_tmp_cache, get_tstops,
-    get_tstops_array, initialize!, isinplace,
-    reeval_internals_due_to_modification!, reinit!, savevalues!,
-    set_proposed_dt!, solve, solve!, step!, terminate!,
-    warn_compat, DefaultInit, BrownFullBasicInit,
-    ShampineCollocationInit, DEVerbosity
-using SciMLOperators: update_coefficients!
+using DiffEqBase: DiffEqBase, get_tstops, get_tstops_array, initialize!, isinplace,
+    DEVerbosity
 using SciMLLogging: SciMLLogging, Standard, @SciMLMessage
-using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
-    SciMLBase, SplitODEProblem, VectorContinuousCallback
+using SciMLBase: SciMLBase
+using SciMLOperators: AbstractSciMLOperator, update_coefficients!
+
+# The SciML common interface that Sundials reexports (see the second `export` below), so
+# that `using Sundials` on its own is enough to build a problem, solve it, drive the
+# integrator from a callback, and inspect the result. The integrator functions here are
+# exactly the ones Sundials implements methods for; everything stays owned and
+# documented upstream.
+using SciMLBase: CallbackSet, CheckInit, ContinuousCallback, DAEFunction, DAEProblem,
+    DAESolution, DECallback, DEIntegrator, DEStats, DiscreteCallback, EnsembleAnalysis,
+    EnsembleDistributed, EnsembleProblem, EnsembleSerial, EnsembleSolution,
+    EnsembleSplitThreads, EnsembleSummary, EnsembleThreads, NoInit, NonlinearFunction,
+    NonlinearProblem, NonlinearSolution, NullParameters, ODEFunction, ODEProblem,
+    ODESolution, OverrideInit, ReturnCode, SplitFunction, SplitODEProblem,
+    SteadyStateProblem, SteadyStateSolution, VectorContinuousCallback, add_saveat!,
+    add_tstop!, addsteps!, change_t_via_interpolation!, check_error, check_error!,
+    get_du, get_du!, get_tmp_cache, init, last_step_failed,
+    reeval_internals_due_to_modification!, reinit!, remake, savevalues!,
+    set_proposed_dt!, solve, solve!, step!, successful_retcode, terminate!, u_modified!
+using DiffEqBase: BrownFullBasicInit, DefaultInit, ShampineCollocationInit
 import Accessors: @reset
 import ArrayInterface
 import SymbolicIndexingInterface as SII
@@ -60,9 +69,22 @@ using Sundials_jll: Sundials_jll, libsundials_core,
     libsundials_sunmatrixsparse, libsundials_sunnonlinsolfixedpoint,
     libsundials_sunnonlinsolnewton
 
-export solve,
-    SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
-    KINSOL, DefaultInit, BrownFullBasicInit, ShampineCollocationInit
+export SundialsODEAlgorithm, SundialsDAEAlgorithm, ARKODE, CVODE_BDF, CVODE_Adams, IDA,
+    KINSOL
+
+# Reexported SciML common interface; approved via `reexports_allow` in test/qa/qa.jl.
+export CallbackSet, CheckInit, ContinuousCallback, DAEFunction, DAEProblem,
+    DAESolution, DECallback, DEIntegrator, DEStats, DiscreteCallback, EnsembleAnalysis,
+    EnsembleDistributed, EnsembleProblem, EnsembleSerial, EnsembleSolution,
+    EnsembleSplitThreads, EnsembleSummary, EnsembleThreads, NoInit, NonlinearFunction,
+    NonlinearProblem, NonlinearSolution, NullParameters, ODEFunction, ODEProblem,
+    ODESolution, OverrideInit, ReturnCode, SplitFunction, SplitODEProblem,
+    SteadyStateProblem, SteadyStateSolution, VectorContinuousCallback, add_saveat!,
+    add_tstop!, addsteps!, change_t_via_interpolation!, check_error, check_error!,
+    get_du, get_du!, get_tmp_cache, init, last_step_failed,
+    reeval_internals_due_to_modification!, reinit!, remake, savevalues!,
+    set_proposed_dt!, solve, solve!, step!, successful_retcode, terminate!, u_modified!
+export BrownFullBasicInit, DefaultInit, ShampineCollocationInit
 
 # some definitions from the system C headers wrapped into the types_and_consts.jl
 const DBL_MAX = prevfloat(Inf)

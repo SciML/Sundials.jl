@@ -12,7 +12,7 @@ Pkg.add("Sundials")
 
 ## Usage
 
-```julia
+```@example
 using Sundials
 
 function lorenz!(du, u, p, t)
@@ -24,20 +24,9 @@ end
 
 prob = ODEProblem(lorenz!, [1.0, 0.0, 0.0], (0.0, 100.0))
 sol = solve(prob, CVODE_Adams())
+sol.retcode
 ```
 
-## API
-
-```@docs
-CVODE_BDF
-CVODE_Adams
-ARKODE
-IDA
-KINSOL
-SundialsODEAlgorithm
-SundialsDAEAlgorithm
-solve
-DefaultInit
-BrownFullBasicInit
-ShampineCollocationInit
-```
+`ODEProblem` and `solve` above come from the SciML common interface, which Sundials
+reexports; see the [API](@ref) for the full reexported surface alongside the Sundials
+algorithms.

@@ -226,7 +226,7 @@ function DiffEqBase.terminate!(
         integrator::AbstractSundialsIntegrator,
         retcode = ReturnCode.Terminated
     )
-    integrator.sol = DiffEqBase.solution_new_retcode(integrator.sol, retcode)
+    integrator.sol = SciMLBase.solution_new_retcode(integrator.sol, retcode)
     return integrator.opts.tstops.valtree = typeof(integrator.opts.tstops.valtree)()
 end
 

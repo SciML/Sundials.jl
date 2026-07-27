@@ -1,68 +1,44 @@
 using SciMLTesting, Sundials, Test
 using JET
 
-# ExplicitImports ignore-lists below are all names owned by / non-public in OTHER
-# packages that Sundials legitimately uses; they will stop being flagged once those
-# upstream packages mark them public.
-
-# SciMLBase-owned names that Sundials accesses qualified via DiffEqBase's re-export
-# rather than via their owner SciMLBase. `__init`/`__solve` are pending make-public in
-# SciMLBase (#1411); `postamble!` and `solution_new_retcode` are non-public SciMLBase
-# solver/integrator internals that have no make-public planned.
-const QUALIFIED_VIA_OWNERS_IGNORE = (
-    :__init, :__solve, :postamble!, :solution_new_retcode,
+# The SciML common interface Sundials deliberately reexports so that `using Sundials`
+# is enough to build and solve a problem. Owned and documented upstream; kept in sync
+# with the reexport `export` block in src/Sundials.jl.
+const REEXPORTS = (
+    :BrownFullBasicInit, :CallbackSet, :CheckInit, :ContinuousCallback, :DAEFunction,
+    :DAEProblem, :DAESolution, :DECallback, :DEIntegrator, :DEStats,
+    :DefaultInit, :DiscreteCallback, :EnsembleAnalysis,
+    :EnsembleDistributed, :EnsembleProblem, :EnsembleSerial, :EnsembleSolution,
+    :EnsembleSplitThreads, :EnsembleSummary, :EnsembleThreads, :NoInit,
+    :NonlinearFunction, :NonlinearProblem, :NonlinearSolution, :NullParameters,
+    :ODEFunction, :ODEProblem, :ODESolution, :OverrideInit, :ReturnCode,
+    :ShampineCollocationInit, :SplitFunction, :SplitODEProblem, :SteadyStateProblem,
+    :SteadyStateSolution, :VectorContinuousCallback, :add_saveat!, :add_tstop!,
+    :addsteps!, :change_t_via_interpolation!, :check_error, :check_error!, :get_du,
+    :get_du!, :get_tmp_cache, :init, :last_step_failed,
+    :reeval_internals_due_to_modification!, :reinit!, :remake, :savevalues!,
+    :set_proposed_dt!, :solve, :solve!, :step!, :successful_retcode, :terminate!,
+    :u_modified!,
 )
 
-# Names accessed qualified that are not (yet) declared public in their owning module.
-# `@pure` is a Base internal; `FasterForward` is non-public in DataStructures. The
-# remainder are SciMLBase-owned solver-extension hooks not yet marked public:
-# interpolation/problem types and the dae/error/init/retcode helpers (now accessed via
-# their owner SciMLBase, except `__init`/`__solve`/`postamble!`/`solution_new_retcode`
-# which are still routed through DiffEqBase's re-export). They drop once SciMLBase
-# declares them public.
-const QUALIFIED_PUBLIC_IGNORE = (
-    Symbol("@pure"),
-    :FasterForward,
-    :AbstractSteadyStateProblem, :HermiteInterpolation, :LinearInterpolation,
-    :__init, :__solve, :calculate_solution_errors!, :initialize_dae!,
-    :postamble!, :solution_new_retcode,
-)
+# `jet = false` disables run_qa's whole-module `JET.report_package`: on JET 0.11
+# (Julia >= 1.11) it reports conditionally-assigned locals in the solver-init paths
+# (e.g. the SUNMatrix/SUNLinearSolver handles in `__init`) that JET cannot prove
+# defined, while JET 0.9 (Julia LTS) does not report them, so neither `jet = true` nor
+# `jet_broken = true` is green-or-broken on both CI lanes. Tracked in
+# SciML/Sundials.jl#541. The constructor analysis below runs on every lane.
+run_qa(Sundials; jet = false, reexports_allow = REEXPORTS)
 
-const REEXPORTED_API = Tuple(
-    name for name in names(Sundials; all = false) if name !== :Sundials &&
-        isdefined(Sundials, name) &&
-        parentmodule(getfield(Sundials, name)) !== Sundials
-)
-
-# Aqua + ExplicitImports via the SciMLTesting QA harness. JET is handled by the
-# dedicated constructor testset below (`jet = false` here): run_qa's default JET runs
-# `report_package` over the whole module, which on JET 0.11 (Julia >= 1.11) reports
-# conditionally-assigned locals in the solver-init paths (e.g. the SUNMatrix/
-# SUNLinearSolver handles in `__init`) that are correct at runtime but that JET 0.11
-# cannot prove defined. JET 0.9 (Julia LTS) does not report them, so neither
-# `jet = true` (fails on Julia 1) nor `jet_broken = true` (Unexpected Pass / errors on
-# LTS) is green-or-broken on both CI lanes. Tracked in SciML/Sundials.jl#541 for a
-# separate solver-init fix.
-run_qa(
-    Sundials;
-    explicit_imports = true,
-    api_docs_kwargs = (;
-        rendered = true,
-        ignore = REEXPORTED_API,
-        rendered_ignore = REEXPORTED_API,
-    ),
-    jet = false,
-    aqua_kwargs = (; piracies = (; treat_as_own = [Sundials.NVector])),
-    ei_kwargs = (;
-        # AbstractSciMLOperator: owner SciMLOperators, imported via SciMLBase re-export.
-        all_explicit_imports_via_owners = (; ignore = (:AbstractSciMLOperator,)),
-        all_qualified_accesses_via_owners = (; ignore = QUALIFIED_VIA_OWNERS_IGNORE),
-        all_qualified_accesses_are_public = (; ignore = QUALIFIED_PUBLIC_IGNORE),
-        # AbstractSciMLOperator: owner SciMLOperators, imported via SciMLBase re-export;
-        # not yet declared public in SciMLBase.
-        all_explicit_imports_are_public = (; ignore = (:AbstractSciMLOperator,)),
-    ),
-)
+@testset "Reexport surface" begin
+    # Every approved reexport must actually be reachable from `using Sundials`, so the
+    # allow-list cannot drift into approving names the package no longer provides.
+    # `isdefined(@__MODULE__, ...)` tests the property directly: this file's `using
+    # Sundials` is what has to bring the name into scope.
+    @testset "$name" for name in REEXPORTS
+        @test name in names(Sundials)
+        @test isdefined(@__MODULE__, name)
+    end
+end
 
 @testset "JET static analysis" begin
     @testset "Algorithm constructors" begin
