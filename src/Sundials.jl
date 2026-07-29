@@ -10,8 +10,9 @@ using DiffEqBase: DiffEqBase, NonlinearFunction, ODEFunction, add_saveat!,
     get_tstops_array, initialize!, isinplace,
     reeval_internals_due_to_modification!, reinit!, savevalues!,
     set_proposed_dt!, solve, solve!, step!, terminate!,
-    update_coefficients!, warn_compat, DefaultInit, BrownFullBasicInit,
+    warn_compat, DefaultInit, BrownFullBasicInit,
     ShampineCollocationInit, DEVerbosity
+using SciMLOperators: update_coefficients!
 using SciMLLogging: SciMLLogging, Standard, @SciMLMessage
 using SciMLBase: AbstractSciMLOperator, DAEProblem, ODEProblem, ReturnCode,
     SciMLBase, SplitODEProblem, VectorContinuousCallback
