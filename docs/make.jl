@@ -8,12 +8,15 @@ makedocs(
     sitename = "Sundials.jl",
     authors = "Chris Rackauckas",
     clean = true,
-    doctest = false,
+    doctest = true,
+    checkdocs = :exports,
+    modules = [Sundials],
     format = Documenter.HTML(
         canonical = "https://docs.sciml.ai/Sundials/stable/"
     ),
     pages = [
         "Home" => "index.md",
+        "API" => "api.md",
     ]
 )
 

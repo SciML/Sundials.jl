@@ -20,6 +20,12 @@ Concrete subtypes, such as [`CVODE_BDF`](@ref), [`CVODE_Adams`](@ref), and
 This type is part of the SciML common solve interface. Downstream extensions should dispatch
 on concrete algorithm types when they need solver-specific options, and on
 `SundialsODEAlgorithm` only for behavior shared by all Sundials ODE algorithms.
+
+# Examples
+```julia
+alg = CVODE_BDF()
+alg isa SundialsODEAlgorithm
+```
 """
 abstract type SundialsODEAlgorithm{Method, LinearSolver} <: SciMLBase.AbstractODEAlgorithm end
 
@@ -39,6 +45,12 @@ Concrete subtypes, such as [`IDA`](@ref), are algorithm objects passed to `solve
 This type is part of the SciML common solve interface. Downstream extensions should dispatch
 on concrete algorithm types when they need solver-specific options, and on
 `SundialsDAEAlgorithm` only for behavior shared by all Sundials DAE algorithms.
+
+# Examples
+```julia
+alg = IDA()
+alg isa SundialsDAEAlgorithm
+```
 """
 abstract type SundialsDAEAlgorithm{LinearSolver} <: SciMLBase.AbstractDAEAlgorithm end
 
@@ -65,7 +77,18 @@ CVODE_BDF(;method=:Newton,linear_solver=:Dense,
 
 CVODE_BDF: CVode Backward Differentiation Formula (BDF) solver.
 
-### Method Choices
+# Keyword Arguments
+
+- `method`: nonlinear iteration method; `:Newton` is the default.
+- `linear_solver`: linear solver backend; `:Dense` is the default.
+- `jac_upper`, `jac_lower`: nonzero band counts required by `linear_solver = :Band`.
+- `prec`, `psetup`, `prec_side`: iterative linear-solver preconditioner hooks.
+
+# Returns
+
+A `CVODE_BDF` algorithm object for use with `SciMLBase.solve` on ODE problems.
+
+## Method Choices
 
 * method - This is the method for solving the implicit equation. For BDF this defaults to
     :Newton while for Adams this defaults to :Functional. These choices match the
@@ -74,7 +97,7 @@ CVODE_BDF: CVode Backward Differentiation Formula (BDF) solver.
     approach.
 * linear_solver - This is the linear solver which is used in the :Newton method.
 
-### Linear Solver Choices
+## Linear Solver Choices
 
 The choices for the linear solver are:
 
@@ -89,7 +112,7 @@ The choices for the linear solver are:
 * :TFQMR - A TFQMR method.
 * :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
 
-Example:
+## Examples
 
 ```julia
 CVODE_BDF() # BDF method using Newton + Dense solver
@@ -147,7 +170,7 @@ struct CVODE_BDF{Method, LinearSolver, P, PS} <: SundialsODEAlgorithm{Method, Li
     psetup::PS
     prec_side::Int
 end
-Base.@pure function CVODE_BDF(;
+function CVODE_BDF(;
         method = :Newton,
         linear_solver = :Dense,
         jac_upper = 0,
@@ -185,7 +208,7 @@ Base.@pure function CVODE_BDF(;
         )
         error("Linear solver choice not accepted.")
     end
-    CVODE_BDF{method, linear_solver, typeof(prec), typeof(psetup)}(
+    return CVODE_BDF{method, linear_solver, typeof(prec), typeof(psetup)}(
         jac_upper,
         jac_lower,
         krylov_dim,
@@ -217,7 +240,18 @@ CVODE_Adams(;method=:Functional,linear_solver=:None,
 
 CVODE_Adams: CVode Adams-Moulton solver.
 
-### Method Choices
+# Keyword Arguments
+
+- `method`: nonlinear iteration method; `:Functional` is the default.
+- `linear_solver`: linear solver backend; `:None` is the default.
+- `jac_upper`, `jac_lower`: nonzero band counts required by `linear_solver = :Band`.
+- `prec`, `psetup`, `prec_side`: iterative linear-solver preconditioner hooks.
+
+# Returns
+
+A `CVODE_Adams` algorithm object for use with `SciMLBase.solve` on ODE problems.
+
+## Method Choices
 
 * method - This is the method for solving the implicit equation. For BDF this defaults to
     :Newton while for Adams this defaults to :Functional. These choices match the
@@ -226,7 +260,7 @@ CVODE_Adams: CVode Adams-Moulton solver.
     approach.
 * linear_solver - This is the linear solver which is used in the :Newton method.
 
-### Linear Solver Choices
+## Linear Solver Choices
 
 The choices for the linear solver are:
 
@@ -241,7 +275,7 @@ The choices for the linear solver are:
 * :TFQMR - A TFQMR method.
 * :KLU - A sparse factorization method. Requires that the user specifies a Jacobian. The Jacobian must be set as a sparse matrix in the ODEProblem type.
 
-Example:
+## Examples
 
 ```julia
 CVODE_Adams() # Adams method using Newton + Dense solver
@@ -300,7 +334,7 @@ struct CVODE_Adams{Method, LinearSolver, P, PS} <:
     psetup::PS
     prec_side::Int
 end
-Base.@pure function CVODE_Adams(;
+function CVODE_Adams(;
         method = :Functional,
         linear_solver = :None,
         jac_upper = 0,
@@ -337,7 +371,7 @@ Base.@pure function CVODE_Adams(;
         )
         error("Linear solver choice not accepted.")
     end
-    CVODE_Adams{method, linear_solver, typeof(prec), typeof(psetup)}(
+    return CVODE_Adams{method, linear_solver, typeof(prec), typeof(psetup)}(
         jac_upper,
         jac_lower,
         krylov_dim,
@@ -377,7 +411,18 @@ ARKODE(stiffness=Sundials.Implicit();
 
 ARKODE: Explicit and ESDIRK Runge-Kutta methods of orders 2-8 depending on choice of options.
 
-### Tableau Choices
+# Keyword Arguments
+
+- `stiffness`: selects `Implicit()` or `Explicit()` tableaux.
+- `method`, `linear_solver`, `mass_linear_solver`: nonlinear and linear solver choices.
+- `order`, `itable`, `etable`: select an ARK tableau and its order.
+- `prec`, `psetup`, `prec_side`: iterative linear-solver preconditioner hooks.
+
+# Returns
+
+An `ARKODE` algorithm object for use with `SciMLBase.solve` on ODE problems.
+
+## Tableau Choices
 
 The main options for ARKODE are the choice between explicit and implicit and the method
 order, given via:
@@ -428,7 +473,7 @@ ARKODE(Sundials.Explicit(), etable = Sundials.DORMAND_PRINCE_7_4_5)
 ARKODE(Sundials.Implicit(), itable = Sundials.KVAERNO_4_2_3)
 ```
 
-### Method Choices
+## Method Choices
 
 * `method` - This is the method for solving the implicit equation. For BDF this defaults to
     `:Newton` while for Adams this defaults to `:Functional`. These choices match the
@@ -437,7 +482,7 @@ ARKODE(Sundials.Implicit(), itable = Sundials.KVAERNO_4_2_3)
     approach.
 * `linear_solver` - This is the linear solver which is used in the `:Newton` method.
 
-### Linear Solver Choices
+## Linear Solver Choices
 
 The choices for the linear solver are:
 
@@ -648,7 +693,18 @@ IDA(;linear_solver=:Dense,jac_upper=0,jac_lower=0,krylov_dim=0,
 
 IDA: This is the IDA method from the Sundials.jl package.
 
-### Linear Solvers
+# Keyword Arguments
+
+- `linear_solver`: linear solver backend; `:Dense` is the default.
+- `jac_upper`, `jac_lower`: nonzero band counts required by `linear_solver = :Band`.
+- `init_all`: chooses which initial values the IDA consistency routine may modify.
+- `prec`, `psetup`: iterative linear-solver preconditioner hooks.
+
+# Returns
+
+An `IDA` algorithm object for use with `SciMLBase.solve` on DAE problems.
+
+## Linear Solvers
 
 Note that the constructors for the Sundials algorithms take a main argument:
 linearsolver - This is the linear solver which is used in the Newton iterations. The
@@ -728,7 +784,7 @@ struct IDA{LinearSolver, P, PS} <: SundialsDAEAlgorithm{LinearSolver}
     prec::P
     psetup::PS
 end
-Base.@pure function IDA(;
+function IDA(;
         linear_solver = :Dense,
         jac_upper = 0,
         jac_lower = 0,
@@ -769,7 +825,7 @@ Base.@pure function IDA(;
         )
         error("Linear solver choice not accepted.")
     end
-    IDA{linear_solver, typeof(prec), typeof(psetup)}(
+    return IDA{linear_solver, typeof(prec), typeof(psetup)}(
         jac_upper,
         jac_lower,
         krylov_dim,
@@ -791,7 +847,7 @@ Base.@pure function IDA(;
 end
 
 """
-KINSOL: Newton-Krylov technique solver
+KINSOL: Newton-Krylov technique solver.
 
 ```julia
 KINSOL(;
@@ -806,7 +862,22 @@ KINSOL(;
 )
 ```
 
-The choices for the linear solver are:
+# Keyword Arguments
+
+- `linear_solver`: linear solver backend; `:Dense` is the default.
+- `jac_upper`, `jac_lower`: nonzero band counts required by `linear_solver = :Band`.
+- `userdata`: value passed through to the nonlinear residual and preconditioner callbacks.
+- `prec_side`: preconditioning side accepted by the selected iterative solver.
+- `krylov_dim`: maximum Krylov subspace dimension for iterative solvers.
+- `globalization_strategy`: either `:None` or `:LineSearch`.
+- `maxsetupcalls`: maximum nonlinear iterations between setup calls.
+
+# Returns
+
+A `KINSOL` algorithm object for use with `SciMLBase.solve` on nonlinear and steady-state
+problems.
+
+## Linear Solver Choices
 
 - `:Dense`: A dense linear solver
 - `:Band`: A solver specialized for banded Jacobians. If used, you must set the
@@ -827,15 +898,21 @@ The choices for the linear solver are:
   Jacobian. The Jacobian must be set as a sparse matrix in the `ODEProblem`
   type.
 
-The choices for globalization strategy are:
+## Globalization Strategy
 
 - `:None`: No globalization strategy
 - `:LineSearch`: A line search globalization strategy
 
-Other options:
+## Other Options
 
 - `maxsetupcalls`: Maximum number of nonlinear iterations that can be performed between
   calls to the preconditioner or Jacobian setup function.
+
+## Examples
+
+```julia
+KINSOL(linear_solver = :GMRES, globalization_strategy = :LineSearch)
+```
 """
 struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
     jac_upper::Int
@@ -847,7 +924,7 @@ struct KINSOL{LinearSolver} <: SundialsNonlinearSolveAlgorithm{LinearSolver}
     maxsetupcalls::Int
 end
 
-Base.@pure function KINSOL(;
+function KINSOL(;
         linear_solver = :Dense,
         jac_upper = 0,
         jac_lower = 0,
@@ -877,7 +954,7 @@ Base.@pure function KINSOL(;
     if !(globalization_strategy in (:LineSearch, :None))
         error("Globalization strategy not accepted.")
     end
-    KINSOL{linear_solver}(
+    return KINSOL{linear_solver}(
         jac_upper, jac_lower, userdata, prec_side, krylov_dim,
         globalization_strategy, maxsetupcalls
     )

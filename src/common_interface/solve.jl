@@ -1,6 +1,6 @@
 ## Common Interface Solve Functions
 
-function DiffEqBase.__solve(
+function SciMLBase.__solve(
         prob::Union{
             SciMLBase.AbstractODEProblem,
             SciMLBase.AbstractDAEProblem,
@@ -19,14 +19,14 @@ function DiffEqBase.__solve(
         },
         recompile_flag,
     }
-    integrator = DiffEqBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
+    integrator = SciMLBase.__init(prob, alg, timeseries, ts, ks; kwargs...)
     if integrator.sol.retcode == ReturnCode.Default
         solve!(integrator; early_free = true, calculate_error = calculate_error)
     end
     return integrator.sol
 end
 
-function DiffEqBase.__solve(
+function SciMLBase.__solve(
         prob::Union{
             SciMLBase.AbstractSteadyStateProblem{
                 uType,
@@ -109,7 +109,7 @@ function DiffEqBase.__solve(
     end
 end
 
-function DiffEqBase.__init(
+function SciMLBase.__init(
         prob::SciMLBase.AbstractODEProblem{uType, tupType, isinplace},
         alg::SundialsODEAlgorithm{Method, LinearSolver},
         timeseries = [],
@@ -522,7 +522,7 @@ function DiffEqBase.__init(
     return integrator
 end # function solve
 
-function DiffEqBase.__init(
+function SciMLBase.__init(
         prob::SciMLBase.AbstractODEProblem{uType, tupType, isinplace},
         alg::ARKODE{Method, LinearSolver, MassLinearSolver},
         timeseries = [],
@@ -1110,8 +1110,8 @@ function DiffEqBase.__init(
 end # function solve
 
 function tstop_saveat_disc_handling(tstops, saveat, tdir, tspan, tType)
-    tstops_internal = DataStructures.BinaryHeap{tType}(DataStructures.FasterForward())
-    saveat_internal = DataStructures.BinaryHeap{tType}(DataStructures.FasterForward())
+    tstops_internal = DataStructures.BinaryMinHeap{tType}()
+    saveat_internal = DataStructures.BinaryMinHeap{tType}()
 
     t0, tf = tspan
     tdir_t0 = tdir * t0
@@ -1136,7 +1136,7 @@ end
 
 ## Solve for DAEs uses IDA
 
-function DiffEqBase.__init(
+function SciMLBase.__init(
         prob::SciMLBase.AbstractDAEProblem{
             uType, duType, tupType,
             isinplace,
@@ -1802,7 +1802,7 @@ function DiffEqBase.solve!(
     end
 
     if integrator.sol.retcode == ReturnCode.Default
-        integrator.sol = DiffEqBase.solution_new_retcode(
+        integrator.sol = SciMLBase.solution_new_retcode(
             integrator.sol,
             interpret_sundials_retcode(integrator.flag)
         )

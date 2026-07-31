@@ -309,7 +309,7 @@ function DiffEqBase.check_error(integrator::AbstractSundialsIntegrator)
     return interpret_sundials_retcode(integrator.flag)
 end
 
-DiffEqBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
+SciMLBase.postamble!(integrator::AbstractSundialsIntegrator) = nothing
 # No-op postamble! to make DiffEqBase.check_error! (and hence iterator interface
 # implemented in DiffEqBase) work.
 
