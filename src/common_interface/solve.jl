@@ -288,6 +288,10 @@ function SciMLBase.__init(
     flag = CVodeSetMaxConvFails(mem, alg.max_convergence_failures)
 
     nojacobian = true
+    A = SUNMatrix(C_NULL)
+    LS = SUNLinearSolver(C_NULL)
+    _A = nothing
+    _LS = nothing
 
     if Method == :Newton # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
@@ -344,6 +348,8 @@ function SciMLBase.__init(
             LS = SUNLinSol_KLU(utmp, A, ctx)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
+        else
+            throw(ArgumentError("linear_solver = $LinearSolver is not supported by CVODE"))
         end
         if LinearSolver !== :Diagonal
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
@@ -432,6 +438,7 @@ function SciMLBase.__init(
     uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     tout = [tspan[1]]
 
+    dures = Vector{uType}()
     if save_start
         if save_idxs === nothing
             ures = Vector{uType}()
@@ -629,20 +636,16 @@ function SciMLBase.__init(
     ctx = ctx_handle.ctx
     utmp = NVector(uvec, ctx)
 
-    function arkodemem(; fe = C_NULL, fi = C_NULL, t0 = t0, u0 = utmp)
-        mem_ptr = ARKStepCreate(fe, fi, t0, u0, ctx)
+    function arkodemem(; fe = C_NULL, fi = C_NULL, t0_value = t0, u0_value = utmp)
+        mem_ptr = ARKStepCreate(fe, fi, t0_value, u0_value, ctx)
         (mem_ptr == C_NULL) && error("Failed to allocate ARKODE solver object")
-        mem = Handle(mem_ptr)
-
-        return mem
+        return Handle(mem_ptr)
     end
 
-    function erkodemem(; f = C_NULL, t0 = t0, u0 = utmp)
-        mem_ptr = ERKStepCreate(f, t0, u0, ctx)
+    function erkodemem(; f = C_NULL, t0_value = t0, u0_value = utmp)
+        mem_ptr = ERKStepCreate(f, t0_value, u0_value, ctx)
         (mem_ptr == C_NULL) && error("Failed to allocate ERKODE solver object")
-        mem = Handle(mem_ptr)
-
-        return mem
+        return Handle(mem_ptr)
     end
 
     ### Fix the more general function to Sundials allowed style
@@ -808,6 +811,15 @@ function SciMLBase.__init(
         alg.set_optimal_params && (flag = ARKStepSetOptimalParams(mem))
     end
 
+    A = SUNMatrix(C_NULL)
+    LS = SUNLinearSolver(C_NULL)
+    _A = nothing
+    _LS = nothing
+    M = SUNMatrix(C_NULL)
+    MLS = SUNLinearSolver(C_NULL)
+    _M = nothing
+    _MLS = nothing
+
     if Method == :Newton && alg.stiffness !== Explicit() # Only use a linear solver if it's a Newton-based method
         if LinearSolver in (:Dense, :LapackDense)
             nojacobian = false
@@ -857,14 +869,14 @@ function SciMLBase.__init(
             LS = SUNLinSol_KLU(utmp, A, ctx)
             _A = MatrixHandle(A, SparseMatrix())
             _LS = LinSolHandle(LS, KLU())
+        else
+            throw(ArgumentError("linear_solver = $LinearSolver is not supported by ARKODE"))
         end
         flag = ARKStepSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     elseif Method == :Functional && alg.stiffness !== Explicit()
-        ARKStepSetFixedPoint(mem, Clong(alg.krylov_dim))
-    else
-        _A = nothing
-        _LS = nothing
+        NLS = SUNNonlinSol_FixedPoint(utmp, Cint(alg.krylov_dim), ctx)
+        flag = ARKStepSetNonlinearSolver(mem, NLS)
     end
 
     if (
@@ -936,6 +948,12 @@ function SciMLBase.__init(
             MLS = SUNLinSol_KLU(utmp, M, ctx)
             _M = MatrixHandle(M, SparseMatrix())
             _MLS = LinSolHandle(MLS, KLU())
+        else
+            throw(
+                ArgumentError(
+                    "mass_linear_solver = $MassLinearSolver is not supported by ARKODE"
+                )
+            )
         end
         flag = ARKStepSetMassLinearSolver(mem, MLS, _M === nothing ? C_NULL : M, false)
         function getmatfun(::T) where {T}
@@ -1012,6 +1030,7 @@ function SciMLBase.__init(
     uprev = isnothing(callbacks_internal) ? u0 : similar(u0)
     tout = [tspan[1]]
 
+    dures = Vector{uType}()
     if save_start
         if save_idxs === nothing
             ures = Vector{uType}()
@@ -1296,6 +1315,10 @@ function SciMLBase.__init(
     flag = IDASetLineSearchOffIC(mem, alg.use_linesearch_ic)
 
     prec_side = isnothing(alg.prec) ? 0 : 1  # IDA only supports left preconditioning (prec_side = 1)
+    A = SUNMatrix(C_NULL)
+    LS = SUNLinearSolver(C_NULL)
+    _A = nothing
+    _LS = nothing
     if LinearSolver in (:Dense, :LapackDense)
         nojacobian = false
         A = SUNDenseMatrix(length(u0), length(u0), ctx)
@@ -1344,6 +1367,8 @@ function SciMLBase.__init(
         LS = SUNLinSol_KLU(utmp, A, ctx)
         _A = MatrixHandle(A, SparseMatrix())
         _LS = LinSolHandle(LS, KLU())
+    else
+        throw(ArgumentError("linear_solver = $LinearSolver is not supported by IDA"))
     end
     flag = IDASetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
 

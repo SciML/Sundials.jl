@@ -21,13 +21,7 @@ const REEXPORTS = (
     :u_modified!,
 )
 
-# `jet = false` disables run_qa's whole-module `JET.report_package`: on JET 0.11
-# (Julia >= 1.11) it reports conditionally-assigned locals in the solver-init paths
-# (e.g. the SUNMatrix/SUNLinearSolver handles in `__init`) that JET cannot prove
-# defined, while JET 0.9 (Julia LTS) does not report them, so neither `jet = true` nor
-# `jet_broken = true` is green-or-broken on both CI lanes. Tracked in
-# SciML/Sundials.jl#541. The constructor analysis below runs on every lane.
-run_qa(Sundials; jet = false, reexports_allow = REEXPORTS)
+run_qa(Sundials; reexports_allow = REEXPORTS)
 
 @testset "Reexport surface" begin
     # Every approved reexport must actually be reachable from `using Sundials`, so the
