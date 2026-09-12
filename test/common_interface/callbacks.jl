@@ -93,3 +93,33 @@ u_out = similar(u₀)
 cb = DiscreteCallback(Returns(true), integ -> integ(@view(u_out[2:2]), integ.t))
 prob = DAEProblem(fbv, du₀, u₀, tspan, p, differential_vars = differential_vars)
 @test_throws ArgumentError solve(prob, IDA(), initializealg = Sundials.BrownFullBasicInit(), callback = cb)
+
+# https://github.com/SciML/Sundials.jl/issues/232
+@testset "ContinuousCallback on matrix state" begin
+    I_ = 6.0
+    function fmat(du, u, p, t)
+        du[1, 1] = -u[1, 1] + I_
+        du[1, 2] = -u[1, 2]
+        du[2, 1] = -0.9 * u[2, 1] + I_
+        return du[2, 2] = -u[2, 2]
+    end
+    u0m = zeros(2, 2)
+    Th = 5.0
+    Reset = 0.0
+    Reset2 = 1.0
+    nfired = Ref(0)
+    conditionm(u, t, integrator) = maximum(u[:, 1]) - Th
+    function affectm!(integrator)
+        nfired[] += 1
+        u = integrator.u
+        maxidx = findmax(u[:, 1])[2]
+        u[maxidx, 1] = Reset
+        u[maxidx, 2] = u[maxidx, 2] + Reset2
+        return nothing
+    end
+    cbm = ContinuousCallback(conditionm, affectm!, nothing)
+    probm = ODEProblem(fmat, u0m, (0.0, 10.0))
+    sol = solve(probm, CVODE_BDF(), callback = cbm)
+    @test sol.retcode == ReturnCode.Success
+    @test nfired[] > 0
+end

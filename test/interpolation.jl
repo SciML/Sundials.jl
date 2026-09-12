@@ -115,3 +115,16 @@ end
         @test sol_dense(t)[1] ≈ exp(-t) rtol = 1.0e-4
     end
 end
+
+# https://github.com/SciML/Sundials.jl/issues/452
+@testset "IDA saveat derivative continuity" begin
+    dae_f(du, u, p, t) = [du[1] - u[2], u[2] - sin(t)]
+    prob = DAEProblem(
+        DAEFunction(dae_f), [0.0, 0.0], [0.0, 0.0], (0.0, 2pi), nothing;
+        differential_vars = [true, false], abstol = 1.0e-6, reltol = 1.0e-1
+    )
+    sol = solve(prob, IDA(), saveat = 0.01)
+    dvals = Array(sol(sol.t, Val{1}))
+    errs = [abs(dvals[2, i] - cos(sol.t[i])) for i in eachindex(sol.t)]
+    @test maximum(errs) < 0.2
+end
