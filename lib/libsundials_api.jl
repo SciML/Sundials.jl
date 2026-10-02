@@ -1853,22 +1853,33 @@ function ERKStepPrintMem(arkode_mem, outfile)
 end
 
 function MRIStepCreate(
-        fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector},
-        inner_step_id::MRISTEP_ID,
-        inner_step_mem, sunctx::SUNContext
+        fse::ARKRhsFn, fsi::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector},
+        stepper, sunctx::SUNContext
     )
     return ccall(
         (:MRIStepCreate, libsundials_arkode), MRIStepMemPtr,
-        (ARKRhsFn, realtype, N_Vector, MRISTEP_ID, Ptr{Cvoid}, SUNContext), fs, t0, y0, inner_step_id,
-        inner_step_mem, sunctx
+        (ARKRhsFn, ARKRhsFn, realtype, N_Vector, MRIStepInnerStepper, SUNContext),
+        fse, fsi, t0, y0, stepper, sunctx
     )
 end
 
-function MRIStepCreate(
-        fs::ARKRhsFn, t0, y0, inner_step_id, inner_step_mem, sunctx::SUNContext
-    )
+function MRIStepCreate(fse::ARKRhsFn, fsi::ARKRhsFn, t0, y0, stepper, sunctx::SUNContext)
     __y0 = convert(NVector, y0, sunctx)
-    return MRIStepCreate(fs, t0, __y0, inner_step_id, inner_step_mem, sunctx)
+    return MRIStepCreate(fse, fsi, t0, __y0, stepper, sunctx)
+end
+
+function ARKodeCreateMRIStepInnerStepper(arkode_mem, stepper)
+    return ccall(
+        (:ARKodeCreateMRIStepInnerStepper, libsundials_arkode), Cint,
+        (ARKStepMemPtr, Ref{MRIStepInnerStepper}), arkode_mem, stepper
+    )
+end
+
+function MRIStepInnerStepper_Free(stepper)
+    return ccall(
+        (:MRIStepInnerStepper_Free, libsundials_arkode), Cint,
+        (Ref{MRIStepInnerStepper},), stepper
+    )
 end
 
 function MRIStepResize(
@@ -1888,16 +1899,20 @@ function MRIStepResize(arkode_mem, ynew, t0, resize, resize_data, ctx::SUNContex
     return MRIStepResize(arkode_mem, __ynew, t0, resize, resize_data)
 end
 
-function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0::realtype, y0::Union{N_Vector, NVector})
+function MRIStepReInit(
+        arkode_mem, fse::ARKRhsFn, fsi::ARKRhsFn, t0::realtype,
+        y0::Union{N_Vector, NVector}
+    )
     return ccall(
         (:MRIStepReInit, libsundials_arkode), Cint,
-        (MRIStepMemPtr, ARKRhsFn, realtype, N_Vector), arkode_mem, fs, t0, y0
+        (MRIStepMemPtr, ARKRhsFn, ARKRhsFn, realtype, N_Vector), arkode_mem, fse, fsi, t0,
+        y0
     )
 end
 
-function MRIStepReInit(arkode_mem, fs::ARKRhsFn, t0, y0, ctx::SUNContext)
+function MRIStepReInit(arkode_mem, fse::ARKRhsFn, fsi::ARKRhsFn, t0, y0, ctx::SUNContext)
     __y0 = convert(NVector, y0, ctx)
-    return MRIStepReInit(arkode_mem, fs, t0, __y0)
+    return MRIStepReInit(arkode_mem, fse, fsi, t0, __y0)
 end
 
 function MRIStepRootInit(arkode_mem, nrtfn::Cint, g::ARKRootFn)
