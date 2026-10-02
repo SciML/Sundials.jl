@@ -87,7 +87,7 @@ function run_mri_twowaycouple()
     inner_stepper = nothing
     arkode_mem = nothing
 
-    try
+    return try
         # Fast Integration portion
         y0_nvec = Sundials.NVector(y0, ctx)
         _mem_ptr = Sundials.ARKStepCreate(ff_C, C_NULL, T0, y0_nvec, ctx)

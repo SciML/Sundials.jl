@@ -26,7 +26,7 @@ function run_mri_erk_inner_stepper()
 
     y = nothing
     erk = nothing
-    try
+    return try
         y = Sundials.NVector([9001.0 / 10001.0, -1.0e5 / 10001.0, 1000.0], ctx)
         erk = Sundials.Handle(Sundials.ERKStepCreate(ff_C, 0.0, y, ctx))
         stepper = Ref{Sundials.MRIStepInnerStepper}(C_NULL)
