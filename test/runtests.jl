@@ -37,8 +37,6 @@ end
     @safetestset "IDAS Adjoint" begin
         include("idas_adjoint.jl")
     end
-    # Commented out because still uses the syntax from Grid which is a deprecated package
-    #@testset "Cable IDA Direct" begin include("ida_Cable.jl") end
 end
 
 @testset "ARK" begin
@@ -48,7 +46,9 @@ end
     @safetestset "NonLinear ERKStep Direct" begin
         include("erkstep_nonlin.jl")
     end
-    #@testset "MRI two way couple" begin include("mri_twowaycouple.jl") end
+    @safetestset "MRI two way couple" begin
+        include("mri_twowaycouple.jl")
+    end
 end
 
 @testset "Kinsol" begin
