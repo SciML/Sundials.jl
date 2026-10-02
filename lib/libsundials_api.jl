@@ -1868,11 +1868,29 @@ function MRIStepCreate(fse::ARKRhsFn, fsi::ARKRhsFn, t0, y0, stepper, sunctx::SU
     return MRIStepCreate(fse, fsi, t0, __y0, stepper, sunctx)
 end
 
-function ARKodeCreateMRIStepInnerStepper(arkode_mem, stepper)
-    return ccall(
-        (:ARKodeCreateMRIStepInnerStepper, libsundials_arkode), Cint,
-        (ARKStepMemPtr, Ref{MRIStepInnerStepper}), arkode_mem, stepper
-    )
+# ARKODE C API takes void* — any ARKStep/ERKStep/MRIStep mem is valid.
+const ARKODEMemForMRIInner = Union{
+    Handle{ARKStepMem},
+    Handle{ERKStepMem},
+    Handle{MRIStepMem},
+    ARKStepMemPtr,
+    ERKStepMemPtr,
+    MRIStepMemPtr,
+    Ptr{Cvoid},
+}
+
+function ARKodeCreateMRIStepInnerStepper(arkode_mem::ARKODEMemForMRIInner, stepper)
+    GC.@preserve arkode_mem begin
+        mem_ptr = if arkode_mem isa Handle
+            Ptr{Cvoid}(arkode_mem.ptr)
+        else
+            Ptr{Cvoid}(arkode_mem)
+        end
+        return ccall(
+            (:ARKodeCreateMRIStepInnerStepper, libsundials_arkode), Cint,
+            (Ptr{Cvoid}, Ref{MRIStepInnerStepper}), mem_ptr, stepper
+        )
+    end
 end
 
 function MRIStepInnerStepper_Free(stepper)
