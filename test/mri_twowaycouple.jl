@@ -1,18 +1,17 @@
-# Example based on https://github.com/LLNL/sundials/blob/master/examples/arkode/C_serial/ark_twowaycouple_mri.c
-
-# Create context for tests
-ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
-Sundials.SUNContext_Create(C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr))
-ctx = ctx_ptr[]
+# Example based on https://github.com/LLNL/sundials/blob/v7.5.0/examples/arkode/C_serial/ark_twowaycouple_mri.c
+# Expected values from ark_twowaycouple_mri.out (printed to 6 decimal places).
 #=
 /* ----------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
  * ----------------------------------------------------------------
- * Based a linear example program by Rujeko Chinomona @ SMU.
+ * Based a linear example program by Rujeko Chinomona @ UMBC.
  * ----------------------------------------------------------------
  * SUNDIALS Copyright Start
- * Copyright (c) 2002-2020, Lawrence Livermore National Security
+ * Copyright (c) 2025, Lawrence Livermore National Security,
+ * University of Maryland Baltimore County, and the SUNDIALS contributors.
+ * Copyright (c) 2013-2025, Lawrence Livermore National Security
  * and Southern Methodist University.
+ * Copyright (c) 2002-2013, Lawrence Livermore National Security.
  * All rights reserved.
  *
  * See the top-level LICENSE and NOTICE files for details.
@@ -39,7 +38,8 @@ ctx = ctx_ptr[]
  * ----------------------------------------------------------------*/
 =#
 
-using Sundials # Test
+using Sundials
+using Test
 
 function ff(t, y_nv, ydot_nv, user_data)
     y = convert(Vector, y_nv)
@@ -59,52 +59,90 @@ function fs(t, y_nv, ydot_nv, user_data)
     return Sundials.ARK_SUCCESS
 end
 
-T0 = 0.0
-Tf = 2.0
-dTout = 0.1
-Neq = 3
-Nt = ceil(Tf / dTout)
-hs = 0.001
-hf = 0.00002
-y0 = [0.90001, -9.999, 1000.0]
+function run_mri_twowaycouple()
+    ctx_ptr = Ref{Sundials.SUNContext}(C_NULL)
+    Sundials.SUNContext_Create(
+        C_NULL, Base.unsafe_convert(Ptr{Sundials.SUNContext}, ctx_ptr)
+    )
+    ctx = ctx_ptr[]
 
-# Fast Integration portion
-y0_nvec = Sundials.NVector(y0, ctx)
-_mem_ptr = Sundials.ARKStepCreate(ff, C_NULL, T0, y0_nvec, ctx);
-inner_arkode_mem = Sundials.Handle(_mem_ptr)
-Sundials.@checkflag Sundials.ARKStepSetTableNum(
-    inner_arkode_mem,
-    -1,
-    Sundials.KNOTH_WOLKE_3_3
-)
-Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
+    ff_C = @cfunction(
+        ff, Cint, (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid})
+    )
+    fs_C = @cfunction(
+        fs, Cint, (Sundials.realtype, Sundials.N_Vector, Sundials.N_Vector, Ptr{Cvoid})
+    )
 
-# Slow integrator portion
-_arkode_mem_ptr = Sundials.MRIStepCreate(
-    fs, T0, y0_nvec, Sundials.MRISTEP_ARKSTEP, inner_arkode_mem, ctx
-)
-arkode_mem = Sundials.Handle(_arkode_mem_ptr)
-Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
+    T0 = 0.0
+    Tf = 2.0
+    dTout = 0.1
+    Nt = ceil(Int, Tf / dTout)
+    hs = 0.001
+    hf = 0.00002
+    y0 = [9001.0 / 10001.0, -1.0e5 / 10001.0, 1000.0]
 
-t = [T0]
-tout = T0 + dTout
-res = Dict(0 => y0)
-for i in 1:Nt
-    y = similar(y0)
-    y_nvec = Sundials.NVector(y, ctx)
-    global retval = Sundials.MRIStepEvolve(arkode_mem, tout, y_nvec, t, Sundials.ARK_NORMAL)
-    copyto!(y, y_nvec.v)
-    global tout += dTout
-    global tout = (tout > Tf) ? Tf : tout
-    res[i] = y
+    y0_nvec = nothing
+    y_nvec = nothing
+    inner_arkode_mem = nothing
+    inner_stepper = nothing
+    arkode_mem = nothing
+
+    return try
+        # Fast Integration portion
+        y0_nvec = Sundials.NVector(y0, ctx)
+        _mem_ptr = Sundials.ARKStepCreate(ff_C, C_NULL, T0, y0_nvec, ctx)
+        inner_arkode_mem = Sundials.Handle(_mem_ptr)
+        Sundials.@checkflag Sundials.ARKStepSetTableNum(
+            inner_arkode_mem,
+            -1,
+            Sundials.KNOTH_WOLKE_3_3
+        )
+        Sundials.@checkflag Sundials.ARKStepSetFixedStep(inner_arkode_mem, hf)
+
+        inner_stepper_ptr = Ref{Sundials.MRIStepInnerStepper}(C_NULL)
+        Sundials.@checkflag Sundials.ARKodeCreateMRIStepInnerStepper(
+            inner_arkode_mem, inner_stepper_ptr
+        )
+        inner_stepper = Sundials.Handle(inner_stepper_ptr[])
+
+        # Slow integrator portion
+        _arkode_mem_ptr = Sundials.MRIStepCreate(
+            fs_C, C_NULL, T0, y0_nvec, inner_stepper, ctx
+        )
+        arkode_mem = Sundials.Handle(_arkode_mem_ptr)
+        Sundials.@checkflag Sundials.MRIStepSetFixedStep(arkode_mem, hs)
+
+        t = [T0]
+        tout = T0 + dTout
+        res = Dict(0 => copy(y0))
+        y = copy(y0)
+        y_nvec = Sundials.NVector(y, ctx)
+        for i in 1:Nt
+            retval = Sundials.MRIStepEvolve(
+                arkode_mem, tout, y_nvec, t, Sundials.ARK_NORMAL
+            )
+            @test retval == 0
+            copyto!(y, y_nvec.v)
+            res[i] = copy(y)
+            tout += dTout
+            tout = (tout > Tf) ? Tf : tout
+        end
+
+        # Reference: SUNDIALS v7.5.0 ark_twowaycouple_mri.out (6 decimal places)
+        sol_1 = [-0.929838, -8.503739, 904.822759]
+        sol_end = [0.464954, -0.474682, 135.299471]
+        for i in 1:3
+            @test isapprox(res[1][i], sol_1[i]; atol = 5.0e-7)
+            @test isapprox(res[Nt][i], sol_end[i]; atol = 5.0e-7)
+        end
+    finally
+        # Free dependents before the context (SUNDIALS SUNContext requirement).
+        # Inner ARK mem / stepper must outlive the last MRIStepEvolve above.
+        for h in (arkode_mem, inner_stepper, inner_arkode_mem, y_nvec, y0_nvec)
+            h !== nothing && finalize(h)
+        end
+        Sundials.SUNContext_Free(ctx)
+    end
 end
 
-for i in 1:3
-    sol_1 = [-0.927671 -8.50006 904.786828]
-    sol_end = [0.547358 -0.523577 135.169441]
-    @test isapprox(res[1][i], sol_1[i]; atol = 1.0e-3)
-    @test isapprox(res[Nt][i], sol_end[i]; atol = 1.0e-3)
-end
-
-# Clean up context
-Sundials.SUNContext_Free(ctx)
+run_mri_twowaycouple()
