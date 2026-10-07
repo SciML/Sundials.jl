@@ -1,7 +1,7 @@
 abstract type AbstractFunJac{J2} end
 mutable struct FunJac{
-        N, F, F2, J, P, M, J2, Prec, PS,
-        TResid <: Union{Nothing, Array{Float64, N}},
+        F, F2, J, P, M, J2, Prec, PS, U, DU,
+        TResid <: Union{Nothing, AbstractArray{Float64}},
     } <: AbstractFunJac{J2}
     fun::F
     fun2::F2
@@ -11,8 +11,9 @@ mutable struct FunJac{
     jac_prototype::J2
     prec::Prec
     psetup::PS
-    u::Array{Float64, N}
-    du::Array{Float64, N}
+    # Buffers for (or prototypes of) the arrays passed to user functions
+    u::U
+    du::DU
     resid::TResid
 end
 function FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du)
@@ -32,27 +33,46 @@ function FunJac(fun, jac, p, m, jac_prototype, prec, psetup, u, du, resid)
     )
 end
 
-function cvodefunjac(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) where {N}
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
-    )
-    _du = funjac.du
-    _u = funjac.u
-    funjac.fun(_du, _u, funjac.p, t)
+"""
+    unsafe_wrap_nvector(prototype, x::N_Vector)
+
+Wrap the data of `x` without copying in an array of the same type and size as `prototype`,
+or return `nothing` if this is not supported for arrays of this type.
+
+The returned array is only valid as long as `x` is.
+Package extensions may add methods for additional array types.
+"""
+@inline function unsafe_wrap_nvector(prototype::Array{Float64}, x::N_Vector)
+    return asarray(N_VGetArrayPointer_Serial(x), size(prototype))
+end
+unsafe_wrap_nvector(prototype, x::N_Vector) = nothing
+
+# Arrays of the same type as `buf` with the data of `x`, as passed to user functions:
+# The data is only copied (into `buf`) if it cannot be wrapped, and only for inputs
+@inline function input_array!(buf, x::N_Vector)
+    a = unsafe_wrap_nvector(buf, x)
+    return a === nothing ? copyto!(buf, asarray(N_VGetArrayPointer_Serial(x), size(buf))) : a
+end
+@inline output_array(buf, x::N_Vector) = something(unsafe_wrap_nvector(buf, x), buf)
+
+# Copy output `a` of a user function to `x`, unless `a` already aliases the data of `x`
+@inline function copyback!(x::N_Vector, a)
+    ptr = N_VGetArrayPointer_Serial(x)
+    pointer(a) == ptr || copyto!(asarray(ptr, size(a)), a)
+    return nothing
+end
+
+function cvodefunjac(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac)
+    _du = output_array(funjac.du, du)
+    funjac.fun(_du, input_array!(funjac.u, u), funjac.p, t)
+    copyback!(du, _du)
     return CV_SUCCESS
 end
 
-function cvodefunjac2(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac{N}) where {N}
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
-    )
-    _du = funjac.du
-    _u = funjac.u
-    funjac.fun2(_du, _u, funjac.p, t)
+function cvodefunjac2(t::Float64, u::N_Vector, du::N_Vector, funjac::FunJac)
+    _du = output_array(funjac.du, du)
+    funjac.fun2(_du, input_array!(funjac.u, u), funjac.p, t)
+    copyback!(du, _du)
     return CV_SUCCESS
 end
 
@@ -66,8 +86,7 @@ function cvodejac(
         tmp2::N_Vector,
         tmp3::N_Vector
     )
-    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
-    _u = funjac.u
+    _u = input_array!(funjac.u, u)
     funjac.jac(convert(Matrix, J), _u, funjac.p, t)
     return CV_SUCCESS
 end
@@ -84,8 +103,7 @@ function cvodejac(
     )
     jac_prototype = funjac.jac_prototype
 
-    funjac.u = unsafe_wrap(Vector{Float64}, N_VGetArrayPointer_Serial(u), length(funjac.u))
-    _u = funjac.u
+    _u = input_array!(funjac.u, u)
 
     funjac.jac(jac_prototype, _u, funjac.p, t)
 
@@ -96,21 +114,11 @@ end
 
 function idasolfun(
         t::Float64, u::N_Vector, du::N_Vector, resid::N_Vector,
-        funjac::FunJac{N}
-    ) where {N}
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    _u = funjac.u
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
+        funjac::FunJac
     )
-    _du = funjac.du
-    funjac.resid = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(resid),
-        size(funjac.resid)
-    )
-    _resid = funjac.resid
-    funjac.fun(_resid, _du, _u, funjac.p, t)
+    _resid = output_array(funjac.resid, resid)
+    funjac.fun(_resid, input_array!(funjac.du, du), input_array!(funjac.u, u), funjac.p, t)
+    copyback!(resid, _resid)
     return IDA_SUCCESS
 end
 
@@ -126,14 +134,8 @@ function idajac(
         tmp2::N_Vector,
         tmp3::N_Vector
     )
-    N = ndims(funjac.u)
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    _u = funjac.u
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
-    )
-    _du = funjac.du
+    _u = input_array!(funjac.u, u)
+    _du = input_array!(funjac.du, du)
 
     funjac.jac(convert(Matrix, J), _du, _u, funjac.p, cj, t)
     return IDA_SUCCESS
@@ -152,14 +154,8 @@ function idajac(
         tmp3::N_Vector
     )
     jac_prototype = funjac.jac_prototype
-    N = ndims(funjac.u)
-    funjac.u = unsafe_wrap(Array{Float64, N}, N_VGetArrayPointer_Serial(u), size(funjac.u))
-    _u = funjac.u
-    funjac.du = unsafe_wrap(
-        Array{Float64, N}, N_VGetArrayPointer_Serial(du),
-        size(funjac.du)
-    )
-    _du = funjac.du
+    _u = input_array!(funjac.u, u)
+    _du = input_array!(funjac.du, du)
 
     funjac.jac(jac_prototype, _du, _u, funjac.p, cj, t)
 

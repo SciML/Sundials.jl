@@ -1,6 +1,8 @@
 """
    Wrapper for Sundials `N_Vector` that
    uses Julia `Vector{realtype}` as the data container.
+   It can also be constructed from other dense vectors (e.g. `FixedSizeVector`s),
+   whose memory is then aliased (not copied).
 
    Implements `DenseVector` interface and
    manages automatic destruction of the referenced `N_Vector` when it is
@@ -13,13 +15,15 @@ mutable struct NVector <: DenseVector{realtype}
     n_v::N_Vector           # reference (C pointer) to N_Vector
     v::Vector{realtype}     # array that is referenced by N_Vector
     ctx::SUNContext         # SUNContext for this NVector
+    parent::Any             # dense vector owning the data (write-only GC root)
 
-    function NVector(v::Vector{realtype}, ctx::SUNContext)
+    function NVector(v::DenseVector{realtype}, ctx::SUNContext)
         # note that N_VMake_Serial() creates N_Vector doesn't own the data,
         # so calling N_VDestroy_Serial() would not deallocate v
         # sunindextype is Int64 in the wrapper; length(::Vector) is Int (== Int32
         # on 32-bit Julia), so convert explicitly for the ccall method.
-        nv = new(N_VMake_Serial(sunindextype(length(v)), v, ctx), v, ctx)
+        n_v = N_VMake_Serial(sunindextype(length(v)), v, ctx)
+        nv = new(n_v, v isa Vector{realtype} ? v : asarray(n_v), ctx, v)
         finalizer(release_handle, nv)
         return nv
     end
@@ -28,7 +32,7 @@ mutable struct NVector <: DenseVector{realtype}
         # wrap N_Vector into NVector and get non-owning access to `nv` data
         # via `v`, but don't register finalizer for `nv`
         # ctx is C_NULL for wrapped N_Vectors that don't own their context
-        return new(n_v, asarray(n_v), ctx)
+        return new(n_v, asarray(n_v), ctx, nothing)
     end
 end
 
