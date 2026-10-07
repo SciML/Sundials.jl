@@ -728,9 +728,9 @@ function SciMLBase.__init(
             function getcfun2(::T) where {T}
                 return @cfunction(cvodefunjac, Cint, (realtype, N_Vector, N_Vector, Ref{T}))
             end
-            cfj1 = C_NULL
-            cfj2 = getcfun2(userfun)
-            mem = arkodemem(; fi = cfj2)
+            cfj1 = getcfun2(userfun)
+            cfj2 = C_NULL
+            mem = arkodemem(; fi = cfj1)
             cfj1, cfj2, mem
         end
     end
@@ -1119,10 +1119,7 @@ function SciMLBase.__init(
         ctx_handle
     )
     SciMLBase.initialize_dae!(integrator, initializealg)
-    integrator.u_modified &&  ARKStepReInit(
-        integrator.mem, integrator.cfj2, integrator.cfj1,
-        integrator.t, integrator.u_nvec
-    )
+    integrator.u_modified && handle_callback_modifiers!(integrator)
 
     initialize_callbacks!(integrator)
     return integrator
