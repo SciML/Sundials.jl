@@ -259,7 +259,7 @@ function SciMLBase.__init(
         use_jac_prototype ? prob.f.jac_prototype : nothing,
         alg.prec,
         alg.psetup,
-        similar(u0),
+        user_buffer(u0),
         out
     )
 
@@ -684,7 +684,7 @@ function SciMLBase.__init(
             use_jac_prototype ? prob.f.f1.jac_prototype : nothing,
             alg.prec,
             alg.psetup,
-            similar(u0),
+            user_buffer(u0),
             out,
             nothing
         )
@@ -713,7 +713,7 @@ function SciMLBase.__init(
             use_jac_prototype ? prob.f.jac_prototype : nothing,
             alg.prec,
             alg.psetup,
-            similar(u0),
+            user_buffer(u0),
             out
         )
         if alg.stiffness == Explicit()
@@ -1281,9 +1281,9 @@ function SciMLBase.__init(
         use_jac_prototype ? prob.f.jac_prototype : nothing,
         alg.prec,
         alg.psetup,
-        similar(u0),
-        similar(du0),
-        similar(u0)
+        user_buffer(u0),
+        user_buffer(du0),
+        user_buffer(u0)
     )
 
     function getcfun(::T) where {T}

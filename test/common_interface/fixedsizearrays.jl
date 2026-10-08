@@ -57,6 +57,16 @@ end
     nv = Sundials.NVector(fsa, ctx_handle.ctx)
     @test pointer(nv) == pointer(fsa)
 
+    # The package extension provides `Vector`s aliasing FixedSizeVectors, and no separate buffers are needed
+    @test Sundials.nvector_data(fsa) isa Vector{Float64}
+    @test pointer(Sundials.nvector_data(fsa)) == pointer(fsa)
+    @test Sundials.user_buffer(fsa) === fsa
+
+    # NVectors keep aliased FixedSizeArrays alive
+    nv_tmp = Sundials.NVector(FixedSizeVector([4.0, 5.0, 6.0]), ctx_handle.ctx)
+    GC.gc(true)
+    @test nv_tmp == [4.0, 5.0, 6.0]
+
     # The package extension wraps N_Vector data without copying (using internal API)
     @test isdefined(FixedSizeArrays, :new_fixed_size_array)
     wrapped = Sundials.unsafe_wrap_nvector(similar(fsa), nv.n_v)

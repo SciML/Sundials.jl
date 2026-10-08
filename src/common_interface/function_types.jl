@@ -55,6 +55,11 @@ unsafe_wrap_nvector(prototype, x::N_Vector) = nothing
 end
 @inline output_array(buf, x::N_Vector) = something(unsafe_wrap_nvector(buf, x), buf)
 
+# Buffer for `input_array!` and `output_array`
+# `Array`s are always wrapped by `unsafe_wrap_nvector`, so they don't need a separate buffer
+user_buffer(prototype::Array{Float64}) = prototype
+user_buffer(prototype) = similar(prototype)
+
 # Copy output `a` of a user function to `x`, unless `a` already aliases the data of `x`
 @inline function copyback!(x::N_Vector, a)
     ptr = N_VGetArrayPointer_Serial(x)
