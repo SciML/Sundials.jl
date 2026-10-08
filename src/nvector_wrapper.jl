@@ -1,6 +1,8 @@
 """
    Wrapper for Sundials `N_Vector` that
    uses Julia `Vector{realtype}` as the data container.
+   It can also be constructed from other dense vectors (e.g. `FixedSizeVector`s),
+   whose memory is then aliased (not copied).
 
    Implements `DenseVector` interface and
    manages automatic destruction of the referenced `N_Vector` when it is
@@ -14,13 +16,22 @@ mutable struct NVector <: DenseVector{realtype}
     v::Vector{realtype}     # array that is referenced by N_Vector
     ctx::SUNContext         # SUNContext for this NVector
 
-    function NVector(v::Vector{realtype}, ctx::SUNContext)
+    function NVector(v::DenseVector{realtype}, ctx::SUNContext)
         # note that N_VMake_Serial() creates N_Vector doesn't own the data,
         # so calling N_VDestroy_Serial() would not deallocate v
         # sunindextype is Int64 in the wrapper; length(::Vector) is Int (== Int32
         # on 32-bit Julia), so convert explicitly for the ccall method.
-        nv = new(N_VMake_Serial(sunindextype(length(v)), v, ctx), v, ctx)
-        finalizer(release_handle, nv)
+        n_v = N_VMake_Serial(sunindextype(length(v)), v, ctx)
+        data = nvector_data(v)
+        if data !== nothing
+            nv = new(n_v, data, ctx)
+            finalizer(release_handle, nv)
+        else
+            # `v` is rooted by the finalizer, which avoids an additional field
+            # (and hence larger `NVector`s) in the common case of `Vector`s
+            nv = new(n_v, asarray(n_v), ctx)
+            finalizer(ReleaseHandle(v), nv)
+        end
         return nv
     end
 
@@ -36,6 +47,23 @@ function release_handle(nv::NVector)
     return N_VDestroy_Serial(nv.n_v)
     # Don't free context here - it will be freed by the integrator
 end
+
+# Finalizer of `NVector`s that keeps the dense vector owning their data alive
+struct ReleaseHandle{P}
+    parent::P
+end
+(::ReleaseHandle)(nv::NVector) = release_handle(nv)
+
+"""
+    nvector_data(v::DenseVector{realtype})
+
+Return a `Vector{realtype}` that aliases the memory of `v` and keeps it alive,
+or `nothing` if this is not supported for vectors of this type.
+
+Package extensions may add methods for additional vector types.
+"""
+nvector_data(v::Vector{realtype}) = v
+nvector_data(v::DenseVector{realtype}) = nothing
 
 Base.size(nv::NVector, d...) = size(nv.v, d...)
 Base.stride(nv::NVector, d::Integer) = stride(nv.v, d)
