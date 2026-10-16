@@ -114,3 +114,29 @@ prob_scalar = NonlinearProblem{false}(f_scalar, u0)
         @test abs(resid) < 1.0e-6
     end
 end
+
+@testset "Zero-length state" begin
+    f_empty(du, u, p) = (du .= p; nothing)
+    for (prob, retcode) in (
+            (NonlinearProblem{true}(f_empty, Float64[], Float64[]), ReturnCode.Success),
+            (
+                NonlinearLeastSquaresProblem(
+                    NonlinearFunction{true}(f_empty; resid_prototype = zeros(3)),
+                    Float64[], zeros(3)
+                ),
+                ReturnCode.Success,
+            ),
+            (
+                NonlinearLeastSquaresProblem(
+                    NonlinearFunction{true}(f_empty; resid_prototype = zeros(3)),
+                    Float64[], [0.0, 1.0, 0.0]
+                ),
+                ReturnCode.Failure,
+            ),
+        )
+        sol = solve(prob, KINSOL())
+        @test sol.retcode == retcode
+        @test isempty(sol.u)
+        @test sol.resid == prob.p
+    end
+end

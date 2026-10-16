@@ -82,6 +82,15 @@ function SciMLBase.__solve(
     else
         error("Problem function must be ODEFunction or NonlinearFunction")
     end
+    # KINSOL dereferences its state vector, so it segfaults on a zero-length problem.
+    if isempty(u0)
+        resid_prototype = prob.f isa NonlinearFunction ? prob.f.resid_prototype : nothing
+        resid = resid_prototype === nothing ? similar(u0) : similar(resid_prototype)
+        f!(resid, u0)
+        retcode = all(r -> abs(r) <= abstol, resid) ? ReturnCode.Success :
+            ReturnCode.Failure
+        return SciMLBase.build_solution(prob, alg, u0, resid; retcode)
+    end
     u = zero(u0)
     resid = similar(u)
     u,
