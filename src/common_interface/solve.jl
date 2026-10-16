@@ -26,6 +26,32 @@ function SciMLBase.__solve(
     return integrator.sol
 end
 
+# KINSOL dereferences its state vector, so a zero-length problem is resolved without it.
+# As in KINSOL, `abstol` bounds the max-norm of the residual and `abstol = 0` selects
+# KINSOL's default tolerance. With no unknowns, an empty least-squares problem is at its
+# minimizer even when the residual is nonzero, while a root-finding problem has failed.
+function _solve_empty_state(prob, alg, u0, p, abstol)
+    t = prob.f isa ODEFunction ? Inf : nothing
+    args = t === nothing ? (p,) : (p, t)
+    resid = if isinplace(prob)
+        rp = prob.f isa NonlinearFunction ? prob.f.resid_prototype : nothing
+        r = rp === nothing ? similar(u0) : similar(rp)
+        prob.f(r, u0, args...)
+        r
+    else
+        prob.f(u0, args...)
+    end
+    tol = iszero(abstol) ? eps(Float64)^(1 // 3) : abstol
+    retcode = if all(r -> abs(r) <= tol, resid)
+        ReturnCode.Success
+    elseif prob isa SciMLBase.NonlinearLeastSquaresProblem && all(isfinite, resid)
+        ReturnCode.StalledSuccess
+    else
+        ReturnCode.Failure
+    end
+    return SciMLBase.build_solution(prob, alg, u0, resid; retcode)
+end
+
 function SciMLBase.__solve(
         prob::Union{
             SciMLBase.AbstractSteadyStateProblem{
@@ -82,6 +108,7 @@ function SciMLBase.__solve(
     else
         error("Problem function must be ODEFunction or NonlinearFunction")
     end
+    isempty(u0) && return _solve_empty_state(prob, alg, u0, p, abstol)
     u = zero(u0)
     resid = similar(u)
     u,
