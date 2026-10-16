@@ -86,6 +86,9 @@ end
     @safetestset "Jacobians" begin
         include("common_interface/jacobians.jl")
     end
+    @safetestset "FixedSizeArrays" begin
+        include("common_interface/fixedsizearrays.jl")
+    end
     # ContinuousCallback interp_points is Int on 32-bit; DiffEqBase range length
     # must be Int64 (OrdinaryDiffEq#4487) or Base._linspace raises InexactError.
     if Sys.WORD_SIZE == 64
