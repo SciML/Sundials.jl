@@ -116,27 +116,28 @@ prob_scalar = NonlinearProblem{false}(f_scalar, u0)
 end
 
 @testset "Zero-length state" begin
-    f_empty(du, u, p) = (du .= p; nothing)
-    for (prob, retcode) in (
-            (NonlinearProblem{true}(f_empty, Float64[], Float64[]), ReturnCode.Success),
-            (
-                NonlinearLeastSquaresProblem(
-                    NonlinearFunction{true}(f_empty; resid_prototype = zeros(3)),
-                    Float64[], zeros(3)
-                ),
-                ReturnCode.Success,
-            ),
-            (
-                NonlinearLeastSquaresProblem(
-                    NonlinearFunction{true}(f_empty; resid_prototype = zeros(3)),
-                    Float64[], [0.0, 1.0, 0.0]
-                ),
-                ReturnCode.Failure,
-            ),
+    f_iip(du, u, p) = (du .= p; nothing)
+    f_oop(u, p) = copy(p)
+    nlls_iip(r) = NonlinearLeastSquaresProblem(
+        NonlinearFunction{true}(f_iip; resid_prototype = zeros(length(r))), Float64[], r
+    )
+    nlls_oop(r) = NonlinearLeastSquaresProblem{false}(f_oop, Float64[], r)
+    @testset "$name" for (name, prob, abstol, retcode) in (
+            ("square in-place", NonlinearProblem{true}(f_iip, Float64[], Float64[]), 1.0e-8, ReturnCode.Success),
+            ("square out-of-place, nonzero", NonlinearProblem{false}(f_oop, Float64[], [1.0]), 1.0e-8, ReturnCode.Failure),
+            ("lsq in-place, zero", nlls_iip(zeros(3)), 1.0e-8, ReturnCode.Success),
+            ("lsq in-place, nonzero", nlls_iip([0.0, 1.0, 0.0]), 1.0e-8, ReturnCode.StalledSuccess),
+            ("lsq out-of-place, singleton nonzero", nlls_oop([1.0]), 1.0e-8, ReturnCode.StalledSuccess),
+            ("lsq out-of-place, zero", nlls_oop(zeros(3)), 1.0e-8, ReturnCode.Success),
+            ("lsq out-of-place, nonzero", nlls_oop([0.0, 2.0, 0.0]), 1.0e-8, ReturnCode.StalledSuccess),
+            ("lsq out-of-place, NaN", nlls_oop([0.0, NaN]), 1.0e-8, ReturnCode.Failure),
+            ("within abstol", nlls_oop([5.0e-7]), 1.0e-6, ReturnCode.Success),
+            ("abstol = 0 uses the default tolerance", NonlinearProblem{false}(f_oop, Float64[], [1.0e-9]), 0.0, ReturnCode.Success),
+            ("abstol = 0, above the default tolerance", NonlinearProblem{false}(f_oop, Float64[], [1.0e-3]), 0.0, ReturnCode.Failure),
         )
-        sol = solve(prob, KINSOL())
+        sol = solve(prob, KINSOL(); abstol)
         @test sol.retcode == retcode
         @test isempty(sol.u)
-        @test sol.resid == prob.p
+        @test isequal(sol.resid, prob.p)
     end
 end
