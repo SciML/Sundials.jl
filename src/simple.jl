@@ -121,7 +121,10 @@ function ___kinsol(
     end
     flag = @checkflag KINSetFuncNormTol(kmem, abstol) true
     flag = @checkflag KINSetLinearSolver(kmem, LS, A) true
-    flag = @checkflag KINSetUserData(kmem, userfun) true
+    # Hand C one heap box and keep it alive: passing an immutable `userfun` as `Any`
+    # boxes a temporary copy that is only rooted for the duration of that ccall.
+    userfun_box = Ref{Any}(userfun)
+    flag = @checkflag KINSetUserData(kmem, userfun_box[]) true
     flag = @checkflag KINSetNumMaxIters(kmem, maxiters) true
     flag = @checkflag KINSetMaxSetupCalls(kmem, maxsetupcalls) true
     ## Solve problem
@@ -135,7 +138,9 @@ function ___kinsol(
         error("Unknown strategy")
     end
     ynv = NVector(y, ctx)
-    flag = @checkflag KINSol(kmem, ynv, strategy, scale_nvec, scale_nvec) true
+    flag = GC.@preserve userfun_box @checkflag KINSol(
+        kmem, ynv, strategy, scale_nvec, scale_nvec
+    ) true
     y = convert(Vector, ynv)
 
     # Clean up context
@@ -317,31 +322,34 @@ function idasol(
     y0nv = NVector(y0, ctx)
     yp0nv = NVector(yp0, ctx)
     flag = @checkflag IDAInit(mem, getcfun(userfun), t[1], y0nv, yp0nv) true
-    flag = @checkflag IDASetUserData(mem, userfun) true
+    userfun_box = Ref{Any}(userfun)
+    flag = @checkflag IDASetUserData(mem, userfun_box[]) true
     flag = @checkflag IDASStolerances(mem, reltol, abstol) true
 
     A = Sundials.SUNDenseMatrix(length(y0), length(y0), ctx)
     LS = Sundials.SUNLinSol_Dense(y0nv, A, ctx)
     flag = Sundials.@checkflag Sundials.IDADlsSetLinearSolver(mem, LS, A) true
 
-    rtest = zeros(length(y0))
-    f(t[1], y0, yp0, rtest)
-    if any(abs.(rtest) .>= reltol)
-        if diffstates === nothing
-            error("Must supply diffstates argument to use IDA initial value solver.")
+    GC.@preserve userfun_box begin
+        rtest = zeros(length(y0))
+        f(t[1], y0, yp0, rtest)
+        if any(abs.(rtest) .>= reltol)
+            if diffstates === nothing
+                error("Must supply diffstates argument to use IDA initial value solver.")
+            end
+            flag = @checkflag IDASetId(mem, collect(Float64, diffstates)) true
+            flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2]) true
         end
-        flag = @checkflag IDASetId(mem, collect(Float64, diffstates)) true
-        flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2]) true
-    end
-    yres[1, :] = y0
-    ypres[1, :] = yp0
-    ynv = NVector(copy(y0), ctx)
-    ypnv = NVector(copy(yp0), ctx)
-    tout = [0.0]
-    for k in 2:length(t)
-        retval = @checkflag IDASolve(mem, t[k], tout, ynv, ypnv, IDA_NORMAL) true
-        yres[k, :] = convert(Vector, ynv)
-        ypres[k, :] = convert(Vector, ypnv)
+        yres[1, :] = y0
+        ypres[1, :] = yp0
+        ynv = NVector(copy(y0), ctx)
+        ypnv = NVector(copy(yp0), ctx)
+        tout = [0.0]
+        for k in 2:length(t)
+            retval = @checkflag IDASolve(mem, t[k], tout, ynv, ypnv, IDA_NORMAL) true
+            yres[k, :] = convert(Vector, ynv)
+            ypres[k, :] = convert(Vector, ypnv)
+        end
     end
 
     Sundials.SUNLinSolFree_Dense(LS)
