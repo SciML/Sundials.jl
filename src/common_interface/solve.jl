@@ -26,6 +26,13 @@ function SciMLBase.__solve(
     return integrator.sol
 end
 
+_resid_prototype(prob) = prob.f isa NonlinearFunction ? prob.f.resid_prototype : nothing
+
+function _is_square(prob)
+    rp = _resid_prototype(prob)
+    return rp === nothing || length(rp) == length(prob.u0)
+end
+
 # KINSOL dereferences its state vector, so a zero-length problem is resolved without it.
 # As in KINSOL, `abstol` bounds the max-norm of the residual and `abstol = 0` selects
 # KINSOL's default tolerance. With no unknowns, an empty least-squares problem is at its
@@ -34,7 +41,7 @@ function _solve_empty_state(prob, alg, u0, p, abstol)
     t = prob.f isa ODEFunction ? Inf : nothing
     args = t === nothing ? (p,) : (p, t)
     resid = if isinplace(prob)
-        rp = prob.f isa NonlinearFunction ? prob.f.resid_prototype : nothing
+        rp = _resid_prototype(prob)
         r = rp === nothing ? similar(u0) : similar(rp)
         prob.f(r, u0, args...)
         r
@@ -109,6 +116,15 @@ function SciMLBase.__solve(
         error("Problem function must be ODEFunction or NonlinearFunction")
     end
     isempty(u0) && return _solve_empty_state(prob, alg, u0, p, abstol)
+    # KINSOL sizes the residual vector like the state, so a longer residual would be
+    # written past the end of it.
+    _is_square(prob) || throw(
+        ArgumentError(
+            "KINSOL only solves square systems, but this problem has $(length(u0)) unknowns " *
+                "and $(length(_resid_prototype(prob))) residuals. Use a nonlinear " *
+                "least-squares solver, such as those in NonlinearSolve.jl."
+        )
+    )
     u = zero(u0)
     resid = similar(u)
     u,
