@@ -10,3 +10,13 @@ end
 
 t = [0.0; 4 * exp10.(range(-1.0; stop = 5.0, length = 7))]
 yout, ypout = Sundials.idasol(resrob, [1.0, 0, 0], [-0.04, 0.04, 0.0], t)
+
+# Inconsistent initial yp0 forces IDACalcIC, which requires `diffstates` (IDASetId).
+using Test
+tdiff = [0.0, 0.5, 1.0]
+ydiff, ypdiff = Sundials.idasol(
+    (t, y, yp, r) -> (r[1] = yp[1] + y[1]; nothing), [1.0], [0.0], tdiff;
+    diffstates = [true]
+)
+@test vec(ydiff) ≈ exp.(-tdiff) rtol = 1.0e-2
+@test vec(ypdiff[2:end]) ≈ -exp.(-tdiff[2:end]) rtol = 1.0e-2
