@@ -67,6 +67,9 @@ end
     @safetestset "Simple interface GC rooting" begin
         include("simple_gc_rooting.jl")
     end
+    @safetestset "Common interface GC rooting" begin
+        include("kinsol_common_interface_gc_rooting.jl")
+    end
 end
 
 @testset "Handle Tests" begin
