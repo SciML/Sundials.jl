@@ -86,3 +86,18 @@ functional_sol = solve(prob, functional_method)
 #test that save_start and save_end are false by default when saveat is set
 sol = solve(prob, ARKODE(), saveat = [0.1, 0.2])
 @test sol.t == [0.1, 0.2]
+
+# Callbacks that modify `u` reinitialize the solver (#575)
+f_decay! = (du, u, p, t) -> (du .= -u; nothing)
+f_half_decay! = (du, u, p, t) -> (du .= -u ./ 2; nothing)
+double_u = DiscreteCallback((u, t, integrator) -> t == 0.5, integrator -> (integrator.u .*= 2; nothing))
+u0 = [1.0, 2.0]
+@testset "callback modifying u: $(nameof(typeof(prob))), $(alg.stiffness)" for (prob, alg) in (
+        (ODEProblem(f_decay!, u0, (0.0, 1.0)), ARKODE()),
+        (ODEProblem(f_decay!, u0, (0.0, 1.0)), ARKODE(Sundials.Explicit())),
+        (SplitODEProblem(f_half_decay!, f_half_decay!, u0, (0.0, 1.0)), ARKODE()),
+    )
+    sol = solve(prob, alg; callback = double_u, tstops = [0.5])
+    @test sol.retcode == ReturnCode.Success
+    @test sol.u[end] ≈ 2 * exp(-1) * u0 rtol = 1.0e-2
+end
