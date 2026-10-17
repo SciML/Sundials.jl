@@ -75,3 +75,23 @@ end
         end
     end
 end
+
+@testset "Overdetermined OverrideInit" begin
+    function resid!(r, u, p)
+        r[1] = u[1] - 1
+        r[2] = 2u[1] - 2
+        r[3] = u[1]^2 - 1
+        return nothing
+    end
+    initprob = NonlinearLeastSquaresProblem(
+        NonlinearFunction{true}(resid!; resid_prototype = zeros(3)), [0.5]
+    )
+    initdata = SciMLBase.OverrideInitData(initprob, nothing, sol -> [sol.u[1]], nothing)
+    f = ODEFunction{true}((du, u, p, t) -> (du[1] = -u[1]; nothing); initialization_data = initdata)
+    prob = ODEProblem(f, [0.0], (0.0, 1.0))
+    @testset "$alg" for alg in [CVODE_BDF, CVODE_Adams, ARKODE]
+        sol = solve(prob, alg())
+        @test SciMLBase.successful_retcode(sol)
+        @test sol.u[1][1] ≈ 1.0 atol = 1.0e-6
+    end
+end
