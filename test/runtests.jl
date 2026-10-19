@@ -64,6 +64,9 @@ end
     @safetestset "Kinsol NonlinearSolve" begin
         include("kinsol_nonlinear_solve.jl")
     end
+    @safetestset "Simple interface GC rooting" begin
+        include("simple_gc_rooting.jl")
+    end
 end
 
 @testset "Handle Tests" begin
