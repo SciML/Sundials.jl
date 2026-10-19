@@ -337,8 +337,11 @@ function idasol(
             if diffstates === nothing
                 error("Must supply diffstates argument to use IDA initial value solver.")
             end
-            flag = @checkflag IDASetId(mem, collect(Float64, diffstates)) true
-            flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2]) true
+            idnv = NVector(Float64.(diffstates), ctx)
+            GC.@preserve idnv begin
+                flag = @checkflag IDASetId(mem, idnv) true
+                flag = @checkflag IDACalcIC(mem, IDA_YA_YDP_INIT, t[2]) true
+            end
         end
         yres[1, :] = y0
         ypres[1, :] = yp0
