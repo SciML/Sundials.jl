@@ -141,3 +141,19 @@ end
         @test isequal(sol.resid, prob.p)
     end
 end
+
+@testset "Non-square least-squares problem" begin
+    ncalls = Ref(0)
+    function f_overdetermined!(r, u, p)
+        ncalls[] += 1
+        r[1] = u[1] - 1
+        r[2] = 2u[1] - 2
+        r[3] = u[1]^2 - 1
+        return nothing
+    end
+    prob = NonlinearLeastSquaresProblem(
+        NonlinearFunction{true}(f_overdetermined!; resid_prototype = zeros(3)), [0.5]
+    )
+    @test_throws ArgumentError solve(prob, KINSOL())
+    @test ncalls[] == 0
+end

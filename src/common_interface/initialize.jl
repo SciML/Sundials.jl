@@ -91,9 +91,21 @@ end
 
 function SciMLBase.initialize_dae!(integrator::AbstractSundialsIntegrator, initalg::SciMLBase.NoInit) end
 
+# KINSOL cannot solve a non-square least-squares initialization. Returning `nothing`
+# lets `get_initial_values` use `OverrideInit(; nlsolve)` or the default solver.
+function _override_init_nlsolve(f)
+    f.initialization_data === nothing && return KINSOL()
+    initprob = f.initialization_data.initializeprob
+    if initprob isa SciMLBase.NonlinearLeastSquaresProblem && initprob.u0 !== nothing &&
+            !isempty(initprob.u0) && !_is_square(initprob)
+        return nothing
+    end
+    return KINSOL()
+end
+
 function SciMLBase.initialize_dae!(integrator::AbstractSundialsIntegrator, initalg::SciMLBase.OverrideInit)
     prob = integrator.sol.prob
-    nlsolve_alg = KINSOL()
+    nlsolve_alg = _override_init_nlsolve(prob.f)
     u0, p, success = SciMLBase.get_initial_values(prob, integrator, prob.f, initalg, Val(isinplace(prob)); nlsolve_alg, abstol = integrator.opts.abstol, reltol = integrator.opts.reltol)
 
     if isinplace(prob)
