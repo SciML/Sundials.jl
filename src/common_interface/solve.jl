@@ -302,7 +302,7 @@ function SciMLBase.__init(
         use_jac_prototype ? prob.f.jac_prototype : nothing,
         alg.prec,
         alg.psetup,
-        u0,
+        user_buffer(u0),
         out
     )
 
@@ -316,8 +316,8 @@ function SciMLBase.__init(
     flag = CVodeSetMinStep(mem, Float64(dtmin))
     flag = CVodeSetMaxStep(mem, Float64(dtmax))
     flag = CVodeSetUserData(mem, userfun)
-    if abstol isa Array
-        abstol_nvec = NVector(abstol, ctx)
+    if abstol isa AbstractArray
+        abstol_nvec = NVector(vec(abstol), ctx)
         flag = CVodeSVtolerances(mem, reltol, abstol_nvec)
     else
         flag = CVodeSStolerances(mem, reltol, abstol)
@@ -727,7 +727,7 @@ function SciMLBase.__init(
             use_jac_prototype ? prob.f.f1.jac_prototype : nothing,
             alg.prec,
             alg.psetup,
-            u0,
+            user_buffer(u0),
             out,
             nothing
         )
@@ -756,7 +756,7 @@ function SciMLBase.__init(
             use_jac_prototype ? prob.f.jac_prototype : nothing,
             alg.prec,
             alg.psetup,
-            u0,
+            user_buffer(u0),
             out
         )
         if alg.stiffness == Explicit()
@@ -787,8 +787,8 @@ function SciMLBase.__init(
         flag = ERKStepSetMinStep(mem, Float64(dtmin))
         flag = ERKStepSetMaxStep(mem, Float64(dtmax))
         flag = ERKStepSetUserData(mem, userfun)
-        if abstol isa Array
-            abstol_nvec = NVector(abstol, ctx)
+        if abstol isa AbstractArray
+            abstol_nvec = NVector(vec(abstol), ctx)
             flag = ERKStepSVtolerances(mem, reltol, abstol_nvec)
         else
             flag = ERKStepSStolerances(mem, reltol, abstol)
@@ -805,8 +805,8 @@ function SciMLBase.__init(
         flag = ARKStepSetMinStep(mem, Float64(dtmin))
         flag = ARKStepSetMaxStep(mem, Float64(dtmax))
         flag = ARKStepSetUserData(mem, userfun)
-        if abstol isa Array
-            abstol_nvec = NVector(abstol, ctx)
+        if abstol isa AbstractArray
+            abstol_nvec = NVector(vec(abstol), ctx)
             flag = ARKStepSVtolerances(mem, reltol, abstol_nvec)
         else
             flag = ARKStepSStolerances(mem, reltol, abstol)
@@ -1311,7 +1311,6 @@ function SciMLBase.__init(
     # vec shares memory
     utmp = NVector(vec(u0), ctx)
     dutmp = NVector(vec(du0), ctx)
-    rtest = zeros(size(u0))
 
     use_jac_prototype = (
         isa(prob.f.jac_prototype, SparseArrays.SparseMatrixCSC) &&
@@ -1325,9 +1324,9 @@ function SciMLBase.__init(
         use_jac_prototype ? prob.f.jac_prototype : nothing,
         alg.prec,
         alg.psetup,
-        u0,
-        du0,
-        rtest
+        user_buffer(u0),
+        user_buffer(du0),
+        user_buffer(u0)
     )
 
     function getcfun(::T) where {T}
@@ -1338,8 +1337,8 @@ function SciMLBase.__init(
     dt !== nothing && (flag = IDASetInitStep(mem, dt))
     flag = IDASetUserData(mem, userfun)
     flag = IDASetMaxStep(mem, dtmax)
-    if abstol isa Array
-        abstol_nvec = NVector(abstol, ctx)
+    if abstol isa AbstractArray
+        abstol_nvec = NVector(vec(abstol), ctx)
         flag = IDASVtolerances(mem, reltol, abstol_nvec)
     else
         flag = IDASStolerances(mem, reltol, abstol)

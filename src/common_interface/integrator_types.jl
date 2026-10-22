@@ -33,7 +33,7 @@ abstract type AbstractSundialsIntegrator{algType} <:
 SciMLBase.AbstractODEIntegrator{algType, true, Vector{Float64}, Float64} end
 
 mutable struct CVODEIntegrator{
-        N,
+        uType,
         pType,
         solType,
         algType,
@@ -46,7 +46,7 @@ mutable struct CVODEIntegrator{
         CallbackCacheType,
         IA,
     } <: AbstractSundialsIntegrator{algType}
-    u::Array{Float64, N}
+    u::uType
     u_nvec::NVector
     p::pType
     t::Float64
@@ -63,8 +63,8 @@ mutable struct CVODEIntegrator{
     tout::Vector{Float64}
     tdir::Float64
     u_modified::Bool
-    tmp::Array{Float64, N}
-    uprev::Array{Float64, N}
+    tmp::uType
+    uprev::uType
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
@@ -103,7 +103,7 @@ function (integrator::CVODEIntegrator)(
 end
 
 mutable struct ARKODEIntegrator{
-        N,
+        uType,
         pType,
         solType,
         algType,
@@ -119,7 +119,7 @@ mutable struct ARKODEIntegrator{
         MemType,
         IA,
     } <: AbstractSundialsIntegrator{ARKODE}
-    u::Array{Float64, N}
+    u::uType
     u_nvec::NVector
     p::pType
     t::Float64
@@ -138,8 +138,8 @@ mutable struct ARKODEIntegrator{
     tout::Vector{Float64}
     tdir::Float64
     u_modified::Bool
-    tmp::Array{Float64, N}
-    uprev::Array{Float64, N}
+    tmp::uType
+    uprev::uType
     flag::Cint
     just_hit_tstop::Bool
     event_last_time::Int
@@ -234,7 +234,8 @@ end
 # runic: on
 
 mutable struct IDAIntegrator{
-        N,
+        uType,
+        duType,
         pType,
         solType,
         algType,
@@ -247,8 +248,8 @@ mutable struct IDAIntegrator{
         CallbackCacheType,
         IA,
     } <: AbstractSundialsIntegrator{IDA}
-    u::Array{Float64, N}
-    du::Array{Float64, N}
+    u::uType
+    du::duType
     p::pType
     t::Float64
     tprev::Float64
@@ -264,8 +265,8 @@ mutable struct IDAIntegrator{
     tout::Vector{Float64}
     tdir::Float64
     u_modified::Bool
-    tmp::Array{Float64, N}
-    uprev::Array{Float64, N}
+    tmp::uType
+    uprev::uType
     flag::Cint
     iter::Int
     just_hit_tstop::Bool
