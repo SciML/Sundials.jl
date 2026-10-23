@@ -25,6 +25,9 @@ const ERKStepMemPtr = Ptr{ERKStepMem}
 struct MRIStepMem <: AbstractSundialsObject end
 const MRIStepMemPtr = Ptr{MRIStepMem}
 
+struct MRIStepInnerStepperMem <: AbstractSundialsObject end
+const MRIStepInnerStepper = Ptr{MRIStepInnerStepperMem}
+
 struct IDAMem <: AbstractSundialsObject end
 const IDAMemPtr = Ptr{IDAMem}
 
@@ -113,6 +116,9 @@ release_handle(h::Handle{CVODEMem}) = _release_handle(CVodeFree, h)
 release_handle(h::Handle{ARKStepMem}) = _release_handle(ARKStepFree, h)
 release_handle(h::Handle{ERKStepMem}) = _release_handle(ERKStepFree, h)
 release_handle(h::Handle{MRIStepMem}) = _release_handle(MRIStepFree, h)
+function release_handle(h::Handle{MRIStepInnerStepperMem})
+    return _release_handle(MRIStepInnerStepper_Free, h)
+end
 release_handle(h::Handle{IDAMem}) = _release_handle(IDAFree, h)
 
 function release_handle(h::MatrixHandle{DenseMatrix})
@@ -252,6 +258,7 @@ const CVODEh = Handle{CVODEMem}
 const ARKSteph = Handle{ARKStepMem}
 const ERKSteph = Handle{ERKStepMem}
 const MRISteph = Handle{MRIStepMem}
+const MRIStepInnerStepperh = Handle{MRIStepInnerStepperMem}
 const KINh = Handle{KINMem}
 const IDAh = Handle{IDAMem}
 
