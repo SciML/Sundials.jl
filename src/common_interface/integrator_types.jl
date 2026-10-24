@@ -147,8 +147,8 @@ mutable struct ARKODEIntegrator{
     callback_cache::CallbackCacheType
     last_event_error::Float64
     initializealg::IA
-    cfj1::Ptr{Cvoid}
-    cfj2::Ptr{Cvoid}
+    cfj1::Ptr{Cvoid} # implicit RHS for ARKStep, RHS for ERKStep
+    cfj2::Ptr{Cvoid} # explicit RHS for ARKStep (C_NULL if none)
     ctx_handle::ContextHandle
 end
 
