@@ -149,7 +149,7 @@ function handle_callback_modifiers!(
     }
     return ARKStepReInit(
         integrator.mem, integrator.cfj2, integrator.cfj1,
-        integrator.t, integrator.u
+        integrator.t, integrator.u_nvec
     )
 end
 
@@ -176,7 +176,7 @@ function handle_callback_modifiers!(
         LStype, Atype, MLStype, Mtype, CallbackCacheType,
     }
     # ERKStepReInit only takes one function (explicit RHS)
-    return ERKStepReInit(integrator.mem, integrator.userfun.fun, integrator.t, integrator.u)
+    return ERKStepReInit(integrator.mem, integrator.cfj1, integrator.t, integrator.u_nvec)
 end
 
 """
