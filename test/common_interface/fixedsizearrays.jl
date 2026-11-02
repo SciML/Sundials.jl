@@ -67,9 +67,8 @@ end
     GC.gc(true)
     @test nv_tmp == [4.0, 5.0, 6.0]
 
-    # The package extension wraps N_Vector data without copying (using internal API)
-    @test isdefined(FixedSizeArrays, :new_fixed_size_array)
-    wrapped = Sundials.unsafe_wrap_nvector(similar(fsa), nv.n_v)
+    # The package extension wraps N_Vector data without copying
+    wrapped = @inferred Sundials.unsafe_wrap_nvector(similar(fsa), nv.n_v)
     @test wrapped isa typeof(fsa)
     @test pointer(wrapped) == pointer(fsa)
 end
