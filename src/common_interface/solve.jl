@@ -398,6 +398,7 @@ function SciMLBase.__init(
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
         NLS = SUNNonlinSol_Newton(utmp, ctx)
+        _NLS = NonLinSolHandle(NLS, Newton())
         CVodeSetNonlinearSolver(mem, NLS)
     else
         _A = nothing
@@ -405,6 +406,7 @@ function SciMLBase.__init(
         # TODO: Anderson Acceleration
         anderson_m = Cint(0)
         NLS = SUNNonlinSol_FixedPoint(utmp, anderson_m, ctx)
+        _NLS = NonLinSolHandle(NLS, FixedPoint())
         CVodeSetNonlinearSolver(mem, NLS)
     end
 
@@ -546,6 +548,7 @@ function SciMLBase.__init(
         mem,
         _LS,
         _A,
+        _NLS,
         sol,
         alg,
         f!,
@@ -858,6 +861,7 @@ function SciMLBase.__init(
     LS = SUNLinearSolver(C_NULL)
     _A = nothing
     _LS = nothing
+    _NLS = nothing
     M = SUNMatrix(C_NULL)
     MLS = SUNLinearSolver(C_NULL)
     _M = nothing
@@ -919,6 +923,7 @@ function SciMLBase.__init(
         flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     elseif Method == :Functional && alg.stiffness !== Explicit()
         NLS = SUNNonlinSol_FixedPoint(utmp, Cint(alg.krylov_dim), ctx)
+        _NLS = NonLinSolHandle(NLS, FixedPoint())
         flag = ARKStepSetNonlinearSolver(mem, NLS)
     end
 
@@ -1140,6 +1145,7 @@ function SciMLBase.__init(
         _A,
         _MLS,
         _M,
+        _NLS,
         sol,
         alg,
         f!,
@@ -1783,6 +1789,12 @@ function get_iters!(integrator::IDAIntegrator, iters)
     return IDAGetNumSteps(integrator.mem, iters)
 end
 
+free_nonlinear_solver!(::AbstractSundialsIntegrator) = nothing
+function free_nonlinear_solver!(integrator::Union{CVODEIntegrator, ARKODEIntegrator})
+    integrator.NLS !== nothing && empty!(integrator.NLS)
+    return nothing
+end
+
 function DiffEqBase.solve!(
         integrator::AbstractSundialsIntegrator; early_free = false,
         calculate_error = false
@@ -1856,6 +1868,7 @@ function DiffEqBase.solve!(
         empty!(integrator.mem)
         integrator.A !== nothing && empty!(integrator.A)
         integrator.LS !== nothing && empty!(integrator.LS)
+        free_nonlinear_solver!(integrator)
     end
 
     if SciMLBase.has_analytic(integrator.sol.prob.f) && calculate_error
