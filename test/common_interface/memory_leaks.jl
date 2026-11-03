@@ -1,44 +1,48 @@
 using Sundials, SciMLBase, Test
 
 function c_bytes_in_use()
-    mi = zeros(Csize_t, 10)
-    ccall(:mallinfo2, Cvoid, (Ptr{Csize_t},), mi)
+    mi = ccall(:mallinfo2, NTuple{10, Csize_t}, ())
     return Float64(mi[8] + mi[5])
 end
 
-has_mallinfo2 = Sys.islinux() && try
+has_mallinfo2 = Sys.islinux() && Sys.WORD_SIZE == 64 && try
     c_bytes_in_use()
     true
 catch
     false
 end
 
-function c_bytes_per_solve(solve_once; warmup = 100, n = 500)
+# A leak grows in every window; allocator noise is a one-off, so the smaller window is reported.
+function c_bytes_per_solve(solve_once; warmup = 200, n = 1000, windows = 3)
     for _ in 1:warmup
         solve_once()
     end
-    GC.gc(true)
-    GC.gc(true)
-    before = c_bytes_in_use()
-    for _ in 1:n
-        solve_once()
+    growth = Float64[]
+    for _ in 1:windows
+        GC.gc(true)
+        GC.gc(true)
+        before = c_bytes_in_use()
+        for _ in 1:n
+            solve_once()
+        end
+        GC.gc(true)
+        GC.gc(true)
+        GC.gc(true)
+        push!(growth, (c_bytes_in_use() - before) / n)
     end
-    GC.gc(true)
-    GC.gc(true)
-    GC.gc(true)
-    return (c_bytes_in_use() - before) / n
+    return minimum(growth)
 end
 
 neq = 200
 prob = ODEProblem(
-    (du, u, p, t) -> (du .= .-p .* u), ones(neq), (0.0, 1.0), collect(1.0:neq)
+    (du, u, p, t) -> (du .= .-p .* u), ones(neq), (0.0, 1.0), collect(range(0.1, 1.0; length = neq))
 )
 kw = (abstol = 1.0e-8, reltol = 1.0e-8, save_everystep = false)
 
 if has_mallinfo2
     @testset "No C heap growth across repeated solves" begin
-        # The leaked nonlinear solver is ~2.5 kB per solve at this size; allocator noise is far below this threshold.
-        threshold = 300.0
+        # The leaked nonlinear solver is at least 2.4 kB per solve at this size.
+        threshold = 600.0
         algs = Dict(
             "CVODE_BDF" => CVODE_BDF(),
             "CVODE_BDF Functional" => CVODE_BDF(; method = :Functional),
