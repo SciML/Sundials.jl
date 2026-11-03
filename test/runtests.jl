@@ -117,6 +117,9 @@ end
     @safetestset "Verbosity" begin
         include("common_interface/verbosity.jl")
     end
+    @safetestset "Memory Leaks" begin
+        include("common_interface/memory_leaks.jl")
+    end
     @safetestset "Symbolic Interpolation" begin
         include("common_interface/symbolic_interpolation.jl")
     end
