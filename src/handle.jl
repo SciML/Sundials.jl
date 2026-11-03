@@ -70,18 +70,18 @@ mutable struct LinSolHandle{T <: SundialsLinearSolver} <: SundialsHandle
     end
 end
 
-mutable struct NonLinSolHandle{T <: SundialsNonLinearSolver} <: SundialsHandle
+mutable struct NonLinSolHandle <: SundialsHandle
     ptr::SUNNonlinearSolver
     destroyed::Bool
-    function NonLinSolHandle(
-            ptr::SUNNonlinearSolver,
-            M::T
-        ) where {T <: SundialsNonLinearSolver}
-        h = new{T}(ptr, false)
+    function NonLinSolHandle(ptr::SUNNonlinearSolver)
+        h = new(ptr, ptr == C_NULL)
         finalizer(release_handle, h)
         return h
     end
 end
+
+NonLinSolHandle() = NonLinSolHandle(SUNNonlinearSolver(C_NULL))
+NonLinSolHandle(ptr::SUNNonlinearSolver, ::SundialsNonLinearSolver) = NonLinSolHandle(ptr)
 
 """ 
     Base.cconvert(::Type{Ptr{T}}, h::Handle{T}) -> h
@@ -217,17 +217,9 @@ function release_handle(h::LinSolHandle{LapackDense})
     return nothing
 end
 
-function release_handle(h::NonLinSolHandle{FixedPoint})
+function release_handle(h::NonLinSolHandle)
     if !isempty(h)
-        Sundials.SUNNonlinSolFree_FixedPoint(h.ptr)
-        h.destroyed = true
-    end
-    return nothing
-end
-
-function release_handle(h::NonLinSolHandle{Newton})
-    if !isempty(h)
-        Sundials.SUNNonlinSolFree_Newton(h.ptr)
+        Sundials.SUNNonlinSolFree(h.ptr)
         h.destroyed = true
     end
     return nothing

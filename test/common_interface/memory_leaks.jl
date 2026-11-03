@@ -74,7 +74,9 @@ end
     end
 
     integrator = init(prob, ARKODE(); kw...)
-    @test integrator.NLS === nothing
+    @test isconcretetype(fieldtype(typeof(integrator), :NLS))
+    @test integrator.NLS.ptr == C_NULL
+    @test isempty(integrator.NLS)
     solve!(integrator; early_free = true)
     @test isempty(integrator.mem)
 end

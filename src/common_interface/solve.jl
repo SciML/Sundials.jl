@@ -398,7 +398,7 @@ function SciMLBase.__init(
             flag = CVodeSetLinearSolver(mem, LS, _A === nothing ? C_NULL : A)
         end
         NLS = SUNNonlinSol_Newton(utmp, ctx)
-        _NLS = NonLinSolHandle(NLS, Newton())
+        _NLS = NonLinSolHandle(NLS)
         CVodeSetNonlinearSolver(mem, NLS)
     else
         _A = nothing
@@ -406,7 +406,7 @@ function SciMLBase.__init(
         # TODO: Anderson Acceleration
         anderson_m = Cint(0)
         NLS = SUNNonlinSol_FixedPoint(utmp, anderson_m, ctx)
-        _NLS = NonLinSolHandle(NLS, FixedPoint())
+        _NLS = NonLinSolHandle(NLS)
         CVodeSetNonlinearSolver(mem, NLS)
     end
 
@@ -861,7 +861,7 @@ function SciMLBase.__init(
     LS = SUNLinearSolver(C_NULL)
     _A = nothing
     _LS = nothing
-    _NLS = nothing
+    _NLS = NonLinSolHandle()
     M = SUNMatrix(C_NULL)
     MLS = SUNLinearSolver(C_NULL)
     _M = nothing
@@ -923,7 +923,7 @@ function SciMLBase.__init(
         flag = ARKStepSetMaxNonlinIters(mem, alg.max_nonlinear_iters)
     elseif Method == :Functional && alg.stiffness !== Explicit()
         NLS = SUNNonlinSol_FixedPoint(utmp, Cint(alg.krylov_dim), ctx)
-        _NLS = NonLinSolHandle(NLS, FixedPoint())
+        _NLS = NonLinSolHandle(NLS)
         flag = ARKStepSetNonlinearSolver(mem, NLS)
     end
 
@@ -1791,7 +1791,7 @@ end
 
 free_nonlinear_solver!(::AbstractSundialsIntegrator) = nothing
 function free_nonlinear_solver!(integrator::Union{CVODEIntegrator, ARKODEIntegrator})
-    integrator.NLS !== nothing && empty!(integrator.NLS)
+    empty!(integrator.NLS)
     return nothing
 end
 

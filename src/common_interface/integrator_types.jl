@@ -54,7 +54,7 @@ mutable struct CVODEIntegrator{
     mem::Handle{CVODEMem}
     LS::LStype
     A::Atype
-    NLS::Union{Nothing, NonLinSolHandle}
+    NLS::NonLinSolHandle
     sol::solType
     alg::algType
     f::fType
@@ -130,7 +130,7 @@ mutable struct ARKODEIntegrator{
     A::Atype
     MLS::MLStype
     M::Mtype
-    NLS::Union{Nothing, NonLinSolHandle}
+    NLS::NonLinSolHandle
     sol::solType
     alg::algType
     f::fType
