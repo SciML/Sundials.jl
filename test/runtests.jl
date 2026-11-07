@@ -48,7 +48,12 @@ end
     @safetestset "NonLinear ERKStep Direct" begin
         include("erkstep_nonlin.jl")
     end
-    #@testset "MRI two way couple" begin include("mri_twowaycouple.jl") end
+    @safetestset "MRI two way couple" begin
+        include("mri_twowaycouple.jl")
+    end
+    @safetestset "MRI ERKStep inner stepper" begin
+        include("mri_erk_inner_stepper.jl")
+    end
 end
 
 @testset "Kinsol" begin
